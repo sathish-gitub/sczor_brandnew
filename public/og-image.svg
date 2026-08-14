@@ -1,0 +1,14 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="sczor">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <g fill="#ffffff">
+    <text x="120" y="280" font-size="96" font-family="Inter, Arial, sans-serif" font-weight="700">sczor</text>
+    <text x="120" y="360" font-size="38" font-family="Inter, Arial, sans-serif" opacity="0.9">Salon management software</text>
+    <text x="120" y="420" font-size="30" font-family="Inter, Arial, sans-serif" opacity="0.75">Appointments, Billing, Loyalty, Reports</text>
+  </g>
+</svg>

@@ -1,0 +1,407 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Tenant {
+  id           String          @id @default(cuid())
+  name         String
+  tagline      String?
+  slug         String          @unique
+  logo         String?
+  website      String?
+  address      String?
+  city         String?
+  state        String?
+  pincode      String?
+  phone        String?
+  email        String?
+  gstNumber    String?
+  openTime     String          @default("09:00")
+  closeTime    String          @default("21:00")
+  workingDays  String[]        @default(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
+  plan         Plan            @default(FREE)
+  isActive     Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  users        User[]
+  customers    Customer[]
+  services     Service[]
+  staff        Staff[]
+  appointments Appointment[]
+  invoices     Invoice[]
+  attendances  Attendance[]
+  holidays     Holiday[]
+  settings     SalonSettings?
+  loyaltyCards LoyaltyCard[]
+  waitlist     WaitlistInterest[]
+
+  @@index([isActive])
+  @@index([plan])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  mobile    String
+  photo     String?
+  password  String
+  role      Role     @default(STAFF)
+  isActive  Boolean  @default(true)
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([email, tenantId])
+  @@index([tenantId])
+  @@index([tenantId, role])
+}
+
+model Customer {
+  id           String        @id @default(cuid())
+  name         String
+  mobile       String
+  email        String?
+  gender       Gender?
+  dateOfBirth  DateTime?
+  notes        String?
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+  invoices     Invoice[]
+  loyaltyCard  LoyaltyCard?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@unique([mobile, tenantId])
+  @@index([tenantId])
+  @@index([tenantId, name])
+}
+
+model Service {
+  id           String        @id @default(cuid())
+  name         String
+  category     String
+  price        Decimal       @db.Decimal(10, 2)
+  duration     Int
+  description  String?
+  status       Status        @default(ACTIVE)
+  tenantId     String
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  appointments Appointment[]
+  invoiceItems InvoiceItem[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, category])
+  @@index([tenantId, status])
+}
+
+model Staff {
+  id                 String        @id @default(cuid())
+  name               String
+  designation        String
+  mobile             String?
+  email              String?
+  workingDays        String[]      @default(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
+  status             Status        @default(ACTIVE)
+  availabilityStatus Availability  @default(AVAILABLE)
+  tenantId           String
+  tenant             Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  appointments       Appointment[]
+  attendances        Attendance[]
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, availabilityStatus])
+}
+
+model Appointment {
+  id              String            @id @default(cuid())
+  appointmentNumber String?
+  appointmentDate DateTime
+  appointmentTime String
+  duration        Int               @default(30)
+  status          AppointmentStatus @default(BOOKED)
+  notes           String?
+  customerId      String
+  customer        Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  serviceId       String
+  service         Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  staffId         String
+  staff           Staff             @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  tenantId        String
+  tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invoice         Invoice?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([tenantId])
+  @@index([appointmentDate])
+  @@index([tenantId, appointmentDate])
+  @@index([staffId, appointmentDate])
+  @@index([customerId, appointmentDate])
+  @@index([serviceId])
+  @@index([status])
+  @@unique([tenantId, appointmentNumber])
+}
+
+model Invoice {
+  id            String              @id @default(cuid())
+  invoiceNumber String
+  invoiceDate   DateTime            @default(now())
+  subtotal      Decimal             @db.Decimal(10, 2)
+  taxRate       Decimal             @default(18) @db.Decimal(5, 2)
+  taxAmount     Decimal             @db.Decimal(10, 2)
+  discount      Decimal             @default(0) @db.Decimal(10, 2)
+  total         Decimal             @db.Decimal(10, 2)
+  paymentMethod PaymentMethod       @default(CASH)
+  paymentStatus PaymentStatus       @default(PAID)
+  customerId    String
+  customer      Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  appointmentId String?             @unique
+  appointment   Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  tenantId      String
+  tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  items         InvoiceItem[]
+  loyaltyTxns   LoyaltyTransaction[]
+  createdAt     DateTime            @default(now())
+
+  @@unique([invoiceNumber, tenantId])
+  @@index([tenantId])
+  @@index([tenantId, invoiceDate])
+  @@index([customerId])
+  @@index([paymentStatus])
+}
+
+model InvoiceItem {
+  id        String   @id @default(cuid())
+  name      String
+  price     Decimal  @db.Decimal(10, 2)
+  quantity  Int      @default(1)
+  amount    Decimal  @db.Decimal(10, 2)
+  invoiceId String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  @@index([invoiceId])
+  @@index([serviceId])
+}
+
+model LoyaltyCard {
+  id             String               @id @default(cuid())
+  totalPoints    Int                  @default(0)
+  pointsRedeemed Int                  @default(0)
+  totalSpent     Decimal              @default(0) @db.Decimal(10, 2)
+  tier           LoyaltyTier          @default(BRONZE)
+  customerId     String               @unique
+  customer       Customer             @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tenantId       String
+  tenant         Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  transactions   LoyaltyTransaction[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  @@index([tenantId])
+  @@index([tenantId, tier])
+}
+
+model LoyaltyTransaction {
+  id            String       @id @default(cuid())
+  points        Int
+  type          LoyaltyType
+  description   String?
+  invoiceId     String?
+  invoice       Invoice?     @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  loyaltyCardId String
+  loyaltyCard   LoyaltyCard  @relation(fields: [loyaltyCardId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+
+  @@index([loyaltyCardId])
+  @@index([invoiceId])
+  @@index([type])
+}
+
+model Attendance {
+  id        String           @id @default(cuid())
+  date      DateTime
+  status    AttendanceStatus @default(PRESENT)
+  staffId   String
+  staff     Staff            @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  tenantId  String
+  tenant    Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime         @default(now())
+
+  @@unique([staffId, date])
+  @@index([tenantId])
+  @@index([tenantId, date])
+}
+
+model SalonSettings {
+  id                    String   @id @default(cuid())
+  tenantId              String   @unique
+  tenant                Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  onboardingStep1Done   Boolean  @default(false)
+  loyaltyPointsPerRupee Decimal  @default(0.1) @db.Decimal(5, 2)
+  rupeePerPoint         Decimal  @default(1) @db.Decimal(5, 2)
+  minPointsToRedeem     Int      @default(100)
+  maxRedeemPercent      Decimal  @default(50) @db.Decimal(5, 2)
+  pointsExpiryEnabled   Boolean  @default(false)
+  pointsExpiryMonths    Int      @default(12)
+  silverThreshold       Int      @default(500)
+  goldThreshold         Int      @default(2000)
+  platinumThreshold     Int      @default(5000)
+  slotDurationMinutes   Int      @default(30)
+  mondayEnabled         Boolean  @default(true)
+  mondayOpen            String   @default("09:00")
+  mondayClose           String   @default("21:00")
+  mondayBreak           String?
+  tuesdayEnabled        Boolean  @default(true)
+  tuesdayOpen           String   @default("09:00")
+  tuesdayClose          String   @default("21:00")
+  tuesdayBreak          String?
+  wednesdayEnabled      Boolean  @default(true)
+  wednesdayOpen         String   @default("09:00")
+  wednesdayClose        String   @default("21:00")
+  wednesdayBreak        String?
+  thursdayEnabled       Boolean  @default(true)
+  thursdayOpen          String   @default("09:00")
+  thursdayClose         String   @default("21:00")
+  thursdayBreak         String?
+  fridayEnabled         Boolean  @default(true)
+  fridayOpen            String   @default("09:00")
+  fridayClose           String   @default("21:00")
+  fridayBreak           String?
+  saturdayEnabled       Boolean  @default(true)
+  saturdayOpen          String   @default("09:00")
+  saturdayClose         String   @default("21:00")
+  saturdayBreak         String?
+  sundayEnabled         Boolean  @default(false)
+  sundayOpen            String   @default("09:00")
+  sundayClose           String   @default("21:00")
+  sundayBreak           String?
+  gstEnabled            Boolean  @default(true)
+  gstRate               Decimal  @default(18) @db.Decimal(5, 2)
+  currency              String   @default("INR")
+  currencySymbol        String   @default("₹")
+  invoicePrefix         String   @default("INV")
+  invoiceNumberFormat   String   @default("INV-YYYY-XXXX")
+  invoiceStartNumber    Int      @default(1)
+  invoiceFooter         String?
+  invoiceTerms          String?
+  cashEnabled           Boolean  @default(true)
+  upiEnabled            Boolean  @default(true)
+  cardEnabled           Boolean  @default(true)
+  walletEnabled         Boolean  @default(true)
+  upiId                 String?
+  smsEnabled            Boolean  @default(false)
+  whatsappEnabled       Boolean  @default(false)
+  emailEnabled          Boolean  @default(false)
+}
+
+model Holiday {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  date      DateTime
+  name      String
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, date])
+  @@unique([tenantId, date])
+}
+
+model WaitlistInterest {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email     String
+  plan      Plan
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([plan])
+  @@unique([tenantId, email, plan])
+}
+
+enum Plan {
+  FREE
+  BASIC
+  PRO
+}
+
+enum Role {
+  OWNER
+  MANAGER
+  STAFF
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+enum Availability {
+  AVAILABLE
+  BUSY
+  OFF_DUTY
+}
+
+enum AppointmentStatus {
+  BOOKED
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  BILLED
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  CARD
+  WALLET
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum LoyaltyTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum LoyaltyType {
+  EARNED
+  REDEEMED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LEAVE
+  HALF_DAY
+}

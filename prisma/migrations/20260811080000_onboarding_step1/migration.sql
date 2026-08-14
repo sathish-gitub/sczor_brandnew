@@ -1,0 +1,2 @@
+ALTER TABLE "SalonSettings"
+ADD COLUMN IF NOT EXISTS "onboardingStep1Done" BOOLEAN NOT NULL DEFAULT false;
