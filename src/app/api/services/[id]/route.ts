@@ -121,7 +121,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
         tenantId,
         serviceId: id,
         status: {
-          in: ["BOOKED", "CONFIRMED", "IN_PROGRESS"],
+          in: ["BOOKED", "IN_PROGRESS"],
         },
       },
     });

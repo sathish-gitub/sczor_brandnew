@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 
 type AttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY";
 
@@ -73,33 +74,42 @@ export async function POST(request: Request) {
     const filtered = payload.attendances.filter((item) => validSet.has(item.staffId));
 
     await prisma.$transaction(
-      filtered.flatMap((item) => [
-        prisma.attendance.upsert({
-          where: {
-            staffId_date: {
+      filtered.flatMap((item) => {
+        const operations: Prisma.PrismaPromise<unknown>[] = [
+          prisma.attendance.upsert({
+            where: {
+              staffId_date: {
+                staffId: item.staffId,
+                date,
+              },
+            },
+            update: {
+              status: item.status,
+            },
+            create: {
+              tenantId: session.user.tenantId,
               staffId: item.staffId,
               date,
+              status: item.status,
             },
-          },
-          update: {
-            status: item.status,
-          },
-          create: {
-            tenantId: session.user.tenantId,
-            staffId: item.staffId,
-            date,
-            status: item.status,
-          },
-        }),
-        prisma.staff.update({
-          where: {
-            id: item.staffId,
-          },
-          data: {
-            availabilityStatus: availabilityFromStatus(item.status),
-          },
-        }),
-      ]),
+          }),
+        ];
+
+        if (date.getTime() === today.getTime()) {
+          operations.push(
+            prisma.staff.update({
+              where: {
+                id: item.staffId,
+              },
+              data: {
+                availabilityStatus: availabilityFromStatus(item.status),
+              },
+            }),
+          );
+        }
+
+        return operations;
+      }),
     );
 
     return NextResponse.json({

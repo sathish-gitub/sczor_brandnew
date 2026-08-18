@@ -4,14 +4,17 @@ import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { calculateLoyaltyTier } from "@/lib/utils";
 
 const itemSchema = z.object({
   serviceId: z.string().cuid(),
   quantity: z.number().int().min(1).max(50),
+  staffId: z.string().cuid().optional(),
 });
 
 const payloadSchema = z.object({
   customerId: z.string().cuid(),
+  appointmentId: z.string().cuid().optional(),
   paymentMethod: z.enum(["CASH", "UPI", "CARD"]),
   items: z.array(itemSchema).min(1, "At least one item is required."),
   discountType: z.enum(["PERCENT", "FLAT"]).default("FLAT"),
@@ -78,6 +81,9 @@ export async function POST(request: Request) {
         select: {
           invoicePrefix: true,
           gstRate: true,
+          silverThreshold: true,
+          goldThreshold: true,
+          platinumThreshold: true,
         },
       }),
       prisma.customer.findFirst({
@@ -124,6 +130,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "One or more services are unavailable." }, { status: 400 });
     }
 
+    const requestedStaffIds = [
+      ...new Set(payload.items.map((item) => item.staffId).filter((value): value is string => Boolean(value))),
+    ];
+
+    const validStaff = requestedStaffIds.length
+      ? await prisma.staff.findMany({
+          where: { tenantId: session.user.tenantId, id: { in: requestedStaffIds } },
+          select: { id: true },
+        })
+      : [];
+
+    const validStaffIds = new Set(validStaff.map((member) => member.id));
+
+    if (requestedStaffIds.some((id) => !validStaffIds.has(id))) {
+      return NextResponse.json({ error: "One or more staff members are invalid." }, { status: 400 });
+    }
+
     const normalizedItems = payload.items.map((item) => {
       const service = serviceMap.get(item.serviceId)!;
       const unitPrice = Number(service.price);
@@ -131,6 +154,7 @@ export async function POST(request: Request) {
 
       return {
         serviceId: item.serviceId,
+        staffId: item.staffId && validStaffIds.has(item.staffId) ? item.staffId : null,
         name: service.name,
         quantity: item.quantity,
         unitPrice,
@@ -164,6 +188,13 @@ export async function POST(request: Request) {
     const invoicePrefix = settings?.invoicePrefix ?? "INV";
     const invoiceNumber = await nextInvoiceNumber(session.user.tenantId, invoicePrefix);
 
+    const linkedAppointment = payload.appointmentId
+      ? await prisma.appointment.findFirst({
+          where: { id: payload.appointmentId, tenantId: session.user.tenantId, invoice: null },
+          select: { id: true },
+        })
+      : null;
+
     const created = await prisma.$transaction(async (tx) => {
       const invoice = await tx.invoice.create({
         data: {
@@ -177,6 +208,8 @@ export async function POST(request: Request) {
           total,
           paymentMethod: payload.paymentMethod,
           paymentStatus: "PAID",
+          appointmentId: linkedAppointment?.id ?? null,
+          staffId: normalizedItems.find((item) => item.staffId)?.staffId ?? null,
           items: {
             create: normalizedItems.map((item) => ({
               name: item.name,
@@ -184,6 +217,7 @@ export async function POST(request: Request) {
               quantity: item.quantity,
               amount: item.amount,
               serviceId: item.serviceId,
+              staffId: item.staffId,
             })),
           },
         },
@@ -237,6 +271,11 @@ export async function POST(request: Request) {
         },
         data: {
           totalPoints: totalPointsAfter,
+          tier: calculateLoyaltyTier(totalPointsAfter, {
+            silverThreshold: settings?.silverThreshold ?? 500,
+            goldThreshold: settings?.goldThreshold ?? 2000,
+            platinumThreshold: settings?.platinumThreshold ?? 5000,
+          }),
           pointsRedeemed: {
             increment: loyaltyDiscount,
           },
@@ -253,6 +292,13 @@ export async function POST(request: Request) {
         totalPointsAfter,
       };
     });
+
+    if (linkedAppointment) {
+      await prisma.appointment.update({
+        where: { id: linkedAppointment.id },
+        data: { status: "BILLED" },
+      });
+    }
 
     return NextResponse.json({
       success: true,

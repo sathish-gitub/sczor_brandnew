@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { PaymentSummary } from "@/components/billing/PaymentSummary";
-import { POSCart, type POSCartItem } from "@/components/billing/POSCart";
+import { POSCart, type POSCartItem, type POSStaffOption } from "@/components/billing/POSCart";
 
 type ServiceItem = {
   id: string;
@@ -59,8 +60,11 @@ function toastId() {
 }
 
 export default function BillingPage() {
+  const searchParams = useSearchParams();
+  const appointmentId = searchParams.get("appointmentId");
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loadingServices, setLoadingServices] = useState(true);
+  const [staffOptions, setStaffOptions] = useState<POSStaffOption[]>([]);
 
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("ALL");
@@ -81,6 +85,7 @@ export default function BillingPage() {
 
   const [processingPayment, setProcessingPayment] = useState(false);
   const [success, setSuccess] = useState<CheckoutSuccess | null>(null);
+  const [linkedAppointmentId, setLinkedAppointmentId] = useState<string | null>(null);
 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
@@ -120,6 +125,89 @@ export default function BillingPage() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadStaff() {
+      const response = await fetch("/api/staff?status=ACTIVE", { cache: "no-store" });
+      const payload = (await response.json().catch(() => null)) as
+        | { items?: Array<{ id: string; name: string }> }
+        | null;
+
+      if (!active || !response.ok) {
+        return;
+      }
+
+      setStaffOptions((payload?.items ?? []).map((item) => ({ id: item.id, name: item.name })));
+    }
+
+    loadStaff();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!appointmentId) {
+      return;
+    }
+
+    let active = true;
+
+    async function loadAppointment() {
+      const response = await fetch(`/api/appointments/${appointmentId}`, { cache: "no-store" });
+      const payload = (await response.json().catch(() => null)) as
+        | {
+            appointment?: {
+              id: string;
+              customer: { id: string; name: string; mobile: string };
+              service: { id: string; name: string; price: string | number; duration: number };
+              staff: { id: string; name: string };
+              invoice?: { id: string } | null;
+            };
+          }
+        | null;
+
+      if (!active || !response.ok || !payload?.appointment) {
+        return;
+      }
+
+      const appointment = payload.appointment;
+
+      if (appointment.invoice) {
+        pushToast("error", "This appointment is already billed.");
+        return;
+      }
+
+      setLinkedAppointmentId(appointment.id);
+      setMobileInput(appointment.customer.mobile);
+      setCustomer({
+        id: appointment.customer.id,
+        name: appointment.customer.name,
+        mobile: appointment.customer.mobile,
+        loyalty: { totalPoints: 0 },
+      });
+      setCart([
+        {
+          serviceId: appointment.service.id,
+          name: appointment.service.name,
+          duration: appointment.service.duration,
+          price: Number(appointment.service.price),
+          quantity: 1,
+          staffId: appointment.staff.id,
+          staffName: appointment.staff.name,
+        },
+      ]);
+    }
+
+    loadAppointment();
+
+    return () => {
+      active = false;
+    };
+  }, [appointmentId]);
 
   useEffect(() => {
     if (!/^\d{10}$/.test(mobileInput)) {
@@ -192,6 +280,8 @@ export default function BillingPage() {
             duration: service.duration,
             price: service.price,
             quantity: 1,
+            staffId: "",
+            staffName: "",
           },
         ];
       }
@@ -224,6 +314,14 @@ export default function BillingPage() {
 
   function removeFromCart(serviceId: string) {
     setCart((current) => current.filter((item) => item.serviceId !== serviceId));
+  }
+
+  function updateCartStaff(serviceId: string, staffId: string) {
+    const staffName = staffOptions.find((option) => option.id === staffId)?.name ?? "";
+
+    setCart((current) =>
+      current.map((item) => (item.serviceId === serviceId ? { ...item, staffId, staffName } : item)),
+    );
   }
 
   async function quickAddCustomer() {
@@ -318,10 +416,12 @@ export default function BillingPage() {
       },
       body: JSON.stringify({
         customerId: customer.id,
+        appointmentId: linkedAppointmentId ?? undefined,
         paymentMethod,
         items: cart.map((item) => ({
           serviceId: item.serviceId,
           quantity: item.quantity,
+          staffId: item.staffId || undefined,
         })),
         discountType,
         discountValue,
@@ -365,6 +465,7 @@ export default function BillingPage() {
     setCart([]);
     setMobileInput("");
     setCustomer(null);
+    setLinkedAppointmentId(null);
     setCustomerNotFound(false);
     setQuickName("");
     setDiscountType("FLAT");
@@ -559,9 +660,11 @@ export default function BillingPage() {
 
           <POSCart
             items={cart}
+            staffOptions={staffOptions}
             onIncrease={(serviceId) => updateQuantity(serviceId, 1)}
             onDecrease={(serviceId) => updateQuantity(serviceId, -1)}
             onRemove={removeFromCart}
+            onStaffChange={updateCartStaff}
           />
 
           <PaymentSummary

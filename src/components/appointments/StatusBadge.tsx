@@ -1,6 +1,5 @@
 type AppointmentStatus =
   | "BOOKED"
-  | "CONFIRMED"
   | "IN_PROGRESS"
   | "COMPLETED"
   | "CANCELLED"
@@ -14,10 +13,6 @@ const styles: Record<AppointmentStatus, { label: string; className: string }> = 
   BOOKED: {
     label: "Booked",
     className: "bg-[#DBEAFE] text-[#1E40AF]",
-  },
-  CONFIRMED: {
-    label: "Confirmed",
-    className: "bg-[#E0E7FF] text-[#4338CA]",
   },
   IN_PROGRESS: {
     label: "In Progress",

@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
+import { DEFAULT_SERVICE_CATEGORIES } from "@/lib/utils";
 
 const registerSchema = z.object({
   salonName: z.string().trim().min(2, "Salon name is required."),
@@ -17,39 +18,33 @@ const registerSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters."),
 });
 
-function slugify(value: string) {
-  const slug = value
+function buildTenantSlug(salonName: string) {
+  const base = salonName
     .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "")
-    .slice(0, 48);
+    .replace(/[^a-z0-9]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 40);
 
-  return slug || "salon";
-}
-
-async function resolveTenantSlug(salonName: string) {
-  const baseSlug = slugify(salonName);
-  let suffix = 0;
-
-  while (true) {
-    const slug = suffix === 0 ? baseSlug : `${baseSlug}-${suffix + 1}`;
-    const existingTenant = await prisma.tenant.findUnique({
-      where: { slug },
-      select: { id: true },
-    });
-
-    if (!existingTenant) {
-      return slug;
-    }
-
-    suffix += 1;
-  }
+  return `${base || "salon"}-${Date.now()}`;
 }
 
 export async function POST(request: Request) {
+  let body: unknown;
+
   try {
-    const body = await request.json();
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+
+  try {
+    const raw = (body ?? {}) as Record<string, unknown>;
+
+    if (!raw.salonName || !raw.name || !raw.email || !raw.mobile || !raw.password) {
+      return NextResponse.json({ error: "All fields are required." }, { status: 400 });
+    }
+
     const result = registerSchema.safeParse(body);
 
     if (!result.success) {
@@ -75,7 +70,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const slug = await resolveTenantSlug(salonName);
+    const slug = buildTenantSlug(salonName);
     const passwordHash = await hash(password, 12);
 
     const tenant = await prisma.$transaction(async (tx) => {
@@ -109,6 +104,14 @@ export async function POST(request: Request) {
         },
       });
 
+      await tx.serviceCategory.createMany({
+        data: DEFAULT_SERVICE_CATEGORIES.map((categoryName) => ({
+          name: categoryName,
+          tenantId: createdTenant.id,
+        })),
+        skipDuplicates: true,
+      });
+
       return createdTenant;
     });
 
@@ -121,10 +124,27 @@ export async function POST(request: Request) {
       { status: 201 },
     );
   } catch (error) {
-    console.error("Registration failed", error);
+    const prismaError = error as { message?: string; code?: string; meta?: unknown };
+
+    console.error("Registration error full:", error);
+    console.error("Error message:", prismaError.message);
+    console.error("Error code:", prismaError.code);
+    console.error("Error meta:", prismaError.meta);
+
+    if (prismaError.code === "P2002") {
+      return NextResponse.json(
+        { error: "An account already exists with this email." },
+        { status: 409 },
+      );
+    }
 
     return NextResponse.json(
-      { error: "Unable to create your salon account right now." },
+      {
+        error: "Unable to create account. Please try again.",
+        ...(process.env.NODE_ENV !== "production"
+          ? { debug: { message: prismaError.message, code: prismaError.code } }
+          : {}),
+      },
       { status: 500 },
     );
   }

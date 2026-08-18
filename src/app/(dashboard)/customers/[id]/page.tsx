@@ -35,7 +35,7 @@ type CustomerProfilePayload = {
       id: string;
       appointmentDate: string;
       appointmentTime: string;
-      status: "BOOKED" | "CONFIRMED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "BILLED";
+      status: "BOOKED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "BILLED";
       service: { name: string };
       staff: { name: string };
       invoice?: { total: number } | null;
@@ -102,6 +102,11 @@ export default function CustomerProfilePage() {
 
   const [activeTab, setActiveTab] = useState<TabKey>("appointments");
   const [profile, setProfile] = useState<CustomerProfilePayload["customer"] | null>(null);
+  const [thresholds, setThresholds] = useState({
+    silverThreshold: 500,
+    goldThreshold: 2000,
+    platinumThreshold: 5000,
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notesDraft, setNotesDraft] = useState("");
@@ -119,7 +124,15 @@ export default function CustomerProfilePage() {
           cache: "no-store",
         });
 
-        const payload = (await response.json()) as { error?: string; customer?: CustomerProfilePayload["customer"] };
+        const payload = (await response.json()) as {
+          error?: string;
+          customer?: CustomerProfilePayload["customer"];
+          thresholds?: {
+            silverThreshold: number;
+            goldThreshold: number;
+            platinumThreshold: number;
+          };
+        };
 
         if (!response.ok || !payload.customer) {
           throw new Error(payload.error ?? "Unable to load customer profile.");
@@ -131,6 +144,10 @@ export default function CustomerProfilePage() {
 
         setProfile(payload.customer);
         setNotesDraft(payload.customer.notes ?? "");
+
+        if (payload.thresholds) {
+          setThresholds(payload.thresholds);
+        }
       } catch (loadError) {
         if (!active) {
           return;
@@ -256,6 +273,7 @@ export default function CustomerProfilePage() {
       <LoyaltyCard
         tier={loyaltyTier}
         totalPoints={profile.loyaltyCard?.totalPoints ?? 0}
+        thresholds={thresholds}
         transactions={(profile.loyaltyCard?.transactions ?? []).map((txn) => ({
           ...txn,
           createdAt: txn.createdAt,

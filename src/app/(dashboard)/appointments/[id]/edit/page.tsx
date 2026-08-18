@@ -6,6 +6,8 @@ import { AppointmentForm } from "@/components/appointments/AppointmentForm";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 function dateInputValue(date: Date) {
   const year = date.getFullYear();
   const month = `${date.getMonth() + 1}`.padStart(2, "0");
@@ -50,6 +52,10 @@ export default async function EditAppointmentPage({ params }: { params: Promise<
 
   if (!appointment) {
     notFound();
+  }
+
+  if (appointment.status === "BILLED" || appointment.status === "CANCELLED") {
+    redirect(`/appointments/${appointment.id}`);
   }
 
   return (

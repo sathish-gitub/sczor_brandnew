@@ -29,6 +29,7 @@ type Row = {
   designation: string;
   appointments: number;
   revenue: number;
+  invoices: number;
   avgInvoice: number;
   attendancePercent: number;
   presentDays: number;
@@ -125,6 +126,7 @@ export default function StaffReportPage() {
               { key: "name", label: "Staff", sortable: true, render: (row) => row.name, sortValue: (row) => row.name },
               { key: "appointments", label: "Appointments", sortable: true, render: (row) => row.appointments, sortValue: (row) => row.appointments },
               { key: "revenue", label: "Revenue", sortable: true, render: (row) => formatCurrency(row.revenue), sortValue: (row) => row.revenue },
+              { key: "invoices", label: "Invoices", sortable: true, render: (row) => row.invoices, sortValue: (row) => row.invoices },
               { key: "avgInvoice", label: "Avg Invoice", sortable: true, render: (row) => formatCurrency(row.avgInvoice), sortValue: (row) => row.avgInvoice },
               { key: "attendance", label: "Attendance %", sortable: true, render: (row) => `${row.attendancePercent}%`, sortValue: (row) => row.attendancePercent },
               { key: "present", label: "Present", sortable: true, render: (row) => row.presentDays, sortValue: (row) => row.presentDays },

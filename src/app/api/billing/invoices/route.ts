@@ -49,13 +49,16 @@ export async function GET(request: Request) {
   const page = Math.max(1, Number(url.searchParams.get("page") ?? "1"));
   const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? "20")));
   const search = url.searchParams.get("search")?.trim() ?? "";
-  const status = url.searchParams.get("status")?.trim();
+  const paymentMethod = url.searchParams.get("paymentMethod")?.trim();
   const from = parseDateParam(url.searchParams.get("from"), false);
   const to = parseDateParam(url.searchParams.get("to"), true);
 
   const where = {
     tenantId: session.user.tenantId,
-    paymentStatus: status && status !== "ALL" ? (status as "PENDING" | "PAID" | "CANCELLED" | "REFUNDED") : undefined,
+    paymentMethod:
+      paymentMethod && paymentMethod !== "ALL"
+        ? (paymentMethod as "CASH" | "UPI" | "CARD" | "WALLET")
+        : undefined,
     invoiceDate:
       from || to
         ? {

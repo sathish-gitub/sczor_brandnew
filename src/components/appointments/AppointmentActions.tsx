@@ -7,7 +7,6 @@ import { LoaderCircle } from "lucide-react";
 
 type AppointmentStatus =
   | "BOOKED"
-  | "CONFIRMED"
   | "IN_PROGRESS"
   | "COMPLETED"
   | "CANCELLED"
@@ -64,17 +63,21 @@ export function AppointmentActions({ appointmentId, status }: AppointmentActions
     await updateStatus("CANCELLED");
   }
 
+  const isLocked = currentStatus === "BILLED" || currentStatus === "CANCELLED";
+
   return (
     <div className="space-y-3">
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
 
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <Link
-          href={`/appointments/${appointmentId}/edit`}
-          className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-[var(--foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
-        >
-          Edit
-        </Link>
+        {!isLocked ? (
+          <Link
+            href={`/appointments/${appointmentId}/edit`}
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-[var(--foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          >
+            Edit
+          </Link>
+        ) : null}
 
         <label className="inline-flex h-10 items-center gap-2 rounded-xl border border-[var(--border)] px-3 text-sm">
           <span className="text-[var(--muted)]">Change Status</span>
@@ -85,7 +88,6 @@ export function AppointmentActions({ appointmentId, status }: AppointmentActions
             className="bg-transparent font-semibold text-[var(--foreground)] outline-none"
           >
             <option value="BOOKED">Booked</option>
-            <option value="CONFIRMED">Confirmed</option>
             <option value="IN_PROGRESS">In Progress</option>
             <option value="COMPLETED">Completed</option>
             <option value="BILLED">Billed</option>
@@ -93,17 +95,19 @@ export function AppointmentActions({ appointmentId, status }: AppointmentActions
           </select>
         </label>
 
-        <Link
-          href={`/billing?appointmentId=${appointmentId}`}
-          className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
-        >
-          Convert to Invoice
-        </Link>
+        {!isLocked ? (
+          <Link
+            href={`/billing?appointmentId=${appointmentId}`}
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
+          >
+            Convert to Invoice
+          </Link>
+        ) : null}
 
         <button
           type="button"
           onClick={cancelAppointment}
-          disabled={loading || currentStatus === "CANCELLED"}
+          disabled={loading || isLocked}
           className="inline-flex h-10 items-center justify-center rounded-xl border border-red-300 px-4 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : "Cancel"}

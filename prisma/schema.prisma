@@ -39,6 +39,7 @@ model Tenant {
   settings     SalonSettings?
   loyaltyCards LoyaltyCard[]
   waitlist     WaitlistInterest[]
+  serviceCategories ServiceCategory[]
 
   @@index([isActive])
   @@index([plan])
@@ -117,6 +118,8 @@ model Staff {
   tenant             Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   appointments       Appointment[]
   attendances        Attendance[]
+  invoices           Invoice[]
+  invoiceItems       InvoiceItem[]
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
@@ -170,6 +173,8 @@ model Invoice {
   customer      Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
   appointmentId String?             @unique
   appointment   Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  staffId       String?
+  staff         Staff?              @relation(fields: [staffId], references: [id], onDelete: SetNull)
   tenantId      String
   tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   items         InvoiceItem[]
@@ -181,6 +186,8 @@ model Invoice {
   @@index([tenantId, invoiceDate])
   @@index([customerId])
   @@index([paymentStatus])
+  @@index([staffId])
+  @@index([tenantId, paymentMethod])
 }
 
 model InvoiceItem {
@@ -193,9 +200,23 @@ model InvoiceItem {
   invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   serviceId String?
   service   Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  staffId   String?
+  staff     Staff?   @relation(fields: [staffId], references: [id], onDelete: SetNull)
 
   @@index([invoiceId])
   @@index([serviceId])
+  @@index([staffId])
+}
+
+model ServiceCategory {
+  id        String   @id @default(cuid())
+  name      String
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([name, tenantId])
+  @@index([tenantId])
 }
 
 model LoyaltyCard {
@@ -366,11 +387,10 @@ enum Availability {
 
 enum AppointmentStatus {
   BOOKED
-  CONFIRMED
   IN_PROGRESS
   COMPLETED
-  CANCELLED
   BILLED
+  CANCELLED
 }
 
 enum PaymentMethod {

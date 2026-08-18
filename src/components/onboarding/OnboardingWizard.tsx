@@ -59,6 +59,13 @@ type StaffRow = {
   mobile: string;
 };
 
+type StaffSaveResult = {
+  index: number;
+  name: string;
+  success: boolean;
+  error?: string;
+};
+
 type OnboardingWizardProps = {
   initialProfile: InitialProfile;
 };
@@ -97,6 +104,7 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
   );
   const [serviceCount, setServiceCount] = useState(0);
   const [staffCount, setStaffCount] = useState(0);
+  const [staffResults, setStaffResults] = useState<StaffSaveResult[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -283,13 +291,21 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
             body: JSON.stringify({ staff: payload }),
           });
 
+          const body = (await response.json().catch(() => null)) as
+            | { error?: string; count?: number; results?: StaffSaveResult[] }
+            | null;
+
+          setStaffResults(body?.results ?? []);
+
           if (!response.ok) {
-            const body = (await response.json().catch(() => null)) as { error?: string } | null;
             setErrorMessage(body?.error ?? "Unable to save staff.");
             return;
           }
 
-          setStaffCount(payload.length);
+          setStaffCount(body?.count ?? payload.length);
+        } else {
+          setStaffResults([]);
+          setStaffCount(0);
         }
 
         updateCompleted(3);
@@ -317,6 +333,7 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
 
     if (currentStep === 3) {
       setStaffCount(0);
+      setStaffResults([]);
       updateCompleted(3);
       updateCompleted(4);
       setCurrentStep(4);
@@ -651,7 +668,10 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
         </div>
 
         <div className="grid gap-5 lg:grid-cols-2">
-          {staff.map((member, index) => (
+          {staff.map((member, index) => {
+            const result = staffResults.find((item) => item.index === index);
+
+            return (
             <div key={member.id} className="rounded-3xl border border-[var(--border)] bg-white p-5 shadow-sm">
               <div className="mb-5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -729,8 +749,22 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
                   />
                 </div>
               </div>
+
+              {result ? (
+                <p
+                  className={[
+                    "mt-4 rounded-2xl px-4 py-2 text-sm",
+                    result.success
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-red-50 text-red-700",
+                  ].join(" ")}
+                >
+                  {result.success ? "Saved" : result.error ?? "Could not save."}
+                </p>
+              ) : null}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );

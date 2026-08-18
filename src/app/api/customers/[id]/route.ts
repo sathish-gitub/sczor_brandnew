@@ -106,12 +106,22 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const totalVisits = customer.appointments.length;
   const totalSpent = Number(customer.loyaltyCard?.totalSpent ?? 0);
 
+  const settings = await prisma.salonSettings.findUnique({
+    where: { tenantId },
+    select: { silverThreshold: true, goldThreshold: true, platinumThreshold: true },
+  });
+
   return NextResponse.json({
     customer: {
       ...customer,
       totalVisits,
       totalSpent,
       loyaltyPoints: customer.loyaltyCard?.totalPoints ?? 0,
+    },
+    thresholds: {
+      silverThreshold: settings?.silverThreshold ?? 500,
+      goldThreshold: settings?.goldThreshold ?? 2000,
+      platinumThreshold: settings?.platinumThreshold ?? 5000,
     },
   });
 }
@@ -212,7 +222,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
         tenantId,
         customerId: id,
         status: {
-          in: ["BOOKED", "CONFIRMED", "IN_PROGRESS"],
+          in: ["BOOKED", "IN_PROGRESS"],
         },
       },
     });

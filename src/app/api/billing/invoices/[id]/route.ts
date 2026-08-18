@@ -39,6 +39,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
                 id: true,
               },
             },
+            staff: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
         loyaltyTxns: {
@@ -56,6 +62,21 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Invoice not found." }, { status: 404 });
     }
 
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: session.user.tenantId },
+      select: {
+        name: true,
+        logo: true,
+        address: true,
+        city: true,
+        state: true,
+        pincode: true,
+        phone: true,
+        email: true,
+        gstNumber: true,
+      },
+    });
+
     const loyaltyDiscount = invoice.loyaltyTxns
       .filter((item) => item.type === "REDEEMED")
       .reduce((sum, item) => sum + item.points, 0);
@@ -65,6 +86,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       .reduce((sum, item) => sum + item.points, 0);
 
     return NextResponse.json({
+      tenant,
       invoice: {
         id: invoice.id,
         invoiceNumber: invoice.invoiceNumber,
@@ -90,6 +112,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
           quantity: item.quantity,
           amount: Number(item.amount),
           serviceId: item.serviceId,
+          staffId: item.staffId,
+          staffName: item.staff?.name ?? null,
         })),
         pointsEarned,
       },

@@ -55,11 +55,10 @@ export type Availability = (typeof Availability)[keyof typeof Availability]
 
 export const AppointmentStatus = {
   BOOKED: 'BOOKED',
-  CONFIRMED: 'CONFIRMED',
   IN_PROGRESS: 'IN_PROGRESS',
   COMPLETED: 'COMPLETED',
-  CANCELLED: 'CANCELLED',
-  BILLED: 'BILLED'
+  BILLED: 'BILLED',
+  CANCELLED: 'CANCELLED'
 } as const
 
 export type AppointmentStatus = (typeof AppointmentStatus)[keyof typeof AppointmentStatus]

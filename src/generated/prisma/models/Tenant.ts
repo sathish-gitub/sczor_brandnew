@@ -309,6 +309,7 @@ export type TenantWhereInput = {
   settings?: Prisma.XOR<Prisma.SalonSettingsNullableScalarRelationFilter, Prisma.SalonSettingsWhereInput> | null
   loyaltyCards?: Prisma.LoyaltyCardListRelationFilter
   waitlist?: Prisma.WaitlistInterestListRelationFilter
+  serviceCategories?: Prisma.ServiceCategoryListRelationFilter
 }
 
 export type TenantOrderByWithRelationInput = {
@@ -343,6 +344,7 @@ export type TenantOrderByWithRelationInput = {
   settings?: Prisma.SalonSettingsOrderByWithRelationInput
   loyaltyCards?: Prisma.LoyaltyCardOrderByRelationAggregateInput
   waitlist?: Prisma.WaitlistInterestOrderByRelationAggregateInput
+  serviceCategories?: Prisma.ServiceCategoryOrderByRelationAggregateInput
 }
 
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -380,6 +382,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   settings?: Prisma.XOR<Prisma.SalonSettingsNullableScalarRelationFilter, Prisma.SalonSettingsWhereInput> | null
   loyaltyCards?: Prisma.LoyaltyCardListRelationFilter
   waitlist?: Prisma.WaitlistInterestListRelationFilter
+  serviceCategories?: Prisma.ServiceCategoryListRelationFilter
 }, "id" | "slug">
 
 export type TenantOrderByWithAggregationInput = {
@@ -466,6 +469,7 @@ export type TenantCreateInput = {
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateInput = {
@@ -500,6 +504,7 @@ export type TenantUncheckedCreateInput = {
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUpdateInput = {
@@ -534,6 +539,7 @@ export type TenantUpdateInput = {
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateInput = {
@@ -568,6 +574,7 @@ export type TenantUncheckedUpdateInput = {
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateManyInput = {
@@ -832,6 +839,20 @@ export type TenantUpdateOneRequiredWithoutInvoicesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutInvoicesInput, Prisma.TenantUpdateWithoutInvoicesInput>, Prisma.TenantUncheckedUpdateWithoutInvoicesInput>
 }
 
+export type TenantCreateNestedOneWithoutServiceCategoriesInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutServiceCategoriesInput, Prisma.TenantUncheckedCreateWithoutServiceCategoriesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutServiceCategoriesInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutServiceCategoriesNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutServiceCategoriesInput, Prisma.TenantUncheckedCreateWithoutServiceCategoriesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutServiceCategoriesInput
+  upsert?: Prisma.TenantUpsertWithoutServiceCategoriesInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutServiceCategoriesInput, Prisma.TenantUpdateWithoutServiceCategoriesInput>, Prisma.TenantUncheckedUpdateWithoutServiceCategoriesInput>
+}
+
 export type TenantCreateNestedOneWithoutLoyaltyCardsInput = {
   create?: Prisma.XOR<Prisma.TenantCreateWithoutLoyaltyCardsInput, Prisma.TenantUncheckedCreateWithoutLoyaltyCardsInput>
   connectOrCreate?: Prisma.TenantCreateOrConnectWithoutLoyaltyCardsInput
@@ -933,6 +954,7 @@ export type TenantCreateWithoutUsersInput = {
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutUsersInput = {
@@ -966,6 +988,7 @@ export type TenantUncheckedCreateWithoutUsersInput = {
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutUsersInput = {
@@ -1015,6 +1038,7 @@ export type TenantUpdateWithoutUsersInput = {
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutUsersInput = {
@@ -1048,6 +1072,7 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutCustomersInput = {
@@ -1081,6 +1106,7 @@ export type TenantCreateWithoutCustomersInput = {
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutCustomersInput = {
@@ -1114,6 +1140,7 @@ export type TenantUncheckedCreateWithoutCustomersInput = {
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutCustomersInput = {
@@ -1163,6 +1190,7 @@ export type TenantUpdateWithoutCustomersInput = {
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutCustomersInput = {
@@ -1196,6 +1224,7 @@ export type TenantUncheckedUpdateWithoutCustomersInput = {
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutServicesInput = {
@@ -1229,6 +1258,7 @@ export type TenantCreateWithoutServicesInput = {
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutServicesInput = {
@@ -1262,6 +1292,7 @@ export type TenantUncheckedCreateWithoutServicesInput = {
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutServicesInput = {
@@ -1311,6 +1342,7 @@ export type TenantUpdateWithoutServicesInput = {
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutServicesInput = {
@@ -1344,6 +1376,7 @@ export type TenantUncheckedUpdateWithoutServicesInput = {
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutStaffInput = {
@@ -1377,6 +1410,7 @@ export type TenantCreateWithoutStaffInput = {
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutStaffInput = {
@@ -1410,6 +1444,7 @@ export type TenantUncheckedCreateWithoutStaffInput = {
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutStaffInput = {
@@ -1459,6 +1494,7 @@ export type TenantUpdateWithoutStaffInput = {
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutStaffInput = {
@@ -1492,6 +1528,7 @@ export type TenantUncheckedUpdateWithoutStaffInput = {
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutAppointmentsInput = {
@@ -1525,6 +1562,7 @@ export type TenantCreateWithoutAppointmentsInput = {
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAppointmentsInput = {
@@ -1558,6 +1596,7 @@ export type TenantUncheckedCreateWithoutAppointmentsInput = {
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAppointmentsInput = {
@@ -1607,6 +1646,7 @@ export type TenantUpdateWithoutAppointmentsInput = {
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAppointmentsInput = {
@@ -1640,6 +1680,7 @@ export type TenantUncheckedUpdateWithoutAppointmentsInput = {
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutInvoicesInput = {
@@ -1673,6 +1714,7 @@ export type TenantCreateWithoutInvoicesInput = {
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutInvoicesInput = {
@@ -1706,6 +1748,7 @@ export type TenantUncheckedCreateWithoutInvoicesInput = {
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutInvoicesInput = {
@@ -1755,6 +1798,7 @@ export type TenantUpdateWithoutInvoicesInput = {
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutInvoicesInput = {
@@ -1783,6 +1827,159 @@ export type TenantUncheckedUpdateWithoutInvoicesInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
+  holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
+  settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
+  waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutServiceCategoriesInput = {
+  id?: string
+  name: string
+  tagline?: string | null
+  slug: string
+  logo?: string | null
+  website?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  pincode?: string | null
+  phone?: string | null
+  email?: string | null
+  gstNumber?: string | null
+  openTime?: string
+  closeTime?: string
+  workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
+  plan?: $Enums.Plan
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutTenantInput
+  services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
+  staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
+  holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
+  settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
+  loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
+  waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutServiceCategoriesInput = {
+  id?: string
+  name: string
+  tagline?: string | null
+  slug: string
+  logo?: string | null
+  website?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  pincode?: string | null
+  phone?: string | null
+  email?: string | null
+  gstNumber?: string | null
+  openTime?: string
+  closeTime?: string
+  workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
+  plan?: $Enums.Plan
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutTenantInput
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
+  staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
+  holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
+  settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
+  loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
+  waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutServiceCategoriesInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutServiceCategoriesInput, Prisma.TenantUncheckedCreateWithoutServiceCategoriesInput>
+}
+
+export type TenantUpsertWithoutServiceCategoriesInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutServiceCategoriesInput, Prisma.TenantUncheckedUpdateWithoutServiceCategoriesInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutServiceCategoriesInput, Prisma.TenantUncheckedCreateWithoutServiceCategoriesInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutServiceCategoriesInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutServiceCategoriesInput, Prisma.TenantUncheckedUpdateWithoutServiceCategoriesInput>
+}
+
+export type TenantUpdateWithoutServiceCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openTime?: Prisma.StringFieldUpdateOperationsInput | string
+  closeTime?: Prisma.StringFieldUpdateOperationsInput | string
+  workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutTenantNestedInput
+  services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
+  staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
+  holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
+  settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
+  loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
+  waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutServiceCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openTime?: Prisma.StringFieldUpdateOperationsInput | string
+  closeTime?: Prisma.StringFieldUpdateOperationsInput | string
+  workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutTenantNestedInput
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
+  staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
@@ -1821,6 +2018,7 @@ export type TenantCreateWithoutLoyaltyCardsInput = {
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutLoyaltyCardsInput = {
@@ -1854,6 +2052,7 @@ export type TenantUncheckedCreateWithoutLoyaltyCardsInput = {
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutLoyaltyCardsInput = {
@@ -1903,6 +2102,7 @@ export type TenantUpdateWithoutLoyaltyCardsInput = {
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutLoyaltyCardsInput = {
@@ -1936,6 +2136,7 @@ export type TenantUncheckedUpdateWithoutLoyaltyCardsInput = {
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutAttendancesInput = {
@@ -1969,6 +2170,7 @@ export type TenantCreateWithoutAttendancesInput = {
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAttendancesInput = {
@@ -2002,6 +2204,7 @@ export type TenantUncheckedCreateWithoutAttendancesInput = {
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAttendancesInput = {
@@ -2051,6 +2254,7 @@ export type TenantUpdateWithoutAttendancesInput = {
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAttendancesInput = {
@@ -2084,6 +2288,7 @@ export type TenantUncheckedUpdateWithoutAttendancesInput = {
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutSettingsInput = {
@@ -2117,6 +2322,7 @@ export type TenantCreateWithoutSettingsInput = {
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutSettingsInput = {
@@ -2150,6 +2356,7 @@ export type TenantUncheckedCreateWithoutSettingsInput = {
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutSettingsInput = {
@@ -2199,6 +2406,7 @@ export type TenantUpdateWithoutSettingsInput = {
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutSettingsInput = {
@@ -2232,6 +2440,7 @@ export type TenantUncheckedUpdateWithoutSettingsInput = {
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutHolidaysInput = {
@@ -2265,6 +2474,7 @@ export type TenantCreateWithoutHolidaysInput = {
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutHolidaysInput = {
@@ -2298,6 +2508,7 @@ export type TenantUncheckedCreateWithoutHolidaysInput = {
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutHolidaysInput = {
@@ -2347,6 +2558,7 @@ export type TenantUpdateWithoutHolidaysInput = {
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutHolidaysInput = {
@@ -2380,6 +2592,7 @@ export type TenantUncheckedUpdateWithoutHolidaysInput = {
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutWaitlistInput = {
@@ -2413,6 +2626,7 @@ export type TenantCreateWithoutWaitlistInput = {
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutWaitlistInput = {
@@ -2446,6 +2660,7 @@ export type TenantUncheckedCreateWithoutWaitlistInput = {
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutWaitlistInput = {
@@ -2495,6 +2710,7 @@ export type TenantUpdateWithoutWaitlistInput = {
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutWaitlistInput = {
@@ -2528,6 +2744,7 @@ export type TenantUncheckedUpdateWithoutWaitlistInput = {
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 
@@ -2546,6 +2763,7 @@ export type TenantCountOutputType = {
   holidays: number
   loyaltyCards: number
   waitlist: number
+  serviceCategories: number
 }
 
 export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2559,6 +2777,7 @@ export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   holidays?: boolean | TenantCountOutputTypeCountHolidaysArgs
   loyaltyCards?: boolean | TenantCountOutputTypeCountLoyaltyCardsArgs
   waitlist?: boolean | TenantCountOutputTypeCountWaitlistArgs
+  serviceCategories?: boolean | TenantCountOutputTypeCountServiceCategoriesArgs
 }
 
 /**
@@ -2641,6 +2860,13 @@ export type TenantCountOutputTypeCountWaitlistArgs<ExtArgs extends runtime.Types
   where?: Prisma.WaitlistInterestWhereInput
 }
 
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountServiceCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ServiceCategoryWhereInput
+}
+
 
 export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2674,6 +2900,7 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   settings?: boolean | Prisma.Tenant$settingsArgs<ExtArgs>
   loyaltyCards?: boolean | Prisma.Tenant$loyaltyCardsArgs<ExtArgs>
   waitlist?: boolean | Prisma.Tenant$waitlistArgs<ExtArgs>
+  serviceCategories?: boolean | Prisma.Tenant$serviceCategoriesArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
 
@@ -2759,6 +2986,7 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   settings?: boolean | Prisma.Tenant$settingsArgs<ExtArgs>
   loyaltyCards?: boolean | Prisma.Tenant$loyaltyCardsArgs<ExtArgs>
   waitlist?: boolean | Prisma.Tenant$waitlistArgs<ExtArgs>
+  serviceCategories?: boolean | Prisma.Tenant$serviceCategoriesArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TenantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2778,6 +3006,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     settings: Prisma.$SalonSettingsPayload<ExtArgs> | null
     loyaltyCards: Prisma.$LoyaltyCardPayload<ExtArgs>[]
     waitlist: Prisma.$WaitlistInterestPayload<ExtArgs>[]
+    serviceCategories: Prisma.$ServiceCategoryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3205,6 +3434,7 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   settings<T extends Prisma.Tenant$settingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$settingsArgs<ExtArgs>>): Prisma.Prisma__SalonSettingsClient<runtime.Types.Result.GetResult<Prisma.$SalonSettingsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   loyaltyCards<T extends Prisma.Tenant$loyaltyCardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$loyaltyCardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LoyaltyCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   waitlist<T extends Prisma.Tenant$waitlistArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$waitlistArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WaitlistInterestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  serviceCategories<T extends Prisma.Tenant$serviceCategoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$serviceCategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3903,6 +4133,30 @@ export type Tenant$waitlistArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.WaitlistInterestScalarFieldEnum | Prisma.WaitlistInterestScalarFieldEnum[]
+}
+
+/**
+ * Tenant.serviceCategories
+ */
+export type Tenant$serviceCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ServiceCategory
+   */
+  select?: Prisma.ServiceCategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ServiceCategory
+   */
+  omit?: Prisma.ServiceCategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceCategoryInclude<ExtArgs> | null
+  where?: Prisma.ServiceCategoryWhereInput
+  orderBy?: Prisma.ServiceCategoryOrderByWithRelationInput | Prisma.ServiceCategoryOrderByWithRelationInput[]
+  cursor?: Prisma.ServiceCategoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ServiceCategoryScalarFieldEnum | Prisma.ServiceCategoryScalarFieldEnum[]
 }
 
 /**

@@ -50,10 +50,17 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
+const paymentStatusBadge: Record<InvoiceRow["paymentStatus"], string> = {
+  PAID: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  REFUNDED: "border-orange-200 bg-orange-50 text-orange-700",
+  CANCELLED: "border-red-200 bg-red-50 text-red-700",
+  PENDING: "border-amber-200 bg-amber-50 text-amber-700",
+};
+
 export default function InvoicesPage() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [status, setStatus] = useState("ALL");
+  const [paymentMethod, setPaymentMethod] = useState("ALL");
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -81,7 +88,7 @@ export default function InvoicesPage() {
       const params = new URLSearchParams({
         page: String(page),
         limit: "20",
-        status,
+        paymentMethod,
       });
 
       if (query) {
@@ -118,7 +125,7 @@ export default function InvoicesPage() {
     return () => {
       active = false;
     };
-  }, [page, status, query, fromDate, toDate]);
+  }, [page, paymentMethod, query, fromDate, toDate]);
 
   function exportCsv() {
     if (!payload || payload.items.length === 0) {
@@ -238,18 +245,17 @@ export default function InvoicesPage() {
             className="h-10 rounded-xl border border-[var(--border)] px-3 text-sm"
           />
           <select
-            value={status}
+            value={paymentMethod}
             onChange={(event) => {
-              setStatus(event.target.value);
+              setPaymentMethod(event.target.value);
               setPage(1);
             }}
             className="h-10 rounded-xl border border-[var(--border)] px-3 text-sm"
           >
-            <option value="ALL">All Statuses</option>
-            <option value="PAID">PAID</option>
-            <option value="PENDING">PENDING</option>
-            <option value="CANCELLED">CANCELLED</option>
-            <option value="REFUNDED">REFUNDED</option>
+            <option value="ALL">All Payment Modes</option>
+            <option value="CASH">Cash</option>
+            <option value="UPI">UPI</option>
+            <option value="CARD">Card</option>
           </select>
           <input
             value={search}
@@ -299,7 +305,16 @@ export default function InvoicesPage() {
                   <td className="px-3 py-2">-{formatCurrency(item.discount + item.loyaltyDiscount)}</td>
                   <td className="px-3 py-2 font-semibold">{formatCurrency(item.total)}</td>
                   <td className="px-3 py-2">{item.paymentMethod}</td>
-                  <td className="px-3 py-2">{item.paymentStatus}</td>
+                  <td className="px-3 py-2">
+                    <span
+                      className={[
+                        "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-semibold",
+                        paymentStatusBadge[item.paymentStatus],
+                      ].join(" ")}
+                    >
+                      {item.paymentStatus}
+                    </span>
+                  </td>
                   <td className="px-3 py-2">
                     <div className="flex gap-1">
                       <Link href={`/billing/invoices/${item.id}`} className="rounded-md border border-[var(--border)] px-2 py-1 text-xs font-semibold text-slate-700">

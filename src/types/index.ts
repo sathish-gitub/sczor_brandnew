@@ -1,6 +1,6 @@
 export type UserRole = "OWNER" | "MANAGER" | "STAFF";
 export type Status = "ACTIVE" | "INACTIVE";
-export type AppointmentStatus = "BOOKED" | "CONFIRMED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "BILLED";
+export type AppointmentStatus = "BOOKED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "BILLED";
 export type PaymentMethod = "CASH" | "UPI" | "CARD" | "WALLET";
 export type LoyaltyTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 

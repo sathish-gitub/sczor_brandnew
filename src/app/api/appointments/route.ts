@@ -8,7 +8,6 @@ import { prisma } from "@/lib/prisma";
 
 const appointmentStatusValues = [
   "BOOKED",
-  "CONFIRMED",
   "IN_PROGRESS",
   "COMPLETED",
   "CANCELLED",
@@ -33,6 +32,13 @@ const appointmentPayloadSchema = z.object({
 
 function parseDateOnly(value: string) {
   return new Date(`${value}T00:00:00`);
+}
+
+function noStore(payload: unknown, status = 200) {
+  return NextResponse.json(payload, {
+    status,
+    headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+  });
 }
 
 function periodBounds(period: string | null) {
@@ -278,7 +284,7 @@ export async function GET(request: Request) {
       })(),
     ]);
 
-    return NextResponse.json({
+    return noStore({
       items: appointments,
       pagination: {
         page,

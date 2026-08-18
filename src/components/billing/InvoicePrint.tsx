@@ -14,6 +14,7 @@ type InvoicePrintProps = {
     taxAmount: number;
     total: number;
     paymentMethod: string;
+    paymentStatus: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED";
     customer: {
       name: string;
       mobile: string;
@@ -25,9 +26,28 @@ type InvoicePrintProps = {
       price: number;
       quantity: number;
       amount: number;
+      staffName: string | null;
     }>;
     pointsEarned: number;
   };
+  tenant: {
+    name: string;
+    logo: string | null;
+    address: string | null;
+    city: string | null;
+    state: string | null;
+    pincode: string | null;
+    phone: string | null;
+    email: string | null;
+    gstNumber: string | null;
+  };
+};
+
+const paymentStatusStyles: Record<string, string> = {
+  PAID: "border-emerald-200 bg-emerald-100 text-emerald-700",
+  REFUNDED: "border-orange-200 bg-orange-100 text-orange-700",
+  CANCELLED: "border-red-200 bg-red-100 text-red-700",
+  PENDING: "border-amber-200 bg-amber-100 text-amber-700",
 };
 
 function formatDate(value: string) {
@@ -46,9 +66,13 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
-export function InvoicePrint({ invoice }: InvoicePrintProps) {
+export function InvoicePrint({ invoice, tenant }: InvoicePrintProps) {
   const cgst = invoice.taxAmount / 2;
   const sgst = invoice.taxAmount / 2;
+  const locationLine = [[tenant.city, tenant.state].filter(Boolean).join(", "), tenant.pincode]
+    .filter(Boolean)
+    .join(" - ");
+  const contactLine = [tenant.phone, tenant.email].filter(Boolean).join(" | ");
 
   return (
     <div className="space-y-4">
@@ -84,43 +108,62 @@ export function InvoicePrint({ invoice }: InvoicePrintProps) {
       </div>
 
       <article className="print-area mx-auto max-w-3xl rounded-xl border border-[var(--border)] bg-white p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <Image
-              src="/images/sczor_logo_dark.png"
-              alt="sczor"
-              width={120}
-              height={40}
-              priority
-            />
-            <p className="text-xs text-[var(--muted)]">Less Admin. More Glam.</p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-4">
+            {tenant.logo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={tenant.logo}
+                alt={tenant.name}
+                className="h-16 w-16 rounded-xl object-contain"
+              />
+            ) : null}
+            <div>
+              <p className="text-xl font-bold tracking-tight text-[var(--foreground)]">{tenant.name}</p>
+              {tenant.address ? <p className="text-sm text-[var(--muted)]">{tenant.address}</p> : null}
+              {locationLine ? <p className="text-sm text-[var(--muted)]">{locationLine}</p> : null}
+              {contactLine ? <p className="text-sm text-[var(--muted)]">{contactLine}</p> : null}
+              {tenant.gstNumber ? (
+                <p className="text-sm font-medium text-[var(--foreground)]">GST: {tenant.gstNumber}</p>
+              ) : null}
+            </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm font-semibold text-[var(--foreground)]">Invoice #{invoice.invoiceNumber}</p>
-            <p className="text-xs text-[var(--muted)]">{formatDate(invoice.invoiceDate)}</p>
-          </div>
+
+          <span
+            className={[
+              "inline-flex h-8 items-center self-start rounded-full border px-4 text-sm font-bold uppercase tracking-[0.08em]",
+              paymentStatusStyles[invoice.paymentStatus] ?? paymentStatusStyles.PENDING,
+            ].join(" ")}
+          >
+            {invoice.paymentStatus}
+          </span>
         </div>
 
         <div className="my-4 border-t border-dashed border-[var(--border)]" />
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Bill To</p>
-            <p className="mt-1 text-sm font-semibold text-[var(--foreground)]">{invoice.customer.name}</p>
-            <p className="text-sm text-[var(--muted)]">+91 {invoice.customer.mobile}</p>
-          </div>
-          <div className="sm:text-right">
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Payment</p>
-            <p className="mt-1 text-sm font-semibold text-[var(--foreground)]">{invoice.paymentMethod}</p>
-          </div>
+        <div className="grid gap-1 text-sm">
+          <p className="text-base font-semibold text-[var(--foreground)]">INVOICE #{invoice.invoiceNumber}</p>
+          <p className="text-[var(--muted)]">Date: {formatDate(invoice.invoiceDate)}</p>
+          <p className="text-[var(--muted)]">Payment: {invoice.paymentMethod}</p>
         </div>
 
-        <div className="mt-5 overflow-x-auto">
+        <div className="my-4 border-t border-dashed border-[var(--border)]" />
+
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Bill To</p>
+          <p className="mt-1 text-sm font-semibold text-[var(--foreground)]">{invoice.customer.name}</p>
+          <p className="text-sm text-[var(--muted)]">+91 {invoice.customer.mobile}</p>
+        </div>
+
+        <div className="my-4 border-t border-dashed border-[var(--border)]" />
+
+        <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">
               <tr>
                 <th className="py-2">#</th>
                 <th className="py-2">Service</th>
+                <th className="py-2">Staff</th>
                 <th className="py-2">Price</th>
                 <th className="py-2">Qty</th>
                 <th className="py-2 text-right">Amount</th>
@@ -131,6 +174,7 @@ export function InvoicePrint({ invoice }: InvoicePrintProps) {
                 <tr key={item.id} className="border-t border-[var(--border)]">
                   <td className="py-2">{index + 1}</td>
                   <td className="py-2">{item.name}</td>
+                  <td className="py-2">{item.staffName ?? "—"}</td>
                   <td className="py-2">{formatCurrency(item.price)}</td>
                   <td className="py-2">{item.quantity}</td>
                   <td className="py-2 text-right">{formatCurrency(item.amount)}</td>

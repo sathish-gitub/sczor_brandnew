@@ -45,9 +45,33 @@ export default function ServicesPage() {
   const [items, setItems] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [category, setCategory] = useState<(typeof categoryOptions)[number]>("ALL");
+  const [category, setCategory] = useState<string>("ALL");
+  const [categories, setCategories] = useState<string[]>([]);
   const [view, setView] = useState<"grid" | "list">("grid");
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadCategories() {
+      const response = await fetch("/api/services/categories", { cache: "no-store" });
+      const payload = (await response.json().catch(() => null)) as
+        | { items?: Array<{ id: string; name: string }> }
+        | null;
+
+      if (!active || !response.ok) {
+        return;
+      }
+
+      setCategories((payload?.items ?? []).map((item) => item.name));
+    }
+
+    loadCategories();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -173,10 +197,10 @@ export default function ServicesPage() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <select
             value={category}
-            onChange={(event) => setCategory(event.target.value as (typeof categoryOptions)[number])}
+            onChange={(event) => setCategory(event.target.value)}
             className="h-10 rounded-xl border border-[var(--border)] bg-white px-3 text-sm"
           >
-            {categoryOptions.map((item) => (
+            {["ALL", ...categories].map((item) => (
               <option key={item} value={item}>
                 {item === "ALL" ? "All Categories" : item}
               </option>

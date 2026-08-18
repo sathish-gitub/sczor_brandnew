@@ -59,6 +59,7 @@ export const ModelName = {
   Appointment: 'Appointment',
   Invoice: 'Invoice',
   InvoiceItem: 'InvoiceItem',
+  ServiceCategory: 'ServiceCategory',
   LoyaltyCard: 'LoyaltyCard',
   LoyaltyTransaction: 'LoyaltyTransaction',
   Attendance: 'Attendance',
@@ -207,6 +208,7 @@ export const InvoiceScalarFieldEnum = {
   paymentStatus: 'paymentStatus',
   customerId: 'customerId',
   appointmentId: 'appointmentId',
+  staffId: 'staffId',
   tenantId: 'tenantId',
   createdAt: 'createdAt'
 } as const
@@ -221,10 +223,21 @@ export const InvoiceItemScalarFieldEnum = {
   quantity: 'quantity',
   amount: 'amount',
   invoiceId: 'invoiceId',
-  serviceId: 'serviceId'
+  serviceId: 'serviceId',
+  staffId: 'staffId'
 } as const
 
 export type InvoiceItemScalarFieldEnum = (typeof InvoiceItemScalarFieldEnum)[keyof typeof InvoiceItemScalarFieldEnum]
+
+
+export const ServiceCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt'
+} as const
+
+export type ServiceCategoryScalarFieldEnum = (typeof ServiceCategoryScalarFieldEnum)[keyof typeof ServiceCategoryScalarFieldEnum]
 
 
 export const LoyaltyCardScalarFieldEnum = {

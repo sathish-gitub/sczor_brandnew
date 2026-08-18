@@ -158,13 +158,16 @@ export function Sidebar({ tenantName, user, mobileOpen, onCloseMobile }: Sidebar
       <div className="border-b border-white/10 px-5 py-5">
         <div className="flex items-center gap-3 text-white">
           <div className="min-w-0">
-            <Image
-              src="/images/sczor_logo_light.png"
-              alt="sczor"
-              width={96}
-              height={32}
-              priority
-            />
+            <Link href="/dashboard" onClick={onCloseMobile} aria-label="Go to dashboard">
+              <Image
+                src="/images/sczor_logo_light.png"
+                alt="sczor"
+                width={120}
+                height={40}
+                className="h-8 w-auto cursor-pointer"
+                priority
+              />
+            </Link>
             <p className="mt-1 text-xs text-white/70">{tenantName}</p>
           </div>
           <button

@@ -4,10 +4,17 @@ import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { syncStaffAvailability } from "@/lib/staffAvailability";
+
+const appointmentInclude = {
+  customer: true,
+  service: true,
+  staff: true,
+  invoice: { select: { id: true, invoiceNumber: true } },
+} as const;
 
 const appointmentStatusSchema = z.enum([
   "BOOKED",
-  "CONFIRMED",
   "IN_PROGRESS",
   "COMPLETED",
   "CANCELLED",
@@ -28,12 +35,22 @@ const updatePayloadSchema = z.object({
   status: appointmentStatusSchema,
 });
 
-const patchPayloadSchema = z.object({
-  status: appointmentStatusSchema,
-});
+// Strict: a full edit payload would otherwise also match this and be treated as a status-only patch.
+const patchPayloadSchema = z
+  .object({
+    status: appointmentStatusSchema,
+  })
+  .strict();
 
 function parseDateOnly(value: string) {
   return new Date(`${value}T00:00:00`);
+}
+
+function noStore(payload: unknown, status = 200) {
+  return NextResponse.json(payload, {
+    status,
+    headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
+  });
 }
 
 async function getTenantId() {
@@ -140,24 +157,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       id,
       tenantId,
     },
-    include: {
-      customer: true,
-      service: true,
-      staff: true,
-      invoice: {
-        select: {
-          id: true,
-          invoiceNumber: true,
-        },
-      },
-    },
+    include: appointmentInclude,
   });
 
   if (!appointment) {
     return NextResponse.json({ error: "Appointment not found." }, { status: 404 });
   }
 
-  return NextResponse.json({ appointment });
+  return noStore({ appointment });
 }
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -172,34 +179,36 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   try {
     const body = await request.json();
 
-    const patchParsed = patchPayloadSchema.safeParse(body);
-
-    if (patchParsed.success) {
-      const updated = await prisma.appointment.updateMany({
-        where: {
-          id,
-          tenantId,
-        },
-        data: {
-          status: patchParsed.data.status,
-        },
-      });
-
-      if (updated.count === 0) {
-        return NextResponse.json({ error: "Appointment not found." }, { status: 404 });
-      }
-
-      const appointment = await prisma.appointment.findFirst({
-        where: { id, tenantId },
-        include: { customer: true, service: true, staff: true },
-      });
-
-      return NextResponse.json({ appointment });
-    }
-
     const parsed = updatePayloadSchema.safeParse(body);
 
     if (!parsed.success) {
+      const patchParsed = patchPayloadSchema.safeParse(body);
+
+      if (patchParsed.success) {
+        const existing = await prisma.appointment.findFirst({
+          where: { id, tenantId },
+          select: { staffId: true },
+        });
+
+        if (!existing) {
+          return NextResponse.json({ error: "Appointment not found." }, { status: 404 });
+        }
+
+        await prisma.appointment.update({
+          where: { id },
+          data: { status: patchParsed.data.status },
+        });
+
+        await syncStaffAvailability(tenantId, existing.staffId);
+
+        const appointment = await prisma.appointment.findFirst({
+          where: { id, tenantId },
+          include: appointmentInclude,
+        });
+
+        return noStore({ appointment });
+      }
+
       return NextResponse.json(
         {
           error: parsed.error.issues[0]?.message ?? "Invalid appointment data.",
@@ -221,11 +230,17 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const customerId = await findOrCreateCustomer(tenantId, payload);
 
-    const updated = await prisma.appointment.updateMany({
-      where: {
-        id,
-        tenantId,
-      },
+    const existing = await prisma.appointment.findFirst({
+      where: { id, tenantId },
+      select: { staffId: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Appointment not found." }, { status: 404 });
+    }
+
+    await prisma.appointment.update({
+      where: { id },
       data: {
         customerId,
         serviceId: payload.serviceId,
@@ -238,16 +253,18 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       },
     });
 
-    if (updated.count === 0) {
-      return NextResponse.json({ error: "Appointment not found." }, { status: 404 });
+    await syncStaffAvailability(tenantId, payload.staffId);
+
+    if (existing.staffId !== payload.staffId) {
+      await syncStaffAvailability(tenantId, existing.staffId);
     }
 
     const appointment = await prisma.appointment.findFirst({
       where: { id, tenantId },
-      include: { customer: true, service: true, staff: true },
+      include: appointmentInclude,
     });
 
-    return NextResponse.json({ appointment });
+    return noStore({ appointment });
   } catch (error) {
     if (error instanceof Error && error.message.includes("already booked")) {
       return NextResponse.json({ error: error.message }, { status: 409 });
@@ -273,19 +290,21 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
   const { id } = await params;
 
-  const result = await prisma.appointment.updateMany({
-    where: {
-      id,
-      tenantId,
-    },
-    data: {
-      status: "CANCELLED",
-    },
+  const existing = await prisma.appointment.findFirst({
+    where: { id, tenantId },
+    select: { staffId: true },
   });
 
-  if (result.count === 0) {
+  if (!existing) {
     return NextResponse.json({ error: "Appointment not found." }, { status: 404 });
   }
+
+  await prisma.appointment.update({
+    where: { id },
+    data: { status: "CANCELLED" },
+  });
+
+  await syncStaffAvailability(tenantId, existing.staffId);
 
   return NextResponse.json({ success: true });
 }

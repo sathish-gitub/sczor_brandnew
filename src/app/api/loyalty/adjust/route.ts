@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { calculateLoyaltyTier } from "@/lib/utils";
 
 const schema = z.object({
   customerId: z.string().cuid(),
@@ -48,6 +49,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Cannot deduct more than available points." }, { status: 400 });
     }
 
+    const nextPoints =
+      payload.mode === "ADD" ? card.totalPoints + payload.points : card.totalPoints - payload.points;
+
+    const settings = await prisma.salonSettings.findUnique({
+      where: { tenantId: session.user.tenantId },
+      select: { silverThreshold: true, goldThreshold: true, platinumThreshold: true },
+    });
+
     const updated = await prisma.$transaction(async (tx) => {
       await tx.loyaltyTransaction.create({
         data: {
@@ -77,6 +86,11 @@ export async function POST(request: Request) {
                   increment: payload.points,
                 }
               : undefined,
+          tier: calculateLoyaltyTier(nextPoints, {
+            silverThreshold: settings?.silverThreshold ?? 500,
+            goldThreshold: settings?.goldThreshold ?? 2000,
+            platinumThreshold: settings?.platinumThreshold ?? 5000,
+          }),
         },
         select: {
           totalPoints: true,

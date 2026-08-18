@@ -36,12 +36,23 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-const tierMeta: Record<Tier, { label: string; range: string; color: string }> = {
-  BRONZE: { label: "Bronze", range: "0-499", color: "#CD7F32" },
-  SILVER: { label: "Silver", range: "500-1999", color: "#94A3B8" },
-  GOLD: { label: "Gold", range: "2000-4999", color: "#EAB308" },
-  PLATINUM: { label: "Platinum", range: "5000+", color: "#8B5CF6" },
+const tierMeta: Record<Tier, { label: string; color: string }> = {
+  BRONZE: { label: "Bronze", color: "#CD7F32" },
+  SILVER: { label: "Silver", color: "#94A3B8" },
+  GOLD: { label: "Gold", color: "#EAB308" },
+  PLATINUM: { label: "Platinum", color: "#8B5CF6" },
 };
+
+function tierRanges(thresholds: { silverThreshold: number; goldThreshold: number; platinumThreshold: number }) {
+  const { silverThreshold, goldThreshold, platinumThreshold } = thresholds;
+
+  return {
+    BRONZE: `0-${Math.max(0, silverThreshold - 1)}`,
+    SILVER: `${silverThreshold}-${Math.max(silverThreshold, goldThreshold - 1)}`,
+    GOLD: `${goldThreshold}-${Math.max(goldThreshold, platinumThreshold - 1)}`,
+    PLATINUM: `${platinumThreshold}+`,
+  } satisfies Record<Tier, string>;
+}
 
 export default function LoyaltyPage() {
   const [stats, setStats] = useState({
@@ -54,6 +65,11 @@ export default function LoyaltyPage() {
       SILVER: 0,
       GOLD: 0,
       PLATINUM: 0,
+    },
+    thresholds: {
+      silverThreshold: 500,
+      goldThreshold: 2000,
+      platinumThreshold: 5000,
     },
   });
 
@@ -89,6 +105,11 @@ export default function LoyaltyPage() {
             pointsRedeemed?: number;
             activeMembers?: number;
             tiers?: Record<Tier, number>;
+            thresholds?: {
+              silverThreshold: number;
+              goldThreshold: number;
+              platinumThreshold: number;
+            };
           }
         | null;
 
@@ -108,6 +129,7 @@ export default function LoyaltyPage() {
           GOLD: payload.tiers?.GOLD ?? 0,
           PLATINUM: payload.tiers?.PLATINUM ?? 0,
         },
+        thresholds: payload.thresholds ?? current.thresholds,
       }));
     }
 
@@ -200,6 +222,7 @@ export default function LoyaltyPage() {
   }
 
   const tierCards = useMemo(() => ["BRONZE", "SILVER", "GOLD", "PLATINUM"] as const, []);
+  const ranges = useMemo(() => tierRanges(stats.thresholds), [stats.thresholds]);
 
   return (
     <div className="space-y-5">
@@ -231,7 +254,7 @@ export default function LoyaltyPage() {
         {tierCards.map((tier) => (
           <article key={tier} className="rounded-xl border border-[var(--border)] bg-white p-4">
             <p className="text-sm font-semibold" style={{ color: tierMeta[tier].color }}>{tierMeta[tier].label}</p>
-            <p className="text-xs text-[var(--muted)]">{tierMeta[tier].range}</p>
+            <p className="text-xs text-[var(--muted)]">{ranges[tier]} pts</p>
             <p className="mt-3 text-2xl font-bold text-[var(--foreground)]">{stats.tiers[tier]}</p>
             <p className="text-xs text-[var(--muted)]">members</p>
           </article>

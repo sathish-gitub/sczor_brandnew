@@ -8,10 +8,17 @@ type LoyaltyTransaction = {
   description?: string | null;
 };
 
+type LoyaltyThresholds = {
+  silverThreshold: number;
+  goldThreshold: number;
+  platinumThreshold: number;
+};
+
 type LoyaltyCardProps = {
   tier: LoyaltyTier;
   totalPoints: number;
   rupeePerPoint?: number;
+  thresholds?: LoyaltyThresholds;
   transactions: LoyaltyTransaction[];
 };
 
@@ -38,20 +45,22 @@ const tierPalette: Record<LoyaltyTier, { bg: string; text: string; accent: strin
   },
 };
 
-function nextTierTarget(points: number) {
-  if (points < 500) {
-    return { currentFloor: 0, target: 500, nextTier: "SILVER" };
+function nextTierTarget(points: number, thresholds: LoyaltyThresholds) {
+  const { silverThreshold, goldThreshold, platinumThreshold } = thresholds;
+
+  if (points < silverThreshold) {
+    return { currentFloor: 0, target: silverThreshold, nextTier: "SILVER" };
   }
 
-  if (points < 2000) {
-    return { currentFloor: 500, target: 2000, nextTier: "GOLD" };
+  if (points < goldThreshold) {
+    return { currentFloor: silverThreshold, target: goldThreshold, nextTier: "GOLD" };
   }
 
-  if (points < 5000) {
-    return { currentFloor: 2000, target: 5000, nextTier: "PLATINUM" };
+  if (points < platinumThreshold) {
+    return { currentFloor: goldThreshold, target: platinumThreshold, nextTier: "PLATINUM" };
   }
 
-  return { currentFloor: 5000, target: 5000, nextTier: "PLATINUM" };
+  return { currentFloor: platinumThreshold, target: platinumThreshold, nextTier: "PLATINUM" };
 }
 
 function formatDate(value: string) {
@@ -62,9 +71,15 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-export function LoyaltyCard({ tier, totalPoints, rupeePerPoint = 1, transactions }: LoyaltyCardProps) {
+export function LoyaltyCard({
+  tier,
+  totalPoints,
+  rupeePerPoint = 1,
+  thresholds = { silverThreshold: 500, goldThreshold: 2000, platinumThreshold: 5000 },
+  transactions,
+}: LoyaltyCardProps) {
   const palette = tierPalette[tier];
-  const target = nextTierTarget(totalPoints);
+  const target = nextTierTarget(totalPoints, thresholds);
   const progressBase = target.target - target.currentFloor;
   const progressValue = Math.max(0, totalPoints - target.currentFloor);
   const progress = target.target === target.currentFloor ? 100 : Math.min(100, (progressValue / progressBase) * 100);

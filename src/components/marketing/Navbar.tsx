@@ -38,8 +38,9 @@ export default function Navbar() {
           <Image
             src="/images/sczor_logo_dark.png"
             alt="sczor"
-            width={96}
-            height={32}
+            width={120}
+            height={40}
+            className="h-8 w-auto cursor-pointer"
             priority
           />
         </Link>

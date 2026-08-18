@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { CheckCircle2 } from "lucide-react";
 
@@ -15,13 +16,16 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(37,99,235,0.35),_transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.04),rgba(13,27,62,0))]" />
         <div className="relative mx-auto flex h-full w-full max-w-xl flex-col justify-between gap-12">
           <div className="space-y-6">
-            <Image
-              src="/images/sczor_logo_light.png"
-              alt="sczor"
-              width={144}
-              height={48}
-              priority
-            />
+            <Link href="/" aria-label="Go to homepage" className="inline-block">
+              <Image
+                src="/images/sczor_logo_light.png"
+                alt="sczor"
+                width={144}
+                height={48}
+                className="h-10 w-auto cursor-pointer"
+                priority
+              />
+            </Link>
             <div className="space-y-4">
               <p className="text-sm font-medium uppercase tracking-[0.3em] text-blue-200/85">
                 Less Admin. More Glam.

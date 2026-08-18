@@ -14,42 +14,63 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
   const { id } = await params;
 
-  const invoice = await prisma.invoice.findFirst({
-    where: {
-      id,
-      tenantId: session.user.tenantId,
-    },
-    include: {
-      customer: {
-        select: {
-          name: true,
-          mobile: true,
-          loyaltyCard: {
-            select: {
-              totalPoints: true,
+  const [invoice, tenant] = await Promise.all([
+    prisma.invoice.findFirst({
+      where: {
+        id,
+        tenantId: session.user.tenantId,
+      },
+      include: {
+        customer: {
+          select: {
+            name: true,
+            mobile: true,
+            loyaltyCard: {
+              select: {
+                totalPoints: true,
+              },
             },
           },
         },
-      },
-      items: {
-        select: {
-          id: true,
-          name: true,
-          price: true,
-          quantity: true,
-          amount: true,
+        items: {
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            quantity: true,
+            amount: true,
+            staff: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
+        loyaltyTxns: {
+          select: {
+            type: true,
+            points: true,
+          },
         },
       },
-      loyaltyTxns: {
-        select: {
-          type: true,
-          points: true,
-        },
+    }),
+    prisma.tenant.findUnique({
+      where: { id: session.user.tenantId },
+      select: {
+        name: true,
+        logo: true,
+        address: true,
+        city: true,
+        state: true,
+        pincode: true,
+        phone: true,
+        email: true,
+        gstNumber: true,
       },
-    },
-  });
+    }),
+  ]);
 
-  if (!invoice) {
+  if (!invoice || !tenant) {
     notFound();
   }
 
@@ -69,6 +90,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       </header>
 
       <InvoicePrint
+        tenant={tenant}
         invoice={{
           id: invoice.id,
           invoiceNumber: invoice.invoiceNumber,
@@ -79,6 +101,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           taxAmount: Number(invoice.taxAmount),
           total: Number(invoice.total),
           paymentMethod: invoice.paymentMethod,
+          paymentStatus: invoice.paymentStatus,
           customer: {
             name: invoice.customer.name,
             mobile: invoice.customer.mobile,
@@ -90,6 +113,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
             price: Number(item.price),
             quantity: item.quantity,
             amount: Number(item.amount),
+            staffName: item.staff?.name ?? null,
           })),
           pointsEarned,
         }}

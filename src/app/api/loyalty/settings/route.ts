@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { calculateLoyaltyTier } from "@/lib/utils";
 
 const schema = z.object({
   pointsPerTenRupees: z.number().positive(),
@@ -95,7 +96,33 @@ export async function PUT(request: Request) {
       },
     });
 
-    return NextResponse.json({ success: true });
+    const cards = await prisma.loyaltyCard.findMany({
+      where: { tenantId: session.user.tenantId },
+      select: { id: true, totalPoints: true, tier: true },
+    });
+
+    const thresholds = {
+      silverThreshold: payload.silverThreshold,
+      goldThreshold: payload.goldThreshold,
+      platinumThreshold: payload.platinumThreshold,
+    };
+
+    const retiered = cards
+      .map((card) => ({ id: card.id, tier: calculateLoyaltyTier(card.totalPoints, thresholds), current: card.tier }))
+      .filter((card) => card.tier !== card.current);
+
+    if (retiered.length > 0) {
+      await prisma.$transaction(
+        retiered.map((card) =>
+          prisma.loyaltyCard.update({
+            where: { id: card.id },
+            data: { tier: card.tier },
+          }),
+        ),
+      );
+    }
+
+    return NextResponse.json({ success: true, updatedCustomers: retiered.length });
   } catch (error) {
     console.error("Failed to update loyalty settings", error);
     return NextResponse.json({ error: "Unable to update settings." }, { status: 500 });

@@ -87,12 +87,22 @@ export async function GET() {
       tiers[row.tier] = row._count.tier;
     }
 
+    const settings = await prisma.salonSettings.findUnique({
+      where: { tenantId: session.user.tenantId },
+      select: { silverThreshold: true, goldThreshold: true, platinumThreshold: true },
+    });
+
     return NextResponse.json({
       totalMembers,
       pointsIssued: earnedAggregate._sum.points ?? 0,
       pointsRedeemed: redeemedAggregate._sum.points ?? 0,
       activeMembers: activeMembers.length,
       tiers,
+      thresholds: {
+        silverThreshold: settings?.silverThreshold ?? 500,
+        goldThreshold: settings?.goldThreshold ?? 2000,
+        platinumThreshold: settings?.platinumThreshold ?? 5000,
+      },
     });
   } catch (error) {
     console.error("Failed to load loyalty stats", error);

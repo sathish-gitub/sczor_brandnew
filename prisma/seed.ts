@@ -235,7 +235,6 @@ async function main() {
     AppointmentStatus.COMPLETED,
     AppointmentStatus.BILLED,
     AppointmentStatus.BOOKED,
-    AppointmentStatus.CONFIRMED,
     AppointmentStatus.CANCELLED,
   ];
 

@@ -14,7 +14,7 @@ type AppointmentRow = {
   appointmentDate: string;
   appointmentTime: string;
   duration: number;
-  status: "BOOKED" | "CONFIRMED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "BILLED";
+  status: "BOOKED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "BILLED";
   customer: {
     name: string;
     mobile: string;
@@ -41,7 +41,7 @@ type Pagination = {
   totalPages: number;
 };
 
-const statusOptions = ["ALL", "BOOKED", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "BILLED"] as const;
+const statusOptions = ["ALL", "BOOKED", "IN_PROGRESS", "COMPLETED", "BILLED", "CANCELLED"] as const;
 
 function formatDate(value: string) {
   const date = new Date(value);
@@ -53,13 +53,15 @@ function formatDate(value: string) {
   }).format(date);
 }
 
-function toastLabel(value: string | null) {
+function toastLabel(value: string | null, savedDate: string | null) {
+  const suffix = savedDate ? ` Showing ${formatDate(savedDate)}.` : "";
+
   if (value === "created") {
-    return "Appointment created successfully.";
+    return `Appointment created successfully.${suffix}`;
   }
 
   if (value === "updated") {
-    return "Appointment updated successfully.";
+    return `Appointment updated successfully.${suffix}`;
   }
 
   return null;
@@ -86,11 +88,43 @@ function TableSkeleton() {
   );
 }
 
+function periodContaining(dateValue: string): "today" | "this_week" | "this_month" {
+  const target = new Date(`${dateValue}T00:00:00`);
+
+  if (Number.isNaN(target.getTime())) {
+    return "today";
+  }
+
+  const now = new Date();
+  const startOfToday = new Date(now);
+  startOfToday.setHours(0, 0, 0, 0);
+
+  if (target.getTime() === startOfToday.getTime()) {
+    return "today";
+  }
+
+  const startOfWeek = new Date(startOfToday);
+  startOfWeek.setDate(startOfToday.getDate() - ((startOfToday.getDay() + 6) % 7));
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+  if (target >= startOfWeek && target <= endOfWeek) {
+    return "this_week";
+  }
+
+  return "this_month";
+}
+
 export default function AppointmentsPage() {
   const searchParams = useSearchParams();
-  const [period, setPeriod] = useState<"today" | "this_week" | "this_month">("today");
+  const navigationToken = searchParams.get("t");
+  const savedDate = searchParams.get("date");
+  const [period, setPeriod] = useState<"today" | "this_week" | "this_month">(
+    savedDate ? periodContaining(savedDate) : "today",
+  );
   const [status, setStatus] = useState<(typeof statusOptions)[number]>("ALL");
   const [page, setPage] = useState(1);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -157,9 +191,32 @@ export default function AppointmentsPage() {
     return () => {
       active = false;
     };
-  }, [period, status, page]);
+  }, [period, status, page, navigationToken, reloadKey]);
 
-  const successMessage = useMemo(() => toastLabel(searchParams.get("success")), [searchParams]);
+  useEffect(() => {
+    function handleFocus() {
+      setReloadKey((value) => value + 1);
+    }
+
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, []);
+
+  // Keep a just-saved appointment visible even if it moved outside the active filters.
+  useEffect(() => {
+    if (!navigationToken || !savedDate) {
+      return;
+    }
+
+    setPeriod(periodContaining(savedDate));
+    setStatus("ALL");
+    setPage(1);
+  }, [navigationToken, savedDate]);
+
+  const successMessage = useMemo(
+    () => toastLabel(searchParams.get("success"), savedDate),
+    [searchParams, savedDate],
+  );
 
   async function cancelAppointment(id: string) {
     const allowed = window.confirm("Are you sure you want to cancel this appointment?");
@@ -313,21 +370,25 @@ export default function AppointmentsPage() {
                       >
                         <Eye className="h-4 w-4" />
                       </Link>
-                      <Link
-                        href={`/appointments/${row.id}/edit`}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
-                        aria-label="Edit appointment"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Link>
-                      <button
-                        type="button"
-                        onClick={() => cancelAppointment(row.id)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50"
-                        aria-label="Cancel appointment"
-                      >
-                        <Trash className="h-4 w-4" />
-                      </button>
+                      {row.status !== "BILLED" && row.status !== "CANCELLED" ? (
+                        <Link
+                          href={`/appointments/${row.id}/edit`}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                          aria-label="Edit appointment"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Link>
+                      ) : null}
+                      {row.status !== "BILLED" && row.status !== "CANCELLED" ? (
+                        <button
+                          type="button"
+                          onClick={() => cancelAppointment(row.id)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50"
+                          aria-label="Cancel appointment"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </button>
+                      ) : null}
                     </div>
                   </td>
                 </tr>

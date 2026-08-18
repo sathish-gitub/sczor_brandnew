@@ -4,13 +4,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 
-const categories = ["Hair", "Skin", "Nail", "Makeup", "Spa", "Other"] as const;
+import { CategorySelect } from "@/components/services/CategorySelect";
 
 export default function NewServicePage() {
   const router = useRouter();
 
   const [name, setName] = useState("");
-  const [category, setCategory] = useState<(typeof categories)[number]>("Hair");
+  const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("0");
   const [duration, setDuration] = useState("30");
@@ -22,6 +22,12 @@ export default function NewServicePage() {
     event.preventDefault();
     setSubmitting(true);
     setError(null);
+
+    if (!category.trim()) {
+      setError("Select or add a category.");
+      setSubmitting(false);
+      return;
+    }
 
     const response = await fetch("/api/services", {
       method: "POST",
@@ -71,20 +77,10 @@ export default function NewServicePage() {
             />
           </label>
 
-          <label className="space-y-1 text-sm">
+          <div className="space-y-1 text-sm">
             <span className="font-medium text-[var(--foreground)]">Category</span>
-            <select
-              value={category}
-              onChange={(event) => setCategory(event.target.value as (typeof categories)[number])}
-              className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
-            >
-              {categories.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </label>
+            <CategorySelect value={category} onChange={setCategory} />
+          </div>
         </div>
 
         <label className="space-y-1 text-sm">

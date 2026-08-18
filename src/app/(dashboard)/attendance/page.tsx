@@ -244,10 +244,13 @@ export default function AttendancePage() {
   }
 
   async function saveAll() {
-    const updates = Object.entries(pendingStatuses).map(([staffId, status]) => ({ staffId, status }));
+    const updates = rows.map((row) => ({
+      staffId: row.staffId,
+      status: pendingStatuses[row.staffId] ?? row.status ?? ("PRESENT" as AttendanceStatus),
+    }));
 
     if (updates.length === 0) {
-      enqueueToast("success", "No pending changes to save.");
+      enqueueToast("success", "No attendance rows to save.");
       return;
     }
 
@@ -291,7 +294,7 @@ export default function AttendancePage() {
 
     setPendingStatuses({});
     setSavingAll(false);
-    enqueueToast("success", `Saved ${payload?.successCount ?? updates.length} attendance entries.`);
+    enqueueToast("success", `Attendance saved (${payload?.successCount ?? updates.length} entries).`);
   }
 
   async function onStatusChange(staffId: string, status: AttendanceStatus) {
@@ -358,10 +361,9 @@ export default function AttendancePage() {
     const initial = { PRESENT: 0, ABSENT: 0, LEAVE: 0, HALF_DAY: 0 };
 
     for (const row of rows) {
-      const status = pendingStatuses[row.staffId] ?? row.status;
-      if (status) {
-        initial[status] += 1;
-      }
+      // Mirrors the table's fallback so the summary always matches the visible dropdowns.
+      const status = pendingStatuses[row.staffId] ?? row.status ?? "PRESENT";
+      initial[status] += 1;
     }
 
     return initial;

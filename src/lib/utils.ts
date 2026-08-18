@@ -51,16 +51,33 @@ export function generateSlug(name: string) {
     .replace(/^-|-$/g, "");
 }
 
-export function calculateLoyaltyTier(points: number): LoyaltyTier {
-  if (points >= 5000) {
+export const DEFAULT_SERVICE_CATEGORIES = ["Hair", "Skin", "Nail", "Makeup", "Spa", "Other"] as const;
+
+export type LoyaltyThresholds = {
+  silverThreshold: number;
+  goldThreshold: number;
+  platinumThreshold: number;
+};
+
+export const DEFAULT_LOYALTY_THRESHOLDS: LoyaltyThresholds = {
+  silverThreshold: 500,
+  goldThreshold: 2000,
+  platinumThreshold: 5000,
+};
+
+export function calculateLoyaltyTier(
+  points: number,
+  thresholds: LoyaltyThresholds = DEFAULT_LOYALTY_THRESHOLDS,
+): LoyaltyTier {
+  if (points >= thresholds.platinumThreshold) {
     return "PLATINUM";
   }
 
-  if (points >= 2000) {
+  if (points >= thresholds.goldThreshold) {
     return "GOLD";
   }
 
-  if (points >= 500) {
+  if (points >= thresholds.silverThreshold) {
     return "SILVER";
   }
 

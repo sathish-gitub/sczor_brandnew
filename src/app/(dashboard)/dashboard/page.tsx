@@ -24,7 +24,7 @@ type DashboardStats = {
 type DashboardAppointment = {
   id: string;
   appointmentTime: string;
-  status: "BOOKED" | "CONFIRMED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "BILLED";
+  status: "BOOKED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "BILLED";
   customer: {
     name: string;
   };

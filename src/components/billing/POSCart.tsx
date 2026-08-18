@@ -6,13 +6,22 @@ export type POSCartItem = {
   price: number;
   duration: number;
   quantity: number;
+  staffId: string;
+  staffName: string;
+};
+
+export type POSStaffOption = {
+  id: string;
+  name: string;
 };
 
 type POSCartProps = {
   items: POSCartItem[];
+  staffOptions: POSStaffOption[];
   onIncrease: (serviceId: string) => void;
   onDecrease: (serviceId: string) => void;
   onRemove: (serviceId: string) => void;
+  onStaffChange: (serviceId: string, staffId: string) => void;
 };
 
 function formatCurrency(value: number) {
@@ -23,7 +32,14 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
-export function POSCart({ items, onIncrease, onDecrease, onRemove }: POSCartProps) {
+export function POSCart({
+  items,
+  staffOptions,
+  onIncrease,
+  onDecrease,
+  onRemove,
+  onStaffChange,
+}: POSCartProps) {
   return (
     <section className="rounded-xl border border-[var(--border)] bg-white p-4">
       <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Cart</h2>
@@ -47,6 +63,22 @@ export function POSCart({ items, onIncrease, onDecrease, onRemove }: POSCartProp
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
+              </div>
+
+              <div className="mt-3">
+                <label className="text-xs font-medium text-[var(--muted)]">Service by</label>
+                <select
+                  value={item.staffId}
+                  onChange={(event) => onStaffChange(item.serviceId, event.target.value)}
+                  className="mt-1 h-9 w-full rounded-md border border-[var(--border)] bg-white px-2 text-sm"
+                >
+                  <option value="">Select staff</option>
+                  {staffOptions.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="mt-3 flex items-center justify-between">

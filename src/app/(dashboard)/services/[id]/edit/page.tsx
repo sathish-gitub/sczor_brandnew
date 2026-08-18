@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const categories = ["Hair", "Skin", "Nail", "Makeup", "Spa", "Other"] as const;
+import { CategorySelect } from "@/components/services/CategorySelect";
 
 type ServicePayload = {
   id: string;
@@ -25,7 +25,7 @@ export default function EditServicePage() {
   const [error, setError] = useState<string | null>(null);
 
   const [name, setName] = useState("");
-  const [category, setCategory] = useState<(typeof categories)[number]>("Hair");
+  const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("0");
   const [duration, setDuration] = useState("30");
@@ -54,7 +54,7 @@ export default function EditServicePage() {
       }
 
       setName(payload.service.name);
-      setCategory(payload.service.category as (typeof categories)[number]);
+      setCategory(payload.service.category);
       setDescription(payload.service.description || "");
       setPrice(String(payload.service.price));
       setDuration(String(payload.service.duration));
@@ -73,6 +73,12 @@ export default function EditServicePage() {
     event.preventDefault();
     setSubmitting(true);
     setError(null);
+
+    if (!category.trim()) {
+      setError("Select or add a category.");
+      setSubmitting(false);
+      return;
+    }
 
     const response = await fetch(`/api/services/${params.id}`, {
       method: "PUT",
@@ -126,20 +132,10 @@ export default function EditServicePage() {
             />
           </label>
 
-          <label className="space-y-1 text-sm">
+          <div className="space-y-1 text-sm">
             <span className="font-medium text-[var(--foreground)]">Category</span>
-            <select
-              value={category}
-              onChange={(event) => setCategory(event.target.value as (typeof categories)[number])}
-              className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
-            >
-              {categories.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </label>
+            <CategorySelect value={category} onChange={setCategory} />
+          </div>
         </div>
 
         <label className="space-y-1 text-sm">

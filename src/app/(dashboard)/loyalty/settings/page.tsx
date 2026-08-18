@@ -74,7 +74,9 @@ export default function LoyaltySettingsPage() {
       body: JSON.stringify(settings),
     });
 
-    const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+    const payload = (await response.json().catch(() => null)) as
+      | { error?: string; updatedCustomers?: number }
+      | null;
 
     if (!response.ok) {
       setError(payload?.error ?? "Unable to save settings.");
@@ -83,7 +85,7 @@ export default function LoyaltySettingsPage() {
     }
 
     setSaving(false);
-    setSuccess("Settings updated successfully.");
+    setSuccess(`Settings saved. ${payload?.updatedCustomers ?? 0} customer tiers updated.`);
   }
 
   if (loading) {
@@ -132,19 +134,86 @@ export default function LoyaltySettingsPage() {
           ) : null}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
-          <label className="text-sm">
-            <span className="text-[var(--muted)]">Silver threshold</span>
-            <input type="number" min={1} value={settings.silverThreshold} onChange={(e) => setSettings((s) => ({ ...s, silverThreshold: Number(e.target.value) || 1 }))} className="mt-1 h-10 w-full rounded-xl border border-[var(--border)] px-3" />
-          </label>
-          <label className="text-sm">
-            <span className="text-[var(--muted)]">Gold threshold</span>
-            <input type="number" min={1} value={settings.goldThreshold} onChange={(e) => setSettings((s) => ({ ...s, goldThreshold: Number(e.target.value) || 1 }))} className="mt-1 h-10 w-full rounded-xl border border-[var(--border)] px-3" />
-          </label>
-          <label className="text-sm">
-            <span className="text-[var(--muted)]">Platinum threshold</span>
-            <input type="number" min={1} value={settings.platinumThreshold} onChange={(e) => setSettings((s) => ({ ...s, platinumThreshold: Number(e.target.value) || 1 }))} className="mt-1 h-10 w-full rounded-xl border border-[var(--border)] px-3" />
-          </label>
+        <div className="space-y-3 rounded-xl border border-[var(--border)] p-4">
+          <div>
+            <p className="text-sm font-semibold text-[var(--foreground)]">Tier thresholds</p>
+            <p className="text-xs text-[var(--muted)]">Bronze always starts at 0. Saving recalculates every customer tier.</p>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <span aria-hidden>🥉</span>
+              <span className="text-sm font-medium text-[var(--foreground)]">Bronze</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="rounded-lg border border-[var(--border)] bg-white px-3 py-1 text-sm text-[var(--muted)]">
+                0 pts (default start)
+              </span>
+              <span className="w-40 text-right text-xs text-[var(--muted)]">
+                0 - {Math.max(0, settings.silverThreshold - 1)} pts
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 px-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]" htmlFor="silver-threshold">
+              <span aria-hidden>🥈</span>
+              Silver
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                id="silver-threshold"
+                type="number"
+                min={1}
+                value={settings.silverThreshold}
+                onChange={(e) => setSettings((s) => ({ ...s, silverThreshold: Number(e.target.value) || 1 }))}
+                className="h-10 w-32 rounded-xl border border-[var(--border)] px-3"
+              />
+              <span className="w-40 text-right text-xs text-[var(--muted)]">
+                {settings.silverThreshold} - {Math.max(settings.silverThreshold, settings.goldThreshold - 1)} pts
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 px-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]" htmlFor="gold-threshold">
+              <span aria-hidden>🥇</span>
+              Gold
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                id="gold-threshold"
+                type="number"
+                min={1}
+                value={settings.goldThreshold}
+                onChange={(e) => setSettings((s) => ({ ...s, goldThreshold: Number(e.target.value) || 1 }))}
+                className="h-10 w-32 rounded-xl border border-[var(--border)] px-3"
+              />
+              <span className="w-40 text-right text-xs text-[var(--muted)]">
+                {settings.goldThreshold} - {Math.max(settings.goldThreshold, settings.platinumThreshold - 1)} pts
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 px-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]" htmlFor="platinum-threshold">
+              <span aria-hidden>💎</span>
+              Platinum
+            </label>
+            <div className="flex items-center gap-3">
+              <input
+                id="platinum-threshold"
+                type="number"
+                min={1}
+                value={settings.platinumThreshold}
+                onChange={(e) => setSettings((s) => ({ ...s, platinumThreshold: Number(e.target.value) || 1 }))}
+                className="h-10 w-32 rounded-xl border border-[var(--border)] px-3"
+              />
+              <span className="w-40 text-right text-xs text-[var(--muted)]">
+                {settings.platinumThreshold}+ pts
+              </span>
+            </div>
+          </div>
         </div>
 
         <button type="button" onClick={save} disabled={saving} className="h-10 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white disabled:opacity-60">

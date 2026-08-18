@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, LoaderCircle, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
@@ -11,7 +11,6 @@ import { StatusBadge } from "@/components/appointments/StatusBadge";
 
 export type AppointmentStatus =
   | "BOOKED"
-  | "CONFIRMED"
   | "IN_PROGRESS"
   | "COMPLETED"
   | "CANCELLED"
@@ -79,7 +78,7 @@ const formSchema = z.object({
   serviceId: z.string().cuid("Select a service."),
   staffId: z.string().cuid("Select a staff member."),
   duration: z.number().int().positive("Duration must be positive."),
-  status: z.enum(["BOOKED", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "CANCELLED", "BILLED"]),
+  status: z.enum(["BOOKED", "IN_PROGRESS", "COMPLETED", "BILLED", "CANCELLED"]),
 });
 
 function todayDateString() {
@@ -110,6 +109,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
     handleSubmit,
     control,
     setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -140,11 +140,15 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
     [services, selectedServiceId],
   );
 
+  const lastServiceIdRef = useRef(initialData?.serviceId ?? services[0]?.id ?? "");
+
+  // Only reset duration when the user actually switches service, never on initial prefill.
   useEffect(() => {
-    if (!selectedService) {
+    if (!selectedService || lastServiceIdRef.current === selectedService.id) {
       return;
     }
 
+    lastServiceIdRef.current = selectedService.id;
     setValue("duration", selectedService.duration, { shouldValidate: true });
   }, [selectedService, setValue]);
 
@@ -251,6 +255,34 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
     [staffAvailability, selectedStaffId],
   );
 
+  // Keep the saved slot selectable even when it falls outside the returned availability.
+  const timeOptions = useMemo(() => {
+    const options = new Set(timeSlots);
+
+    if (selectedTime) {
+      options.add(selectedTime);
+    }
+
+    return [...options].sort();
+  }, [timeSlots, selectedTime]);
+
+  // Async <select> options mount empty, so the DOM drops the saved value — re-apply it.
+  useEffect(() => {
+    const savedTime = getValues("appointmentTime");
+
+    if (savedTime && timeOptions.includes(savedTime)) {
+      setValue("appointmentTime", savedTime);
+    }
+  }, [timeOptions, getValues, setValue]);
+
+  useEffect(() => {
+    const savedStaffId = getValues("staffId");
+
+    if (savedStaffId && visibleStaff.some((staff) => staff.id === savedStaffId)) {
+      setValue("staffId", savedStaffId);
+    }
+  }, [visibleStaff, getValues, setValue]);
+
   const onSubmit = handleSubmit(async (values) => {
     setSubmitError(null);
 
@@ -272,8 +304,10 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
       return;
     }
 
-    router.push(`/appointments?success=${mode === "create" ? "created" : "updated"}`);
     router.refresh();
+    router.push(
+      `/appointments?success=${mode === "create" ? "created" : "updated"}&date=${values.appointmentDate}&t=${Date.now()}`,
+    );
   });
 
   return (
@@ -372,8 +406,8 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
                   className="h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm outline-none focus:border-[var(--accent)]"
                   {...register("appointmentTime")}
                 >
-                  {timeSlots.length === 0 ? <option value="">No slots</option> : null}
-                  {timeSlots.map((slot) => (
+                  {timeOptions.length === 0 ? <option value="">No slots</option> : null}
+                  {timeOptions.map((slot) => (
                     <option key={slot} value={slot}>
                       {slot}
                     </option>
@@ -446,7 +480,6 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
                   {...register("status")}
                 >
                   <option value="BOOKED">Booked</option>
-                  <option value="CONFIRMED">Confirmed</option>
                   <option value="IN_PROGRESS">In Progress</option>
                   <option value="COMPLETED">Completed</option>
                   <option value="CANCELLED">Cancelled</option>

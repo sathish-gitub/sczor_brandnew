@@ -8,7 +8,9 @@ import { authOptions } from "@/lib/auth";
 import { maskId } from "@/lib/formatId";
 import { prisma } from "@/lib/prisma";
 
-const timeline = ["BOOKED", "CONFIRMED", "IN_PROGRESS", "COMPLETED", "BILLED"] as const;
+const timeline = ["BOOKED", "IN_PROGRESS", "COMPLETED", "BILLED"] as const;
+
+export const dynamic = "force-dynamic";
 
 function formatDateTime(date: Date, time: string) {
   const formattedDate = new Intl.DateTimeFormat("en-IN", {

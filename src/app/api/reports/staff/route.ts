@@ -59,7 +59,7 @@ export async function GET(request: Request) {
 
     const staffIds = staff.map((item) => item.id);
 
-    const [appointments, invoices, attendance] = await Promise.all([
+    const [appointments, invoiceItems, attendance] = await Promise.all([
       prisma.appointment.findMany({
         where: {
           tenantId: session.user.tenantId,
@@ -81,27 +81,24 @@ export async function GET(request: Request) {
           },
         },
       }),
-      prisma.invoice.findMany({
+      prisma.invoiceItem.findMany({
         where: {
-          tenantId: session.user.tenantId,
-          paymentStatus: "PAID",
-          invoiceDate: {
-            gte: from,
-            lte: to,
+          staffId: {
+            in: staffIds,
           },
-          appointment: {
-            staffId: {
-              in: staffIds,
+          invoice: {
+            tenantId: session.user.tenantId,
+            paymentStatus: "PAID",
+            invoiceDate: {
+              gte: from,
+              lte: to,
             },
           },
         },
         select: {
-          total: true,
-          appointment: {
-            select: {
-              staffId: true,
-            },
-          },
+          staffId: true,
+          amount: true,
+          invoiceId: true,
         },
       }),
       prisma.attendance.findMany({
@@ -134,12 +131,17 @@ export async function GET(request: Request) {
     }
 
     const revenueByStaff = new Map<string, number>();
-    for (const invoice of invoices) {
-      const key = invoice.appointment?.staffId;
+    const invoicesByStaff = new Map<string, Set<string>>();
+    for (const item of invoiceItems) {
+      const key = item.staffId;
       if (!key) {
         continue;
       }
-      revenueByStaff.set(key, (revenueByStaff.get(key) ?? 0) + Number(invoice.total));
+      revenueByStaff.set(key, (revenueByStaff.get(key) ?? 0) + Number(item.amount));
+
+      const invoiceIds = invoicesByStaff.get(key) ?? new Set<string>();
+      invoiceIds.add(item.invoiceId);
+      invoicesByStaff.set(key, invoiceIds);
     }
 
     const attendanceByStaff = new Map<string, { present: number; absent: number; total: number }>();
@@ -167,13 +169,16 @@ export async function GET(request: Request) {
         .slice(0, 3)
         .map(([name]) => name);
 
+      const invoiceCount = invoicesByStaff.get(member.id)?.size ?? 0;
+
       return {
         staffId: member.id,
         name: member.name,
         designation: member.designation,
         appointments: appointmentsCount,
         revenue,
-        avgInvoice: appointmentsCount > 0 ? Math.round((revenue / appointmentsCount) * 100) / 100 : 0,
+        invoices: invoiceCount,
+        avgInvoice: invoiceCount > 0 ? Math.round((revenue / invoiceCount) * 100) / 100 : 0,
         attendancePercent,
         presentDays: attendanceInfo.present,
         absentDays: attendanceInfo.absent,
