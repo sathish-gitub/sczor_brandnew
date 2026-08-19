@@ -58,35 +58,36 @@ export async function GET(request: Request) {
         },
         orderBy: { name: "asc" },
         include: {
-        appointments: {
-          where: {
-            appointmentDate: {
-              gte: start,
-              lte: end,
+          appointments: {
+            where: {
+              appointmentDate: {
+                gte: start,
+                lte: end,
+              },
+              status: {
+                not: "CANCELLED",
+              },
             },
-            status: {
-              not: "CANCELLED",
-            },
-          },
-          select: {
-            id: true,
-          },
-        },
-        _count: {
-          select: {
-            appointments: true,
-          },
-        },
-        attendances: {
-          where: {
-            date: {
-              gte: start,
-              lte: end,
+            select: {
+              id: true,
             },
           },
-          take: 1,
-          select: {
-            status: true,
+          _count: {
+            select: {
+              appointments: true,
+            },
+          },
+          attendances: {
+            where: {
+              date: {
+                gte: start,
+                lte: end,
+              },
+            },
+            take: 1,
+            select: {
+              status: true,
+            },
           },
         },
       }),

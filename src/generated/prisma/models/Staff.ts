@@ -231,6 +231,7 @@ export type StaffWhereInput = {
   attendances?: Prisma.AttendanceListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
   invoiceItems?: Prisma.InvoiceItemListRelationFilter
+  ratings?: Prisma.StaffRatingListRelationFilter
 }
 
 export type StaffOrderByWithRelationInput = {
@@ -250,6 +251,7 @@ export type StaffOrderByWithRelationInput = {
   attendances?: Prisma.AttendanceOrderByRelationAggregateInput
   invoices?: Prisma.InvoiceOrderByRelationAggregateInput
   invoiceItems?: Prisma.InvoiceItemOrderByRelationAggregateInput
+  ratings?: Prisma.StaffRatingOrderByRelationAggregateInput
 }
 
 export type StaffWhereUniqueInput = Prisma.AtLeast<{
@@ -272,6 +274,7 @@ export type StaffWhereUniqueInput = Prisma.AtLeast<{
   attendances?: Prisma.AttendanceListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
   invoiceItems?: Prisma.InvoiceItemListRelationFilter
+  ratings?: Prisma.StaffRatingListRelationFilter
 }, "id">
 
 export type StaffOrderByWithAggregationInput = {
@@ -324,6 +327,7 @@ export type StaffCreateInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateInput = {
@@ -342,6 +346,7 @@ export type StaffUncheckedCreateInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUpdateInput = {
@@ -360,6 +365,7 @@ export type StaffUpdateInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateInput = {
@@ -378,6 +384,7 @@ export type StaffUncheckedUpdateInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffCreateManyInput = {
@@ -582,6 +589,20 @@ export type StaffUpdateOneWithoutInvoiceItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.StaffUpdateToOneWithWhereWithoutInvoiceItemsInput, Prisma.StaffUpdateWithoutInvoiceItemsInput>, Prisma.StaffUncheckedUpdateWithoutInvoiceItemsInput>
 }
 
+export type StaffCreateNestedOneWithoutRatingsInput = {
+  create?: Prisma.XOR<Prisma.StaffCreateWithoutRatingsInput, Prisma.StaffUncheckedCreateWithoutRatingsInput>
+  connectOrCreate?: Prisma.StaffCreateOrConnectWithoutRatingsInput
+  connect?: Prisma.StaffWhereUniqueInput
+}
+
+export type StaffUpdateOneRequiredWithoutRatingsNestedInput = {
+  create?: Prisma.XOR<Prisma.StaffCreateWithoutRatingsInput, Prisma.StaffUncheckedCreateWithoutRatingsInput>
+  connectOrCreate?: Prisma.StaffCreateOrConnectWithoutRatingsInput
+  upsert?: Prisma.StaffUpsertWithoutRatingsInput
+  connect?: Prisma.StaffWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StaffUpdateToOneWithWhereWithoutRatingsInput, Prisma.StaffUpdateWithoutRatingsInput>, Prisma.StaffUncheckedUpdateWithoutRatingsInput>
+}
+
 export type StaffCreateNestedOneWithoutAttendancesInput = {
   create?: Prisma.XOR<Prisma.StaffCreateWithoutAttendancesInput, Prisma.StaffUncheckedCreateWithoutAttendancesInput>
   connectOrCreate?: Prisma.StaffCreateOrConnectWithoutAttendancesInput
@@ -611,6 +632,7 @@ export type StaffCreateWithoutTenantInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateWithoutTenantInput = {
@@ -628,6 +650,7 @@ export type StaffUncheckedCreateWithoutTenantInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffCreateOrConnectWithoutTenantInput = {
@@ -688,6 +711,7 @@ export type StaffCreateWithoutAppointmentsInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateWithoutAppointmentsInput = {
@@ -705,6 +729,7 @@ export type StaffUncheckedCreateWithoutAppointmentsInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffCreateOrConnectWithoutAppointmentsInput = {
@@ -738,6 +763,7 @@ export type StaffUpdateWithoutAppointmentsInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateWithoutAppointmentsInput = {
@@ -755,6 +781,7 @@ export type StaffUncheckedUpdateWithoutAppointmentsInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffCreateWithoutInvoicesInput = {
@@ -772,6 +799,7 @@ export type StaffCreateWithoutInvoicesInput = {
   appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateWithoutInvoicesInput = {
@@ -789,6 +817,7 @@ export type StaffUncheckedCreateWithoutInvoicesInput = {
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutStaffInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffCreateOrConnectWithoutInvoicesInput = {
@@ -822,6 +851,7 @@ export type StaffUpdateWithoutInvoicesInput = {
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateWithoutInvoicesInput = {
@@ -839,6 +869,7 @@ export type StaffUncheckedUpdateWithoutInvoicesInput = {
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutStaffNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffCreateWithoutInvoiceItemsInput = {
@@ -856,6 +887,7 @@ export type StaffCreateWithoutInvoiceItemsInput = {
   appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateWithoutInvoiceItemsInput = {
@@ -873,6 +905,7 @@ export type StaffUncheckedCreateWithoutInvoiceItemsInput = {
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutStaffInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffCreateOrConnectWithoutInvoiceItemsInput = {
@@ -906,6 +939,7 @@ export type StaffUpdateWithoutInvoiceItemsInput = {
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateWithoutInvoiceItemsInput = {
@@ -923,6 +957,95 @@ export type StaffUncheckedUpdateWithoutInvoiceItemsInput = {
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutStaffNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
+}
+
+export type StaffCreateWithoutRatingsInput = {
+  id?: string
+  name: string
+  designation: string
+  mobile?: string | null
+  email?: string | null
+  workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
+  status?: $Enums.Status
+  availabilityStatus?: $Enums.Availability
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
+  invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
+}
+
+export type StaffUncheckedCreateWithoutRatingsInput = {
+  id?: string
+  name: string
+  designation: string
+  mobile?: string | null
+  email?: string | null
+  workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
+  status?: $Enums.Status
+  availabilityStatus?: $Enums.Availability
+  tenantId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutStaffInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
+  invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
+}
+
+export type StaffCreateOrConnectWithoutRatingsInput = {
+  where: Prisma.StaffWhereUniqueInput
+  create: Prisma.XOR<Prisma.StaffCreateWithoutRatingsInput, Prisma.StaffUncheckedCreateWithoutRatingsInput>
+}
+
+export type StaffUpsertWithoutRatingsInput = {
+  update: Prisma.XOR<Prisma.StaffUpdateWithoutRatingsInput, Prisma.StaffUncheckedUpdateWithoutRatingsInput>
+  create: Prisma.XOR<Prisma.StaffCreateWithoutRatingsInput, Prisma.StaffUncheckedCreateWithoutRatingsInput>
+  where?: Prisma.StaffWhereInput
+}
+
+export type StaffUpdateToOneWithWhereWithoutRatingsInput = {
+  where?: Prisma.StaffWhereInput
+  data: Prisma.XOR<Prisma.StaffUpdateWithoutRatingsInput, Prisma.StaffUncheckedUpdateWithoutRatingsInput>
+}
+
+export type StaffUpdateWithoutRatingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  designation?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
+  status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
+  availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
+  invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
+}
+
+export type StaffUncheckedUpdateWithoutRatingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  designation?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
+  status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
+  availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutStaffNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
+  invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffCreateWithoutAttendancesInput = {
@@ -940,6 +1063,7 @@ export type StaffCreateWithoutAttendancesInput = {
   appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateWithoutAttendancesInput = {
@@ -957,6 +1081,7 @@ export type StaffUncheckedCreateWithoutAttendancesInput = {
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffCreateOrConnectWithoutAttendancesInput = {
@@ -990,6 +1115,7 @@ export type StaffUpdateWithoutAttendancesInput = {
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateWithoutAttendancesInput = {
@@ -1007,6 +1133,7 @@ export type StaffUncheckedUpdateWithoutAttendancesInput = {
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffCreateManyTenantInput = {
@@ -1037,6 +1164,7 @@ export type StaffUpdateWithoutTenantInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateWithoutTenantInput = {
@@ -1054,6 +1182,7 @@ export type StaffUncheckedUpdateWithoutTenantInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateManyWithoutTenantInput = {
@@ -1079,6 +1208,7 @@ export type StaffCountOutputType = {
   attendances: number
   invoices: number
   invoiceItems: number
+  ratings: number
 }
 
 export type StaffCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1086,6 +1216,7 @@ export type StaffCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   attendances?: boolean | StaffCountOutputTypeCountAttendancesArgs
   invoices?: boolean | StaffCountOutputTypeCountInvoicesArgs
   invoiceItems?: boolean | StaffCountOutputTypeCountInvoiceItemsArgs
+  ratings?: boolean | StaffCountOutputTypeCountRatingsArgs
 }
 
 /**
@@ -1126,6 +1257,13 @@ export type StaffCountOutputTypeCountInvoiceItemsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.InvoiceItemWhereInput
 }
 
+/**
+ * StaffCountOutputType without action
+ */
+export type StaffCountOutputTypeCountRatingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StaffRatingWhereInput
+}
+
 
 export type StaffSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1144,6 +1282,7 @@ export type StaffSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   attendances?: boolean | Prisma.Staff$attendancesArgs<ExtArgs>
   invoices?: boolean | Prisma.Staff$invoicesArgs<ExtArgs>
   invoiceItems?: boolean | Prisma.Staff$invoiceItemsArgs<ExtArgs>
+  ratings?: boolean | Prisma.Staff$ratingsArgs<ExtArgs>
   _count?: boolean | Prisma.StaffCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["staff"]>
 
@@ -1198,6 +1337,7 @@ export type StaffInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   attendances?: boolean | Prisma.Staff$attendancesArgs<ExtArgs>
   invoices?: boolean | Prisma.Staff$invoicesArgs<ExtArgs>
   invoiceItems?: boolean | Prisma.Staff$invoiceItemsArgs<ExtArgs>
+  ratings?: boolean | Prisma.Staff$ratingsArgs<ExtArgs>
   _count?: boolean | Prisma.StaffCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type StaffIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1215,6 +1355,7 @@ export type $StaffPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     attendances: Prisma.$AttendancePayload<ExtArgs>[]
     invoices: Prisma.$InvoicePayload<ExtArgs>[]
     invoiceItems: Prisma.$InvoiceItemPayload<ExtArgs>[]
+    ratings: Prisma.$StaffRatingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1627,6 +1768,7 @@ export interface Prisma__StaffClient<T, Null = never, ExtArgs extends runtime.Ty
   attendances<T extends Prisma.Staff$attendancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Staff$attendancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invoices<T extends Prisma.Staff$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Staff$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invoiceItems<T extends Prisma.Staff$invoiceItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Staff$invoiceItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoiceItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ratings<T extends Prisma.Staff$ratingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Staff$ratingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffRatingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2161,6 +2303,30 @@ export type Staff$invoiceItemsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.InvoiceItemScalarFieldEnum | Prisma.InvoiceItemScalarFieldEnum[]
+}
+
+/**
+ * Staff.ratings
+ */
+export type Staff$ratingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StaffRating
+   */
+  select?: Prisma.StaffRatingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StaffRating
+   */
+  omit?: Prisma.StaffRatingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StaffRatingInclude<ExtArgs> | null
+  where?: Prisma.StaffRatingWhereInput
+  orderBy?: Prisma.StaffRatingOrderByWithRelationInput | Prisma.StaffRatingOrderByWithRelationInput[]
+  cursor?: Prisma.StaffRatingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StaffRatingScalarFieldEnum | Prisma.StaffRatingScalarFieldEnum[]
 }
 
 /**

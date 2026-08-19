@@ -71,35 +71,24 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         where: { id, tenantId },
         include: {
           appointments: {
-          orderBy: [{ appointmentDate: "desc" }, { appointmentTime: "asc" }],
-          include: {
-            customer: {
-              select: {
-                name: true,
-              },
+            orderBy: [{ appointmentDate: "desc" }, { appointmentTime: "asc" }],
+            include: {
+              customer: { select: { name: true } },
+              service: { select: { name: true, category: true, price: true } },
             },
-            service: {
-              select: {
-                name: true,
-                category: true,
-                price: true,
-              },
-            },
+          },
+          attendances: {
+            where: { date: { gte: month.start, lte: month.end } },
+            orderBy: { date: "asc" },
           },
         },
-        attendances: {
-          where: {
-            date: {
-              gte: month.start,
-              lte: month.end,
-            },
-          },
-          orderBy: {
-            date: "asc",
-          },
-        },
-      },
-    });
+      }),
+      prisma.staffRating.aggregate({
+        where: { staffId: id },
+        _avg: { rating: true },
+        _count: { rating: true },
+      }),
+    ]);
 
     if (!staff) {
       return NextResponse.json({ error: "Staff not found." }, { status: 404 });

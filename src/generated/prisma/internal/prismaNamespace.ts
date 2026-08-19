@@ -405,6 +405,7 @@ export const ModelName = {
   Appointment: 'Appointment',
   Invoice: 'Invoice',
   InvoiceItem: 'InvoiceItem',
+  StaffRating: 'StaffRating',
   ServiceCategory: 'ServiceCategory',
   LoyaltyCard: 'LoyaltyCard',
   LoyaltyTransaction: 'LoyaltyTransaction',
@@ -427,7 +428,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "customer" | "service" | "staff" | "appointment" | "invoice" | "invoiceItem" | "serviceCategory" | "loyaltyCard" | "loyaltyTransaction" | "attendance" | "salonSettings" | "holiday" | "waitlistInterest"
+    modelProps: "tenant" | "user" | "customer" | "service" | "staff" | "appointment" | "invoice" | "invoiceItem" | "staffRating" | "serviceCategory" | "loyaltyCard" | "loyaltyTransaction" | "attendance" | "salonSettings" | "holiday" | "waitlistInterest"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1020,6 +1021,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.InvoiceItemCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.InvoiceItemCountAggregateOutputType> | number
+        }
+      }
+    }
+    StaffRating: {
+      payload: Prisma.$StaffRatingPayload<ExtArgs>
+      fields: Prisma.StaffRatingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StaffRatingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffRatingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StaffRatingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffRatingPayload>
+        }
+        findFirst: {
+          args: Prisma.StaffRatingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffRatingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StaffRatingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffRatingPayload>
+        }
+        findMany: {
+          args: Prisma.StaffRatingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffRatingPayload>[]
+        }
+        create: {
+          args: Prisma.StaffRatingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffRatingPayload>
+        }
+        createMany: {
+          args: Prisma.StaffRatingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StaffRatingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffRatingPayload>[]
+        }
+        delete: {
+          args: Prisma.StaffRatingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffRatingPayload>
+        }
+        update: {
+          args: Prisma.StaffRatingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffRatingPayload>
+        }
+        deleteMany: {
+          args: Prisma.StaffRatingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StaffRatingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StaffRatingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffRatingPayload>[]
+        }
+        upsert: {
+          args: Prisma.StaffRatingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffRatingPayload>
+        }
+        aggregate: {
+          args: Prisma.StaffRatingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStaffRating>
+        }
+        groupBy: {
+          args: Prisma.StaffRatingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StaffRatingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StaffRatingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StaffRatingCountAggregateOutputType> | number
         }
       }
     }
@@ -1726,6 +1801,18 @@ export const InvoiceItemScalarFieldEnum = {
 export type InvoiceItemScalarFieldEnum = (typeof InvoiceItemScalarFieldEnum)[keyof typeof InvoiceItemScalarFieldEnum]
 
 
+export const StaffRatingScalarFieldEnum = {
+  id: 'id',
+  rating: 'rating',
+  comment: 'comment',
+  staffId: 'staffId',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt'
+} as const
+
+export type StaffRatingScalarFieldEnum = (typeof StaffRatingScalarFieldEnum)[keyof typeof StaffRatingScalarFieldEnum]
+
+
 export const ServiceCategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2281,6 +2368,7 @@ export type GlobalOmitConfig = {
   appointment?: Prisma.AppointmentOmit
   invoice?: Prisma.InvoiceOmit
   invoiceItem?: Prisma.InvoiceItemOmit
+  staffRating?: Prisma.StaffRatingOmit
   serviceCategory?: Prisma.ServiceCategoryOmit
   loyaltyCard?: Prisma.LoyaltyCardOmit
   loyaltyTransaction?: Prisma.LoyaltyTransactionOmit

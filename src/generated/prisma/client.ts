@@ -82,6 +82,11 @@ export type Invoice = Prisma.InvoiceModel
  */
 export type InvoiceItem = Prisma.InvoiceItemModel
 /**
+ * Model StaffRating
+ * 
+ */
+export type StaffRating = Prisma.StaffRatingModel
+/**
  * Model ServiceCategory
  * 
  */
