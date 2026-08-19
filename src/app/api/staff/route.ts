@@ -50,15 +50,14 @@ export async function GET(request: Request) {
   const { start, end } = dayBounds();
 
   try {
-    const staff = await prisma.staff.findMany({
-      where: {
-        tenantId,
-        status: statusFilter && statusFilter !== "ALL" ? (statusFilter as "ACTIVE" | "INACTIVE") : undefined,
-      },
-      orderBy: {
-        name: "asc",
-      },
-      include: {
+    const [staff, ratingRows] = await Promise.all([
+      prisma.staff.findMany({
+        where: {
+          tenantId,
+          status: statusFilter && statusFilter !== "ALL" ? (statusFilter as "ACTIVE" | "INACTIVE") : undefined,
+        },
+        orderBy: { name: "asc" },
+        include: {
         appointments: {
           where: {
             appointmentDate: {
@@ -90,8 +89,17 @@ export async function GET(request: Request) {
             status: true,
           },
         },
-      },
-    });
+      }),
+      prisma.staffRating.groupBy({
+        by: ["staffId"],
+        where: { tenantId },
+        _avg: { rating: true },
+      }),
+    ]);
+
+    const avgByStaff = new Map(
+      ratingRows.map((row) => [row.staffId, Math.round((row._avg.rating ?? 0) * 10) / 10]),
+    );
 
     const items = staff.map((member) => {
       const attendanceStatus = member.attendances[0]?.status;
@@ -116,6 +124,7 @@ export async function GET(request: Request) {
         totalAppointments: totalCount,
         workingDays: member.workingDays,
         attendanceStatusToday: attendanceStatus ?? null,
+        avgRating: avgByStaff.get(member.id) ?? 0,
         createdAt: member.createdAt,
       };
     });

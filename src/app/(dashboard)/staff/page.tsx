@@ -17,6 +17,7 @@ type StaffRow = {
   displayStatus: "AVAILABLE" | "BUSY" | "OFF_DUTY" | "INACTIVE";
   todayAppointments: number;
   totalAppointments: number;
+  avgRating: number;
   workingDays: string[];
   attendanceStatusToday: string | null;
   createdAt: string;

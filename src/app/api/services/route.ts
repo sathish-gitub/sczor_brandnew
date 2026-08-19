@@ -7,8 +7,9 @@ import { prisma } from "@/lib/prisma";
 
 const createServiceSchema = z.object({
   name: z.string().trim().min(2, "Service name is required."),
-  category: z.enum(["Hair", "Skin", "Nail", "Makeup", "Spa", "Other"]),
+  category: z.string().trim().min(2, "Category is required."),
   description: z.string().optional().or(z.literal("")),
+
   price: z.coerce.number().positive("Price must be greater than zero."),
   duration: z.coerce.number().int().positive("Duration is required."),
   status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
@@ -71,6 +72,12 @@ export async function POST(request: Request) {
     }
 
     const payload = parsed.data;
+
+    await prisma.serviceCategory.upsert({
+      where: { name_tenantId: { name: payload.category, tenantId } },
+      create: { name: payload.category, tenantId },
+      update: {},
+    });
 
     const service = await prisma.service.create({
       data: {

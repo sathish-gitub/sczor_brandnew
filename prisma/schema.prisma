@@ -120,6 +120,7 @@ model Staff {
   attendances        Attendance[]
   invoices           Invoice[]
   invoiceItems       InvoiceItem[]
+  ratings            StaffRating[]
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
@@ -206,6 +207,19 @@ model InvoiceItem {
   @@index([invoiceId])
   @@index([serviceId])
   @@index([staffId])
+}
+
+model StaffRating {
+  id        String   @id @default(cuid())
+  rating    Int
+  comment   String?
+  staffId   String
+  staff     Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  tenantId  String
+  createdAt DateTime @default(now())
+
+  @@index([staffId])
+  @@index([tenantId])
 }
 
 model ServiceCategory {

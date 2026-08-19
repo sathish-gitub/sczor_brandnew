@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarDays, Clock3, Eye, Phone } from "lucide-react";
+import { CalendarDays, Clock3, Eye, Phone, Star } from "lucide-react";
 
 import { StaffAvatar } from "@/components/staff/StaffAvatar";
 
@@ -14,6 +14,7 @@ type StaffCardProps = {
     displayStatus?: "AVAILABLE" | "BUSY" | "OFF_DUTY" | "INACTIVE";
     todayAppointments: number;
     totalAppointments: number;
+    avgRating?: number;
   };
 };
 
@@ -61,6 +62,12 @@ export function StaffCard({ member }: StaffCardProps) {
           <Clock3 className="h-4 w-4" />
           {member.todayAppointments} today · {member.totalAppointments} total
         </p>
+        {member.avgRating ? (
+          <p className="inline-flex items-center gap-1">
+            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+            <span className="text-xs font-semibold text-[var(--foreground)]">{member.avgRating.toFixed(1)}</span>
+          </p>
+        ) : null}
       </div>
 
       <Link

@@ -66,13 +66,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
   try {
 
-    const staff = await prisma.staff.findFirst({
-      where: {
-        id,
-        tenantId,
-      },
-      include: {
-        appointments: {
+    const [staff, ratingAgg] = await Promise.all([
+      prisma.staff.findFirst({
+        where: { id, tenantId },
+        include: {
+          appointments: {
           orderBy: [{ appointmentDate: "desc" }, { appointmentTime: "asc" }],
           include: {
             customer: {
@@ -139,7 +137,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
           totalAppointments: allAppointments.length,
           monthAppointments: monthAppointments.length,
           attendancePercentage,
-          avgRating: 4.8,
+          avgRating: Math.round((ratingAgg._avg.rating ?? 0) * 10) / 10,
+          totalRatings: ratingAgg._count.rating,
         },
         scheduleWeek: weekAppointments.map((item) => ({
           id: item.id,
@@ -157,7 +156,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         performance: {
           servicesByCategory: byCategory,
           revenueGenerated,
-          customerSatisfaction: "4.8 / 5 (placeholder)",
+          customerSatisfaction: ratingAgg._count.rating > 0
+            ? `${Math.round((ratingAgg._avg.rating ?? 0) * 10) / 10} / 5 (${ratingAgg._count.rating} review${ratingAgg._count.rating === 1 ? "" : "s"})`
+            : "No ratings yet",
         },
       },
     });

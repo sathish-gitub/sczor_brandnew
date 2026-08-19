@@ -101,14 +101,17 @@ export async function GET(request: Request) {
         }),
       ]);
 
-    return NextResponse.json({
-      todayAppointments,
-      todayRevenue: Number(todayRevenue._sum.total || 0),
-      newCustomers,
-      staffPresent,
-      totalStaff,
-      range: range ?? "today",
-    });
+    return NextResponse.json(
+      {
+        todayAppointments,
+        todayRevenue: Number(todayRevenue._sum.total || 0),
+        newCustomers,
+        staffPresent,
+        totalStaff,
+        range: range ?? "today",
+      },
+      { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } },
+    );
   } catch (error) {
     console.error("Stats error:", error);
     return NextResponse.json({ error: "Failed" }, { status: 500 });

@@ -240,6 +240,39 @@ export default function DashboardPage() {
     };
   }, [selectedRange, customFrom, customTo]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      void fetch(
+        `/api/dashboard/stats?${new URLSearchParams({
+          range: selectedRange,
+          ...(selectedRange === "custom" && customFrom && customTo ? { from: customFrom, to: customTo } : {}),
+        }).toString()}`,
+        { cache: "no-store" },
+      )
+        .then((r) => r.json() as Promise<DashboardStats>)
+        .then(setStats)
+        .catch(() => null);
+    }, 60_000);
+    return () => clearInterval(interval);
+  }, [selectedRange, customFrom, customTo]);
+
+  useEffect(() => {
+    function onFocus() {
+      void fetch(
+        `/api/dashboard/stats?${new URLSearchParams({
+          range: selectedRange,
+          ...(selectedRange === "custom" && customFrom && customTo ? { from: customFrom, to: customTo } : {}),
+        }).toString()}`,
+        { cache: "no-store" },
+      )
+        .then((r) => r.json() as Promise<DashboardStats>)
+        .then(setStats)
+        .catch(() => null);
+    }
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [selectedRange, customFrom, customTo]);
+
   const statCards = useMemo(
     () => [
       {

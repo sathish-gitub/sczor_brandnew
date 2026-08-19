@@ -289,7 +289,7 @@ export default function AppointmentsPage() {
             >
               {statusOptions.map((option) => (
                 <option key={option} value={option}>
-                  {option === "ALL" ? "All Statuses" : option.replaceAll("_", " ")}
+                  {option === "ALL" ? "All Status" : option.replaceAll("_", " ")}
                 </option>
               ))}
             </select>

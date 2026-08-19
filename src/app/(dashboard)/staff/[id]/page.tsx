@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Mail, Phone } from "lucide-react";
+import { CalendarDays, Mail, Phone, Star } from "lucide-react";
 
 import { StaffAvatar } from "@/components/staff/StaffAvatar";
 
@@ -22,6 +22,7 @@ type StaffDetail = {
     monthAppointments: number;
     attendancePercentage: number;
     avgRating: number;
+    totalRatings: number;
   };
   scheduleWeek: Array<{
     id: string;
@@ -66,6 +67,10 @@ export default function StaffProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [staff, setStaff] = useState<StaffDetail | null>(null);
+  const [ratingHover, setRatingHover] = useState(0);
+  const [ratingPending, setRatingPending] = useState(false);
+  const [ratingComment, setRatingComment] = useState("");
+  const [ratingSuccess, setRatingSuccess] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -109,6 +114,46 @@ export default function StaffProfilePage() {
     ],
     [],
   );
+
+  async function submitRating(stars: number) {
+    if (ratingPending) return;
+    setRatingPending(true);
+    setRatingSuccess(false);
+
+    const response = await fetch(`/api/staff/${params.id}/rating`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rating: stars, comment: ratingComment }),
+    });
+
+    const payload = (await response.json().catch(() => null)) as {
+      avgRating?: number;
+      totalRatings?: number;
+      error?: string;
+    } | null;
+
+    setRatingPending(false);
+
+    if (!response.ok || !payload) {
+      setError(payload?.error ?? "Unable to save rating.");
+      return;
+    }
+
+    setStaff((prev) =>
+      prev
+        ? {
+            ...prev,
+            stats: {
+              ...prev.stats,
+              avgRating: payload.avgRating ?? prev.stats.avgRating,
+              totalRatings: payload.totalRatings ?? prev.stats.totalRatings,
+            },
+          }
+        : prev,
+    );
+    setRatingComment("");
+    setRatingSuccess(true);
+  }
 
   if (loading) {
     return <div className="h-64 animate-pulse rounded-2xl border border-[var(--border)] bg-white" />;
@@ -207,6 +252,43 @@ export default function StaffProfilePage() {
                 {day}
               </span>
             ))}
+          </div>
+
+          <div className="mt-6 border-t border-[var(--border)] pt-5">
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">Rate this staff member</h3>
+            {ratingSuccess ? (
+              <p className="mt-2 text-sm text-emerald-600">Rating submitted — thank you!</p>
+            ) : null}
+            <div className="mt-2 flex gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  disabled={ratingPending}
+                  onMouseEnter={() => setRatingHover(star)}
+                  onMouseLeave={() => setRatingHover(0)}
+                  onClick={() => submitRating(star)}
+                  className="focus:outline-none disabled:opacity-50"
+                  aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
+                >
+                  <Star
+                    className={[
+                      "h-7 w-7 transition-colors",
+                      (ratingHover || 0) >= star
+                        ? "fill-amber-400 text-amber-400"
+                        : "text-slate-300",
+                    ].join(" ")}
+                  />
+                </button>
+              ))}
+            </div>
+            <input
+              value={ratingComment}
+              onChange={(e) => setRatingComment(e.target.value)}
+              placeholder="Optional comment…"
+              maxLength={500}
+              className="mt-2 h-9 w-full max-w-sm rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+            />
           </div>
         </section>
       ) : null}

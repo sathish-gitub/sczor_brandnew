@@ -74,6 +74,23 @@ export function InvoicePrint({ invoice, tenant }: InvoicePrintProps) {
     .join(" - ");
   const contactLine = [tenant.phone, tenant.email].filter(Boolean).join(" | ");
 
+  const handleWhatsApp = () => {
+    const phone = invoice.customer?.mobile?.replace(/[^0-9]/g, "");
+    const loyaltyPoints = Math.floor(invoice.total / 10);
+    const salonName = tenant?.name || "Our Salon";
+
+    const message =
+      `Hello ${invoice.customer?.name}! 👋\n\nThank you for choosing *${salonName}*! 💫\n\n` +
+      `🧾 *Invoice:* ${invoice.invoiceNumber}\n` +
+      `💰 *Amount:* ₹${invoice.total}\n` +
+      `💳 *Payment:* ${invoice.paymentMethod}\n\n` +
+      `⭐ *Loyalty Points Earned:* ${loyaltyPoints} points\n\n` +
+      `We look forward to seeing you again!\nThank you for your visit! 🙏`;
+
+    const url = `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
+    window.open(url, "_blank");
+  };
+
   return (
     <div className="space-y-4">
       <div className="no-print flex flex-wrap items-center gap-2">
@@ -91,14 +108,13 @@ export function InvoicePrint({ invoice, tenant }: InvoicePrintProps) {
         >
           Download PDF
         </button>
-        <a
-          href={`https://wa.me/?text=${encodeURIComponent(`Invoice ${invoice.invoiceNumber} for ${invoice.customer.name}, Amount ${formatCurrency(invoice.total)}`)}`}
-          target="_blank"
-          rel="noreferrer"
+        <button
+          type="button"
+          onClick={handleWhatsApp}
           className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
         >
           Send WhatsApp
-        </a>
+        </button>
         <Link
           href="/billing/invoices"
           className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
