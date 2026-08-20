@@ -50,7 +50,7 @@ export async function GET(request: Request) {
   const { start, end } = dayBounds();
 
   try {
-    const [staff, ratingRows] = await Promise.all([
+    const [staff] = await Promise.all([
       prisma.staff.findMany({
         where: {
           tenantId,
@@ -91,16 +91,10 @@ export async function GET(request: Request) {
           },
         },
       }),
-      prisma.staffRating.groupBy({
-        by: ["staffId"],
-        where: { tenantId },
-        _avg: { rating: true },
-      }),
+
     ]);
 
-    const avgByStaff = new Map(
-      ratingRows.map((row) => [row.staffId, Math.round((row._avg.rating ?? 0) * 10) / 10]),
-    );
+    const avgByStaff = new Map();
 
     const items = staff.map((member) => {
       const attendanceStatus = member.attendances[0]?.status;
