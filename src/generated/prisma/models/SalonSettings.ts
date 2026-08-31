@@ -98,6 +98,7 @@ export type SalonSettingsMinAggregateOutputType = {
   sundayBreak: string | null
   gstEnabled: boolean | null
   gstRate: runtime.Decimal | null
+  taxLabel: string | null
   currency: string | null
   currencySymbol: string | null
   invoicePrefix: string | null
@@ -159,6 +160,7 @@ export type SalonSettingsMaxAggregateOutputType = {
   sundayBreak: string | null
   gstEnabled: boolean | null
   gstRate: runtime.Decimal | null
+  taxLabel: string | null
   currency: string | null
   currencySymbol: string | null
   invoicePrefix: string | null
@@ -220,6 +222,7 @@ export type SalonSettingsCountAggregateOutputType = {
   sundayBreak: number
   gstEnabled: number
   gstRate: number
+  taxLabel: number
   currency: number
   currencySymbol: number
   invoicePrefix: number
@@ -311,6 +314,7 @@ export type SalonSettingsMinAggregateInputType = {
   sundayBreak?: true
   gstEnabled?: true
   gstRate?: true
+  taxLabel?: true
   currency?: true
   currencySymbol?: true
   invoicePrefix?: true
@@ -372,6 +376,7 @@ export type SalonSettingsMaxAggregateInputType = {
   sundayBreak?: true
   gstEnabled?: true
   gstRate?: true
+  taxLabel?: true
   currency?: true
   currencySymbol?: true
   invoicePrefix?: true
@@ -433,6 +438,7 @@ export type SalonSettingsCountAggregateInputType = {
   sundayBreak?: true
   gstEnabled?: true
   gstRate?: true
+  taxLabel?: true
   currency?: true
   currencySymbol?: true
   invoicePrefix?: true
@@ -581,6 +587,7 @@ export type SalonSettingsGroupByOutputType = {
   sundayBreak: string | null
   gstEnabled: boolean
   gstRate: runtime.Decimal
+  taxLabel: string
   currency: string
   currencySymbol: string
   invoicePrefix: string
@@ -665,6 +672,7 @@ export type SalonSettingsWhereInput = {
   sundayBreak?: Prisma.StringNullableFilter<"SalonSettings"> | string | null
   gstEnabled?: Prisma.BoolFilter<"SalonSettings"> | boolean
   gstRate?: Prisma.DecimalFilter<"SalonSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: Prisma.StringFilter<"SalonSettings"> | string
   currency?: Prisma.StringFilter<"SalonSettings"> | string
   currencySymbol?: Prisma.StringFilter<"SalonSettings"> | string
   invoicePrefix?: Prisma.StringFilter<"SalonSettings"> | string
@@ -727,6 +735,7 @@ export type SalonSettingsOrderByWithRelationInput = {
   sundayBreak?: Prisma.SortOrderInput | Prisma.SortOrder
   gstEnabled?: Prisma.SortOrder
   gstRate?: Prisma.SortOrder
+  taxLabel?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   currencySymbol?: Prisma.SortOrder
   invoicePrefix?: Prisma.SortOrder
@@ -792,6 +801,7 @@ export type SalonSettingsWhereUniqueInput = Prisma.AtLeast<{
   sundayBreak?: Prisma.StringNullableFilter<"SalonSettings"> | string | null
   gstEnabled?: Prisma.BoolFilter<"SalonSettings"> | boolean
   gstRate?: Prisma.DecimalFilter<"SalonSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: Prisma.StringFilter<"SalonSettings"> | string
   currency?: Prisma.StringFilter<"SalonSettings"> | string
   currencySymbol?: Prisma.StringFilter<"SalonSettings"> | string
   invoicePrefix?: Prisma.StringFilter<"SalonSettings"> | string
@@ -854,6 +864,7 @@ export type SalonSettingsOrderByWithAggregationInput = {
   sundayBreak?: Prisma.SortOrderInput | Prisma.SortOrder
   gstEnabled?: Prisma.SortOrder
   gstRate?: Prisma.SortOrder
+  taxLabel?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   currencySymbol?: Prisma.SortOrder
   invoicePrefix?: Prisma.SortOrder
@@ -923,6 +934,7 @@ export type SalonSettingsScalarWhereWithAggregatesInput = {
   sundayBreak?: Prisma.StringNullableWithAggregatesFilter<"SalonSettings"> | string | null
   gstEnabled?: Prisma.BoolWithAggregatesFilter<"SalonSettings"> | boolean
   gstRate?: Prisma.DecimalWithAggregatesFilter<"SalonSettings"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: Prisma.StringWithAggregatesFilter<"SalonSettings"> | string
   currency?: Prisma.StringWithAggregatesFilter<"SalonSettings"> | string
   currencySymbol?: Prisma.StringWithAggregatesFilter<"SalonSettings"> | string
   invoicePrefix?: Prisma.StringWithAggregatesFilter<"SalonSettings"> | string
@@ -983,6 +995,7 @@ export type SalonSettingsCreateInput = {
   sundayBreak?: string | null
   gstEnabled?: boolean
   gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: string
   currency?: string
   currencySymbol?: string
   invoicePrefix?: string
@@ -1045,6 +1058,7 @@ export type SalonSettingsUncheckedCreateInput = {
   sundayBreak?: string | null
   gstEnabled?: boolean
   gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: string
   currency?: string
   currencySymbol?: string
   invoicePrefix?: string
@@ -1105,6 +1119,7 @@ export type SalonSettingsUpdateInput = {
   sundayBreak?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gstRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
   invoicePrefix?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1167,6 +1182,7 @@ export type SalonSettingsUncheckedUpdateInput = {
   sundayBreak?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gstRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
   invoicePrefix?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1228,6 +1244,7 @@ export type SalonSettingsCreateManyInput = {
   sundayBreak?: string | null
   gstEnabled?: boolean
   gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: string
   currency?: string
   currencySymbol?: string
   invoicePrefix?: string
@@ -1288,6 +1305,7 @@ export type SalonSettingsUpdateManyMutationInput = {
   sundayBreak?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gstRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
   invoicePrefix?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1349,6 +1367,7 @@ export type SalonSettingsUncheckedUpdateManyInput = {
   sundayBreak?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gstRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
   invoicePrefix?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1415,6 +1434,7 @@ export type SalonSettingsCountOrderByAggregateInput = {
   sundayBreak?: Prisma.SortOrder
   gstEnabled?: Prisma.SortOrder
   gstRate?: Prisma.SortOrder
+  taxLabel?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   currencySymbol?: Prisma.SortOrder
   invoicePrefix?: Prisma.SortOrder
@@ -1490,6 +1510,7 @@ export type SalonSettingsMaxOrderByAggregateInput = {
   sundayBreak?: Prisma.SortOrder
   gstEnabled?: Prisma.SortOrder
   gstRate?: Prisma.SortOrder
+  taxLabel?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   currencySymbol?: Prisma.SortOrder
   invoicePrefix?: Prisma.SortOrder
@@ -1551,6 +1572,7 @@ export type SalonSettingsMinOrderByAggregateInput = {
   sundayBreak?: Prisma.SortOrder
   gstEnabled?: Prisma.SortOrder
   gstRate?: Prisma.SortOrder
+  taxLabel?: Prisma.SortOrder
   currency?: Prisma.SortOrder
   currencySymbol?: Prisma.SortOrder
   invoicePrefix?: Prisma.SortOrder
@@ -1657,6 +1679,7 @@ export type SalonSettingsCreateWithoutTenantInput = {
   sundayBreak?: string | null
   gstEnabled?: boolean
   gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: string
   currency?: string
   currencySymbol?: string
   invoicePrefix?: string
@@ -1717,6 +1740,7 @@ export type SalonSettingsUncheckedCreateWithoutTenantInput = {
   sundayBreak?: string | null
   gstEnabled?: boolean
   gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: string
   currency?: string
   currencySymbol?: string
   invoicePrefix?: string
@@ -1793,6 +1817,7 @@ export type SalonSettingsUpdateWithoutTenantInput = {
   sundayBreak?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gstRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
   invoicePrefix?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1853,6 +1878,7 @@ export type SalonSettingsUncheckedUpdateWithoutTenantInput = {
   sundayBreak?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   gstRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  taxLabel?: Prisma.StringFieldUpdateOperationsInput | string
   currency?: Prisma.StringFieldUpdateOperationsInput | string
   currencySymbol?: Prisma.StringFieldUpdateOperationsInput | string
   invoicePrefix?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1916,6 +1942,7 @@ export type SalonSettingsSelect<ExtArgs extends runtime.Types.Extensions.Interna
   sundayBreak?: boolean
   gstEnabled?: boolean
   gstRate?: boolean
+  taxLabel?: boolean
   currency?: boolean
   currencySymbol?: boolean
   invoicePrefix?: boolean
@@ -1978,6 +2005,7 @@ export type SalonSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   sundayBreak?: boolean
   gstEnabled?: boolean
   gstRate?: boolean
+  taxLabel?: boolean
   currency?: boolean
   currencySymbol?: boolean
   invoicePrefix?: boolean
@@ -2040,6 +2068,7 @@ export type SalonSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   sundayBreak?: boolean
   gstEnabled?: boolean
   gstRate?: boolean
+  taxLabel?: boolean
   currency?: boolean
   currencySymbol?: boolean
   invoicePrefix?: boolean
@@ -2102,6 +2131,7 @@ export type SalonSettingsSelectScalar = {
   sundayBreak?: boolean
   gstEnabled?: boolean
   gstRate?: boolean
+  taxLabel?: boolean
   currency?: boolean
   currencySymbol?: boolean
   invoicePrefix?: boolean
@@ -2119,7 +2149,7 @@ export type SalonSettingsSelectScalar = {
   emailEnabled?: boolean
 }
 
-export type SalonSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "onboardingStep1Done" | "loyaltyPointsPerRupee" | "rupeePerPoint" | "minPointsToRedeem" | "maxRedeemPercent" | "pointsExpiryEnabled" | "pointsExpiryMonths" | "silverThreshold" | "goldThreshold" | "platinumThreshold" | "slotDurationMinutes" | "mondayEnabled" | "mondayOpen" | "mondayClose" | "mondayBreak" | "tuesdayEnabled" | "tuesdayOpen" | "tuesdayClose" | "tuesdayBreak" | "wednesdayEnabled" | "wednesdayOpen" | "wednesdayClose" | "wednesdayBreak" | "thursdayEnabled" | "thursdayOpen" | "thursdayClose" | "thursdayBreak" | "fridayEnabled" | "fridayOpen" | "fridayClose" | "fridayBreak" | "saturdayEnabled" | "saturdayOpen" | "saturdayClose" | "saturdayBreak" | "sundayEnabled" | "sundayOpen" | "sundayClose" | "sundayBreak" | "gstEnabled" | "gstRate" | "currency" | "currencySymbol" | "invoicePrefix" | "invoiceNumberFormat" | "invoiceStartNumber" | "invoiceFooter" | "invoiceTerms" | "cashEnabled" | "upiEnabled" | "cardEnabled" | "walletEnabled" | "upiId" | "smsEnabled" | "whatsappEnabled" | "emailEnabled", ExtArgs["result"]["salonSettings"]>
+export type SalonSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "onboardingStep1Done" | "loyaltyPointsPerRupee" | "rupeePerPoint" | "minPointsToRedeem" | "maxRedeemPercent" | "pointsExpiryEnabled" | "pointsExpiryMonths" | "silverThreshold" | "goldThreshold" | "platinumThreshold" | "slotDurationMinutes" | "mondayEnabled" | "mondayOpen" | "mondayClose" | "mondayBreak" | "tuesdayEnabled" | "tuesdayOpen" | "tuesdayClose" | "tuesdayBreak" | "wednesdayEnabled" | "wednesdayOpen" | "wednesdayClose" | "wednesdayBreak" | "thursdayEnabled" | "thursdayOpen" | "thursdayClose" | "thursdayBreak" | "fridayEnabled" | "fridayOpen" | "fridayClose" | "fridayBreak" | "saturdayEnabled" | "saturdayOpen" | "saturdayClose" | "saturdayBreak" | "sundayEnabled" | "sundayOpen" | "sundayClose" | "sundayBreak" | "gstEnabled" | "gstRate" | "taxLabel" | "currency" | "currencySymbol" | "invoicePrefix" | "invoiceNumberFormat" | "invoiceStartNumber" | "invoiceFooter" | "invoiceTerms" | "cashEnabled" | "upiEnabled" | "cardEnabled" | "walletEnabled" | "upiId" | "smsEnabled" | "whatsappEnabled" | "emailEnabled", ExtArgs["result"]["salonSettings"]>
 export type SalonSettingsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
@@ -2179,6 +2209,7 @@ export type $SalonSettingsPayload<ExtArgs extends runtime.Types.Extensions.Inter
     sundayBreak: string | null
     gstEnabled: boolean
     gstRate: runtime.Decimal
+    taxLabel: string
     currency: string
     currencySymbol: string
     invoicePrefix: string
@@ -2661,6 +2692,7 @@ export interface SalonSettingsFieldRefs {
   readonly sundayBreak: Prisma.FieldRef<"SalonSettings", 'String'>
   readonly gstEnabled: Prisma.FieldRef<"SalonSettings", 'Boolean'>
   readonly gstRate: Prisma.FieldRef<"SalonSettings", 'Decimal'>
+  readonly taxLabel: Prisma.FieldRef<"SalonSettings", 'String'>
   readonly currency: Prisma.FieldRef<"SalonSettings", 'String'>
   readonly currencySymbol: Prisma.FieldRef<"SalonSettings", 'String'>
   readonly invoicePrefix: Prisma.FieldRef<"SalonSettings", 'String'>

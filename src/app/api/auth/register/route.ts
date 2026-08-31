@@ -101,6 +101,15 @@ export async function POST(request: Request) {
       await tx.salonSettings.create({
         data: {
           tenantId: createdTenant.id,
+          gstEnabled: true,
+          gstRate: 18,
+          taxLabel: "GST",
+          currency: "INR",
+          currencySymbol: "₹",
+          invoicePrefix: "INV",
+          smsEnabled: false,
+          whatsappEnabled: false,
+          emailEnabled: false,
         },
       });
 

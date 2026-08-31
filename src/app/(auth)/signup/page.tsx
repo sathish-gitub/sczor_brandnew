@@ -16,7 +16,7 @@ const signupSchema = z
     email: z.email("Enter a valid email address.").transform((value) =>
       value.trim().toLowerCase(),
     ),
-    mobile: z.string().trim().regex(/^\d{10}$/, "Mobile number must be 10 digits."),
+    mobile: z.string().trim().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
     password: z.string().min(8, "Password must be at least 8 characters."),
     confirmPassword: z.string().min(8, "Confirm your password."),
     terms: z.boolean().refine((value) => value, {

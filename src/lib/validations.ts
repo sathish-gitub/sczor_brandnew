@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const customerSchema = z.object({
   name: z.string().trim().min(2, "Customer name is required."),
-  mobile: z.string().trim().regex(/^\d{10}$/, "Mobile number must be 10 digits."),
+  mobile: z.string().trim().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
   email: z.string().trim().email("Invalid email.").optional().or(z.literal("")),
   gender: z.enum(["MALE", "FEMALE", "OTHER"]).optional(),
   dateOfBirth: z.string().optional().or(z.literal("")),
@@ -21,7 +21,7 @@ export const serviceSchema = z.object({
 export const staffSchema = z.object({
   name: z.string().trim().min(2, "Staff name is required."),
   designation: z.string().trim().min(2, "Designation is required."),
-  mobile: z.string().trim().regex(/^\d{10}$/, "Mobile number must be 10 digits.").optional().or(z.literal("")),
+  mobile: z.string().trim().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number.").optional().or(z.literal("")),
   email: z.string().trim().email("Invalid email.").optional().or(z.literal("")),
   workingDays: z.array(z.enum(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]).or(z.string())).optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
@@ -65,6 +65,6 @@ export const signupSchema = z.object({
   salonName: z.string().trim().min(2, "Salon name is required."),
   name: z.string().trim().min(2, "Name is required."),
   email: z.string().trim().email("Enter a valid email."),
-  mobile: z.string().trim().regex(/^\d{10}$/, "Mobile number must be 10 digits."),
+  mobile: z.string().trim().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
   password: z.string().min(6, "Password must be at least 6 characters."),
 });

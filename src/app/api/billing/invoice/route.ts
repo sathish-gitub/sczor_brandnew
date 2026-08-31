@@ -80,6 +80,7 @@ export async function POST(request: Request) {
         },
         select: {
           invoicePrefix: true,
+          gstEnabled: true,
           gstRate: true,
           silverThreshold: true,
           goldThreshold: true,
@@ -179,8 +180,9 @@ export async function POST(request: Request) {
     );
 
     const taxableAmount = roundMoney(Math.max(0, amountAfterManualDiscount - loyaltyDiscount));
+    const gstEnabled = settings?.gstEnabled ?? true;
     const gstRate = Number(settings?.gstRate ?? 18);
-    const taxAmount = roundMoney((taxableAmount * gstRate) / 100);
+    const taxAmount = gstEnabled ? roundMoney((taxableAmount * gstRate) / 100) : 0;
     const total = roundMoney(taxableAmount + taxAmount);
 
     const pointsEarned = Math.floor(total / 10);

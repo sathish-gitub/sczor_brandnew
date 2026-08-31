@@ -86,6 +86,9 @@ export default function BillingPage() {
   const [processingPayment, setProcessingPayment] = useState(false);
   const [success, setSuccess] = useState<CheckoutSuccess | null>(null);
   const [linkedAppointmentId, setLinkedAppointmentId] = useState<string | null>(null);
+  const [taxRate, setTaxRate] = useState(18);
+  const [gstEnabled, setGstEnabled] = useState(true);
+  const [taxLabel, setTaxLabel] = useState("GST");
 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
@@ -96,6 +99,19 @@ export default function BillingPage() {
       setToasts((current) => current.filter((item) => item.id !== id));
     }, 2400);
   }
+
+  useEffect(() => {
+    fetch("/api/settings", { cache: "no-store" })
+      .then((res) => res.ok ? res.json() : null)
+      .then((data: { taxBilling?: { gstRate: number; gstEnabled: boolean; taxLabel: string } } | null) => {
+        if (data?.taxBilling) {
+          setTaxRate(data.taxBilling.gstRate ?? 18);
+          setGstEnabled(data.taxBilling.gstEnabled ?? true);
+          setTaxLabel(data.taxBilling.taxLabel ?? "GST");
+        }
+      })
+      .catch(() => null);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -391,7 +407,7 @@ export default function BillingPage() {
   }, [useLoyaltyPoints, loyaltyMax, loyaltyPointsToRedeem]);
 
   const taxableAmount = useMemo(() => roundMoney(Math.max(0, afterDiscount - loyaltyDiscount)), [afterDiscount, loyaltyDiscount]);
-  const gst = useMemo(() => roundMoney(taxableAmount * 0.18), [taxableAmount]);
+  const gst = useMemo(() => gstEnabled ? roundMoney(taxableAmount * (taxRate / 100)) : 0, [taxableAmount, taxRate, gstEnabled]);
   const cgst = useMemo(() => roundMoney(gst / 2), [gst]);
   const sgst = useMemo(() => roundMoney(gst / 2), [gst]);
   const total = useMemo(() => roundMoney(taxableAmount + gst), [taxableAmount, gst]);
@@ -668,6 +684,8 @@ export default function BillingPage() {
           />
 
           <PaymentSummary
+            taxRate={taxRate}
+            taxLabel={taxLabel}
             value={{
               subtotal,
               discountValue,

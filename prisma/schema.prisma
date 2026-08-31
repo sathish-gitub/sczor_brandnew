@@ -327,6 +327,7 @@ model SalonSettings {
   sundayBreak           String?
   gstEnabled            Boolean  @default(true)
   gstRate               Decimal  @default(18) @db.Decimal(5, 2)
+  taxLabel              String   @default("GST")
   currency              String   @default("INR")
   currencySymbol        String   @default("₹")
   invoicePrefix         String   @default("INV")

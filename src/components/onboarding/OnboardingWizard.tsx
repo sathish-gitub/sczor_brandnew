@@ -105,6 +105,7 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
   const [serviceCount, setServiceCount] = useState(0);
   const [staffCount, setStaffCount] = useState(0);
   const [staffResults, setStaffResults] = useState<StaffSaveResult[]>([]);
+  const [staffMobileErrors, setStaffMobileErrors] = useState<Record<string, string>>({});
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -137,7 +138,7 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
     }
 
     if (!/^\d{10}$/.test(profile.phone)) {
-      return "Phone number must be 10 digits.";
+      return "Please enter a valid 10-digit phone number.";
     }
 
     if (profile.workingDays.length === 0) {
@@ -194,7 +195,7 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
     );
 
     return {
-      error: hasInvalidRow ? "Complete each staff card before continuing." : null,
+      error: hasInvalidRow ? "Please enter a valid 10-digit mobile number for all staff members." : null,
       payload,
     };
   }
@@ -535,14 +536,6 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setServices((existing) => [...existing, exampleServiceRow()])}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-blue-200 bg-white px-4 text-sm font-semibold text-[var(--primary)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
-          >
-            <Plus className="h-4 w-4" />
-            Add Service
-          </button>
         </div>
 
         <div className="overflow-hidden rounded-3xl border border-[var(--border)] bg-white">
@@ -640,6 +633,15 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
             ))}
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setServices((existing) => [...existing, exampleServiceRow()])}
+          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-blue-200 bg-white text-sm font-semibold text-[var(--primary)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+        >
+          <Plus className="h-4 w-4" />
+          Add Another Service
+        </button>
       </div>
     );
   }
@@ -739,14 +741,33 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
                     value={member.mobile}
                     inputMode="numeric"
                     onChange={(event) => {
+                      const val = event.target.value;
                       setStaff((existing) =>
                         existing.map((item) =>
-                          item.id === member.id ? { ...item, mobile: event.target.value } : item,
+                          item.id === member.id ? { ...item, mobile: val } : item,
                         ),
                       );
                     }}
+                    onBlur={(event) => {
+                      const val = event.target.value.replace(/[^0-9]/g, "");
+                      if (val.length > 0 && val.length !== 10) {
+                        setStaffMobileErrors((prev) => ({
+                          ...prev,
+                          [member.id]: "Please enter a valid 10-digit mobile number.",
+                        }));
+                      } else {
+                        setStaffMobileErrors((prev) => {
+                          const next = { ...prev };
+                          delete next[member.id];
+                          return next;
+                        });
+                      }
+                    }}
                     className="h-11 w-full rounded-2xl border border-[var(--border)] px-4 text-sm outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_4px_rgba(37,99,235,0.12)]"
                   />
+                  {staffMobileErrors[member.id] ? (
+                    <p className="text-xs text-red-600">{staffMobileErrors[member.id]}</p>
+                  ) : null}
                 </div>
               </div>
 

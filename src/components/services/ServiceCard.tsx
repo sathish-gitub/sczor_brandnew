@@ -38,7 +38,7 @@ export function ServiceCard({ service, onToggle, onDelete, busy }: ServiceCardPr
     <article className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h3 className="text-lg font-semibold text-[var(--foreground)]">{service.name}</h3>
+          <h3 className="text-lg font-medium text-[var(--foreground)]">{service.name}</h3>
           <p className="mt-1 text-sm text-[var(--muted)]">{service.description || "No description added yet."}</p>
         </div>
         <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${categoryClasses[service.category] || categoryClasses.Other}`}>

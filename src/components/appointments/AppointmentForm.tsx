@@ -9,6 +9,13 @@ import { z } from "zod";
 
 import { StatusBadge } from "@/components/appointments/StatusBadge";
 
+type SalonDayEntry = {
+  day: string;
+  enabled: boolean;
+  open: string;
+  close: string;
+};
+
 export type AppointmentStatus =
   | "BOOKED"
   | "IN_PROGRESS"
@@ -69,7 +76,7 @@ type FormValues = {
 
 const formSchema = z.object({
   customerId: z.string().cuid().optional(),
-  mobile: z.string().trim().regex(/^\d{10}$/, "Mobile number must be 10 digits."),
+  mobile: z.string().trim().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
   customerName: z.string().trim().min(2, "Customer name is required."),
   email: z.string().trim().email("Enter a valid email.").or(z.literal("")),
   notes: z.string(),
@@ -99,6 +106,9 @@ function toTitleCase(value: string) {
 export function AppointmentForm({ mode, services, initialData }: AppointmentFormProps) {
   const router = useRouter();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [dateError, setDateError] = useState<string | null>(null);
+  const [timeError, setTimeError] = useState<string | null>(null);
+  const [salonDays, setSalonDays] = useState<SalonDayEntry[]>([]);
   const [customerState, setCustomerState] = useState<"idle" | "loading" | "found" | "new">("idle");
   const [staffAvailability, setStaffAvailability] = useState<StaffAvailability[]>([]);
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
@@ -131,6 +141,56 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
   const mobile = useWatch({ control, name: "mobile" });
   const selectedDate = useWatch({ control, name: "appointmentDate" });
   const selectedTime = useWatch({ control, name: "appointmentTime" });
+
+  // Fetch salon working hours once on mount.
+  useEffect(() => {
+    fetch("/api/settings", { cache: "no-store" })
+      .then((res) => res.ok ? res.json() : null)
+      .then((data: { businessHours?: { days: SalonDayEntry[] } } | null) => {
+        if (data?.businessHours?.days) {
+          setSalonDays(data.businessHours.days);
+        }
+      })
+      .catch(() => null);
+  }, []);
+
+  // Validate selected date/time against salon working hours.
+  useEffect(() => {
+    if (!selectedDate || salonDays.length === 0) {
+      setDateError(null);
+      setTimeError(null);
+      return;
+    }
+
+    const dayName = new Date(`${selectedDate}T00:00:00`)
+      .toLocaleDateString("en-US", { weekday: "short" });
+    const dayEntry = salonDays.find((d) => d.day === dayName);
+
+    if (!dayEntry || !dayEntry.enabled) {
+      setDateError(`Salon is closed on ${dayName}s. Please select a different date.`);
+      setTimeError(null);
+      return;
+    }
+
+    setDateError(null);
+
+    if (selectedTime) {
+      const [openH, openM] = dayEntry.open.split(":").map(Number);
+      const [closeH, closeM] = dayEntry.close.split(":").map(Number);
+      const [aptH, aptM] = selectedTime.split(":").map(Number);
+      const openMin = openH * 60 + openM;
+      const closeMin = closeH * 60 + closeM;
+      const aptMin = aptH * 60 + aptM;
+
+      if (aptMin < openMin || aptMin >= closeMin) {
+        setTimeError(`Please select a time between ${dayEntry.open} and ${dayEntry.close}.`);
+      } else {
+        setTimeError(null);
+      }
+    } else {
+      setTimeError(null);
+    }
+  }, [selectedDate, selectedTime, salonDays]);
   const selectedServiceId = useWatch({ control, name: "serviceId" });
   const selectedStaffId = useWatch({ control, name: "staffId" });
   const selectedStatus = useWatch({ control, name: "status" });
@@ -398,6 +458,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
                 {errors.appointmentDate ? (
                   <p className="text-xs text-red-600">{errors.appointmentDate.message}</p>
                 ) : null}
+                {dateError ? <p className="text-xs text-red-600">{dateError}</p> : null}
               </div>
 
               <div className="space-y-2">
@@ -416,6 +477,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
                 {errors.appointmentTime ? (
                   <p className="text-xs text-red-600">{errors.appointmentTime.message}</p>
                 ) : null}
+                {timeError ? <p className="text-xs text-red-600">{timeError}</p> : null}
               </div>
             </div>
 
@@ -540,7 +602,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
           </button>
           <button
             type="submit"
-            disabled={isSubmitting || services.length === 0}
+            disabled={isSubmitting || services.length === 0 || Boolean(dateError) || Boolean(timeError)}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-white hover:bg-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}

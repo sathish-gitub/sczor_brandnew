@@ -98,8 +98,7 @@ const modules = [
 
 const highlights = [
   {
-    image:
-      "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-4.0.3&w=800&q=80",
+    image: "/images/smart_appointment_booking.png",
     heading: "Smart Appointment Booking",
     points: [
       "Mobile number auto-fills customer details",
@@ -110,8 +109,7 @@ const highlights = [
     ],
   },
   {
-    image:
-      "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&w=800&q=80",
+    image: "/images/salon_pos_tax.png",
     heading: "Fast POS & GST Billing",
     points: [
       "Complete a sale in under 60 seconds",
@@ -122,8 +120,7 @@ const highlights = [
     ],
   },
   {
-    image:
-      "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?ixlib=rb-4.0.3&w=800&q=80",
+    image: "/images/loyalty_customer_engagement.png",
     heading: "Loyalty & Customer Engagement",
     points: [
       "Earn 1 point per ₹10 spent",
@@ -472,9 +469,9 @@ export default function Home() {
                   <Image
                     src={highlight.image}
                     alt={highlight.heading}
-                    width={800}
-                    height={600}
-                    className="h-[300px] w-full rounded-2xl border border-slate-200 object-cover shadow-sm"
+                    width={600}
+                    height={400}
+                    className="w-full h-auto rounded-xl shadow-lg"
                   />
                 </div>
                 <div className={index % 2 === 1 ? "order-1 lg:order-1" : "order-1 lg:order-2"}>

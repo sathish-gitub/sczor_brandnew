@@ -85,6 +85,7 @@ export async function GET() {
         gstNumber: tenant.gstNumber ?? "",
         gstEnabled: settings?.gstEnabled ?? true,
         gstRate: Number(settings?.gstRate ?? 18),
+        taxLabel: settings?.taxLabel ?? "GST",
         cgstRate: Number(settings?.gstRate ?? 18) / 2,
         sgstRate: Number(settings?.gstRate ?? 18) / 2,
         invoicePrefix: settings?.invoicePrefix ?? "INV",

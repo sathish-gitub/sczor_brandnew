@@ -28,6 +28,15 @@ export default function NewStaffPage() {
   const [workingDays, setWorkingDays] = useState<string[]>(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mobileError, setMobileError] = useState<string | null>(null);
+
+  function validateMobile(value: string) {
+    const cleaned = value.replace(/[^0-9]/g, "");
+    if (value.length > 0 && cleaned.length !== 10) {
+      return "Mobile number must be exactly 10 digits.";
+    }
+    return null;
+  }
 
   function toggleWorkingDay(day: string) {
     setWorkingDays((current) => {
@@ -43,6 +52,13 @@ export default function NewStaffPage() {
     event.preventDefault();
     setSubmitting(true);
     setError(null);
+
+    const mobileErr = mobile ? validateMobile(mobile) : null;
+    if (mobileErr) {
+      setMobileError(mobileErr);
+      setSubmitting(false);
+      return;
+    }
 
     const response = await fetch("/api/staff", {
       method: "POST",
@@ -114,10 +130,12 @@ export default function NewStaffPage() {
             <span className="font-medium text-[var(--foreground)]">Mobile</span>
             <input
               value={mobile}
-              onChange={(event) => setMobile(event.target.value)}
+              onChange={(event) => { setMobile(event.target.value); setMobileError(null); }}
+              onBlur={(event) => setMobileError(validateMobile(event.target.value))}
               placeholder="10-digit mobile"
               className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
             />
+            {mobileError ? <p className="text-xs text-red-600">{mobileError}</p> : null}
           </label>
 
           <label className="space-y-1 text-sm">

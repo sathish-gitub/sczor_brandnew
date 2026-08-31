@@ -17,6 +17,8 @@ type SummaryInput = {
 };
 
 type PaymentSummaryProps = {
+  taxRate?: number;
+  taxLabel?: string;
   value: SummaryInput;
   onPaymentMethodChange: (method: PaymentMethod) => void;
   onDiscountTypeChange: (type: "PERCENT" | "FLAT") => void;
@@ -40,6 +42,8 @@ const methods: Array<{ value: PaymentMethod; label: string }> = [
 ];
 
 export function PaymentSummary({
+  taxRate = 18,
+  taxLabel = "GST",
   value,
   onPaymentMethodChange,
   onDiscountTypeChange,
@@ -47,6 +51,7 @@ export function PaymentSummary({
   onLoyaltyToggle,
   onLoyaltyPointsChange,
 }: PaymentSummaryProps) {
+  const halfRate = taxRate / 2;
   return (
     <section className="space-y-4 rounded-xl border border-[var(--border)] bg-white p-4">
       <h2 className="text-sm font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Pricing</h2>
@@ -55,8 +60,8 @@ export function PaymentSummary({
         <p className="flex justify-between"><span className="text-[var(--muted)]">Subtotal</span><span>{formatCurrency(value.subtotal)}</span></p>
         <p className="flex justify-between"><span className="text-[var(--muted)]">Discount</span><span>-{formatCurrency(value.discount)}</span></p>
         <p className="flex justify-between"><span className="text-[var(--muted)]">Loyalty Discount</span><span>-{formatCurrency(value.loyaltyDiscount)}</span></p>
-        <p className="flex justify-between"><span className="text-[var(--muted)]">CGST (9%)</span><span>{formatCurrency(value.cgst)}</span></p>
-        <p className="flex justify-between"><span className="text-[var(--muted)]">SGST (9%)</span><span>{formatCurrency(value.sgst)}</span></p>
+        <p className="flex justify-between"><span className="text-[var(--muted)]">C{taxLabel} ({halfRate}%)</span><span>{formatCurrency(value.cgst)}</span></p>
+        <p className="flex justify-between"><span className="text-[var(--muted)]">S{taxLabel} ({halfRate}%)</span><span>{formatCurrency(value.sgst)}</span></p>
       </div>
 
       <div className="border-t border-dashed border-[var(--border)] pt-2">

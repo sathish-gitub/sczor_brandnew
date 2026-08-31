@@ -337,6 +337,7 @@ export const SalonSettingsScalarFieldEnum = {
   sundayBreak: 'sundayBreak',
   gstEnabled: 'gstEnabled',
   gstRate: 'gstRate',
+  taxLabel: 'taxLabel',
   currency: 'currency',
   currencySymbol: 'currencySymbol',
   invoicePrefix: 'invoicePrefix',
