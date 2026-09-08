@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+
+import { useAccess } from "@/contexts/AccessContext";
 import { useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -60,6 +62,7 @@ function toastId() {
 }
 
 export default function BillingPage() {
+  const access = useAccess();
   const searchParams = useSearchParams();
   const appointmentId = searchParams.get("appointmentId");
   const [services, setServices] = useState<ServiceItem[]>([]);
@@ -736,10 +739,11 @@ export default function BillingPage() {
           <button
             type="button"
             onClick={completePayment}
-            disabled={processingPayment}
+            disabled={processingPayment || access.accessLevel === "READ_ONLY"}
+            title={access.accessLevel === "READ_ONLY" ? "Subscription required to record payments" : undefined}
             className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white disabled:opacity-60"
           >
-            {processingPayment ? "Processing..." : "Complete Payment"}
+            {access.accessLevel === "READ_ONLY" ? "Subscription Required" : processingPayment ? "Processing..." : "Complete Payment"}
           </button>
         </section>
       </div>

@@ -66,7 +66,10 @@ export const ModelName = {
   Attendance: 'Attendance',
   SalonSettings: 'SalonSettings',
   Holiday: 'Holiday',
-  WaitlistInterest: 'WaitlistInterest'
+  WaitlistInterest: 'WaitlistInterest',
+  SuperAdmin: 'SuperAdmin',
+  Payment: 'Payment',
+  AppSettings: 'AppSettings'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -103,6 +106,14 @@ export const TenantScalarFieldEnum = {
   closeTime: 'closeTime',
   workingDays: 'workingDays',
   plan: 'plan',
+  trialEndsAt: 'trialEndsAt',
+  subscriptionPlan: 'subscriptionPlan',
+  subscriptionEndsAt: 'subscriptionEndsAt',
+  isSubscribed: 'isSubscribed',
+  subscriptionStart: 'subscriptionStart',
+  subscriptionEnd: 'subscriptionEnd',
+  razorpayCustomerId: 'razorpayCustomerId',
+  razorpaySubId: 'razorpaySubId',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -120,6 +131,11 @@ export const UserScalarFieldEnum = {
   password: 'password',
   role: 'role',
   isActive: 'isActive',
+  emailVerified: 'emailVerified',
+  emailOtp: 'emailOtp',
+  emailOtpExpiry: 'emailOtpExpiry',
+  resetOtp: 'resetOtp',
+  resetOtpExpiry: 'resetOtpExpiry',
   tenantId: 'tenantId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -378,6 +394,44 @@ export const WaitlistInterestScalarFieldEnum = {
 } as const
 
 export type WaitlistInterestScalarFieldEnum = (typeof WaitlistInterestScalarFieldEnum)[keyof typeof WaitlistInterestScalarFieldEnum]
+
+
+export const SuperAdminScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  password: 'password',
+  createdAt: 'createdAt'
+} as const
+
+export type SuperAdminScalarFieldEnum = (typeof SuperAdminScalarFieldEnum)[keyof typeof SuperAdminScalarFieldEnum]
+
+
+export const PaymentScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  plan: 'plan',
+  amount: 'amount',
+  razorpayOrderId: 'razorpayOrderId',
+  razorpayPaymentId: 'razorpayPaymentId',
+  status: 'status',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  createdAt: 'createdAt'
+} as const
+
+export type PaymentScalarFieldEnum = (typeof PaymentScalarFieldEnum)[keyof typeof PaymentScalarFieldEnum]
+
+
+export const AppSettingsScalarFieldEnum = {
+  id: 'id',
+  razorpayKeyId: 'razorpayKeyId',
+  razorpayKeySecret: 'razorpayKeySecret',
+  razorpayWebhookSecret: 'razorpayWebhookSecret',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AppSettingsScalarFieldEnum = (typeof AppSettingsScalarFieldEnum)[keyof typeof AppSettingsScalarFieldEnum]
 
 
 export const SortOrder = {

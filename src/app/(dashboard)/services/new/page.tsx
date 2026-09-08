@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -8,9 +8,10 @@ import { CategorySelect } from "@/components/services/CategorySelect";
 
 export default function NewServicePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(searchParams.get("category") ?? "");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("0");
   const [duration, setDuration] = useState("30");

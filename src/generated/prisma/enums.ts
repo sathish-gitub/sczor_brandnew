@@ -10,7 +10,10 @@
 */
 
 export const Plan = {
+  FREE_TRIAL: 'FREE_TRIAL',
   FREE: 'FREE',
+  MONTHLY: 'MONTHLY',
+  YEARLY: 'YEARLY',
   BASIC: 'BASIC',
   PRO: 'PRO'
 } as const

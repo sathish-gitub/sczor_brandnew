@@ -1,0 +1,68 @@
+export const PRICING_PLANS = {
+  TRIAL: {
+    id: "TRIAL",
+    name: "Free Trial",
+    price: 0,
+    duration: "14 days",
+    durationDays: 14,
+    badge: "🎉 Free Trial",
+    features: [
+      "All core modules included",
+      "Unlimited appointments",
+      "Up to 500 customers",
+      "5 staff accounts",
+      "GST billing included",
+      "Dedicated support",
+    ],
+  },
+  MONTHLY: {
+    id: "MONTHLY",
+    name: "Monthly",
+    price: 499,
+    period: "month",
+    badge: "⭐ Most Popular",
+    features: [
+      "All 9 core modules",
+      "Unlimited appointments & customers",
+      "POS & GST billing",
+      "Loyalty program",
+      "Reports & analytics",
+      "SMS & WhatsApp invoice sharing",
+      "Dedicated support",
+    ],
+  },
+  YEARLY: {
+    id: "YEARLY",
+    name: "Yearly",
+    price: 4999,
+    period: "year",
+    monthlyEquivalent: 417,
+    savings: 989,
+    savingsPercent: 17,
+    badge: "💎 Save 17%",
+    features: [
+      "Everything in Monthly",
+      "2 months free (vs monthly billing)",
+      "Priority feature requests",
+      "Dedicated support",
+    ],
+  },
+  BUSINESS: {
+    id: "BUSINESS",
+    name: "Multi-branch / Franchise",
+    price: null,
+    priceLabel: "Custom Pricing",
+    period: "year",
+    badge: "🏢 Multi-branch / Franchise",
+    features: [
+      "Everything in Yearly",
+      "Multi-branch / Franchise management",
+      "All branches in one dashboard",
+      "Payroll management",
+      "Bulk SMS campaigns",
+      "Dedicated account manager",
+    ],
+  },
+} as const;
+
+export type PlanId = keyof typeof PRICING_PLANS;

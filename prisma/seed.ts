@@ -446,6 +446,30 @@ async function main() {
   console.log("- All records linked to tenant glamour-studio");
 
   void appointments;
+
+  await prisma.superAdmin.upsert({
+    where: { email: "admin@sczor.com" },
+    update: {},
+    create: {
+      name: "Sczor Admin",
+      email: "admin@sczor.com",
+      password: await hash("SczorAdmin@2026", 10),
+    },
+  });
+
+  const existingAppSettings = await prisma.appSettings.findFirst();
+  if (!existingAppSettings) {
+    await prisma.appSettings.create({
+      data: {
+        razorpayKeyId: null,
+        razorpayKeySecret: null,
+        razorpayWebhookSecret: null,
+      },
+    });
+  }
+
+  console.log("- Super admin (admin@sczor.com / SczorAdmin@2026)");
+  console.log("- Default app settings");
 }
 
 main()

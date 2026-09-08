@@ -25,6 +25,14 @@ model Tenant {
   closeTime    String          @default("21:00")
   workingDays  String[]        @default(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
   plan         Plan            @default(FREE)
+  trialEndsAt        DateTime?
+  subscriptionPlan   String    @default("FREE_TRIAL")
+  subscriptionEndsAt DateTime?
+  isSubscribed       Boolean   @default(false)
+  subscriptionStart  DateTime?
+  subscriptionEnd    DateTime?
+  razorpayCustomerId String?
+  razorpaySubId      String?
   isActive     Boolean         @default(true)
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
@@ -40,20 +48,26 @@ model Tenant {
   loyaltyCards LoyaltyCard[]
   waitlist     WaitlistInterest[]
   serviceCategories ServiceCategory[]
+  payments     Payment[]
 
   @@index([isActive])
   @@index([plan])
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  mobile    String
-  photo     String?
-  password  String
-  role      Role     @default(STAFF)
-  isActive  Boolean  @default(true)
+  id             String    @id @default(cuid())
+  name           String
+  email          String
+  mobile         String
+  photo          String?
+  password       String
+  role           Role      @default(STAFF)
+  isActive       Boolean   @default(true)
+  emailVerified  Boolean   @default(false)
+  emailOtp       String?
+  emailOtpExpiry DateTime?
+  resetOtp       String?
+  resetOtpExpiry DateTime?
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -371,8 +385,46 @@ model WaitlistInterest {
   @@unique([tenantId, email, plan])
 }
 
+model SuperAdmin {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id                String    @id @default(cuid())
+  tenantId          String
+  tenant            Tenant    @relation(fields: [tenantId], references: [id])
+  plan              String
+  amount            Int
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  status            String    @default("PENDING")
+  periodStart       DateTime?
+  periodEnd         DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([razorpayOrderId])
+  @@index([razorpayPaymentId])
+  @@index([status])
+}
+
+model AppSettings {
+  id                    String   @id @default(cuid())
+  razorpayKeyId         String?
+  razorpayKeySecret     String?
+  razorpayWebhookSecret String?
+  updatedAt             DateTime @updatedAt
+}
+
 enum Plan {
+  FREE_TRIAL
   FREE
+  MONTHLY
+  YEARLY
   BASIC
   PRO
 }

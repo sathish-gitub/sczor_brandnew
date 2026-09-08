@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+
+import { useAccess } from "@/contexts/AccessContext";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -26,6 +28,7 @@ type StaffRow = {
 type StatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
 
 export default function StaffPage() {
+  const access = useAccess();
   const [status, setStatus] = useState<StatusFilter>("ALL");
   const [query, setQuery] = useState("");
 
@@ -106,8 +109,18 @@ export default function StaffPage() {
           </div>
 
           <Link
-            href="/staff/new"
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
+            href={access.accessLevel === "READ_ONLY" ? "#" : "/staff/new"}
+            aria-disabled={access.accessLevel === "READ_ONLY"}
+            onClick={(event) => {
+              if (access.accessLevel === "READ_ONLY") {
+                event.preventDefault();
+              }
+            }}
+            className={
+              access.accessLevel === "READ_ONLY"
+                ? "inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-slate-300 px-4 text-sm font-semibold text-slate-500"
+                : "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
+            }
           >
             <Plus className="h-4 w-4" />
             Add Staff

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Calendar, Eye, Search, Trash } from "lucide-react";
 
+import { useAccess } from "@/contexts/AccessContext";
+
 type LoyaltyTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 
 type CustomerRow = {
@@ -85,6 +87,7 @@ function TableSkeleton() {
 }
 
 export default function CustomersPage() {
+  const { accessLevel } = useAccess();
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -207,13 +210,21 @@ export default function CustomersPage() {
               className="h-11 w-full rounded-xl border border-[var(--border)] bg-white pl-9 pr-3 text-sm outline-none focus:border-[var(--accent)]"
             />
           </div>
-
-          <Link
-            href="/customers/new"
-            className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
-          >
-            + Add Customer
-          </Link>
+          {accessLevel === "READ_ONLY" ? (
+            <span
+              title="Subscription required to add customers"
+              className="inline-flex h-11 cursor-not-allowed items-center justify-center rounded-xl bg-slate-300 px-4 text-sm font-semibold text-slate-500"
+            >
+              + Add Customer
+            </span>
+          ) : (
+            <Link
+              href="/customers/new"
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
+            >
+              + Add Customer
+            </Link>
+          )}
         </div>
       </header>
 

@@ -121,3 +121,18 @@ export type Holiday = Prisma.HolidayModel
  * 
  */
 export type WaitlistInterest = Prisma.WaitlistInterestModel
+/**
+ * Model SuperAdmin
+ * 
+ */
+export type SuperAdmin = Prisma.SuperAdminModel
+/**
+ * Model Payment
+ * 
+ */
+export type Payment = Prisma.PaymentModel
+/**
+ * Model AppSettings
+ * 
+ */
+export type AppSettings = Prisma.AppSettingsModel

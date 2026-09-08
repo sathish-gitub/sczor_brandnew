@@ -41,6 +41,14 @@ export type TenantMinAggregateOutputType = {
   openTime: string | null
   closeTime: string | null
   plan: $Enums.Plan | null
+  trialEndsAt: Date | null
+  subscriptionPlan: string | null
+  subscriptionEndsAt: Date | null
+  isSubscribed: boolean | null
+  subscriptionStart: Date | null
+  subscriptionEnd: Date | null
+  razorpayCustomerId: string | null
+  razorpaySubId: string | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -63,6 +71,14 @@ export type TenantMaxAggregateOutputType = {
   openTime: string | null
   closeTime: string | null
   plan: $Enums.Plan | null
+  trialEndsAt: Date | null
+  subscriptionPlan: string | null
+  subscriptionEndsAt: Date | null
+  isSubscribed: boolean | null
+  subscriptionStart: Date | null
+  subscriptionEnd: Date | null
+  razorpayCustomerId: string | null
+  razorpaySubId: string | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -86,6 +102,14 @@ export type TenantCountAggregateOutputType = {
   closeTime: number
   workingDays: number
   plan: number
+  trialEndsAt: number
+  subscriptionPlan: number
+  subscriptionEndsAt: number
+  isSubscribed: number
+  subscriptionStart: number
+  subscriptionEnd: number
+  razorpayCustomerId: number
+  razorpaySubId: number
   isActive: number
   createdAt: number
   updatedAt: number
@@ -110,6 +134,14 @@ export type TenantMinAggregateInputType = {
   openTime?: true
   closeTime?: true
   plan?: true
+  trialEndsAt?: true
+  subscriptionPlan?: true
+  subscriptionEndsAt?: true
+  isSubscribed?: true
+  subscriptionStart?: true
+  subscriptionEnd?: true
+  razorpayCustomerId?: true
+  razorpaySubId?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -132,6 +164,14 @@ export type TenantMaxAggregateInputType = {
   openTime?: true
   closeTime?: true
   plan?: true
+  trialEndsAt?: true
+  subscriptionPlan?: true
+  subscriptionEndsAt?: true
+  isSubscribed?: true
+  subscriptionStart?: true
+  subscriptionEnd?: true
+  razorpayCustomerId?: true
+  razorpaySubId?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -155,6 +195,14 @@ export type TenantCountAggregateInputType = {
   closeTime?: true
   workingDays?: true
   plan?: true
+  trialEndsAt?: true
+  subscriptionPlan?: true
+  subscriptionEndsAt?: true
+  isSubscribed?: true
+  subscriptionStart?: true
+  subscriptionEnd?: true
+  razorpayCustomerId?: true
+  razorpaySubId?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -251,6 +299,14 @@ export type TenantGroupByOutputType = {
   closeTime: string
   workingDays: string[]
   plan: $Enums.Plan
+  trialEndsAt: Date | null
+  subscriptionPlan: string
+  subscriptionEndsAt: Date | null
+  isSubscribed: boolean
+  subscriptionStart: Date | null
+  subscriptionEnd: Date | null
+  razorpayCustomerId: string | null
+  razorpaySubId: string | null
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -295,6 +351,14 @@ export type TenantWhereInput = {
   closeTime?: Prisma.StringFilter<"Tenant"> | string
   workingDays?: Prisma.StringNullableListFilter<"Tenant">
   plan?: Prisma.EnumPlanFilter<"Tenant"> | $Enums.Plan
+  trialEndsAt?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
+  subscriptionPlan?: Prisma.StringFilter<"Tenant"> | string
+  subscriptionEndsAt?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
+  isSubscribed?: Prisma.BoolFilter<"Tenant"> | boolean
+  subscriptionStart?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
+  subscriptionEnd?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
+  razorpayCustomerId?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  razorpaySubId?: Prisma.StringNullableFilter<"Tenant"> | string | null
   isActive?: Prisma.BoolFilter<"Tenant"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
@@ -310,6 +374,7 @@ export type TenantWhereInput = {
   loyaltyCards?: Prisma.LoyaltyCardListRelationFilter
   waitlist?: Prisma.WaitlistInterestListRelationFilter
   serviceCategories?: Prisma.ServiceCategoryListRelationFilter
+  payments?: Prisma.PaymentListRelationFilter
 }
 
 export type TenantOrderByWithRelationInput = {
@@ -330,6 +395,14 @@ export type TenantOrderByWithRelationInput = {
   closeTime?: Prisma.SortOrder
   workingDays?: Prisma.SortOrder
   plan?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  subscriptionPlan?: Prisma.SortOrder
+  subscriptionEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isSubscribed?: Prisma.SortOrder
+  subscriptionStart?: Prisma.SortOrderInput | Prisma.SortOrder
+  subscriptionEnd?: Prisma.SortOrderInput | Prisma.SortOrder
+  razorpayCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  razorpaySubId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -345,6 +418,7 @@ export type TenantOrderByWithRelationInput = {
   loyaltyCards?: Prisma.LoyaltyCardOrderByRelationAggregateInput
   waitlist?: Prisma.WaitlistInterestOrderByRelationAggregateInput
   serviceCategories?: Prisma.ServiceCategoryOrderByRelationAggregateInput
+  payments?: Prisma.PaymentOrderByRelationAggregateInput
 }
 
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -368,6 +442,14 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   closeTime?: Prisma.StringFilter<"Tenant"> | string
   workingDays?: Prisma.StringNullableListFilter<"Tenant">
   plan?: Prisma.EnumPlanFilter<"Tenant"> | $Enums.Plan
+  trialEndsAt?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
+  subscriptionPlan?: Prisma.StringFilter<"Tenant"> | string
+  subscriptionEndsAt?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
+  isSubscribed?: Prisma.BoolFilter<"Tenant"> | boolean
+  subscriptionStart?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
+  subscriptionEnd?: Prisma.DateTimeNullableFilter<"Tenant"> | Date | string | null
+  razorpayCustomerId?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  razorpaySubId?: Prisma.StringNullableFilter<"Tenant"> | string | null
   isActive?: Prisma.BoolFilter<"Tenant"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
@@ -383,6 +465,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   loyaltyCards?: Prisma.LoyaltyCardListRelationFilter
   waitlist?: Prisma.WaitlistInterestListRelationFilter
   serviceCategories?: Prisma.ServiceCategoryListRelationFilter
+  payments?: Prisma.PaymentListRelationFilter
 }, "id" | "slug">
 
 export type TenantOrderByWithAggregationInput = {
@@ -403,6 +486,14 @@ export type TenantOrderByWithAggregationInput = {
   closeTime?: Prisma.SortOrder
   workingDays?: Prisma.SortOrder
   plan?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  subscriptionPlan?: Prisma.SortOrder
+  subscriptionEndsAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  isSubscribed?: Prisma.SortOrder
+  subscriptionStart?: Prisma.SortOrderInput | Prisma.SortOrder
+  subscriptionEnd?: Prisma.SortOrderInput | Prisma.SortOrder
+  razorpayCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  razorpaySubId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -432,6 +523,14 @@ export type TenantScalarWhereWithAggregatesInput = {
   closeTime?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   workingDays?: Prisma.StringNullableListFilter<"Tenant">
   plan?: Prisma.EnumPlanWithAggregatesFilter<"Tenant"> | $Enums.Plan
+  trialEndsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+  subscriptionPlan?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  subscriptionEndsAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+  isSubscribed?: Prisma.BoolWithAggregatesFilter<"Tenant"> | boolean
+  subscriptionStart?: Prisma.DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+  subscriptionEnd?: Prisma.DateTimeNullableWithAggregatesFilter<"Tenant"> | Date | string | null
+  razorpayCustomerId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  razorpaySubId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"Tenant"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
@@ -455,6 +554,14 @@ export type TenantCreateInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -470,6 +577,7 @@ export type TenantCreateInput = {
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateInput = {
@@ -490,6 +598,14 @@ export type TenantUncheckedCreateInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -505,6 +621,7 @@ export type TenantUncheckedCreateInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUpdateInput = {
@@ -525,6 +642,14 @@ export type TenantUpdateInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -540,6 +665,7 @@ export type TenantUpdateInput = {
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateInput = {
@@ -560,6 +686,14 @@ export type TenantUncheckedUpdateInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -575,6 +709,7 @@ export type TenantUncheckedUpdateInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateManyInput = {
@@ -595,6 +730,14 @@ export type TenantCreateManyInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -618,6 +761,14 @@ export type TenantUpdateManyMutationInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -641,6 +792,14 @@ export type TenantUncheckedUpdateManyInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -672,6 +831,14 @@ export type TenantCountOrderByAggregateInput = {
   closeTime?: Prisma.SortOrder
   workingDays?: Prisma.SortOrder
   plan?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
+  subscriptionPlan?: Prisma.SortOrder
+  subscriptionEndsAt?: Prisma.SortOrder
+  isSubscribed?: Prisma.SortOrder
+  subscriptionStart?: Prisma.SortOrder
+  subscriptionEnd?: Prisma.SortOrder
+  razorpayCustomerId?: Prisma.SortOrder
+  razorpaySubId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -694,6 +861,14 @@ export type TenantMaxOrderByAggregateInput = {
   openTime?: Prisma.SortOrder
   closeTime?: Prisma.SortOrder
   plan?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
+  subscriptionPlan?: Prisma.SortOrder
+  subscriptionEndsAt?: Prisma.SortOrder
+  isSubscribed?: Prisma.SortOrder
+  subscriptionStart?: Prisma.SortOrder
+  subscriptionEnd?: Prisma.SortOrder
+  razorpayCustomerId?: Prisma.SortOrder
+  razorpaySubId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -716,6 +891,14 @@ export type TenantMinOrderByAggregateInput = {
   openTime?: Prisma.SortOrder
   closeTime?: Prisma.SortOrder
   plan?: Prisma.SortOrder
+  trialEndsAt?: Prisma.SortOrder
+  subscriptionPlan?: Prisma.SortOrder
+  subscriptionEndsAt?: Prisma.SortOrder
+  isSubscribed?: Prisma.SortOrder
+  subscriptionStart?: Prisma.SortOrder
+  subscriptionEnd?: Prisma.SortOrder
+  razorpayCustomerId?: Prisma.SortOrder
+  razorpaySubId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -745,6 +928,10 @@ export type TenantUpdateworkingDaysInput = {
 
 export type EnumPlanFieldUpdateOperationsInput = {
   set?: $Enums.Plan
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 export type BoolFieldUpdateOperationsInput = {
@@ -923,6 +1110,20 @@ export type TenantUpdateOneRequiredWithoutWaitlistNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutWaitlistInput, Prisma.TenantUpdateWithoutWaitlistInput>, Prisma.TenantUncheckedUpdateWithoutWaitlistInput>
 }
 
+export type TenantCreateNestedOneWithoutPaymentsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutPaymentsInput, Prisma.TenantUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutPaymentsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutPaymentsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutPaymentsInput, Prisma.TenantUncheckedCreateWithoutPaymentsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutPaymentsInput
+  upsert?: Prisma.TenantUpsertWithoutPaymentsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutPaymentsInput, Prisma.TenantUpdateWithoutPaymentsInput>, Prisma.TenantUncheckedUpdateWithoutPaymentsInput>
+}
+
 export type TenantCreateWithoutUsersInput = {
   id?: string
   name: string
@@ -941,6 +1142,14 @@ export type TenantCreateWithoutUsersInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -955,6 +1164,7 @@ export type TenantCreateWithoutUsersInput = {
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutUsersInput = {
@@ -975,6 +1185,14 @@ export type TenantUncheckedCreateWithoutUsersInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -989,6 +1207,7 @@ export type TenantUncheckedCreateWithoutUsersInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutUsersInput = {
@@ -1025,6 +1244,14 @@ export type TenantUpdateWithoutUsersInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1039,6 +1266,7 @@ export type TenantUpdateWithoutUsersInput = {
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutUsersInput = {
@@ -1059,6 +1287,14 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1073,6 +1309,7 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutCustomersInput = {
@@ -1093,6 +1330,14 @@ export type TenantCreateWithoutCustomersInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1107,6 +1352,7 @@ export type TenantCreateWithoutCustomersInput = {
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutCustomersInput = {
@@ -1127,6 +1373,14 @@ export type TenantUncheckedCreateWithoutCustomersInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1141,6 +1395,7 @@ export type TenantUncheckedCreateWithoutCustomersInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutCustomersInput = {
@@ -1177,6 +1432,14 @@ export type TenantUpdateWithoutCustomersInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1191,6 +1454,7 @@ export type TenantUpdateWithoutCustomersInput = {
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutCustomersInput = {
@@ -1211,6 +1475,14 @@ export type TenantUncheckedUpdateWithoutCustomersInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1225,6 +1497,7 @@ export type TenantUncheckedUpdateWithoutCustomersInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutServicesInput = {
@@ -1245,6 +1518,14 @@ export type TenantCreateWithoutServicesInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1259,6 +1540,7 @@ export type TenantCreateWithoutServicesInput = {
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutServicesInput = {
@@ -1279,6 +1561,14 @@ export type TenantUncheckedCreateWithoutServicesInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1293,6 +1583,7 @@ export type TenantUncheckedCreateWithoutServicesInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutServicesInput = {
@@ -1329,6 +1620,14 @@ export type TenantUpdateWithoutServicesInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1343,6 +1642,7 @@ export type TenantUpdateWithoutServicesInput = {
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutServicesInput = {
@@ -1363,6 +1663,14 @@ export type TenantUncheckedUpdateWithoutServicesInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1377,6 +1685,7 @@ export type TenantUncheckedUpdateWithoutServicesInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutStaffInput = {
@@ -1397,6 +1706,14 @@ export type TenantCreateWithoutStaffInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1411,6 +1728,7 @@ export type TenantCreateWithoutStaffInput = {
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutStaffInput = {
@@ -1431,6 +1749,14 @@ export type TenantUncheckedCreateWithoutStaffInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1445,6 +1771,7 @@ export type TenantUncheckedCreateWithoutStaffInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutStaffInput = {
@@ -1481,6 +1808,14 @@ export type TenantUpdateWithoutStaffInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1495,6 +1830,7 @@ export type TenantUpdateWithoutStaffInput = {
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutStaffInput = {
@@ -1515,6 +1851,14 @@ export type TenantUncheckedUpdateWithoutStaffInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1529,6 +1873,7 @@ export type TenantUncheckedUpdateWithoutStaffInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutAppointmentsInput = {
@@ -1549,6 +1894,14 @@ export type TenantCreateWithoutAppointmentsInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1563,6 +1916,7 @@ export type TenantCreateWithoutAppointmentsInput = {
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAppointmentsInput = {
@@ -1583,6 +1937,14 @@ export type TenantUncheckedCreateWithoutAppointmentsInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1597,6 +1959,7 @@ export type TenantUncheckedCreateWithoutAppointmentsInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAppointmentsInput = {
@@ -1633,6 +1996,14 @@ export type TenantUpdateWithoutAppointmentsInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1647,6 +2018,7 @@ export type TenantUpdateWithoutAppointmentsInput = {
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAppointmentsInput = {
@@ -1667,6 +2039,14 @@ export type TenantUncheckedUpdateWithoutAppointmentsInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1681,6 +2061,7 @@ export type TenantUncheckedUpdateWithoutAppointmentsInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutInvoicesInput = {
@@ -1701,6 +2082,14 @@ export type TenantCreateWithoutInvoicesInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1715,6 +2104,7 @@ export type TenantCreateWithoutInvoicesInput = {
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutInvoicesInput = {
@@ -1735,6 +2125,14 @@ export type TenantUncheckedCreateWithoutInvoicesInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1749,6 +2147,7 @@ export type TenantUncheckedCreateWithoutInvoicesInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutInvoicesInput = {
@@ -1785,6 +2184,14 @@ export type TenantUpdateWithoutInvoicesInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1799,6 +2206,7 @@ export type TenantUpdateWithoutInvoicesInput = {
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutInvoicesInput = {
@@ -1819,6 +2227,14 @@ export type TenantUncheckedUpdateWithoutInvoicesInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1833,6 +2249,7 @@ export type TenantUncheckedUpdateWithoutInvoicesInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutServiceCategoriesInput = {
@@ -1853,6 +2270,14 @@ export type TenantCreateWithoutServiceCategoriesInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1867,6 +2292,7 @@ export type TenantCreateWithoutServiceCategoriesInput = {
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutServiceCategoriesInput = {
@@ -1887,6 +2313,14 @@ export type TenantUncheckedCreateWithoutServiceCategoriesInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1901,6 +2335,7 @@ export type TenantUncheckedCreateWithoutServiceCategoriesInput = {
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutServiceCategoriesInput = {
@@ -1937,6 +2372,14 @@ export type TenantUpdateWithoutServiceCategoriesInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1951,6 +2394,7 @@ export type TenantUpdateWithoutServiceCategoriesInput = {
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutServiceCategoriesInput = {
@@ -1971,6 +2415,14 @@ export type TenantUncheckedUpdateWithoutServiceCategoriesInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1985,6 +2437,7 @@ export type TenantUncheckedUpdateWithoutServiceCategoriesInput = {
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutLoyaltyCardsInput = {
@@ -2005,6 +2458,14 @@ export type TenantCreateWithoutLoyaltyCardsInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2019,6 +2480,7 @@ export type TenantCreateWithoutLoyaltyCardsInput = {
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutLoyaltyCardsInput = {
@@ -2039,6 +2501,14 @@ export type TenantUncheckedCreateWithoutLoyaltyCardsInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2053,6 +2523,7 @@ export type TenantUncheckedCreateWithoutLoyaltyCardsInput = {
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutLoyaltyCardsInput = {
@@ -2089,6 +2560,14 @@ export type TenantUpdateWithoutLoyaltyCardsInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2103,6 +2582,7 @@ export type TenantUpdateWithoutLoyaltyCardsInput = {
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutLoyaltyCardsInput = {
@@ -2123,6 +2603,14 @@ export type TenantUncheckedUpdateWithoutLoyaltyCardsInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2137,6 +2625,7 @@ export type TenantUncheckedUpdateWithoutLoyaltyCardsInput = {
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutAttendancesInput = {
@@ -2157,6 +2646,14 @@ export type TenantCreateWithoutAttendancesInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2171,6 +2668,7 @@ export type TenantCreateWithoutAttendancesInput = {
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAttendancesInput = {
@@ -2191,6 +2689,14 @@ export type TenantUncheckedCreateWithoutAttendancesInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2205,6 +2711,7 @@ export type TenantUncheckedCreateWithoutAttendancesInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAttendancesInput = {
@@ -2241,6 +2748,14 @@ export type TenantUpdateWithoutAttendancesInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2255,6 +2770,7 @@ export type TenantUpdateWithoutAttendancesInput = {
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAttendancesInput = {
@@ -2275,6 +2791,14 @@ export type TenantUncheckedUpdateWithoutAttendancesInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2289,6 +2813,7 @@ export type TenantUncheckedUpdateWithoutAttendancesInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutSettingsInput = {
@@ -2309,6 +2834,14 @@ export type TenantCreateWithoutSettingsInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2323,6 +2856,7 @@ export type TenantCreateWithoutSettingsInput = {
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutSettingsInput = {
@@ -2343,6 +2877,14 @@ export type TenantUncheckedCreateWithoutSettingsInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2357,6 +2899,7 @@ export type TenantUncheckedCreateWithoutSettingsInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutSettingsInput = {
@@ -2393,6 +2936,14 @@ export type TenantUpdateWithoutSettingsInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2407,6 +2958,7 @@ export type TenantUpdateWithoutSettingsInput = {
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutSettingsInput = {
@@ -2427,6 +2979,14 @@ export type TenantUncheckedUpdateWithoutSettingsInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2441,6 +3001,7 @@ export type TenantUncheckedUpdateWithoutSettingsInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutHolidaysInput = {
@@ -2461,6 +3022,14 @@ export type TenantCreateWithoutHolidaysInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2475,6 +3044,7 @@ export type TenantCreateWithoutHolidaysInput = {
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutHolidaysInput = {
@@ -2495,6 +3065,14 @@ export type TenantUncheckedCreateWithoutHolidaysInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2509,6 +3087,7 @@ export type TenantUncheckedCreateWithoutHolidaysInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutHolidaysInput = {
@@ -2545,6 +3124,14 @@ export type TenantUpdateWithoutHolidaysInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2559,6 +3146,7 @@ export type TenantUpdateWithoutHolidaysInput = {
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutHolidaysInput = {
@@ -2579,6 +3167,14 @@ export type TenantUncheckedUpdateWithoutHolidaysInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2593,6 +3189,7 @@ export type TenantUncheckedUpdateWithoutHolidaysInput = {
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
   waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutWaitlistInput = {
@@ -2613,6 +3210,14 @@ export type TenantCreateWithoutWaitlistInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2627,6 +3232,7 @@ export type TenantCreateWithoutWaitlistInput = {
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutWaitlistInput = {
@@ -2647,6 +3253,14 @@ export type TenantUncheckedCreateWithoutWaitlistInput = {
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
   plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -2661,6 +3275,7 @@ export type TenantUncheckedCreateWithoutWaitlistInput = {
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutWaitlistInput = {
@@ -2697,6 +3312,14 @@ export type TenantUpdateWithoutWaitlistInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2711,6 +3334,7 @@ export type TenantUpdateWithoutWaitlistInput = {
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutWaitlistInput = {
@@ -2731,6 +3355,14 @@ export type TenantUncheckedUpdateWithoutWaitlistInput = {
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
   plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2744,6 +3376,195 @@ export type TenantUncheckedUpdateWithoutWaitlistInput = {
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
   loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutPaymentsInput = {
+  id?: string
+  name: string
+  tagline?: string | null
+  slug: string
+  logo?: string | null
+  website?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  pincode?: string | null
+  phone?: string | null
+  email?: string | null
+  gstNumber?: string | null
+  openTime?: string
+  closeTime?: string
+  workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
+  plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutTenantInput
+  services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
+  staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
+  holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
+  settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
+  loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
+  waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutPaymentsInput = {
+  id?: string
+  name: string
+  tagline?: string | null
+  slug: string
+  logo?: string | null
+  website?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  pincode?: string | null
+  phone?: string | null
+  email?: string | null
+  gstNumber?: string | null
+  openTime?: string
+  closeTime?: string
+  workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
+  plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutTenantInput
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
+  staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
+  holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
+  settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
+  loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
+  waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutPaymentsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutPaymentsInput, Prisma.TenantUncheckedCreateWithoutPaymentsInput>
+}
+
+export type TenantUpsertWithoutPaymentsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutPaymentsInput, Prisma.TenantUncheckedUpdateWithoutPaymentsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutPaymentsInput, Prisma.TenantUncheckedCreateWithoutPaymentsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutPaymentsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutPaymentsInput, Prisma.TenantUncheckedUpdateWithoutPaymentsInput>
+}
+
+export type TenantUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openTime?: Prisma.StringFieldUpdateOperationsInput | string
+  closeTime?: Prisma.StringFieldUpdateOperationsInput | string
+  workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutTenantNestedInput
+  services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
+  staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
+  holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
+  settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
+  loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
+  waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutPaymentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openTime?: Prisma.StringFieldUpdateOperationsInput | string
+  closeTime?: Prisma.StringFieldUpdateOperationsInput | string
+  workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutTenantNestedInput
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
+  staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
+  holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
+  settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
+  waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
   serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
@@ -2764,6 +3585,7 @@ export type TenantCountOutputType = {
   loyaltyCards: number
   waitlist: number
   serviceCategories: number
+  payments: number
 }
 
 export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2778,6 +3600,7 @@ export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   loyaltyCards?: boolean | TenantCountOutputTypeCountLoyaltyCardsArgs
   waitlist?: boolean | TenantCountOutputTypeCountWaitlistArgs
   serviceCategories?: boolean | TenantCountOutputTypeCountServiceCategoriesArgs
+  payments?: boolean | TenantCountOutputTypeCountPaymentsArgs
 }
 
 /**
@@ -2867,6 +3690,13 @@ export type TenantCountOutputTypeCountServiceCategoriesArgs<ExtArgs extends runt
   where?: Prisma.ServiceCategoryWhereInput
 }
 
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountPaymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PaymentWhereInput
+}
+
 
 export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2886,6 +3716,14 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   closeTime?: boolean
   workingDays?: boolean
   plan?: boolean
+  trialEndsAt?: boolean
+  subscriptionPlan?: boolean
+  subscriptionEndsAt?: boolean
+  isSubscribed?: boolean
+  subscriptionStart?: boolean
+  subscriptionEnd?: boolean
+  razorpayCustomerId?: boolean
+  razorpaySubId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2901,6 +3739,7 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   loyaltyCards?: boolean | Prisma.Tenant$loyaltyCardsArgs<ExtArgs>
   waitlist?: boolean | Prisma.Tenant$waitlistArgs<ExtArgs>
   serviceCategories?: boolean | Prisma.Tenant$serviceCategoriesArgs<ExtArgs>
+  payments?: boolean | Prisma.Tenant$paymentsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
 
@@ -2922,6 +3761,14 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   closeTime?: boolean
   workingDays?: boolean
   plan?: boolean
+  trialEndsAt?: boolean
+  subscriptionPlan?: boolean
+  subscriptionEndsAt?: boolean
+  isSubscribed?: boolean
+  subscriptionStart?: boolean
+  subscriptionEnd?: boolean
+  razorpayCustomerId?: boolean
+  razorpaySubId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2945,6 +3792,14 @@ export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   closeTime?: boolean
   workingDays?: boolean
   plan?: boolean
+  trialEndsAt?: boolean
+  subscriptionPlan?: boolean
+  subscriptionEndsAt?: boolean
+  isSubscribed?: boolean
+  subscriptionStart?: boolean
+  subscriptionEnd?: boolean
+  razorpayCustomerId?: boolean
+  razorpaySubId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -2968,12 +3823,20 @@ export type TenantSelectScalar = {
   closeTime?: boolean
   workingDays?: boolean
   plan?: boolean
+  trialEndsAt?: boolean
+  subscriptionPlan?: boolean
+  subscriptionEndsAt?: boolean
+  isSubscribed?: boolean
+  subscriptionStart?: boolean
+  subscriptionEnd?: boolean
+  razorpayCustomerId?: boolean
+  razorpaySubId?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "tagline" | "slug" | "logo" | "website" | "address" | "city" | "state" | "pincode" | "phone" | "email" | "gstNumber" | "openTime" | "closeTime" | "workingDays" | "plan" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "tagline" | "slug" | "logo" | "website" | "address" | "city" | "state" | "pincode" | "phone" | "email" | "gstNumber" | "openTime" | "closeTime" | "workingDays" | "plan" | "trialEndsAt" | "subscriptionPlan" | "subscriptionEndsAt" | "isSubscribed" | "subscriptionStart" | "subscriptionEnd" | "razorpayCustomerId" | "razorpaySubId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.Tenant$usersArgs<ExtArgs>
   customers?: boolean | Prisma.Tenant$customersArgs<ExtArgs>
@@ -2987,6 +3850,7 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   loyaltyCards?: boolean | Prisma.Tenant$loyaltyCardsArgs<ExtArgs>
   waitlist?: boolean | Prisma.Tenant$waitlistArgs<ExtArgs>
   serviceCategories?: boolean | Prisma.Tenant$serviceCategoriesArgs<ExtArgs>
+  payments?: boolean | Prisma.Tenant$paymentsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TenantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -3007,6 +3871,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     loyaltyCards: Prisma.$LoyaltyCardPayload<ExtArgs>[]
     waitlist: Prisma.$WaitlistInterestPayload<ExtArgs>[]
     serviceCategories: Prisma.$ServiceCategoryPayload<ExtArgs>[]
+    payments: Prisma.$PaymentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3026,6 +3891,14 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     closeTime: string
     workingDays: string[]
     plan: $Enums.Plan
+    trialEndsAt: Date | null
+    subscriptionPlan: string
+    subscriptionEndsAt: Date | null
+    isSubscribed: boolean
+    subscriptionStart: Date | null
+    subscriptionEnd: Date | null
+    razorpayCustomerId: string | null
+    razorpaySubId: string | null
     isActive: boolean
     createdAt: Date
     updatedAt: Date
@@ -3435,6 +4308,7 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   loyaltyCards<T extends Prisma.Tenant$loyaltyCardsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$loyaltyCardsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LoyaltyCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   waitlist<T extends Prisma.Tenant$waitlistArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$waitlistArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WaitlistInterestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   serviceCategories<T extends Prisma.Tenant$serviceCategoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$serviceCategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  payments<T extends Prisma.Tenant$paymentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$paymentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PaymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3481,6 +4355,14 @@ export interface TenantFieldRefs {
   readonly closeTime: Prisma.FieldRef<"Tenant", 'String'>
   readonly workingDays: Prisma.FieldRef<"Tenant", 'String[]'>
   readonly plan: Prisma.FieldRef<"Tenant", 'Plan'>
+  readonly trialEndsAt: Prisma.FieldRef<"Tenant", 'DateTime'>
+  readonly subscriptionPlan: Prisma.FieldRef<"Tenant", 'String'>
+  readonly subscriptionEndsAt: Prisma.FieldRef<"Tenant", 'DateTime'>
+  readonly isSubscribed: Prisma.FieldRef<"Tenant", 'Boolean'>
+  readonly subscriptionStart: Prisma.FieldRef<"Tenant", 'DateTime'>
+  readonly subscriptionEnd: Prisma.FieldRef<"Tenant", 'DateTime'>
+  readonly razorpayCustomerId: Prisma.FieldRef<"Tenant", 'String'>
+  readonly razorpaySubId: Prisma.FieldRef<"Tenant", 'String'>
   readonly isActive: Prisma.FieldRef<"Tenant", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Tenant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Tenant", 'DateTime'>
@@ -4157,6 +5039,30 @@ export type Tenant$serviceCategoriesArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.ServiceCategoryScalarFieldEnum | Prisma.ServiceCategoryScalarFieldEnum[]
+}
+
+/**
+ * Tenant.payments
+ */
+export type Tenant$paymentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Payment
+   */
+  select?: Prisma.PaymentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payment
+   */
+  omit?: Prisma.PaymentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PaymentInclude<ExtArgs> | null
+  where?: Prisma.PaymentWhereInput
+  orderBy?: Prisma.PaymentOrderByWithRelationInput | Prisma.PaymentOrderByWithRelationInput[]
+  cursor?: Prisma.PaymentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PaymentScalarFieldEnum | Prisma.PaymentScalarFieldEnum[]
 }
 
 /**

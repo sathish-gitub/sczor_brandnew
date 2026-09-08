@@ -117,6 +117,10 @@ export async function GET() {
       },
       subscription: {
         currentPlan: tenant.plan,
+        plan: tenant.plan,
+        trialEndsAt: tenant.trialEndsAt,
+        isSubscribed: tenant.isSubscribed,
+        subscriptionEndsAt: tenant.subscriptionEndsAt,
       },
     });
   } catch (error) {

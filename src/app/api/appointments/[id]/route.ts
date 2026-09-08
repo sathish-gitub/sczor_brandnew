@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
+import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
 import { syncStaffAvailability } from "@/lib/staffAvailability";
 
@@ -172,6 +173,14 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
   if (!tenantId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const access = await checkWriteAccess(tenantId);
+  if (!access.allowed) {
+    return NextResponse.json(
+      { error: "SUBSCRIPTION_REQUIRED", message: access.reason },
+      { status: 403 },
+    );
   }
 
   const { id } = await params;

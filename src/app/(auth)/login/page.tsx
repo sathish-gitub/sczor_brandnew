@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -44,11 +44,22 @@ export default function LoginPage() {
     });
 
     if (!result || result.error) {
-      setFormError("Invalid email or password.");
+      if (result?.error === "EMAIL_NOT_VERIFIED") {
+        router.push(`/verify-email?email=${encodeURIComponent(values.email)}&resend=true`);
+        return;
+      }
+
+      setFormError(result?.error === "SALON_INACTIVE" ? "SALON_INACTIVE" : "Invalid email or password.");
       return;
     }
 
-    router.push("/dashboard");
+    const session = await getSession();
+
+    if (session?.user?.isSuperAdmin) {
+      router.push("/super-admin/dashboard");
+    } else {
+      router.push("/dashboard");
+    }
     router.refresh();
   });
 
@@ -88,7 +99,7 @@ export default function LoginPage() {
               Password
             </label>
             <Link
-              href="mailto:support@sczor.com?subject=Password%20Reset"
+              href="/forgot-password"
               className="text-sm font-medium text-[var(--accent)] hover:text-[var(--primary)]"
             >
               Forgot password?
@@ -116,9 +127,22 @@ export default function LoginPage() {
         </div>
 
         {formError ? (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {formError}
-          </div>
+          formError === "SALON_INACTIVE" ? (
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              <p className="mb-1 font-semibold">Account Deactivated</p>
+              <p>Your salon account has been deactivated. Please contact support:</p>
+              <a
+                href="mailto:connect@droletechnologies.com"
+                className="text-blue-600 underline"
+              >
+                connect@droletechnologies.com
+              </a>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {formError}
+            </div>
+          )
         ) : null}
 
         <button

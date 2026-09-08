@@ -165,54 +165,9 @@ const soonFeatures = [
   },
 ];
 
-const pricing = [
-  {
-    name: "FREE",
-    price: "₹0",
-    cycle: "/ month",
-    featured: true,
-    comingSoon: false,
-    points: [
-      "All 8 modules included",
-      "Unlimited appointments",
-      "Up to 500 customers",
-      "5 staff accounts",
-      "GST billing included",
-      "Email support",
-    ],
-    cta: "Get Started Free",
-  },
-  {
-    name: "BASIC",
-    price: "₹799",
-    cycle: "/ month",
-    featured: false,
-    comingSoon: true,
-    points: [
-      "Everything in Free",
-      "SMS notifications",
-      "WhatsApp invoice sharing",
-      "Priority support",
-      "Unlimited customers",
-    ],
-    cta: "Notify Me",
-  },
-  {
-    name: "PRO",
-    price: "₹1,099",
-    cycle: "/ month",
-    featured: false,
-    comingSoon: true,
-    points: [
-      "Everything in Basic",
-      "Multi-branch management",
-      "Inventory management",
-      "Bulk SMS campaigns",
-      "Dedicated support",
-    ],
-    cta: "Contact Us",
-  },
-];
+import { PRICING_PLANS } from "@/lib/pricing";
+import { BillingToggle, type BillingCycle } from "@/components/pricing/BillingToggle";
+
 
 const testimonials = [
   {
@@ -249,6 +204,8 @@ export default function Home() {
   const router = useRouter();
   const [statsVisible, setStatsVisible] = useState(false);
   const [counterValues, setCounterValues] = useState<number[]>(() => counters.map(() => 0));
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>("MONTHLY");
+  const middlePlan = billingCycle === "MONTHLY" ? PRICING_PLANS.MONTHLY : PRICING_PLANS.YEARLY;
 
   useEffect(() => {
     const statsElement = document.getElementById("stats");
@@ -613,63 +570,108 @@ export default function Home() {
             <p className="mt-3 text-lg text-slate-600">Start free. No hidden charges.</p>
           </div>
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
-            {pricing.map((plan) => (
-              <article
-                key={plan.name}
-                data-reveal
-                className={[
-                  "translate-y-6 rounded-2xl border bg-white p-7 opacity-0 shadow-sm transition-all duration-700 hover:-translate-y-1 hover:shadow-md",
-                  plan.featured ? "border-[#2563EB]" : "border-slate-200",
-                ].join(" ")}
+          <div data-reveal className="mt-8 flex translate-y-6 justify-center opacity-0 transition-all duration-700">
+            <BillingToggle value={billingCycle} onChange={setBillingCycle} />
+          </div>
+
+          <div className="mt-12 grid items-start gap-6 lg:grid-cols-3">
+            <article
+              data-reveal
+              className="translate-y-6 rounded-2xl border border-slate-200 bg-white p-7 opacity-0 shadow-sm transition-all duration-700 hover:-translate-y-1 hover:shadow-md"
+            >
+              <div>
+                <p className="text-sm font-semibold tracking-[0.14em] text-[#1E40AF]">{PRICING_PLANS.TRIAL.name}</p>
+                <p className="mt-3 text-4xl font-extrabold text-[#0D1B3E]">
+                  ₹0
+                  <span className="text-base font-semibold text-slate-500"> / {PRICING_PLANS.TRIAL.duration}</span>
+                </p>
+              </div>
+
+              <ul className="mt-6 space-y-3 text-sm text-slate-700">
+                {PRICING_PLANS.TRIAL.features.map((point) => (
+                  <li key={point} className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/signup?plan=TRIAL"
+                className="mt-7 inline-flex h-11 w-full items-center justify-center rounded-xl border border-[#1E40AF]/30 text-sm font-semibold text-[#1E40AF] transition hover:border-[#1E40AF]"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold tracking-[0.14em] text-[#1E40AF]">{plan.name}</p>
-                    <p className="mt-3 text-4xl font-extrabold text-[#0D1B3E]">
-                      {plan.price}
-                      <span className="text-base font-semibold text-slate-500"> {plan.cycle}</span>
+                Start Free Trial
+              </Link>
+            </article>
+
+            <article
+              data-reveal
+              className="translate-y-6 scale-100 rounded-2xl border-2 border-[#2563EB] bg-white p-7 opacity-0 shadow-lg transition-all duration-700 hover:-translate-y-1 lg:scale-105"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold tracking-[0.14em] text-[#1E40AF]">{middlePlan.name}</p>
+                  <p className="mt-3 text-4xl font-extrabold text-[#0D1B3E]">
+                    ₹{middlePlan.price.toLocaleString("en-IN")}
+                    <span className="text-base font-semibold text-slate-500"> / {middlePlan.period}</span>
+                  </p>
+                  {billingCycle === "YEARLY" ? (
+                    <p className="mt-1 text-sm font-medium text-emerald-600">
+                      ₹{PRICING_PLANS.YEARLY.monthlyEquivalent}/mo equivalent · Save ₹{PRICING_PLANS.YEARLY.savings}
                     </p>
-                  </div>
-                  {plan.featured ? (
-                    <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-[#1E40AF]">Most Popular</span>
                   ) : null}
                 </div>
+                <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-[#1E40AF]">
+                  {middlePlan.badge}
+                </span>
+              </div>
 
-                <ul className="mt-6 space-y-3 text-sm text-slate-700">
-                  {plan.points.map((point) => (
-                    <li key={point} className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                      <span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
+              <ul className="mt-6 space-y-3 text-sm text-slate-700">
+                {middlePlan.features.map((point) => (
+                  <li key={point} className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
 
-                {plan.name === "PRO" ? (
-                  <Link
-                    href="/contact"
-                    className="mt-7 inline-flex h-11 w-full items-center justify-center rounded-xl border border-[#1E40AF]/30 text-sm font-semibold text-[#1E40AF] transition hover:border-[#1E40AF]"
-                  >
-                    {plan.cta}
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    className={[
-                      "mt-7 inline-flex h-11 w-full items-center justify-center rounded-xl text-sm font-semibold transition",
-                      plan.featured
-                        ? "bg-[#1E40AF] text-white hover:bg-[#2563EB]"
-                        : "border border-[#1E40AF]/30 text-[#1E40AF] hover:border-[#1E40AF]",
-                    ].join(" ")}
-                  >
-                    {plan.cta}
-                  </button>
-                )}
-                {plan.comingSoon ? (
-                  <p className="mt-2 text-center text-xs font-medium text-slate-500">Coming soon</p>
-                ) : null}
-              </article>
-            ))}
+              <Link
+                href={`/signup?plan=${billingCycle}`}
+                className="mt-7 inline-flex h-11 w-full items-center justify-center rounded-xl bg-[#1E40AF] text-sm font-semibold text-white transition hover:bg-[#2563EB]"
+              >
+                Get Started
+              </Link>
+            </article>
+
+            <article
+              data-reveal
+              className="translate-y-6 rounded-2xl border border-slate-200 bg-white p-7 opacity-0 shadow-sm transition-all duration-700 hover:-translate-y-1 hover:shadow-md"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold tracking-[0.14em] text-[#1E40AF]">{PRICING_PLANS.BUSINESS.name}</p>
+                  <p className="mt-3 text-4xl font-extrabold text-[#0D1B3E]">
+                    {PRICING_PLANS.BUSINESS.priceLabel}
+                  </p>
+                </div>
+              </div>
+
+              <ul className="mt-6 space-y-3 text-sm text-slate-700">
+                {PRICING_PLANS.BUSINESS.features.map((point) => (
+                  <li key={point} className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/contact"
+                className="mt-7 inline-flex h-11 w-full items-center justify-center rounded-xl border border-[#1E40AF]/30 text-sm font-semibold text-[#1E40AF] transition hover:border-[#1E40AF]"
+              >
+                Contact Us for Pricing
+              </Link>
+            </article>
           </div>
 
           <p data-reveal className="mt-6 translate-y-6 text-center text-sm text-slate-600 opacity-0 transition-all duration-700">

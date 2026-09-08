@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { signIn } from "next-auth/react";
@@ -31,7 +31,17 @@ const signupSchema = z
 type SignupFormValues = z.infer<typeof signupSchema>;
 
 export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupForm />
+    </Suspense>
+  );
+}
+
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const plan = searchParams.get("plan");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -70,10 +80,10 @@ export default function SignupPage() {
     });
 
     const payload = (await response.json().catch(() => null)) as
-      | { error?: string }
+      | { error?: string; success?: boolean; userId?: string }
       | null;
 
-    if (!response.ok) {
+    if (!response.ok || !payload?.success || !payload.userId) {
       setFormError(payload?.error ?? "Unable to create your account.");
       return;
     }
@@ -90,7 +100,10 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/onboarding");
+    const planParam = plan ? `&plan=${encodeURIComponent(plan)}` : "";
+    router.push(
+      `/verify-email?userId=${payload.userId}&email=${encodeURIComponent(values.email)}${planParam}`,
+    );
     router.refresh();
   });
 

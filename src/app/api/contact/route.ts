@@ -1,5 +1,24 @@
 import { NextResponse } from "next/server";
 
+import { resend } from "@/lib/resend";
+
+function escapeHtml(value: unknown) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => {
+    switch (char) {
+      case "&":
+        return "&amp;";
+      case "<":
+        return "&lt;";
+      case ">":
+        return "&gt;";
+      case '"':
+        return "&quot;";
+      default:
+        return "&#39;";
+    }
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -28,17 +47,27 @@ export async function POST(req: Request) {
       );
     }
 
-    console.log("New enquiry:", {
-      businessName,
-      contactPerson,
-      mobile,
-      city,
-      numberOfStores,
-      subscriptionRequired,
-      address,
-      description,
-      receivedAt: new Date().toISOString(),
-    });
+    try {
+      await resend.emails.send({
+        from: `sczor <${process.env.RESEND_FROM_EMAIL ?? "noreply@sczor.com"}>`,
+        to: "connect@droletechnologies.com",
+        subject: `New Enquiry: ${businessName}`,
+        html: `
+          <h2>New Salon Enquiry</h2>
+          <p><b>Business Name:</b> ${escapeHtml(businessName)}</p>
+          <p><b>Contact Person:</b> ${escapeHtml(contactPerson)}</p>
+          <p><b>Mobile:</b> ${escapeHtml(mobile)}</p>
+          <p><b>City:</b> ${escapeHtml(city)}</p>
+          <p><b>Number of Stores:</b> ${escapeHtml(numberOfStores)}</p>
+          <p><b>Subscription Interested:</b> ${escapeHtml(subscriptionRequired)}</p>
+          <p><b>Address:</b> ${escapeHtml(address) || "Not provided"}</p>
+          <p><b>Message:</b></p>
+          <p>${escapeHtml(description)}</p>
+        `,
+      });
+    } catch (emailError) {
+      console.error("Failed to send contact enquiry email:", emailError);
+    }
 
     return NextResponse.json({
       success: true,

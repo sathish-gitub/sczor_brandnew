@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
+import { sendOTPEmail } from "@/lib/resend";
 import { DEFAULT_SERVICE_CATEGORIES } from "@/lib/utils";
 
 const registerSchema = z.object({
@@ -60,26 +61,41 @@ export async function POST(request: Request) {
 
     const existingUser = await prisma.user.findFirst({
       where: { email },
-      select: { id: true },
+      select: { id: true, tenantId: true, emailVerified: true },
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { error: "An account already exists with this email." },
-        { status: 409 },
-      );
+      if (existingUser.emailVerified) {
+        return NextResponse.json(
+          { error: "An account already exists with this email. Please login instead." },
+          { status: 409 },
+        );
+      }
+
+      // Unverified signup abandoned - delete the incomplete tenant/user (cascades) and let them restart.
+      await prisma.tenant.delete({ where: { id: existingUser.tenantId } });
     }
 
     const slug = buildTenantSlug(salonName);
     const passwordHash = await hash(password, 12);
 
-    const tenant = await prisma.$transaction(async (tx) => {
+    const trialEndsAt = new Date();
+    trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const emailOtpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    const { tenant, user } = await prisma.$transaction(async (tx) => {
       const createdTenant = await tx.tenant.create({
         data: {
           name: salonName,
           slug,
           email,
           phone: mobile,
+          plan: "FREE_TRIAL",
+          trialEndsAt,
+          isActive: true,
+          isSubscribed: false,
         },
         select: {
           id: true,
@@ -87,7 +103,7 @@ export async function POST(request: Request) {
         },
       });
 
-      await tx.user.create({
+      const createdUser = await tx.user.create({
         data: {
           name,
           email,
@@ -95,6 +111,11 @@ export async function POST(request: Request) {
           password: passwordHash,
           role: "OWNER",
           tenantId: createdTenant.id,
+          emailOtp: otp,
+          emailOtpExpiry,
+        },
+        select: {
+          id: true,
         },
       });
 
@@ -121,14 +142,23 @@ export async function POST(request: Request) {
         skipDuplicates: true,
       });
 
-      return createdTenant;
+      return { tenant: createdTenant, user: createdUser };
     });
+
+    try {
+      await sendOTPEmail(email, name, otp);
+    } catch (emailError) {
+      console.error("Failed to send OTP email:", emailError);
+    }
 
     return NextResponse.json(
       {
-        message: "Salon account created successfully.",
+        success: true,
+        userId: user.id,
+        email,
         tenantId: tenant.id,
         slug: tenant.slug,
+        message: "OTP sent to your email",
       },
       { status: 201 },
     );

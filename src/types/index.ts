@@ -18,7 +18,11 @@ export type TenantEntity = {
   city: string | null;
   state: string | null;
   pincode: string | null;
-  plan: "FREE" | "BASIC" | "PRO";
+  plan: "FREE_TRIAL" | "FREE" | "MONTHLY" | "YEARLY" | "BASIC" | "PRO";
+  trialEndsAt: string | null;
+  subscriptionPlan: string;
+  subscriptionEndsAt: string | null;
+  isSubscribed: boolean;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

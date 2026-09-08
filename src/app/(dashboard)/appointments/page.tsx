@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+
+import { useAccess } from "@/contexts/AccessContext";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Edit, Eye, LoaderCircle, Plus, Trash } from "lucide-react";
@@ -116,6 +118,7 @@ function periodContaining(dateValue: string): "today" | "this_week" | "this_mont
 }
 
 export default function AppointmentsPage() {
+  const access = useAccess();
   const searchParams = useSearchParams();
   const navigationToken = searchParams.get("t");
   const savedDate = searchParams.get("date");
@@ -295,8 +298,18 @@ export default function AppointmentsPage() {
             </select>
 
             <Link
-              href="/appointments/new"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
+              href={access.accessLevel === "READ_ONLY" ? "#" : "/appointments/new"}
+              aria-disabled={access.accessLevel === "READ_ONLY"}
+              onClick={(event) => {
+                if (access.accessLevel === "READ_ONLY") {
+                  event.preventDefault();
+                }
+              }}
+              className={
+                access.accessLevel === "READ_ONLY"
+                  ? "inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-slate-300 px-4 text-sm font-semibold text-slate-500"
+                  : "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
+              }
             >
               <Plus className="h-4 w-4" />
               New Appointment

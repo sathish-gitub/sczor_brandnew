@@ -47,7 +47,7 @@ type InitialProfile = {
 type ServiceRow = {
   id: string;
   name: string;
-  category: (typeof serviceCategories)[number];
+  category: string;
   price: string;
   duration: string;
 };
@@ -85,11 +85,11 @@ const emptyStaffRow = (): StaffRow => ({
   mobile: "",
 });
 
-const exampleServiceRow = (): ServiceRow => ({
+const emptyServiceRow = (): ServiceRow => ({
   id: createRowId(),
-  name: "Haircut",
-  category: "Hair",
-  price: "300",
+  name: "",
+  category: "",
+  price: "",
   duration: "30",
 });
 
@@ -97,8 +97,10 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(initialProfile.step1Complete ? 2 : 1);
   const [profile, setProfile] = useState(initialProfile);
-  const [services, setServices] = useState<ServiceRow[]>([exampleServiceRow()]);
+  const [services, setServices] = useState<ServiceRow[]>([emptyServiceRow()]);
   const [staff, setStaff] = useState<StaffRow[]>([emptyStaffRow()]);
+  const [showCustomCategory, setShowCustomCategory] = useState<string | null>(null);
+  const [customCategoryName, setCustomCategoryName] = useState("");
   const [completedSteps, setCompletedSteps] = useState<number[]>(
     initialProfile.step1Complete ? [1] : [],
   );
@@ -554,6 +556,7 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
                   <label className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)] md:hidden">Name</label>
                   <input
                     value={service.name}
+                    placeholder="Enter service name"
                     onChange={(event) => {
                       setServices((existing) =>
                         existing.map((item) =>
@@ -569,12 +572,17 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
                   <select
                     value={service.category}
                     onChange={(event) => {
+                      if (event.target.value === "__custom__") {
+                        setShowCustomCategory(service.id);
+                        return;
+                      }
+
                       setServices((existing) =>
                         existing.map((item) =>
                           item.id === service.id
                             ? {
                                 ...item,
-                                category: event.target.value as ServiceRow["category"],
+                                category: event.target.value,
                               }
                             : item,
                         ),
@@ -582,18 +590,48 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
                     }}
                     className="h-11 w-full rounded-2xl border border-[var(--border)] bg-white px-4 text-sm outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_4px_rgba(37,99,235,0.12)]"
                   >
+                    <option value="">Select category</option>
                     {serviceCategories.map((category) => (
                       <option key={category} value={category}>
                         {category}
                       </option>
                     ))}
+                    <option value="__custom__">+ Add Custom Category</option>
                   </select>
+
+                  {showCustomCategory === service.id && (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Enter category name"
+                        value={customCategoryName}
+                        onChange={(event) => setCustomCategoryName(event.target.value)}
+                        className="flex-1 rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setServices((existing) =>
+                            existing.map((item) =>
+                              item.id === service.id ? { ...item, category: customCategoryName } : item,
+                            ),
+                          );
+                          setShowCustomCategory(null);
+                          setCustomCategoryName("");
+                        }}
+                        className="rounded-lg bg-blue-600 px-3 py-2 text-sm text-white"
+                      >
+                        Add
+                      </button>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)] md:hidden">Price</label>
                   <input
                     value={service.price}
                     inputMode="decimal"
+                    placeholder="Enter price"
                     onChange={(event) => {
                       setServices((existing) =>
                         existing.map((item) =>
@@ -636,7 +674,7 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
 
         <button
           type="button"
-          onClick={() => setServices((existing) => [...existing, exampleServiceRow()])}
+          onClick={() => setServices((existing) => [...existing, emptyServiceRow()])}
           className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-blue-200 bg-white text-sm font-semibold text-[var(--primary)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
         >
           <Plus className="h-4 w-4" />

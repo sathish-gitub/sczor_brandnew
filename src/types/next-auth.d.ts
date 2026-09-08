@@ -6,12 +6,16 @@ declare module "next-auth" {
       id: string;
       tenantId: string;
       role: string;
+      isEmailVerified: boolean;
+      isSuperAdmin: boolean;
     } & DefaultSession["user"];
   }
 
   interface User {
     tenantId: string;
     role: string;
+    isEmailVerified: boolean;
+    isSuperAdmin: boolean;
   }
 }
 
@@ -19,5 +23,9 @@ declare module "next-auth/jwt" {
   interface JWT {
     tenantId: string;
     role: string;
+    trialExpired: boolean;
+    isSubscribed: boolean;
+    isEmailVerified: boolean;
+    isSuperAdmin: boolean;
   }
 }
