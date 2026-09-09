@@ -156,7 +156,7 @@ function VerifyEmailForm() {
 
       setSuccess(true);
       setTimeout(() => {
-        router.replace(plan ? `/select-plan?plan=${encodeURIComponent(plan)}` : "/select-plan");
+        window.location.href = plan ? `/select-plan?plan=${encodeURIComponent(plan)}` : "/select-plan";
       }, 1500);
     } catch {
       setError("Something went wrong. Please try again.");

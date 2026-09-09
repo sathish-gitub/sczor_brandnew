@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
-import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -88,23 +87,10 @@ function SignupForm() {
       return;
     }
 
-    const signInResult = await signIn("credentials", {
-      email: values.email,
-      password: values.password,
-      redirect: false,
-    });
-
-    if (!signInResult || signInResult.error) {
-      setFormError("Account created, but sign-in failed. Please log in manually.");
-      router.push("/login");
-      return;
-    }
-
     const planParam = plan ? `&plan=${encodeURIComponent(plan)}` : "";
     router.push(
       `/verify-email?userId=${payload.userId}&email=${encodeURIComponent(values.email)}${planParam}`,
     );
-    router.refresh();
   });
 
   return (
