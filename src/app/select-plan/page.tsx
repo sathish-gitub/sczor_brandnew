@@ -32,7 +32,6 @@ function SelectPlanContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const preselectedPlan = searchParams.get("plan") as PlanKey | null;
-  const [selectedPlan, setSelectedPlan] = useState<PlanKey | null>(preselectedPlan);
   const [billingCycle, setBillingCycle] = useState<BillingCycle>(
     preselectedPlan === "YEARLY" ? "YEARLY" : "MONTHLY",
   );
@@ -42,7 +41,6 @@ function SelectPlanContent() {
   const middlePlan = billingCycle === "MONTHLY" ? PRICING_PLANS.MONTHLY : PRICING_PLANS.YEARLY;
 
   async function startTrial() {
-    setSelectedPlan("TRIAL");
     setLoadingPlan("TRIAL");
     setError(null);
     try {
@@ -59,7 +57,6 @@ function SelectPlanContent() {
   }
 
   async function subscribe(plan: "MONTHLY" | "YEARLY") {
-    setSelectedPlan(plan);
     setLoadingPlan(plan);
     setError(null);
 
@@ -153,8 +150,8 @@ function SelectPlanContent() {
             features={[...PRICING_PLANS.TRIAL.features]}
             ctaLabel="Start Free Trial"
             ctaVariant="outline"
-            highlighted={selectedPlan === "TRIAL"}
-            selected={selectedPlan === "TRIAL"}
+            highlighted={preselectedPlan === "TRIAL"}
+            preselected={preselectedPlan === "TRIAL"}
             loading={loadingPlan === "TRIAL"}
             onClick={startTrial}
           />
@@ -172,7 +169,7 @@ function SelectPlanContent() {
             features={[...middlePlan.features]}
             ctaLabel="Get Started"
             ctaVariant="filled"
-            selected={selectedPlan === billingCycle}
+            preselected={preselectedPlan === billingCycle}
             loading={loadingPlan === billingCycle}
             onClick={() => subscribe(billingCycle)}
           />
@@ -182,11 +179,11 @@ function SelectPlanContent() {
             title={PRICING_PLANS.BUSINESS.name}
             price={PRICING_PLANS.BUSINESS.priceLabel}
             period=""
-            highlighted={selectedPlan === "BUSINESS"}
+            highlighted={preselectedPlan === "BUSINESS"}
             features={[...PRICING_PLANS.BUSINESS.features]}
             ctaLabel="Contact Us for Pricing"
             ctaVariant="dark"
-            selected={false}
+            preselected={false}
             loading={false}
             onClick={() => router.push("/contact")}
           />
@@ -217,7 +214,7 @@ function PlanCard({
   ctaLabel,
   ctaVariant,
   highlighted,
-  selected,
+  preselected,
   loading,
   onClick,
 }: {
@@ -230,7 +227,7 @@ function PlanCard({
   ctaLabel: string;
   ctaVariant: "outline" | "filled" | "dark";
   highlighted?: boolean;
-  selected: boolean;
+  preselected: boolean;
   loading: boolean;
   onClick: () => void;
 }) {
@@ -253,6 +250,13 @@ function PlanCard({
         <p className="mb-2 text-2xl">{emoji}</p>
       ) : null}
 
+      {preselected ? (
+        <p className="mb-2 inline-flex items-center gap-1 text-xs font-semibold text-emerald-600">
+          <Check className="h-3.5 w-3.5" />
+          Your selected plan
+        </p>
+      ) : null}
+
       <h3 className="text-lg font-semibold text-[var(--foreground)]">{title}</h3>
       <div className="mt-3">
         <span className="text-3xl font-bold text-[var(--foreground)]">{price}</span>
@@ -271,21 +275,14 @@ function PlanCard({
       <button
         type="button"
         onClick={onClick}
-        disabled={loading || selected}
+        disabled={loading}
         className={[
           "mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors disabled:opacity-70",
-          selected ? "bg-emerald-600 text-white" : ctaClasses,
+          ctaClasses,
         ].join(" ")}
       >
         {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-        {selected ? (
-          <>
-            <Check className="h-4 w-4" />
-            Selected
-          </>
-        ) : (
-          ctaLabel
-        )}
+        {ctaLabel}
       </button>
     </div>
   );
