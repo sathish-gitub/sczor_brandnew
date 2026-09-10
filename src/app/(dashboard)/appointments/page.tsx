@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Edit, Eye, LoaderCircle, Plus, Trash } from "lucide-react";
 
 import { StatusBadge } from "@/components/appointments/StatusBadge";
+import { WhatsAppConfirmationButton } from "@/components/appointments/WhatsAppConfirmationButton";
 import { maskId } from "@/lib/formatId";
 
 type AppointmentRow = {
@@ -122,6 +123,8 @@ export default function AppointmentsPage() {
   const searchParams = useSearchParams();
   const navigationToken = searchParams.get("t");
   const savedDate = searchParams.get("date");
+  const createdAppointmentId = searchParams.get("appointmentId");
+  const [salonName, setSalonName] = useState("");
   const [period, setPeriod] = useState<"today" | "this_week" | "this_month">(
     savedDate ? periodContaining(savedDate) : "today",
   );
@@ -216,9 +219,25 @@ export default function AppointmentsPage() {
     setPage(1);
   }, [navigationToken, savedDate]);
 
+  useEffect(() => {
+    fetch("/api/settings", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { salonProfile?: { salonName?: string } } | null) => {
+        if (data?.salonProfile?.salonName) {
+          setSalonName(data.salonProfile.salonName);
+        }
+      })
+      .catch(() => null);
+  }, []);
+
   const successMessage = useMemo(
     () => toastLabel(searchParams.get("success"), savedDate),
     [searchParams, savedDate],
+  );
+
+  const createdAppointment = useMemo(
+    () => (createdAppointmentId ? rows.find((row) => row.id === createdAppointmentId) ?? null : null),
+    [createdAppointmentId, rows],
   );
 
   async function cancelAppointment(id: string) {
@@ -253,8 +272,18 @@ export default function AppointmentsPage() {
   return (
     <div className="space-y-5">
       {successMessage ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-          {successMessage}
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+          <span>{successMessage}</span>
+          {createdAppointment && salonName ? (
+            <WhatsAppConfirmationButton
+              customerName={createdAppointment.customer.name}
+              mobile={createdAppointment.customer.mobile}
+              salonName={salonName}
+              appointmentDate={createdAppointment.appointmentDate}
+              appointmentTime={createdAppointment.appointmentTime}
+              className="inline-flex h-8 items-center justify-center rounded-lg border border-emerald-300 bg-white px-3 text-xs font-semibold text-emerald-700 hover:border-emerald-400"
+            />
+          ) : null}
         </div>
       ) : null}
 

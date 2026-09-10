@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 
 import { AppointmentActions } from "@/components/appointments/AppointmentActions";
 import { StatusBadge } from "@/components/appointments/StatusBadge";
+import { WhatsAppConfirmationButton } from "@/components/appointments/WhatsAppConfirmationButton";
 import { authOptions } from "@/lib/auth";
 import { maskId } from "@/lib/formatId";
 import { prisma } from "@/lib/prisma";
@@ -41,23 +42,29 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
 
   const { id } = await params;
 
-  const appointment = await prisma.appointment.findFirst({
-    where: {
-      id,
-      tenantId: session.user.tenantId,
-    },
-    include: {
-      customer: true,
-      service: true,
-      staff: true,
-      invoice: {
-        select: {
-          id: true,
-          invoiceNumber: true,
+  const [appointment, tenant] = await Promise.all([
+    prisma.appointment.findFirst({
+      where: {
+        id,
+        tenantId: session.user.tenantId,
+      },
+      include: {
+        customer: true,
+        service: true,
+        staff: true,
+        invoice: {
+          select: {
+            id: true,
+            invoiceNumber: true,
+          },
         },
       },
-    },
-  });
+    }),
+    prisma.tenant.findUnique({
+      where: { id: session.user.tenantId },
+      select: { name: true },
+    }),
+  ]);
 
   if (!appointment) {
     notFound();
@@ -141,8 +148,15 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
           </div>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-5 flex flex-wrap items-center gap-3">
           <AppointmentActions appointmentId={appointment.id} status={appointment.status} />
+          <WhatsAppConfirmationButton
+            customerName={appointment.customer.name}
+            mobile={appointment.customer.mobile}
+            salonName={tenant?.name ?? "Our Salon"}
+            appointmentDate={appointment.appointmentDate}
+            appointmentTime={appointment.appointmentTime}
+          />
         </div>
       </section>
 

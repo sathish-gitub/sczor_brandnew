@@ -141,6 +141,8 @@ function SelectPlanContent() {
           <BillingToggle value={billingCycle} onChange={setBillingCycle} />
         </div>
 
+        <p className="mb-6 text-center text-xs text-[var(--muted)]">All prices are inclusive of GST</p>
+
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <PlanCard
             emoji="🎉"

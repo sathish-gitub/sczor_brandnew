@@ -6,6 +6,12 @@ import { LoaderCircle } from "lucide-react";
 
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StatCard } from "@/components/reports/StatCard";
+import { RecentActivityFeed, type ActivityItem } from "@/components/charts/RecentActivityFeed";
+import { RevenueOverviewChart, type RevenueOverviewPoint } from "@/components/charts/RevenueOverviewChart";
+import { SalonGrowthChart, type SalonGrowthPoint } from "@/components/charts/SalonGrowthChart";
+import { SalonStatusDonut, type SalonStatusPoint } from "@/components/charts/SalonStatusDonut";
+import { SubscriptionDistributionDonut, type SubscriptionDistributionPoint } from "@/components/charts/SubscriptionDistributionDonut";
+import { TopSalonsBarChart, type TopSalonPoint } from "@/components/charts/TopSalonsBarChart";
 
 type DashboardStats = {
   stats: {
@@ -35,13 +41,6 @@ type DashboardStats = {
   }>;
 };
 
-const STATUS_COLORS: Record<string, string> = {
-  TRIAL: "bg-blue-500",
-  MONTHLY: "bg-emerald-500",
-  YEARLY: "bg-emerald-700",
-  EXPIRED: "bg-orange-500",
-};
-
 const STATUS_BADGE_CLASSES: Record<string, string> = {
   TRIAL: "bg-blue-100 text-blue-700",
   MONTHLY: "bg-emerald-100 text-emerald-700",
@@ -54,9 +53,29 @@ function formatCurrency(value: number) {
   return `₹${value.toLocaleString("en-IN")}`;
 }
 
+type ChartsData = {
+  salonGrowth: SalonGrowthPoint[];
+  subscriptionDistribution: SubscriptionDistributionPoint[];
+  revenueOverview: RevenueOverviewPoint[];
+  salonStatus: SalonStatusPoint[];
+  topSalons: TopSalonPoint[];
+  recentActivity: ActivityItem[];
+};
+
+const defaultChartsData: ChartsData = {
+  salonGrowth: [],
+  subscriptionDistribution: [],
+  revenueOverview: [],
+  salonStatus: [],
+  topSalons: [],
+  recentActivity: [],
+};
+
 export default function SuperAdminDashboardPage() {
   const [data, setData] = useState<DashboardStats | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [chartsData, setChartsData] = useState<ChartsData>(defaultChartsData);
+  const [chartsLoading, setChartsLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
@@ -86,6 +105,38 @@ export default function SuperAdminDashboardPage() {
     };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    async function loadCharts() {
+      setChartsLoading(true);
+
+      try {
+        const response = await fetch("/api/super-admin/dashboard/charts", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error("Failed to load chart data");
+        }
+
+        const payload = (await response.json()) as ChartsData;
+
+        if (active) {
+          setChartsData(payload);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (active) {
+          setChartsLoading(false);
+        }
+      }
+    }
+
+    loadCharts();
+    return () => {
+      active = false;
+    };
+  }, []);
+
   if (error) {
     return <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">{error}</div>;
   }
@@ -97,8 +148,6 @@ export default function SuperAdminDashboardPage() {
       </div>
     );
   }
-
-  const maxSignups = Math.max(1, ...data.monthlySignups.map((item) => item.count));
 
   return (
     <div className="space-y-6">
@@ -145,43 +194,22 @@ export default function SuperAdminDashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-5">
-          <h3 className="text-base font-semibold text-[var(--foreground)]">Monthly Signups</h3>
-          <div className="mt-6 flex h-48 items-end gap-4">
-            {data.monthlySignups.map((item) => (
-              <div key={item.month} className="flex flex-1 flex-col items-center gap-2">
-                <span className="text-xs font-semibold text-[var(--foreground)]">{item.count}</span>
-                <div
-                  className="w-full rounded-t-md bg-blue-500"
-                  style={{ height: `${Math.max(4, (item.count / maxSignups) * 100)}%` }}
-                />
-                <span className="text-xs text-[var(--muted)]">{item.month}</span>
-              </div>
-            ))}
-          </div>
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold text-[var(--foreground)]">Analytics</h2>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <SalonGrowthChart data={chartsData.salonGrowth} loading={chartsLoading} />
+          <SubscriptionDistributionDonut data={chartsData.subscriptionDistribution} loading={chartsLoading} />
         </div>
 
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-5">
-          <h3 className="text-base font-semibold text-[var(--foreground)]">Subscription Breakdown</h3>
-          <div className="mt-6 space-y-4">
-            {data.subscriptionBreakdown.map((item) => (
-              <div key={item.key}>
-                <div className="mb-1 flex items-center justify-between text-sm">
-                  <span className="font-medium text-[var(--foreground)]">{item.label}</span>
-                  <span className="text-[var(--muted)]">
-                    {item.count} ({item.percent}%)
-                  </span>
-                </div>
-                <div className="h-2.5 w-full rounded-full bg-slate-100">
-                  <div
-                    className={`h-2.5 rounded-full ${STATUS_COLORS[item.key] ?? "bg-slate-400"}`}
-                    style={{ width: `${item.percent}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <RevenueOverviewChart data={chartsData.revenueOverview} loading={chartsLoading} />
+          <SalonStatusDonut data={chartsData.salonStatus} loading={chartsLoading} />
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <TopSalonsBarChart data={chartsData.topSalons} loading={chartsLoading} />
+          <RecentActivityFeed data={chartsData.recentActivity} loading={chartsLoading} />
         </div>
       </div>
 

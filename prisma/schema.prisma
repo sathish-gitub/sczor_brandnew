@@ -405,6 +405,11 @@ model Payment {
   status            String    @default("PENDING")
   periodStart       DateTime?
   periodEnd         DateTime?
+  invoiceNumber      String?   @unique
+  baseAmount         Decimal?  @db.Decimal(10, 2)
+  gstAmount          Decimal?  @db.Decimal(10, 2)
+  gstRate            Decimal?  @db.Decimal(5, 2) @default(18)
+  invoiceEmailSentAt DateTime?
   createdAt         DateTime  @default(now())
 
   @@index([tenantId])

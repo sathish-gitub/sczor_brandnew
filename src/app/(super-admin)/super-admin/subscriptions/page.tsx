@@ -35,6 +35,11 @@ type SubscriptionsResponse = {
     amount: number;
     date: string;
     status: string;
+    invoiceNumber: string | null;
+    baseAmount: number | null;
+    gstAmount: number | null;
+    gstRate: number | null;
+    invoiceEmailSentAt: string | null;
   }>;
 };
 
@@ -51,6 +56,9 @@ export default function SubscriptionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState<"MONTHLY" | "YEARLY">("MONTHLY");
+  const [invoicePayment, setInvoicePayment] = useState<SubscriptionsResponse["recentPayments"][number] | null>(
+    null,
+  );
 
   useEffect(() => {
     fetch("/api/super-admin/subscriptions", { cache: "no-store" })
@@ -173,16 +181,18 @@ export default function SubscriptionsPage() {
             <thead>
               <tr className="border-b border-[var(--border)] text-left text-xs uppercase tracking-[0.08em] text-[var(--muted)]">
                 <th className="px-4 py-3">Salon</th>
+                <th className="px-4 py-3">Invoice No.</th>
                 <th className="px-4 py-3">Plan</th>
                 <th className="px-4 py-3">Amount</th>
                 <th className="px-4 py-3">Date</th>
                 <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>
               {data.recentPayments.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-8 text-center text-[var(--muted)]">
+                  <td colSpan={7} className="py-8 text-center text-[var(--muted)]">
                     No payments yet.
                   </td>
                 </tr>
@@ -190,6 +200,7 @@ export default function SubscriptionsPage() {
                 data.recentPayments.map((payment) => (
                   <tr key={payment.id} className="border-b border-[var(--border)] last:border-b-0">
                     <td className="px-4 py-3 font-medium text-[var(--foreground)]">{payment.salon}</td>
+                    <td className="px-4 py-3">{payment.invoiceNumber ?? "-"}</td>
                     <td className="px-4 py-3">{payment.plan}</td>
                     <td className="px-4 py-3">{formatCurrency(payment.amount)}</td>
                     <td className="px-4 py-3 text-[var(--muted)]">{formatDate(payment.date)}</td>
@@ -207,6 +218,17 @@ export default function SubscriptionsPage() {
                         {payment.status}
                       </span>
                     </td>
+                    <td className="px-4 py-3 text-right">
+                      {payment.invoiceNumber ? (
+                        <button
+                          type="button"
+                          onClick={() => setInvoicePayment(payment)}
+                          className="text-xs font-semibold text-[var(--accent)] hover:underline"
+                        >
+                          View Invoice
+                        </button>
+                      ) : null}
+                    </td>
                   </tr>
                 ))
               )}
@@ -214,6 +236,53 @@ export default function SubscriptionsPage() {
           </table>
         </div>
       </div>
+
+      {invoicePayment ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setInvoicePayment(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-[var(--border)] bg-white p-5"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <h3 className="text-base font-bold text-[var(--foreground)]">Invoice {invoicePayment.invoiceNumber}</h3>
+            <p className="mt-1 text-xs text-[var(--muted)]">{invoicePayment.salon}</p>
+
+            <div className="mt-4 space-y-1.5 text-sm">
+              <div className="flex justify-between">
+                <span className="text-[var(--muted)]">Subscription Amount</span>
+                <span>₹{(invoicePayment.baseAmount ?? 0).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--muted)]">CGST ({(invoicePayment.gstRate ?? 18) / 2}%)</span>
+                <span>₹{((invoicePayment.gstAmount ?? 0) / 2).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--muted)]">SGST ({(invoicePayment.gstRate ?? 18) / 2}%)</span>
+                <span>₹{((invoicePayment.gstAmount ?? 0) / 2).toFixed(2)}</span>
+              </div>
+              <div className="mt-1 flex justify-between border-t border-[var(--border)] pt-1.5 font-semibold">
+                <span>Total Paid</span>
+                <span>₹{invoicePayment.amount.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <p className="mt-4 text-xs text-[var(--muted)]">
+              Invoice email {invoicePayment.invoiceEmailSentAt ? "sent" : "not sent"}
+              {invoicePayment.invoiceEmailSentAt ? ` on ${formatDate(invoicePayment.invoiceEmailSentAt)}` : ""}
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setInvoicePayment(null)}
+              className="mt-5 w-full rounded-xl border border-[var(--border)] py-2 text-sm font-semibold text-[var(--foreground)] hover:border-[var(--accent)]"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

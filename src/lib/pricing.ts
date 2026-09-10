@@ -18,7 +18,7 @@ export const PRICING_PLANS = {
   MONTHLY: {
     id: "MONTHLY",
     name: "Monthly",
-    price: 499,
+    price: 599,
     period: "month",
     badge: "⭐ Most Popular",
     features: [
@@ -34,10 +34,10 @@ export const PRICING_PLANS = {
   YEARLY: {
     id: "YEARLY",
     name: "Yearly",
-    price: 4999,
+    price: 5999,
     period: "year",
-    monthlyEquivalent: 417,
-    savings: 989,
+    monthlyEquivalent: 500,
+    savings: 1189,
     savingsPercent: 17,
     badge: "💎 Save 17%",
     features: [

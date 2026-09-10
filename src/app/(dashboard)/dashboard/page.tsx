@@ -12,6 +12,14 @@ import {
   Users,
 } from "lucide-react";
 
+import { AppointmentBarChart, type AppointmentBreakdownPoint } from "@/components/charts/AppointmentBarChart";
+import { CustomerGrowthChart, type CustomerGrowthPoint } from "@/components/charts/CustomerGrowthChart";
+import { LoyaltyTierDonut, type LoyaltyTierPoint } from "@/components/charts/LoyaltyTierDonut";
+import { PaymentMethodDonut, type PaymentMethodPoint } from "@/components/charts/PaymentMethodDonut";
+import { RevenueTrendChart, type RevenueTrendPoint } from "@/components/charts/RevenueTrendChart";
+import { ServicePopularityDonut, type ServicePopularityPoint } from "@/components/charts/ServicePopularityDonut";
+import { StaffPerformanceBarChart, type StaffPerformancePoint } from "@/components/charts/StaffPerformanceBarChart";
+
 type DashboardStats = {
   todayAppointments: number;
   todayRevenue: number;
@@ -56,6 +64,35 @@ const rangeLabel: Record<DashboardRange, string> = {
   month: "This Month",
   year: "This Year",
   custom: "Custom",
+};
+
+type ChartsRange = "today" | "7d" | "30d" | "month";
+
+const chartsRangeLabel: Record<ChartsRange, string> = {
+  today: "Today",
+  "7d": "7 Days",
+  "30d": "30 Days",
+  month: "This Month",
+};
+
+type ChartsData = {
+  revenueTrend: RevenueTrendPoint[];
+  appointmentBreakdown: AppointmentBreakdownPoint[];
+  servicePopularity: ServicePopularityPoint[];
+  customerGrowth: CustomerGrowthPoint[];
+  staffPerformance: StaffPerformancePoint[];
+  paymentMethodSplit: PaymentMethodPoint[];
+  loyaltyTierDistribution: LoyaltyTierPoint[];
+};
+
+const defaultChartsData: ChartsData = {
+  revenueTrend: [],
+  appointmentBreakdown: [],
+  servicePopularity: [],
+  customerGrowth: [],
+  staffPerformance: [],
+  paymentMethodSplit: [],
+  loyaltyTierDistribution: [],
 };
 
 const defaultStats: DashboardStats = {
@@ -182,6 +219,10 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [chartsRange, setChartsRange] = useState<ChartsRange>("30d");
+  const [chartsData, setChartsData] = useState<ChartsData>(defaultChartsData);
+  const [chartsLoading, setChartsLoading] = useState(true);
+
   useEffect(() => {
     let active = true;
 
@@ -272,6 +313,42 @@ export default function DashboardPage() {
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, [selectedRange, customFrom, customTo]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadCharts() {
+      setChartsLoading(true);
+
+      try {
+        const response = await fetch(`/api/dashboard/charts?${new URLSearchParams({ range: chartsRange }).toString()}`, {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error("Unable to load chart data.");
+        }
+
+        const data = (await response.json()) as ChartsData;
+
+        if (active) {
+          setChartsData(data);
+        }
+      } catch (loadError) {
+        console.error(loadError);
+      } finally {
+        if (active) {
+          setChartsLoading(false);
+        }
+      }
+    }
+
+    loadCharts();
+
+    return () => {
+      active = false;
+    };
+  }, [chartsRange]);
 
   const statCards = useMemo(
     () => [
@@ -471,6 +548,48 @@ export default function DashboardPage() {
             )}
           </div>
         </SectionCard>
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">Analytics Overview</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            {(["today", "7d", "30d", "month"] as ChartsRange[]).map((range) => (
+              <button
+                key={range}
+                type="button"
+                onClick={() => setChartsRange(range)}
+                className={[
+                  "inline-flex h-9 items-center rounded-lg border px-3 text-sm font-semibold",
+                  chartsRange === range
+                    ? "border-slate-900 bg-slate-900 text-white"
+                    : "border-[var(--border)] bg-white text-[var(--foreground)] hover:border-[var(--accent)]",
+                ].join(" ")}
+              >
+                {chartsRangeLabel[range]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <RevenueTrendChart data={chartsData.revenueTrend} loading={chartsLoading} />
+          <AppointmentBarChart data={chartsData.appointmentBreakdown} loading={chartsLoading} />
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <ServicePopularityDonut data={chartsData.servicePopularity} loading={chartsLoading} />
+          <CustomerGrowthChart data={chartsData.customerGrowth} loading={chartsLoading} />
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <StaffPerformanceBarChart data={chartsData.staffPerformance} loading={chartsLoading} />
+          <PaymentMethodDonut data={chartsData.paymentMethodSplit} loading={chartsLoading} />
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+          <LoyaltyTierDonut data={chartsData.loyaltyTierDistribution} loading={chartsLoading} />
+        </div>
       </div>
 
       <SectionCard className="p-4">

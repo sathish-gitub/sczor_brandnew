@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
+import { PRICING_PLANS } from "@/lib/pricing";
 import { prisma } from "@/lib/prisma";
 import { getTenantSalonStatus } from "@/lib/tenantStatus";
 
-const MONTHLY_PRICE = 499;
-const YEARLY_PRICE = 4999;
+const MONTHLY_PRICE = PRICING_PLANS.MONTHLY.price;
+const YEARLY_PRICE = PRICING_PLANS.YEARLY.price;
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -72,6 +73,11 @@ export async function GET() {
     amount: payment.amount,
     date: payment.createdAt,
     status: payment.status,
+    invoiceNumber: payment.invoiceNumber,
+    baseAmount: payment.baseAmount ? Number(payment.baseAmount) : null,
+    gstAmount: payment.gstAmount ? Number(payment.gstAmount) : null,
+    gstRate: payment.gstRate ? Number(payment.gstRate) : null,
+    invoiceEmailSentAt: payment.invoiceEmailSentAt,
   }));
 
   return NextResponse.json({

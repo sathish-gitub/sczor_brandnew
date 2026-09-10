@@ -2,11 +2,12 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
+import { PRICING_PLANS } from "@/lib/pricing";
 import { prisma } from "@/lib/prisma";
 import { getTenantSalonStatus } from "@/lib/tenantStatus";
 
-const MONTHLY_PRICE = 499;
-const YEARLY_PRICE = 4999;
+const MONTHLY_PRICE = PRICING_PLANS.MONTHLY.price;
+const YEARLY_PRICE = PRICING_PLANS.YEARLY.price;
 
 export async function GET() {
   const session = await getServerSession(authOptions);

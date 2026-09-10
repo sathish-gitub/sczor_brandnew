@@ -677,6 +677,7 @@ export default function Home() {
           <p data-reveal className="mt-6 translate-y-6 text-center text-sm text-slate-600 opacity-0 transition-all duration-700">
             All plans include GST billing, loyalty program, and full reports
           </p>
+          <p className="mt-2 text-center text-xs text-slate-400">All prices are inclusive of GST</p>
         </div>
       </section>
 

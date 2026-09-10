@@ -357,16 +357,21 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
       body: JSON.stringify(values),
     });
 
-    const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+    const payload = (await response.json().catch(() => null)) as
+      | { error?: string; appointment?: { id: string } }
+      | null;
 
     if (!response.ok) {
       setSubmitError(payload?.error ?? "Unable to save appointment.");
       return;
     }
 
+    const createdId = mode === "create" ? payload?.appointment?.id : undefined;
+
     router.refresh();
     router.push(
-      `/appointments?success=${mode === "create" ? "created" : "updated"}&date=${values.appointmentDate}&t=${Date.now()}`,
+      `/appointments?success=${mode === "create" ? "created" : "updated"}&date=${values.appointmentDate}&t=${Date.now()}` +
+        (createdId ? `&appointmentId=${createdId}` : ""),
     );
   });
 

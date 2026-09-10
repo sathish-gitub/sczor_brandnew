@@ -38,13 +38,23 @@ export async function GET() {
       periodStart: true,
       periodEnd: true,
       createdAt: true,
+      invoiceNumber: true,
+      baseAmount: true,
+      gstAmount: true,
+      gstRate: true,
+      invoiceEmailSentAt: true,
     },
   });
 
   return NextResponse.json(
     {
       subscription: tenant,
-      payments,
+      payments: payments.map((payment) => ({
+        ...payment,
+        baseAmount: payment.baseAmount ? Number(payment.baseAmount) : null,
+        gstAmount: payment.gstAmount ? Number(payment.gstAmount) : null,
+        gstRate: payment.gstRate ? Number(payment.gstRate) : null,
+      })),
     },
     { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, private" } },
   );

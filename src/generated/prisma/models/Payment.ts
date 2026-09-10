@@ -28,10 +28,16 @@ export type AggregatePayment = {
 
 export type PaymentAvgAggregateOutputType = {
   amount: number | null
+  baseAmount: runtime.Decimal | null
+  gstAmount: runtime.Decimal | null
+  gstRate: runtime.Decimal | null
 }
 
 export type PaymentSumAggregateOutputType = {
   amount: number | null
+  baseAmount: runtime.Decimal | null
+  gstAmount: runtime.Decimal | null
+  gstRate: runtime.Decimal | null
 }
 
 export type PaymentMinAggregateOutputType = {
@@ -44,6 +50,11 @@ export type PaymentMinAggregateOutputType = {
   status: string | null
   periodStart: Date | null
   periodEnd: Date | null
+  invoiceNumber: string | null
+  baseAmount: runtime.Decimal | null
+  gstAmount: runtime.Decimal | null
+  gstRate: runtime.Decimal | null
+  invoiceEmailSentAt: Date | null
   createdAt: Date | null
 }
 
@@ -57,6 +68,11 @@ export type PaymentMaxAggregateOutputType = {
   status: string | null
   periodStart: Date | null
   periodEnd: Date | null
+  invoiceNumber: string | null
+  baseAmount: runtime.Decimal | null
+  gstAmount: runtime.Decimal | null
+  gstRate: runtime.Decimal | null
+  invoiceEmailSentAt: Date | null
   createdAt: Date | null
 }
 
@@ -70,6 +86,11 @@ export type PaymentCountAggregateOutputType = {
   status: number
   periodStart: number
   periodEnd: number
+  invoiceNumber: number
+  baseAmount: number
+  gstAmount: number
+  gstRate: number
+  invoiceEmailSentAt: number
   createdAt: number
   _all: number
 }
@@ -77,10 +98,16 @@ export type PaymentCountAggregateOutputType = {
 
 export type PaymentAvgAggregateInputType = {
   amount?: true
+  baseAmount?: true
+  gstAmount?: true
+  gstRate?: true
 }
 
 export type PaymentSumAggregateInputType = {
   amount?: true
+  baseAmount?: true
+  gstAmount?: true
+  gstRate?: true
 }
 
 export type PaymentMinAggregateInputType = {
@@ -93,6 +120,11 @@ export type PaymentMinAggregateInputType = {
   status?: true
   periodStart?: true
   periodEnd?: true
+  invoiceNumber?: true
+  baseAmount?: true
+  gstAmount?: true
+  gstRate?: true
+  invoiceEmailSentAt?: true
   createdAt?: true
 }
 
@@ -106,6 +138,11 @@ export type PaymentMaxAggregateInputType = {
   status?: true
   periodStart?: true
   periodEnd?: true
+  invoiceNumber?: true
+  baseAmount?: true
+  gstAmount?: true
+  gstRate?: true
+  invoiceEmailSentAt?: true
   createdAt?: true
 }
 
@@ -119,6 +156,11 @@ export type PaymentCountAggregateInputType = {
   status?: true
   periodStart?: true
   periodEnd?: true
+  invoiceNumber?: true
+  baseAmount?: true
+  gstAmount?: true
+  gstRate?: true
+  invoiceEmailSentAt?: true
   createdAt?: true
   _all?: true
 }
@@ -219,6 +261,11 @@ export type PaymentGroupByOutputType = {
   status: string
   periodStart: Date | null
   periodEnd: Date | null
+  invoiceNumber: string | null
+  baseAmount: runtime.Decimal | null
+  gstAmount: runtime.Decimal | null
+  gstRate: runtime.Decimal | null
+  invoiceEmailSentAt: Date | null
   createdAt: Date
   _count: PaymentCountAggregateOutputType | null
   _avg: PaymentAvgAggregateOutputType | null
@@ -255,6 +302,11 @@ export type PaymentWhereInput = {
   status?: Prisma.StringFilter<"Payment"> | string
   periodStart?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   periodEnd?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
+  invoiceNumber?: Prisma.StringNullableFilter<"Payment"> | string | null
+  baseAmount?: Prisma.DecimalNullableFilter<"Payment"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: Prisma.DecimalNullableFilter<"Payment"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.DecimalNullableFilter<"Payment"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
 }
@@ -269,12 +321,18 @@ export type PaymentOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   periodStart?: Prisma.SortOrderInput | Prisma.SortOrder
   periodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
+  invoiceNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  baseAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  gstAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  gstRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  invoiceEmailSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
 }
 
 export type PaymentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  invoiceNumber?: string
   AND?: Prisma.PaymentWhereInput | Prisma.PaymentWhereInput[]
   OR?: Prisma.PaymentWhereInput[]
   NOT?: Prisma.PaymentWhereInput | Prisma.PaymentWhereInput[]
@@ -286,9 +344,13 @@ export type PaymentWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.StringFilter<"Payment"> | string
   periodStart?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   periodEnd?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
+  baseAmount?: Prisma.DecimalNullableFilter<"Payment"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: Prisma.DecimalNullableFilter<"Payment"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.DecimalNullableFilter<"Payment"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
-}, "id">
+}, "id" | "invoiceNumber">
 
 export type PaymentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -300,6 +362,11 @@ export type PaymentOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   periodStart?: Prisma.SortOrderInput | Prisma.SortOrder
   periodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
+  invoiceNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  baseAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  gstAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  gstRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  invoiceEmailSentAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.PaymentCountOrderByAggregateInput
   _avg?: Prisma.PaymentAvgOrderByAggregateInput
@@ -321,6 +388,11 @@ export type PaymentScalarWhereWithAggregatesInput = {
   status?: Prisma.StringWithAggregatesFilter<"Payment"> | string
   periodStart?: Prisma.DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
   periodEnd?: Prisma.DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
+  invoiceNumber?: Prisma.StringNullableWithAggregatesFilter<"Payment"> | string | null
+  baseAmount?: Prisma.DecimalNullableWithAggregatesFilter<"Payment"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: Prisma.DecimalNullableWithAggregatesFilter<"Payment"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.DecimalNullableWithAggregatesFilter<"Payment"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Payment"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Payment"> | Date | string
 }
 
@@ -333,6 +405,11 @@ export type PaymentCreateInput = {
   status?: string
   periodStart?: Date | string | null
   periodEnd?: Date | string | null
+  invoiceNumber?: string | null
+  baseAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Date | string | null
   createdAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutPaymentsInput
 }
@@ -347,6 +424,11 @@ export type PaymentUncheckedCreateInput = {
   status?: string
   periodStart?: Date | string | null
   periodEnd?: Date | string | null
+  invoiceNumber?: string | null
+  baseAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -359,6 +441,11 @@ export type PaymentUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  invoiceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutPaymentsNestedInput
 }
@@ -373,6 +460,11 @@ export type PaymentUncheckedUpdateInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  invoiceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -386,6 +478,11 @@ export type PaymentCreateManyInput = {
   status?: string
   periodStart?: Date | string | null
   periodEnd?: Date | string | null
+  invoiceNumber?: string | null
+  baseAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -398,6 +495,11 @@ export type PaymentUpdateManyMutationInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  invoiceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -411,6 +513,11 @@ export type PaymentUncheckedUpdateManyInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  invoiceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -434,11 +541,19 @@ export type PaymentCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   periodStart?: Prisma.SortOrder
   periodEnd?: Prisma.SortOrder
+  invoiceNumber?: Prisma.SortOrder
+  baseAmount?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  gstRate?: Prisma.SortOrder
+  invoiceEmailSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type PaymentAvgOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  baseAmount?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  gstRate?: Prisma.SortOrder
 }
 
 export type PaymentMaxOrderByAggregateInput = {
@@ -451,6 +566,11 @@ export type PaymentMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   periodStart?: Prisma.SortOrder
   periodEnd?: Prisma.SortOrder
+  invoiceNumber?: Prisma.SortOrder
+  baseAmount?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  gstRate?: Prisma.SortOrder
+  invoiceEmailSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -464,11 +584,19 @@ export type PaymentMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   periodStart?: Prisma.SortOrder
   periodEnd?: Prisma.SortOrder
+  invoiceNumber?: Prisma.SortOrder
+  baseAmount?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  gstRate?: Prisma.SortOrder
+  invoiceEmailSentAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type PaymentSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
+  baseAmount?: Prisma.SortOrder
+  gstAmount?: Prisma.SortOrder
+  gstRate?: Prisma.SortOrder
 }
 
 export type PaymentCreateNestedManyWithoutTenantInput = {
@@ -513,6 +641,14 @@ export type PaymentUncheckedUpdateManyWithoutTenantNestedInput = {
   deleteMany?: Prisma.PaymentScalarWhereInput | Prisma.PaymentScalarWhereInput[]
 }
 
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
 export type PaymentCreateWithoutTenantInput = {
   id?: string
   plan: string
@@ -522,6 +658,11 @@ export type PaymentCreateWithoutTenantInput = {
   status?: string
   periodStart?: Date | string | null
   periodEnd?: Date | string | null
+  invoiceNumber?: string | null
+  baseAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -534,6 +675,11 @@ export type PaymentUncheckedCreateWithoutTenantInput = {
   status?: string
   periodStart?: Date | string | null
   periodEnd?: Date | string | null
+  invoiceNumber?: string | null
+  baseAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -576,6 +722,11 @@ export type PaymentScalarWhereInput = {
   status?: Prisma.StringFilter<"Payment"> | string
   periodStart?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   periodEnd?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
+  invoiceNumber?: Prisma.StringNullableFilter<"Payment"> | string | null
+  baseAmount?: Prisma.DecimalNullableFilter<"Payment"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: Prisma.DecimalNullableFilter<"Payment"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.DecimalNullableFilter<"Payment"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Prisma.DateTimeNullableFilter<"Payment"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Payment"> | Date | string
 }
 
@@ -588,6 +739,11 @@ export type PaymentCreateManyTenantInput = {
   status?: string
   periodStart?: Date | string | null
   periodEnd?: Date | string | null
+  invoiceNumber?: string | null
+  baseAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Date | string | null
   createdAt?: Date | string
 }
 
@@ -600,6 +756,11 @@ export type PaymentUpdateWithoutTenantInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  invoiceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -612,6 +773,11 @@ export type PaymentUncheckedUpdateWithoutTenantInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  invoiceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -624,6 +790,11 @@ export type PaymentUncheckedUpdateManyWithoutTenantInput = {
   status?: Prisma.StringFieldUpdateOperationsInput | string
   periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  invoiceNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  gstRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  invoiceEmailSentAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -639,6 +810,11 @@ export type PaymentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   status?: boolean
   periodStart?: boolean
   periodEnd?: boolean
+  invoiceNumber?: boolean
+  baseAmount?: boolean
+  gstAmount?: boolean
+  gstRate?: boolean
+  invoiceEmailSentAt?: boolean
   createdAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["payment"]>
@@ -653,6 +829,11 @@ export type PaymentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   status?: boolean
   periodStart?: boolean
   periodEnd?: boolean
+  invoiceNumber?: boolean
+  baseAmount?: boolean
+  gstAmount?: boolean
+  gstRate?: boolean
+  invoiceEmailSentAt?: boolean
   createdAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["payment"]>
@@ -667,6 +848,11 @@ export type PaymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   status?: boolean
   periodStart?: boolean
   periodEnd?: boolean
+  invoiceNumber?: boolean
+  baseAmount?: boolean
+  gstAmount?: boolean
+  gstRate?: boolean
+  invoiceEmailSentAt?: boolean
   createdAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["payment"]>
@@ -681,10 +867,15 @@ export type PaymentSelectScalar = {
   status?: boolean
   periodStart?: boolean
   periodEnd?: boolean
+  invoiceNumber?: boolean
+  baseAmount?: boolean
+  gstAmount?: boolean
+  gstRate?: boolean
+  invoiceEmailSentAt?: boolean
   createdAt?: boolean
 }
 
-export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "plan" | "amount" | "razorpayOrderId" | "razorpayPaymentId" | "status" | "periodStart" | "periodEnd" | "createdAt", ExtArgs["result"]["payment"]>
+export type PaymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "plan" | "amount" | "razorpayOrderId" | "razorpayPaymentId" | "status" | "periodStart" | "periodEnd" | "invoiceNumber" | "baseAmount" | "gstAmount" | "gstRate" | "invoiceEmailSentAt" | "createdAt", ExtArgs["result"]["payment"]>
 export type PaymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
@@ -710,6 +901,11 @@ export type $PaymentPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     status: string
     periodStart: Date | null
     periodEnd: Date | null
+    invoiceNumber: string | null
+    baseAmount: runtime.Decimal | null
+    gstAmount: runtime.Decimal | null
+    gstRate: runtime.Decimal | null
+    invoiceEmailSentAt: Date | null
     createdAt: Date
   }, ExtArgs["result"]["payment"]>
   composites: {}
@@ -1144,6 +1340,11 @@ export interface PaymentFieldRefs {
   readonly status: Prisma.FieldRef<"Payment", 'String'>
   readonly periodStart: Prisma.FieldRef<"Payment", 'DateTime'>
   readonly periodEnd: Prisma.FieldRef<"Payment", 'DateTime'>
+  readonly invoiceNumber: Prisma.FieldRef<"Payment", 'String'>
+  readonly baseAmount: Prisma.FieldRef<"Payment", 'Decimal'>
+  readonly gstAmount: Prisma.FieldRef<"Payment", 'Decimal'>
+  readonly gstRate: Prisma.FieldRef<"Payment", 'Decimal'>
+  readonly invoiceEmailSentAt: Prisma.FieldRef<"Payment", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Payment", 'DateTime'>
 }
     

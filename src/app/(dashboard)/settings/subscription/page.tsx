@@ -1,8 +1,8 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useState } from "react";
-import { Check, CheckCircle2, LoaderCircle } from "lucide-react";
+import { Fragment, useEffect, useState } from "react";
+import { Check, CheckCircle2, ChevronDown, LoaderCircle } from "lucide-react";
 
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PRICING_PLANS } from "@/lib/pricing";
@@ -33,6 +33,10 @@ type PaymentRow = {
   periodStart: string | null;
   periodEnd: string | null;
   createdAt: string;
+  invoiceNumber: string | null;
+  baseAmount: number | null;
+  gstAmount: number | null;
+  gstRate: number | null;
 };
 
 type PlanKey = "MONTHLY" | "YEARLY";
@@ -46,12 +50,17 @@ function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value);
 }
 
+function formatPreciseCurrency(value: number) {
+  return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(value);
+}
+
 export default function SubscriptionPage() {
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingPlan, setLoadingPlan] = useState<PlanKey | null>(null);
+  const [expandedPaymentId, setExpandedPaymentId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("MONTHLY");
 
@@ -195,6 +204,8 @@ export default function SubscriptionPage() {
           <BillingToggle value={billingCycle} onChange={setBillingCycle} />
         </div>
 
+        <p className="mt-3 text-center text-xs text-[var(--muted)]">All prices are inclusive of GST</p>
+
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <PlanCard
             title={PRICING_PLANS.TRIAL.name}
@@ -258,28 +269,77 @@ export default function SubscriptionPage() {
               <thead className="bg-slate-50 text-xs uppercase tracking-[0.08em] text-[var(--muted)]">
                 <tr>
                   <th className="px-4 py-3">Date</th>
+                  <th className="px-4 py-3">Invoice No.</th>
                   <th className="px-4 py-3">Plan</th>
                   <th className="px-4 py-3">Amount</th>
                   <th className="px-4 py-3">Status</th>
                   <th className="px-4 py-3">Period</th>
+                  <th className="px-4 py-3" />
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--border)]">
-                {payments.map((payment) => (
-                  <tr key={payment.id}>
-                    <td className="px-4 py-3">{formatDate(payment.createdAt)}</td>
-                    <td className="px-4 py-3">{payment.plan}</td>
-                    <td className="px-4 py-3">{formatCurrency(payment.amount)}</td>
-                    <td className="px-4 py-3">
-                      <PaymentStatusBadge status={payment.status} />
-                    </td>
-                    <td className="px-4 py-3">
-                      {payment.periodStart && payment.periodEnd
-                        ? `${formatDate(payment.periodStart)} - ${formatDate(payment.periodEnd)}`
-                        : "-"}
-                    </td>
-                  </tr>
-                ))}
+                {payments.map((payment) => {
+                  const expanded = expandedPaymentId === payment.id;
+                  const hasGstBreakdown =
+                    payment.baseAmount !== null && payment.gstAmount !== null && payment.gstRate !== null;
+
+                  return (
+                    <Fragment key={payment.id}>
+                      <tr>
+                        <td className="px-4 py-3">{formatDate(payment.createdAt)}</td>
+                        <td className="px-4 py-3 font-medium text-[var(--foreground)]">
+                          {payment.invoiceNumber ?? "-"}
+                        </td>
+                        <td className="px-4 py-3">{payment.plan}</td>
+                        <td className="px-4 py-3">{formatCurrency(payment.amount)}</td>
+                        <td className="px-4 py-3">
+                          <PaymentStatusBadge status={payment.status} />
+                        </td>
+                        <td className="px-4 py-3">
+                          {payment.periodStart && payment.periodEnd
+                            ? `${formatDate(payment.periodStart)} - ${formatDate(payment.periodEnd)}`
+                            : "-"}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          {hasGstBreakdown ? (
+                            <button
+                              type="button"
+                              onClick={() => setExpandedPaymentId(expanded ? null : payment.id)}
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--accent)] hover:underline"
+                            >
+                              GST Details
+                              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${expanded ? "rotate-180" : ""}`} />
+                            </button>
+                          ) : null}
+                        </td>
+                      </tr>
+                      {expanded && hasGstBreakdown ? (
+                        <tr>
+                          <td colSpan={7} className="bg-slate-50 px-4 py-4">
+                            <div className="grid max-w-sm gap-1.5 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-[var(--muted)]">Subscription Amount</span>
+                                <span>{formatPreciseCurrency(payment.baseAmount ?? 0)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-[var(--muted)]">CGST ({(payment.gstRate ?? 18) / 2}%)</span>
+                                <span>{formatPreciseCurrency((payment.gstAmount ?? 0) / 2)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-[var(--muted)]">SGST ({(payment.gstRate ?? 18) / 2}%)</span>
+                                <span>{formatPreciseCurrency((payment.gstAmount ?? 0) / 2)}</span>
+                              </div>
+                              <div className="mt-1 flex justify-between border-t border-[var(--border)] pt-1.5 font-semibold">
+                                <span>Total Paid</span>
+                                <span>{formatPreciseCurrency(payment.amount)}</span>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : null}
+                    </Fragment>
+                  );
+                })}
               </tbody>
             </table>
           </div>

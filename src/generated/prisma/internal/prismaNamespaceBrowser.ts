@@ -419,6 +419,11 @@ export const PaymentScalarFieldEnum = {
   status: 'status',
   periodStart: 'periodStart',
   periodEnd: 'periodEnd',
+  invoiceNumber: 'invoiceNumber',
+  baseAmount: 'baseAmount',
+  gstAmount: 'gstAmount',
+  gstRate: 'gstRate',
+  invoiceEmailSentAt: 'invoiceEmailSentAt',
   createdAt: 'createdAt'
 } as const
 

@@ -5,8 +5,10 @@ import { getServerSession } from "next-auth";
 import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
+import { calculateGSTBreakdown } from "@/lib/gst";
 import { prisma } from "@/lib/prisma";
 import { calculateSubscriptionEnd } from "@/lib/subscription";
+import { sendSubscriptionInvoiceEmail } from "@/lib/subscriptionInvoiceEmail";
 
 const bodySchema = z.object({
   razorpay_order_id: z.string(),
@@ -14,6 +16,31 @@ const bodySchema = z.object({
   razorpay_signature: z.string(),
   plan: z.enum(["MONTHLY", "YEARLY"]),
 });
+
+async function nextSubscriptionInvoiceNumber(tenantId: string) {
+  const year = new Date().getFullYear();
+  const basePrefix = `SUB-INV-${year}-`;
+
+  const latest = await prisma.payment.findFirst({
+    where: {
+      tenantId,
+      invoiceNumber: {
+        startsWith: basePrefix,
+      },
+    },
+    orderBy: {
+      invoiceNumber: "desc",
+    },
+    select: {
+      invoiceNumber: true,
+    },
+  });
+
+  const lastSequence = latest?.invoiceNumber ? Number(latest.invoiceNumber.split("-").at(-1) ?? "0") : 0;
+  const next = Number.isFinite(lastSequence) ? lastSequence + 1 : 1;
+
+  return `${basePrefix}${String(next).padStart(4, "0")}`;
+}
 
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
@@ -59,6 +86,13 @@ export async function POST(request: Request) {
   const now = new Date();
   const periodEnd = calculateSubscriptionEnd(plan, now);
 
+  const paymentRecord = await prisma.payment.findFirst({
+    where: { razorpayOrderId: razorpay_order_id, tenantId: session.user.tenantId },
+  });
+
+  const invoiceNumber = paymentRecord ? await nextSubscriptionInvoiceNumber(session.user.tenantId) : null;
+  const gstBreakdown = paymentRecord ? calculateGSTBreakdown(paymentRecord.amount) : null;
+
   await prisma.payment.updateMany({
     where: { razorpayOrderId: razorpay_order_id, tenantId: session.user.tenantId },
     data: {
@@ -66,6 +100,10 @@ export async function POST(request: Request) {
       razorpayPaymentId: razorpay_payment_id,
       periodStart: now,
       periodEnd,
+      ...(invoiceNumber ? { invoiceNumber } : {}),
+      ...(gstBreakdown
+        ? { baseAmount: gstBreakdown.baseAmount, gstAmount: gstBreakdown.gstAmount, gstRate: gstBreakdown.gstRate }
+        : {}),
     },
   });
 
@@ -78,6 +116,40 @@ export async function POST(request: Request) {
       subscriptionEnd: periodEnd,
     },
   });
+
+  if (paymentRecord) {
+    try {
+      const tenant = await prisma.tenant.findUnique({
+        where: { id: session.user.tenantId },
+        select: { name: true, email: true },
+      });
+
+      if (tenant) {
+        await sendSubscriptionInvoiceEmail(
+          {
+            invoiceNumber,
+            baseAmount: gstBreakdown?.baseAmount ?? null,
+            gstAmount: gstBreakdown?.gstAmount ?? null,
+            gstRate: gstBreakdown?.gstRate ?? null,
+            amount: paymentRecord.amount,
+            plan,
+            periodStart: now,
+            periodEnd,
+            razorpayPaymentId: razorpay_payment_id,
+            createdAt: paymentRecord.createdAt,
+          },
+          tenant,
+        );
+
+        await prisma.payment.updateMany({
+          where: { razorpayOrderId: razorpay_order_id, tenantId: session.user.tenantId },
+          data: { invoiceEmailSentAt: new Date() },
+        });
+      }
+    } catch (emailError) {
+      console.error("Failed to send subscription invoice email", emailError);
+    }
+  }
 
   return NextResponse.json({ success: true });
 }
