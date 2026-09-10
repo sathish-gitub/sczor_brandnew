@@ -69,7 +69,8 @@ export const ModelName = {
   WaitlistInterest: 'WaitlistInterest',
   SuperAdmin: 'SuperAdmin',
   Payment: 'Payment',
-  AppSettings: 'AppSettings'
+  AppSettings: 'AppSettings',
+  RateLimitAttempt: 'RateLimitAttempt'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -129,6 +130,7 @@ export const UserScalarFieldEnum = {
   mobile: 'mobile',
   photo: 'photo',
   password: 'password',
+  googleId: 'googleId',
   role: 'role',
   isActive: 'isActive',
   emailVerified: 'emailVerified',
@@ -432,6 +434,16 @@ export const AppSettingsScalarFieldEnum = {
 } as const
 
 export type AppSettingsScalarFieldEnum = (typeof AppSettingsScalarFieldEnum)[keyof typeof AppSettingsScalarFieldEnum]
+
+
+export const RateLimitAttemptScalarFieldEnum = {
+  id: 'id',
+  identifier: 'identifier',
+  action: 'action',
+  createdAt: 'createdAt'
+} as const
+
+export type RateLimitAttemptScalarFieldEnum = (typeof RateLimitAttemptScalarFieldEnum)[keyof typeof RateLimitAttemptScalarFieldEnum]
 
 
 export const SortOrder = {

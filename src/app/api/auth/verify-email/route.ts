@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { encode } from "next-auth/jwt";
 
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, recordAttempt } from "@/lib/rateLimit";
 
 const SESSION_COOKIE_NAME =
   process.env.NODE_ENV === "production"
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
           where: { id: userId },
           select: {
             id: true,
+            email: true,
             emailVerified: true,
             emailOtp: true,
             emailOtpExpiry: true,
@@ -38,6 +40,7 @@ export async function POST(request: Request) {
           where: { email: email?.trim().toLowerCase() },
           select: {
             id: true,
+            email: true,
             emailVerified: true,
             emailOtp: true,
             emailOtpExpiry: true,
@@ -52,7 +55,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true });
     }
 
+    const rateLimitCheck = await checkRateLimit(user.email, "OTP_VERIFY");
+    if (!rateLimitCheck.allowed) {
+      return NextResponse.json(
+        { error: `Too many attempts. Please try again in ${rateLimitCheck.retryAfterMinutes} minutes.` },
+        { status: 429 },
+      );
+    }
+
     if (user.emailOtp !== otp) {
+      await recordAttempt(user.email, "OTP_VERIFY");
       return NextResponse.json({ error: "Invalid OTP. Please try again." }, { status: 400 });
     }
 

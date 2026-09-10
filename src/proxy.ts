@@ -16,6 +16,7 @@ const protectedPrefixes = [
   "/onboarding",
   "/subscription-required",
   "/select-plan",
+  "/complete-signup",
 ];
 
 const superAdminPrefix = "/super-admin";
@@ -56,6 +57,11 @@ export async function proxy(request: NextRequest) {
   // Super admins manage tenants from /super-admin - keep them out of tenant dashboards.
   if (isAuthenticated && token?.isSuperAdmin && isProtectedRoute) {
     return NextResponse.redirect(new URL("/super-admin/dashboard", request.url));
+  }
+
+  // New Google sign-ups have no Tenant yet - force them through salon setup first.
+  if (isAuthenticated && token?.needsOnboarding && pathname !== "/complete-signup" && !pathname.startsWith("/api/auth")) {
+    return NextResponse.redirect(new URL("/complete-signup", request.url));
   }
 
   if (
@@ -107,6 +113,7 @@ export const config = {
     "/onboarding/:path*",
     "/subscription-required/:path*",
     "/select-plan/:path*",
+    "/complete-signup/:path*",
     "/super-admin/:path*",
   ],
 };

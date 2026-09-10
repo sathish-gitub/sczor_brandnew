@@ -60,7 +60,8 @@ model User {
   email          String
   mobile         String
   photo          String?
-  password       String
+  password       String? // null for Google-only accounts
+  googleId       String?   @unique
   role           Role      @default(STAFF)
   isActive       Boolean   @default(true)
   emailVerified  Boolean   @default(false)
@@ -418,6 +419,15 @@ model AppSettings {
   razorpayKeySecret     String?
   razorpayWebhookSecret String?
   updatedAt             DateTime @updatedAt
+}
+
+model RateLimitAttempt {
+  id         String   @id @default(cuid())
+  identifier String // email or IP address
+  action     String // "LOGIN" | "OTP_VERIFY" | "OTP_RESEND" | "PASSWORD_RESET"
+  createdAt  DateTime @default(now())
+
+  @@index([identifier, action, createdAt])
 }
 
 enum Plan {

@@ -136,3 +136,8 @@ export type Payment = Prisma.PaymentModel
  * 
  */
 export type AppSettings = Prisma.AppSettingsModel
+/**
+ * Model RateLimitAttempt
+ * 
+ */
+export type RateLimitAttempt = Prisma.RateLimitAttemptModel

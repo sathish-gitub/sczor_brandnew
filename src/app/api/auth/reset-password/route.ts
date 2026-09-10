@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, recordAttempt } from "@/lib/rateLimit";
 
 const schema = z.object({
   email: z.email().transform((value) => value.trim().toLowerCase()),
@@ -38,7 +39,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid or expired OTP. Please try again." }, { status: 400 });
     }
 
+    const rateLimitCheck = await checkRateLimit(email, "PASSWORD_RESET");
+    if (!rateLimitCheck.allowed) {
+      return NextResponse.json(
+        { error: `Too many attempts. Please try again in ${rateLimitCheck.retryAfterMinutes} minutes.` },
+        { status: 429 },
+      );
+    }
+
     if (user.resetOtp !== otp) {
+      await recordAttempt(email, "PASSWORD_RESET");
       return NextResponse.json({ error: "Invalid OTP. Please try again." }, { status: 400 });
     }
 

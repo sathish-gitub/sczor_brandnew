@@ -41,6 +41,13 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
+    if (!user.password) {
+      return NextResponse.json(
+        { error: "This account signed up with Google and has no password set yet." },
+        { status: 400 },
+      );
+    }
+
     const isCurrentValid = await compare(parsed.data.currentPassword, user.password);
     if (!isCurrentValid) {
       return NextResponse.json({ error: "Current password is incorrect." }, { status: 400 });

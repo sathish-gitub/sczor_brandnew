@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, recordAttempt } from "@/lib/rateLimit";
 import { sendPasswordResetEmail } from "@/lib/resend";
 
 const schema = z.object({
@@ -26,6 +27,15 @@ export async function POST(request: Request) {
   }
 
   const { email } = parsed.data;
+
+  const rateLimitCheck = await checkRateLimit(email, "PASSWORD_RESET");
+  if (!rateLimitCheck.allowed) {
+    return NextResponse.json(
+      { error: `Too many attempts. Please try again in ${rateLimitCheck.retryAfterMinutes} minutes.` },
+      { status: 429 },
+    );
+  }
+  await recordAttempt(email, "PASSWORD_RESET");
 
   try {
     const user = await prisma.user.findFirst({

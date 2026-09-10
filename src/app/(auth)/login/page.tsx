@@ -9,6 +9,8 @@ import { getSession, signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { GoogleButton } from "@/components/ui/GoogleButton";
+
 const loginSchema = z.object({
   email: z.email("Enter a valid email address.").transform((value) =>
     value.trim().toLowerCase(),
@@ -49,6 +51,12 @@ export default function LoginPage() {
         return;
       }
 
+      if (result?.error?.startsWith("TOO_MANY_ATTEMPTS:")) {
+        const minutes = result.error.split(":")[1];
+        setFormError(`Too many failed login attempts. Please try again in ${minutes} minutes.`);
+        return;
+      }
+
       setFormError(result?.error === "SALON_INACTIVE" ? "SALON_INACTIVE" : "Invalid email or password.");
       return;
     }
@@ -77,7 +85,17 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <form className="mt-8 space-y-5" onSubmit={onSubmit}>
+      <div className="mt-8">
+        <GoogleButton label="Sign in with Google" callbackUrl="/dashboard" />
+      </div>
+
+      <div className="my-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-[var(--border)]" />
+        <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">or</span>
+        <div className="h-px flex-1 bg-[var(--border)]" />
+      </div>
+
+      <form className="space-y-5" onSubmit={onSubmit}>
         <div className="space-y-2">
           <label className="text-sm font-medium text-[var(--foreground)]" htmlFor="email">
             Email

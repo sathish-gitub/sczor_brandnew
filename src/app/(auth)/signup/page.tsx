@@ -8,6 +8,8 @@ import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { GoogleButton } from "@/components/ui/GoogleButton";
+
 const signupSchema = z
   .object({
     salonName: z.string().trim().min(2, "Salon name is required."),
@@ -108,6 +110,14 @@ function SignupForm() {
       </div>
 
       <form className="mt-8 space-y-5" onSubmit={onSubmit}>
+        <GoogleButton label="Sign up with Google" callbackUrl="/dashboard" />
+
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-[var(--border)]" />
+          <span className="text-xs font-medium uppercase tracking-wide text-[var(--muted)]">or</span>
+          <div className="h-px flex-1 bg-[var(--border)]" />
+        </div>
+
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
             <label className="text-sm font-medium text-[var(--foreground)]" htmlFor="salonName">

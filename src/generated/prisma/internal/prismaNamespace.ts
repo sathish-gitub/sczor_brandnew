@@ -415,7 +415,8 @@ export const ModelName = {
   WaitlistInterest: 'WaitlistInterest',
   SuperAdmin: 'SuperAdmin',
   Payment: 'Payment',
-  AppSettings: 'AppSettings'
+  AppSettings: 'AppSettings',
+  RateLimitAttempt: 'RateLimitAttempt'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -431,7 +432,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "customer" | "service" | "staff" | "appointment" | "invoice" | "invoiceItem" | "staffRating" | "serviceCategory" | "loyaltyCard" | "loyaltyTransaction" | "attendance" | "salonSettings" | "holiday" | "waitlistInterest" | "superAdmin" | "payment" | "appSettings"
+    modelProps: "tenant" | "user" | "customer" | "service" | "staff" | "appointment" | "invoice" | "invoiceItem" | "staffRating" | "serviceCategory" | "loyaltyCard" | "loyaltyTransaction" | "attendance" | "salonSettings" | "holiday" | "waitlistInterest" | "superAdmin" | "payment" | "appSettings" | "rateLimitAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1841,6 +1842,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    RateLimitAttempt: {
+      payload: Prisma.$RateLimitAttemptPayload<ExtArgs>
+      fields: Prisma.RateLimitAttemptFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RateLimitAttemptFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitAttemptPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RateLimitAttemptFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitAttemptPayload>
+        }
+        findFirst: {
+          args: Prisma.RateLimitAttemptFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitAttemptPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RateLimitAttemptFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitAttemptPayload>
+        }
+        findMany: {
+          args: Prisma.RateLimitAttemptFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitAttemptPayload>[]
+        }
+        create: {
+          args: Prisma.RateLimitAttemptCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitAttemptPayload>
+        }
+        createMany: {
+          args: Prisma.RateLimitAttemptCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RateLimitAttemptCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitAttemptPayload>[]
+        }
+        delete: {
+          args: Prisma.RateLimitAttemptDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitAttemptPayload>
+        }
+        update: {
+          args: Prisma.RateLimitAttemptUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitAttemptPayload>
+        }
+        deleteMany: {
+          args: Prisma.RateLimitAttemptDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RateLimitAttemptUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RateLimitAttemptUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitAttemptPayload>[]
+        }
+        upsert: {
+          args: Prisma.RateLimitAttemptUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RateLimitAttemptPayload>
+        }
+        aggregate: {
+          args: Prisma.RateLimitAttemptAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRateLimitAttempt>
+        }
+        groupBy: {
+          args: Prisma.RateLimitAttemptGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RateLimitAttemptGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RateLimitAttemptCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RateLimitAttemptCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1921,6 +1996,7 @@ export const UserScalarFieldEnum = {
   mobile: 'mobile',
   photo: 'photo',
   password: 'password',
+  googleId: 'googleId',
   role: 'role',
   isActive: 'isActive',
   emailVerified: 'emailVerified',
@@ -2224,6 +2300,16 @@ export const AppSettingsScalarFieldEnum = {
 } as const
 
 export type AppSettingsScalarFieldEnum = (typeof AppSettingsScalarFieldEnum)[keyof typeof AppSettingsScalarFieldEnum]
+
+
+export const RateLimitAttemptScalarFieldEnum = {
+  id: 'id',
+  identifier: 'identifier',
+  action: 'action',
+  createdAt: 'createdAt'
+} as const
+
+export type RateLimitAttemptScalarFieldEnum = (typeof RateLimitAttemptScalarFieldEnum)[keyof typeof RateLimitAttemptScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2656,6 +2742,7 @@ export type GlobalOmitConfig = {
   superAdmin?: Prisma.SuperAdminOmit
   payment?: Prisma.PaymentOmit
   appSettings?: Prisma.AppSettingsOmit
+  rateLimitAttempt?: Prisma.RateLimitAttemptOmit
 }
 
 /* Types for Logging */

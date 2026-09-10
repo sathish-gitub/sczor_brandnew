@@ -1,8 +1,10 @@
 import { compare } from "bcryptjs";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, recordAttempt } from "@/lib/rateLimit";
 
 export const authOptions: NextAuthOptions = {
   pages: {
@@ -46,6 +48,11 @@ export const authOptions: NextAuthOptions = {
 
         if (!email || !password) {
           return null;
+        }
+
+        const rateLimitCheck = await checkRateLimit(email, "LOGIN");
+        if (!rateLimitCheck.allowed) {
+          throw new Error(`TOO_MANY_ATTEMPTS:${rateLimitCheck.retryAfterMinutes}`);
         }
 
         const superAdmin = await prisma.superAdmin.findUnique({
@@ -103,9 +110,15 @@ export const authOptions: NextAuthOptions = {
           throw new Error("SALON_INACTIVE");
         }
 
+        if (!user.password) {
+          // Google-only account - no password to compare against.
+          return null;
+        }
+
         const isValidPassword = await compare(password, user.password);
 
         if (!isValidPassword) {
+          await recordAttempt(email, "LOGIN");
           return null;
         }
 
@@ -124,17 +137,93 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account }) {
+      if (account?.provider !== "google") {
+        return true;
+      }
+
+      if (!user.email) {
+        return false;
+      }
+
+      const email = user.email.trim().toLowerCase();
+
+      const existingUser = await prisma.user.findFirst({
+        where: { email },
+        select: {
+          id: true,
+          tenantId: true,
+          role: true,
+          emailVerified: true,
+          googleId: true,
+          isActive: true,
+          tenant: { select: { isActive: true } },
+        },
+      });
+
+      if (existingUser) {
+        if (!existingUser.isActive || !existingUser.tenant.isActive) {
+          return false;
+        }
+
+        if (!existingUser.googleId) {
+          await prisma.user.update({
+            where: { id: existingUser.id },
+            data: { googleId: account.providerAccountId },
+          });
+        }
+
+        user.id = existingUser.id;
+        user.tenantId = existingUser.tenantId;
+        user.role = existingUser.role;
+        user.isEmailVerified = existingUser.emailVerified;
+        user.isSuperAdmin = false;
+        user.needsOnboarding = false;
+        return true;
+      }
+
+      // Brand new Google sign-up - no Tenant yet, route through /complete-signup.
+      user.tenantId = "";
+      user.role = "OWNER";
+      user.isEmailVerified = true;
+      user.isSuperAdmin = false;
+      user.needsOnboarding = true;
+      return true;
+    },
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.tenantId = user.tenantId;
         token.role = user.role;
         token.isEmailVerified = user.isEmailVerified;
         token.isSuperAdmin = user.isSuperAdmin;
+        token.needsOnboarding = user.needsOnboarding ?? false;
+      }
+
+      if (trigger === "update" && session) {
+        token.needsOnboarding = false;
+        token.isEmailVerified = true;
+        if (session.tenantId) {
+          token.tenantId = session.tenantId as string;
+        }
+        if (session.role) {
+          token.role = session.role as string;
+        }
+        if (session.userId) {
+          token.sub = session.userId as string;
+        }
       }
 
       if (token.isSuperAdmin) {
+        return token;
+      }
+
+      if (token.needsOnboarding) {
         return token;
       }
 
@@ -175,6 +264,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub as string;
         session.user.isEmailVerified = token.isEmailVerified as boolean;
         session.user.isSuperAdmin = Boolean(token.isSuperAdmin);
+        session.user.needsOnboarding = Boolean(token.needsOnboarding);
       }
 
       return session;

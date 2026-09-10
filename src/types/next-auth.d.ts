@@ -8,6 +8,7 @@ declare module "next-auth" {
       role: string;
       isEmailVerified: boolean;
       isSuperAdmin: boolean;
+      needsOnboarding: boolean;
     } & DefaultSession["user"];
   }
 
@@ -16,6 +17,7 @@ declare module "next-auth" {
     role: string;
     isEmailVerified: boolean;
     isSuperAdmin: boolean;
+    needsOnboarding?: boolean;
   }
 }
 
@@ -27,5 +29,6 @@ declare module "next-auth/jwt" {
     isSubscribed: boolean;
     isEmailVerified: boolean;
     isSuperAdmin: boolean;
+    needsOnboarding?: boolean;
   }
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, recordAttempt } from "@/lib/rateLimit";
 import { sendOTPEmail } from "@/lib/resend";
 
 export async function POST(request: Request) {
@@ -36,6 +37,15 @@ export async function POST(request: Request) {
     if (user.emailVerified) {
       return NextResponse.json({ error: "Email is already verified." }, { status: 400 });
     }
+
+    const rateLimitCheck = await checkRateLimit(user.email, "OTP_RESEND");
+    if (!rateLimitCheck.allowed) {
+      return NextResponse.json(
+        { error: `Too many resend attempts. Please try again in ${rateLimitCheck.retryAfterMinutes} minutes.` },
+        { status: 429 },
+      );
+    }
+    await recordAttempt(user.email, "OTP_RESEND");
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const emailOtpExpiry = new Date(Date.now() + 10 * 60 * 1000);
