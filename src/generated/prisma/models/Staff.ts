@@ -20,8 +20,20 @@ export type StaffModel = runtime.Types.Result.DefaultSelection<Prisma.$StaffPayl
 
 export type AggregateStaff = {
   _count: StaffCountAggregateOutputType | null
+  _avg: StaffAvgAggregateOutputType | null
+  _sum: StaffSumAggregateOutputType | null
   _min: StaffMinAggregateOutputType | null
   _max: StaffMaxAggregateOutputType | null
+}
+
+export type StaffAvgAggregateOutputType = {
+  baseSalary: runtime.Decimal | null
+  commissionRate: runtime.Decimal | null
+}
+
+export type StaffSumAggregateOutputType = {
+  baseSalary: runtime.Decimal | null
+  commissionRate: runtime.Decimal | null
 }
 
 export type StaffMinAggregateOutputType = {
@@ -32,6 +44,9 @@ export type StaffMinAggregateOutputType = {
   email: string | null
   status: $Enums.Status | null
   availabilityStatus: $Enums.Availability | null
+  baseSalary: runtime.Decimal | null
+  commissionRate: runtime.Decimal | null
+  salaryEffectiveFrom: Date | null
   tenantId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -45,6 +60,9 @@ export type StaffMaxAggregateOutputType = {
   email: string | null
   status: $Enums.Status | null
   availabilityStatus: $Enums.Availability | null
+  baseSalary: runtime.Decimal | null
+  commissionRate: runtime.Decimal | null
+  salaryEffectiveFrom: Date | null
   tenantId: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -59,12 +77,25 @@ export type StaffCountAggregateOutputType = {
   workingDays: number
   status: number
   availabilityStatus: number
+  baseSalary: number
+  commissionRate: number
+  salaryEffectiveFrom: number
   tenantId: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type StaffAvgAggregateInputType = {
+  baseSalary?: true
+  commissionRate?: true
+}
+
+export type StaffSumAggregateInputType = {
+  baseSalary?: true
+  commissionRate?: true
+}
 
 export type StaffMinAggregateInputType = {
   id?: true
@@ -74,6 +105,9 @@ export type StaffMinAggregateInputType = {
   email?: true
   status?: true
   availabilityStatus?: true
+  baseSalary?: true
+  commissionRate?: true
+  salaryEffectiveFrom?: true
   tenantId?: true
   createdAt?: true
   updatedAt?: true
@@ -87,6 +121,9 @@ export type StaffMaxAggregateInputType = {
   email?: true
   status?: true
   availabilityStatus?: true
+  baseSalary?: true
+  commissionRate?: true
+  salaryEffectiveFrom?: true
   tenantId?: true
   createdAt?: true
   updatedAt?: true
@@ -101,6 +138,9 @@ export type StaffCountAggregateInputType = {
   workingDays?: true
   status?: true
   availabilityStatus?: true
+  baseSalary?: true
+  commissionRate?: true
+  salaryEffectiveFrom?: true
   tenantId?: true
   createdAt?: true
   updatedAt?: true
@@ -145,6 +185,18 @@ export type StaffAggregateArgs<ExtArgs extends runtime.Types.Extensions.Internal
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: StaffAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: StaffSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: StaffMinAggregateInputType
@@ -175,6 +227,8 @@ export type StaffGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   _count?: StaffCountAggregateInputType | true
+  _avg?: StaffAvgAggregateInputType
+  _sum?: StaffSumAggregateInputType
   _min?: StaffMinAggregateInputType
   _max?: StaffMaxAggregateInputType
 }
@@ -188,10 +242,15 @@ export type StaffGroupByOutputType = {
   workingDays: string[]
   status: $Enums.Status
   availabilityStatus: $Enums.Availability
+  baseSalary: runtime.Decimal | null
+  commissionRate: runtime.Decimal | null
+  salaryEffectiveFrom: Date | null
   tenantId: string
   createdAt: Date
   updatedAt: Date
   _count: StaffCountAggregateOutputType | null
+  _avg: StaffAvgAggregateOutputType | null
+  _sum: StaffSumAggregateOutputType | null
   _min: StaffMinAggregateOutputType | null
   _max: StaffMaxAggregateOutputType | null
 }
@@ -223,6 +282,9 @@ export type StaffWhereInput = {
   workingDays?: Prisma.StringNullableListFilter<"Staff">
   status?: Prisma.EnumStatusFilter<"Staff"> | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFilter<"Staff"> | $Enums.Availability
+  baseSalary?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   tenantId?: Prisma.StringFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
@@ -232,6 +294,8 @@ export type StaffWhereInput = {
   invoices?: Prisma.InvoiceListRelationFilter
   invoiceItems?: Prisma.InvoiceItemListRelationFilter
   ratings?: Prisma.StaffRatingListRelationFilter
+  salaryHistory?: Prisma.SalaryHistoryListRelationFilter
+  payrolls?: Prisma.PayrollListRelationFilter
 }
 
 export type StaffOrderByWithRelationInput = {
@@ -243,6 +307,9 @@ export type StaffOrderByWithRelationInput = {
   workingDays?: Prisma.SortOrder
   status?: Prisma.SortOrder
   availabilityStatus?: Prisma.SortOrder
+  baseSalary?: Prisma.SortOrderInput | Prisma.SortOrder
+  commissionRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  salaryEffectiveFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -252,6 +319,8 @@ export type StaffOrderByWithRelationInput = {
   invoices?: Prisma.InvoiceOrderByRelationAggregateInput
   invoiceItems?: Prisma.InvoiceItemOrderByRelationAggregateInput
   ratings?: Prisma.StaffRatingOrderByRelationAggregateInput
+  salaryHistory?: Prisma.SalaryHistoryOrderByRelationAggregateInput
+  payrolls?: Prisma.PayrollOrderByRelationAggregateInput
 }
 
 export type StaffWhereUniqueInput = Prisma.AtLeast<{
@@ -266,6 +335,9 @@ export type StaffWhereUniqueInput = Prisma.AtLeast<{
   workingDays?: Prisma.StringNullableListFilter<"Staff">
   status?: Prisma.EnumStatusFilter<"Staff"> | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFilter<"Staff"> | $Enums.Availability
+  baseSalary?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   tenantId?: Prisma.StringFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
@@ -275,6 +347,8 @@ export type StaffWhereUniqueInput = Prisma.AtLeast<{
   invoices?: Prisma.InvoiceListRelationFilter
   invoiceItems?: Prisma.InvoiceItemListRelationFilter
   ratings?: Prisma.StaffRatingListRelationFilter
+  salaryHistory?: Prisma.SalaryHistoryListRelationFilter
+  payrolls?: Prisma.PayrollListRelationFilter
 }, "id">
 
 export type StaffOrderByWithAggregationInput = {
@@ -286,12 +360,17 @@ export type StaffOrderByWithAggregationInput = {
   workingDays?: Prisma.SortOrder
   status?: Prisma.SortOrder
   availabilityStatus?: Prisma.SortOrder
+  baseSalary?: Prisma.SortOrderInput | Prisma.SortOrder
+  commissionRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  salaryEffectiveFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.StaffCountOrderByAggregateInput
+  _avg?: Prisma.StaffAvgOrderByAggregateInput
   _max?: Prisma.StaffMaxOrderByAggregateInput
   _min?: Prisma.StaffMinOrderByAggregateInput
+  _sum?: Prisma.StaffSumOrderByAggregateInput
 }
 
 export type StaffScalarWhereWithAggregatesInput = {
@@ -306,6 +385,9 @@ export type StaffScalarWhereWithAggregatesInput = {
   workingDays?: Prisma.StringNullableListFilter<"Staff">
   status?: Prisma.EnumStatusWithAggregatesFilter<"Staff"> | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityWithAggregatesFilter<"Staff"> | $Enums.Availability
+  baseSalary?: Prisma.DecimalNullableWithAggregatesFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.DecimalNullableWithAggregatesFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
   tenantId?: Prisma.StringWithAggregatesFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Staff"> | Date | string
@@ -320,6 +402,9 @@ export type StaffCreateInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
@@ -328,6 +413,8 @@ export type StaffCreateInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateInput = {
@@ -339,6 +426,9 @@ export type StaffUncheckedCreateInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -347,6 +437,8 @@ export type StaffUncheckedCreateInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUpdateInput = {
@@ -358,6 +450,9 @@ export type StaffUpdateInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
@@ -366,6 +461,8 @@ export type StaffUpdateInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
   ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateInput = {
@@ -377,6 +474,9 @@ export type StaffUncheckedUpdateInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -385,6 +485,8 @@ export type StaffUncheckedUpdateInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
   ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffCreateManyInput = {
@@ -396,6 +498,9 @@ export type StaffCreateManyInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -410,6 +515,9 @@ export type StaffUpdateManyMutationInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -423,6 +531,9 @@ export type StaffUncheckedUpdateManyInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -447,9 +558,17 @@ export type StaffCountOrderByAggregateInput = {
   workingDays?: Prisma.SortOrder
   status?: Prisma.SortOrder
   availabilityStatus?: Prisma.SortOrder
+  baseSalary?: Prisma.SortOrder
+  commissionRate?: Prisma.SortOrder
+  salaryEffectiveFrom?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type StaffAvgOrderByAggregateInput = {
+  baseSalary?: Prisma.SortOrder
+  commissionRate?: Prisma.SortOrder
 }
 
 export type StaffMaxOrderByAggregateInput = {
@@ -460,6 +579,9 @@ export type StaffMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   status?: Prisma.SortOrder
   availabilityStatus?: Prisma.SortOrder
+  baseSalary?: Prisma.SortOrder
+  commissionRate?: Prisma.SortOrder
+  salaryEffectiveFrom?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -473,9 +595,17 @@ export type StaffMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   status?: Prisma.SortOrder
   availabilityStatus?: Prisma.SortOrder
+  baseSalary?: Prisma.SortOrder
+  commissionRate?: Prisma.SortOrder
+  salaryEffectiveFrom?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type StaffSumOrderByAggregateInput = {
+  baseSalary?: Prisma.SortOrder
+  commissionRate?: Prisma.SortOrder
 }
 
 export type StaffScalarRelationFilter = {
@@ -541,6 +671,42 @@ export type StaffUpdateworkingDaysInput = {
 
 export type EnumAvailabilityFieldUpdateOperationsInput = {
   set?: $Enums.Availability
+}
+
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type StaffCreateNestedOneWithoutSalaryHistoryInput = {
+  create?: Prisma.XOR<Prisma.StaffCreateWithoutSalaryHistoryInput, Prisma.StaffUncheckedCreateWithoutSalaryHistoryInput>
+  connectOrCreate?: Prisma.StaffCreateOrConnectWithoutSalaryHistoryInput
+  connect?: Prisma.StaffWhereUniqueInput
+}
+
+export type StaffUpdateOneRequiredWithoutSalaryHistoryNestedInput = {
+  create?: Prisma.XOR<Prisma.StaffCreateWithoutSalaryHistoryInput, Prisma.StaffUncheckedCreateWithoutSalaryHistoryInput>
+  connectOrCreate?: Prisma.StaffCreateOrConnectWithoutSalaryHistoryInput
+  upsert?: Prisma.StaffUpsertWithoutSalaryHistoryInput
+  connect?: Prisma.StaffWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StaffUpdateToOneWithWhereWithoutSalaryHistoryInput, Prisma.StaffUpdateWithoutSalaryHistoryInput>, Prisma.StaffUncheckedUpdateWithoutSalaryHistoryInput>
+}
+
+export type StaffCreateNestedOneWithoutPayrollsInput = {
+  create?: Prisma.XOR<Prisma.StaffCreateWithoutPayrollsInput, Prisma.StaffUncheckedCreateWithoutPayrollsInput>
+  connectOrCreate?: Prisma.StaffCreateOrConnectWithoutPayrollsInput
+  connect?: Prisma.StaffWhereUniqueInput
+}
+
+export type StaffUpdateOneRequiredWithoutPayrollsNestedInput = {
+  create?: Prisma.XOR<Prisma.StaffCreateWithoutPayrollsInput, Prisma.StaffUncheckedCreateWithoutPayrollsInput>
+  connectOrCreate?: Prisma.StaffCreateOrConnectWithoutPayrollsInput
+  upsert?: Prisma.StaffUpsertWithoutPayrollsInput
+  connect?: Prisma.StaffWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.StaffUpdateToOneWithWhereWithoutPayrollsInput, Prisma.StaffUpdateWithoutPayrollsInput>, Prisma.StaffUncheckedUpdateWithoutPayrollsInput>
 }
 
 export type StaffCreateNestedOneWithoutAppointmentsInput = {
@@ -626,6 +792,9 @@ export type StaffCreateWithoutTenantInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
@@ -633,6 +802,8 @@ export type StaffCreateWithoutTenantInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateWithoutTenantInput = {
@@ -644,6 +815,9 @@ export type StaffUncheckedCreateWithoutTenantInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutStaffInput
@@ -651,6 +825,8 @@ export type StaffUncheckedCreateWithoutTenantInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffCreateOrConnectWithoutTenantInput = {
@@ -691,9 +867,228 @@ export type StaffScalarWhereInput = {
   workingDays?: Prisma.StringNullableListFilter<"Staff">
   status?: Prisma.EnumStatusFilter<"Staff"> | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFilter<"Staff"> | $Enums.Availability
+  baseSalary?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   tenantId?: Prisma.StringFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
+}
+
+export type StaffCreateWithoutSalaryHistoryInput = {
+  id?: string
+  name: string
+  designation: string
+  mobile?: string | null
+  email?: string | null
+  workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
+  status?: $Enums.Status
+  availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
+  invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutStaffInput
+}
+
+export type StaffUncheckedCreateWithoutSalaryHistoryInput = {
+  id?: string
+  name: string
+  designation: string
+  mobile?: string | null
+  email?: string | null
+  workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
+  status?: $Enums.Status
+  availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
+  tenantId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutStaffInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
+  invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutStaffInput
+}
+
+export type StaffCreateOrConnectWithoutSalaryHistoryInput = {
+  where: Prisma.StaffWhereUniqueInput
+  create: Prisma.XOR<Prisma.StaffCreateWithoutSalaryHistoryInput, Prisma.StaffUncheckedCreateWithoutSalaryHistoryInput>
+}
+
+export type StaffUpsertWithoutSalaryHistoryInput = {
+  update: Prisma.XOR<Prisma.StaffUpdateWithoutSalaryHistoryInput, Prisma.StaffUncheckedUpdateWithoutSalaryHistoryInput>
+  create: Prisma.XOR<Prisma.StaffCreateWithoutSalaryHistoryInput, Prisma.StaffUncheckedCreateWithoutSalaryHistoryInput>
+  where?: Prisma.StaffWhereInput
+}
+
+export type StaffUpdateToOneWithWhereWithoutSalaryHistoryInput = {
+  where?: Prisma.StaffWhereInput
+  data: Prisma.XOR<Prisma.StaffUpdateWithoutSalaryHistoryInput, Prisma.StaffUncheckedUpdateWithoutSalaryHistoryInput>
+}
+
+export type StaffUpdateWithoutSalaryHistoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  designation?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
+  status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
+  availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
+  invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutStaffNestedInput
+}
+
+export type StaffUncheckedUpdateWithoutSalaryHistoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  designation?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
+  status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
+  availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutStaffNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
+  invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutStaffNestedInput
+}
+
+export type StaffCreateWithoutPayrollsInput = {
+  id?: string
+  name: string
+  designation: string
+  mobile?: string | null
+  email?: string | null
+  workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
+  status?: $Enums.Status
+  availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
+  invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutStaffInput
+}
+
+export type StaffUncheckedCreateWithoutPayrollsInput = {
+  id?: string
+  name: string
+  designation: string
+  mobile?: string | null
+  email?: string | null
+  workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
+  status?: $Enums.Status
+  availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
+  tenantId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutStaffInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
+  invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutStaffInput
+}
+
+export type StaffCreateOrConnectWithoutPayrollsInput = {
+  where: Prisma.StaffWhereUniqueInput
+  create: Prisma.XOR<Prisma.StaffCreateWithoutPayrollsInput, Prisma.StaffUncheckedCreateWithoutPayrollsInput>
+}
+
+export type StaffUpsertWithoutPayrollsInput = {
+  update: Prisma.XOR<Prisma.StaffUpdateWithoutPayrollsInput, Prisma.StaffUncheckedUpdateWithoutPayrollsInput>
+  create: Prisma.XOR<Prisma.StaffCreateWithoutPayrollsInput, Prisma.StaffUncheckedCreateWithoutPayrollsInput>
+  where?: Prisma.StaffWhereInput
+}
+
+export type StaffUpdateToOneWithWhereWithoutPayrollsInput = {
+  where?: Prisma.StaffWhereInput
+  data: Prisma.XOR<Prisma.StaffUpdateWithoutPayrollsInput, Prisma.StaffUncheckedUpdateWithoutPayrollsInput>
+}
+
+export type StaffUpdateWithoutPayrollsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  designation?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
+  status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
+  availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
+  invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutStaffNestedInput
+}
+
+export type StaffUncheckedUpdateWithoutPayrollsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  designation?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
+  status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
+  availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutStaffNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
+  invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffCreateWithoutAppointmentsInput = {
@@ -705,6 +1100,9 @@ export type StaffCreateWithoutAppointmentsInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
@@ -712,6 +1110,8 @@ export type StaffCreateWithoutAppointmentsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateWithoutAppointmentsInput = {
@@ -723,6 +1123,9 @@ export type StaffUncheckedCreateWithoutAppointmentsInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -730,6 +1133,8 @@ export type StaffUncheckedCreateWithoutAppointmentsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffCreateOrConnectWithoutAppointmentsInput = {
@@ -757,6 +1162,9 @@ export type StaffUpdateWithoutAppointmentsInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
@@ -764,6 +1172,8 @@ export type StaffUpdateWithoutAppointmentsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
   ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateWithoutAppointmentsInput = {
@@ -775,6 +1185,9 @@ export type StaffUncheckedUpdateWithoutAppointmentsInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -782,6 +1195,8 @@ export type StaffUncheckedUpdateWithoutAppointmentsInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
   ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffCreateWithoutInvoicesInput = {
@@ -793,6 +1208,9 @@ export type StaffCreateWithoutInvoicesInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
@@ -800,6 +1218,8 @@ export type StaffCreateWithoutInvoicesInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateWithoutInvoicesInput = {
@@ -811,6 +1231,9 @@ export type StaffUncheckedCreateWithoutInvoicesInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -818,6 +1241,8 @@ export type StaffUncheckedCreateWithoutInvoicesInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffCreateOrConnectWithoutInvoicesInput = {
@@ -845,6 +1270,9 @@ export type StaffUpdateWithoutInvoicesInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
@@ -852,6 +1280,8 @@ export type StaffUpdateWithoutInvoicesInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
   ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateWithoutInvoicesInput = {
@@ -863,6 +1293,9 @@ export type StaffUncheckedUpdateWithoutInvoicesInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -870,6 +1303,8 @@ export type StaffUncheckedUpdateWithoutInvoicesInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
   ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffCreateWithoutInvoiceItemsInput = {
@@ -881,6 +1316,9 @@ export type StaffCreateWithoutInvoiceItemsInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
@@ -888,6 +1326,8 @@ export type StaffCreateWithoutInvoiceItemsInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateWithoutInvoiceItemsInput = {
@@ -899,6 +1339,9 @@ export type StaffUncheckedCreateWithoutInvoiceItemsInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -906,6 +1349,8 @@ export type StaffUncheckedCreateWithoutInvoiceItemsInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffCreateOrConnectWithoutInvoiceItemsInput = {
@@ -933,6 +1378,9 @@ export type StaffUpdateWithoutInvoiceItemsInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
@@ -940,6 +1388,8 @@ export type StaffUpdateWithoutInvoiceItemsInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
   ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateWithoutInvoiceItemsInput = {
@@ -951,6 +1401,9 @@ export type StaffUncheckedUpdateWithoutInvoiceItemsInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -958,6 +1411,8 @@ export type StaffUncheckedUpdateWithoutInvoiceItemsInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
   ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffCreateWithoutRatingsInput = {
@@ -969,6 +1424,9 @@ export type StaffCreateWithoutRatingsInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
@@ -976,6 +1434,8 @@ export type StaffCreateWithoutRatingsInput = {
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateWithoutRatingsInput = {
@@ -987,6 +1447,9 @@ export type StaffUncheckedCreateWithoutRatingsInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -994,6 +1457,8 @@ export type StaffUncheckedCreateWithoutRatingsInput = {
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffCreateOrConnectWithoutRatingsInput = {
@@ -1021,6 +1486,9 @@ export type StaffUpdateWithoutRatingsInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
@@ -1028,6 +1496,8 @@ export type StaffUpdateWithoutRatingsInput = {
   attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateWithoutRatingsInput = {
@@ -1039,6 +1509,9 @@ export type StaffUncheckedUpdateWithoutRatingsInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1046,6 +1519,8 @@ export type StaffUncheckedUpdateWithoutRatingsInput = {
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffCreateWithoutAttendancesInput = {
@@ -1057,6 +1532,9 @@ export type StaffCreateWithoutAttendancesInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
@@ -1064,6 +1542,8 @@ export type StaffCreateWithoutAttendancesInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutStaffInput
 }
 
 export type StaffUncheckedCreateWithoutAttendancesInput = {
@@ -1075,6 +1555,9 @@ export type StaffUncheckedCreateWithoutAttendancesInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1082,6 +1565,8 @@ export type StaffUncheckedCreateWithoutAttendancesInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutStaffInput
 }
 
 export type StaffCreateOrConnectWithoutAttendancesInput = {
@@ -1109,6 +1594,9 @@ export type StaffUpdateWithoutAttendancesInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
@@ -1116,6 +1604,8 @@ export type StaffUpdateWithoutAttendancesInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
   ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateWithoutAttendancesInput = {
@@ -1127,6 +1617,9 @@ export type StaffUncheckedUpdateWithoutAttendancesInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1134,6 +1627,8 @@ export type StaffUncheckedUpdateWithoutAttendancesInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
   ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffCreateManyTenantInput = {
@@ -1145,6 +1640,9 @@ export type StaffCreateManyTenantInput = {
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1158,6 +1656,9 @@ export type StaffUpdateWithoutTenantInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
@@ -1165,6 +1666,8 @@ export type StaffUpdateWithoutTenantInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
   ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateWithoutTenantInput = {
@@ -1176,6 +1679,9 @@ export type StaffUncheckedUpdateWithoutTenantInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutStaffNestedInput
@@ -1183,6 +1689,8 @@ export type StaffUncheckedUpdateWithoutTenantInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
   invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
   ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutStaffNestedInput
 }
 
 export type StaffUncheckedUpdateManyWithoutTenantInput = {
@@ -1194,6 +1702,9 @@ export type StaffUncheckedUpdateManyWithoutTenantInput = {
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1209,6 +1720,8 @@ export type StaffCountOutputType = {
   invoices: number
   invoiceItems: number
   ratings: number
+  salaryHistory: number
+  payrolls: number
 }
 
 export type StaffCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1217,6 +1730,8 @@ export type StaffCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.
   invoices?: boolean | StaffCountOutputTypeCountInvoicesArgs
   invoiceItems?: boolean | StaffCountOutputTypeCountInvoiceItemsArgs
   ratings?: boolean | StaffCountOutputTypeCountRatingsArgs
+  salaryHistory?: boolean | StaffCountOutputTypeCountSalaryHistoryArgs
+  payrolls?: boolean | StaffCountOutputTypeCountPayrollsArgs
 }
 
 /**
@@ -1264,6 +1779,20 @@ export type StaffCountOutputTypeCountRatingsArgs<ExtArgs extends runtime.Types.E
   where?: Prisma.StaffRatingWhereInput
 }
 
+/**
+ * StaffCountOutputType without action
+ */
+export type StaffCountOutputTypeCountSalaryHistoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SalaryHistoryWhereInput
+}
+
+/**
+ * StaffCountOutputType without action
+ */
+export type StaffCountOutputTypeCountPayrollsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PayrollWhereInput
+}
+
 
 export type StaffSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1274,6 +1803,9 @@ export type StaffSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   workingDays?: boolean
   status?: boolean
   availabilityStatus?: boolean
+  baseSalary?: boolean
+  commissionRate?: boolean
+  salaryEffectiveFrom?: boolean
   tenantId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1283,6 +1815,8 @@ export type StaffSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   invoices?: boolean | Prisma.Staff$invoicesArgs<ExtArgs>
   invoiceItems?: boolean | Prisma.Staff$invoiceItemsArgs<ExtArgs>
   ratings?: boolean | Prisma.Staff$ratingsArgs<ExtArgs>
+  salaryHistory?: boolean | Prisma.Staff$salaryHistoryArgs<ExtArgs>
+  payrolls?: boolean | Prisma.Staff$payrollsArgs<ExtArgs>
   _count?: boolean | Prisma.StaffCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["staff"]>
 
@@ -1295,6 +1829,9 @@ export type StaffSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   workingDays?: boolean
   status?: boolean
   availabilityStatus?: boolean
+  baseSalary?: boolean
+  commissionRate?: boolean
+  salaryEffectiveFrom?: boolean
   tenantId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1310,6 +1847,9 @@ export type StaffSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   workingDays?: boolean
   status?: boolean
   availabilityStatus?: boolean
+  baseSalary?: boolean
+  commissionRate?: boolean
+  salaryEffectiveFrom?: boolean
   tenantId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1325,12 +1865,15 @@ export type StaffSelectScalar = {
   workingDays?: boolean
   status?: boolean
   availabilityStatus?: boolean
+  baseSalary?: boolean
+  commissionRate?: boolean
+  salaryEffectiveFrom?: boolean
   tenantId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "designation" | "mobile" | "email" | "workingDays" | "status" | "availabilityStatus" | "tenantId" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
+export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "designation" | "mobile" | "email" | "workingDays" | "status" | "availabilityStatus" | "baseSalary" | "commissionRate" | "salaryEffectiveFrom" | "tenantId" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
 export type StaffInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   appointments?: boolean | Prisma.Staff$appointmentsArgs<ExtArgs>
@@ -1338,6 +1881,8 @@ export type StaffInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   invoices?: boolean | Prisma.Staff$invoicesArgs<ExtArgs>
   invoiceItems?: boolean | Prisma.Staff$invoiceItemsArgs<ExtArgs>
   ratings?: boolean | Prisma.Staff$ratingsArgs<ExtArgs>
+  salaryHistory?: boolean | Prisma.Staff$salaryHistoryArgs<ExtArgs>
+  payrolls?: boolean | Prisma.Staff$payrollsArgs<ExtArgs>
   _count?: boolean | Prisma.StaffCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type StaffIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1356,6 +1901,8 @@ export type $StaffPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     invoices: Prisma.$InvoicePayload<ExtArgs>[]
     invoiceItems: Prisma.$InvoiceItemPayload<ExtArgs>[]
     ratings: Prisma.$StaffRatingPayload<ExtArgs>[]
+    salaryHistory: Prisma.$SalaryHistoryPayload<ExtArgs>[]
+    payrolls: Prisma.$PayrollPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1366,6 +1913,9 @@ export type $StaffPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     workingDays: string[]
     status: $Enums.Status
     availabilityStatus: $Enums.Availability
+    baseSalary: runtime.Decimal | null
+    commissionRate: runtime.Decimal | null
+    salaryEffectiveFrom: Date | null
     tenantId: string
     createdAt: Date
     updatedAt: Date
@@ -1769,6 +2319,8 @@ export interface Prisma__StaffClient<T, Null = never, ExtArgs extends runtime.Ty
   invoices<T extends Prisma.Staff$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Staff$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invoiceItems<T extends Prisma.Staff$invoiceItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Staff$invoiceItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoiceItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ratings<T extends Prisma.Staff$ratingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Staff$ratingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffRatingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  salaryHistory<T extends Prisma.Staff$salaryHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Staff$salaryHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalaryHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  payrolls<T extends Prisma.Staff$payrollsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Staff$payrollsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PayrollPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1806,6 +2358,9 @@ export interface StaffFieldRefs {
   readonly workingDays: Prisma.FieldRef<"Staff", 'String[]'>
   readonly status: Prisma.FieldRef<"Staff", 'Status'>
   readonly availabilityStatus: Prisma.FieldRef<"Staff", 'Availability'>
+  readonly baseSalary: Prisma.FieldRef<"Staff", 'Decimal'>
+  readonly commissionRate: Prisma.FieldRef<"Staff", 'Decimal'>
+  readonly salaryEffectiveFrom: Prisma.FieldRef<"Staff", 'DateTime'>
   readonly tenantId: Prisma.FieldRef<"Staff", 'String'>
   readonly createdAt: Prisma.FieldRef<"Staff", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Staff", 'DateTime'>
@@ -2327,6 +2882,54 @@ export type Staff$ratingsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.StaffRatingScalarFieldEnum | Prisma.StaffRatingScalarFieldEnum[]
+}
+
+/**
+ * Staff.salaryHistory
+ */
+export type Staff$salaryHistoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SalaryHistory
+   */
+  select?: Prisma.SalaryHistorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SalaryHistory
+   */
+  omit?: Prisma.SalaryHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SalaryHistoryInclude<ExtArgs> | null
+  where?: Prisma.SalaryHistoryWhereInput
+  orderBy?: Prisma.SalaryHistoryOrderByWithRelationInput | Prisma.SalaryHistoryOrderByWithRelationInput[]
+  cursor?: Prisma.SalaryHistoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SalaryHistoryScalarFieldEnum | Prisma.SalaryHistoryScalarFieldEnum[]
+}
+
+/**
+ * Staff.payrolls
+ */
+export type Staff$payrollsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Payroll
+   */
+  select?: Prisma.PayrollSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payroll
+   */
+  omit?: Prisma.PayrollOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PayrollInclude<ExtArgs> | null
+  where?: Prisma.PayrollWhereInput
+  orderBy?: Prisma.PayrollOrderByWithRelationInput | Prisma.PayrollOrderByWithRelationInput[]
+  cursor?: Prisma.PayrollWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PayrollScalarFieldEnum | Prisma.PayrollScalarFieldEnum[]
 }
 
 /**

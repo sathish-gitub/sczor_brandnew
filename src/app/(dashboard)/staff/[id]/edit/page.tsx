@@ -25,6 +25,8 @@ type StaffPayload = {
   status: "ACTIVE" | "INACTIVE";
   availabilityStatus: "AVAILABLE" | "BUSY" | "OFF_DUTY";
   workingDays: string[];
+  baseSalary: number | null;
+  commissionRate: number | null;
 };
 
 export default function EditStaffPage() {
@@ -51,6 +53,8 @@ export default function EditStaffPage() {
   const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
   const [availabilityStatus, setAvailabilityStatus] = useState<"AVAILABLE" | "BUSY" | "OFF_DUTY">("AVAILABLE");
   const [workingDays, setWorkingDays] = useState<string[]>([]);
+  const [baseSalary, setBaseSalary] = useState("");
+  const [commissionRate, setCommissionRate] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -81,6 +85,8 @@ export default function EditStaffPage() {
       setStatus(payload.staff.status);
       setAvailabilityStatus(payload.staff.availabilityStatus);
       setWorkingDays(payload.staff.workingDays);
+      setBaseSalary(payload.staff.baseSalary === null ? "" : String(payload.staff.baseSalary));
+      setCommissionRate(payload.staff.commissionRate === null ? "" : String(payload.staff.commissionRate));
       setLoading(false);
     }
 
@@ -126,6 +132,8 @@ export default function EditStaffPage() {
         status,
         availabilityStatus,
         workingDays,
+        baseSalary: baseSalary.trim() === "" ? null : Number(baseSalary),
+        commissionRate: commissionRate.trim() === "" ? null : Number(commissionRate),
       }),
     });
 
@@ -256,6 +264,41 @@ export default function EditStaffPage() {
               );
             })}
           </div>
+        </section>
+
+        <section>
+          <p className="text-sm font-medium text-[var(--foreground)]">Salary & Commission</p>
+          <div className="mt-2 grid gap-4 sm:grid-cols-2">
+            <label className="space-y-1 text-sm">
+              <span className="font-medium text-[var(--foreground)]">Base Salary (₹, monthly)</span>
+              <input
+                value={baseSalary}
+                onChange={(event) => setBaseSalary(event.target.value)}
+                type="number"
+                min={0}
+                step="0.01"
+                placeholder="e.g. 15000"
+                className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
+              />
+            </label>
+
+            <label className="space-y-1 text-sm">
+              <span className="font-medium text-[var(--foreground)]">Commission Rate (%)</span>
+              <input
+                value={commissionRate}
+                onChange={(event) => setCommissionRate(event.target.value)}
+                type="number"
+                min={0}
+                max={100}
+                step="0.01"
+                placeholder="e.g. 10"
+                className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
+              />
+            </label>
+          </div>
+          <p className="mt-2 text-xs text-[var(--muted)]">
+            Commission is calculated on revenue from services this staff member completed.
+          </p>
         </section>
 
         <div className="flex items-center gap-2">

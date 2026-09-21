@@ -56,6 +56,8 @@ export const ModelName = {
   Customer: 'Customer',
   Service: 'Service',
   Staff: 'Staff',
+  SalaryHistory: 'SalaryHistory',
+  Payroll: 'Payroll',
   Appointment: 'Appointment',
   Invoice: 'Invoice',
   InvoiceItem: 'InvoiceItem',
@@ -193,12 +195,56 @@ export const StaffScalarFieldEnum = {
   workingDays: 'workingDays',
   status: 'status',
   availabilityStatus: 'availabilityStatus',
+  baseSalary: 'baseSalary',
+  commissionRate: 'commissionRate',
+  salaryEffectiveFrom: 'salaryEffectiveFrom',
   tenantId: 'tenantId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type StaffScalarFieldEnum = (typeof StaffScalarFieldEnum)[keyof typeof StaffScalarFieldEnum]
+
+
+export const SalaryHistoryScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  baseSalary: 'baseSalary',
+  commissionRate: 'commissionRate',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt'
+} as const
+
+export type SalaryHistoryScalarFieldEnum = (typeof SalaryHistoryScalarFieldEnum)[keyof typeof SalaryHistoryScalarFieldEnum]
+
+
+export const PayrollScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  month: 'month',
+  year: 'year',
+  baseSalary: 'baseSalary',
+  commissionRate: 'commissionRate',
+  commissionAmount: 'commissionAmount',
+  revenueGenerated: 'revenueGenerated',
+  presentDays: 'presentDays',
+  absentDays: 'absentDays',
+  leaveDays: 'leaveDays',
+  halfDays: 'halfDays',
+  totalWorkingDays: 'totalWorkingDays',
+  leaveDeduction: 'leaveDeduction',
+  grossPay: 'grossPay',
+  netPay: 'netPay',
+  payslipNumber: 'payslipNumber',
+  status: 'status',
+  generatedAt: 'generatedAt',
+  paidAt: 'paidAt',
+  tenantId: 'tenantId'
+} as const
+
+export type PayrollScalarFieldEnum = (typeof PayrollScalarFieldEnum)[keyof typeof PayrollScalarFieldEnum]
 
 
 export const AppointmentScalarFieldEnum = {

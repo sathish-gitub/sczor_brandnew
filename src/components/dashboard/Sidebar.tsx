@@ -19,6 +19,7 @@ import {
   Star,
   UserCog,
   Users,
+  Wallet,
   X,
 } from "lucide-react";
 
@@ -78,6 +79,11 @@ const sections: SidebarSection[] = [
         href: "/staff",
         label: "Staff",
         icon: UserCog,
+      },
+      {
+        href: "/payroll",
+        label: "Payroll",
+        icon: Wallet,
       },
     ],
   },

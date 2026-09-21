@@ -17,6 +17,15 @@ type StaffDetail = {
   availabilityStatus: "AVAILABLE" | "BUSY" | "OFF_DUTY";
   workingDays: string[];
   createdAt: string;
+  baseSalary: number | null;
+  commissionRate: number | null;
+  salaryHistory: Array<{
+    id: string;
+    baseSalary: number;
+    commissionRate: number;
+    effectiveFrom: string;
+    effectiveTo: string | null;
+  }>;
   stats: {
     totalAppointments: number;
     monthAppointments: number;
@@ -58,6 +67,10 @@ function formatCurrency(value: number) {
     currency: "INR",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function formatPercent(value: number) {
+  return `${value}%`;
 }
 
 export default function StaffProfilePage() {
@@ -289,6 +302,42 @@ export default function StaffProfilePage() {
               maxLength={500}
               className="mt-2 h-9 w-full max-w-sm rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
             />
+          </div>
+
+          <div className="mt-6 border-t border-[var(--border)] pt-5">
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">Salary History</h3>
+            {staff.salaryHistory.length === 0 ? (
+              <p className="mt-2 text-sm text-[var(--muted)]">No salary configured yet.</p>
+            ) : (
+              <div className="mt-3 overflow-x-auto">
+                <table className="min-w-[480px] w-full text-left text-sm">
+                  <thead className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">
+                    <tr>
+                      <th className="py-2">Effective From</th>
+                      <th className="py-2">Effective To</th>
+                      <th className="py-2">Base Salary</th>
+                      <th className="py-2">Commission Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {staff.salaryHistory.map((entry) => (
+                      <tr key={entry.id} className="border-t border-[var(--border)]">
+                        <td className="py-2">{formatDate(entry.effectiveFrom)}</td>
+                        <td className="py-2">
+                          {entry.effectiveTo ? (
+                            formatDate(entry.effectiveTo)
+                          ) : (
+                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">Current</span>
+                          )}
+                        </td>
+                        <td className="py-2">{formatCurrency(entry.baseSalary)}</td>
+                        <td className="py-2">{formatPercent(entry.commissionRate)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </section>
       ) : null}

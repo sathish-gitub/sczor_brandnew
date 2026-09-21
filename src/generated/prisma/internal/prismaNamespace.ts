@@ -402,6 +402,8 @@ export const ModelName = {
   Customer: 'Customer',
   Service: 'Service',
   Staff: 'Staff',
+  SalaryHistory: 'SalaryHistory',
+  Payroll: 'Payroll',
   Appointment: 'Appointment',
   Invoice: 'Invoice',
   InvoiceItem: 'InvoiceItem',
@@ -438,7 +440,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "customer" | "service" | "staff" | "appointment" | "invoice" | "invoiceItem" | "staffRating" | "serviceCategory" | "loyaltyCard" | "loyaltyTransaction" | "attendance" | "salonSettings" | "holiday" | "waitlistInterest" | "superAdmin" | "payment" | "appSettings" | "supplier" | "productCategory" | "product" | "stockMovement" | "purchaseOrder" | "purchaseOrderItem" | "rateLimitAttempt"
+    modelProps: "tenant" | "user" | "customer" | "service" | "staff" | "salaryHistory" | "payroll" | "appointment" | "invoice" | "invoiceItem" | "staffRating" | "serviceCategory" | "loyaltyCard" | "loyaltyTransaction" | "attendance" | "salonSettings" | "holiday" | "waitlistInterest" | "superAdmin" | "payment" | "appSettings" | "supplier" | "productCategory" | "product" | "stockMovement" | "purchaseOrder" | "purchaseOrderItem" | "rateLimitAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -809,6 +811,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.StaffCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.StaffCountAggregateOutputType> | number
+        }
+      }
+    }
+    SalaryHistory: {
+      payload: Prisma.$SalaryHistoryPayload<ExtArgs>
+      fields: Prisma.SalaryHistoryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SalaryHistoryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalaryHistoryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SalaryHistoryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalaryHistoryPayload>
+        }
+        findFirst: {
+          args: Prisma.SalaryHistoryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalaryHistoryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SalaryHistoryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalaryHistoryPayload>
+        }
+        findMany: {
+          args: Prisma.SalaryHistoryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalaryHistoryPayload>[]
+        }
+        create: {
+          args: Prisma.SalaryHistoryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalaryHistoryPayload>
+        }
+        createMany: {
+          args: Prisma.SalaryHistoryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SalaryHistoryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalaryHistoryPayload>[]
+        }
+        delete: {
+          args: Prisma.SalaryHistoryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalaryHistoryPayload>
+        }
+        update: {
+          args: Prisma.SalaryHistoryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalaryHistoryPayload>
+        }
+        deleteMany: {
+          args: Prisma.SalaryHistoryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SalaryHistoryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SalaryHistoryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalaryHistoryPayload>[]
+        }
+        upsert: {
+          args: Prisma.SalaryHistoryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SalaryHistoryPayload>
+        }
+        aggregate: {
+          args: Prisma.SalaryHistoryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSalaryHistory>
+        }
+        groupBy: {
+          args: Prisma.SalaryHistoryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SalaryHistoryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SalaryHistoryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SalaryHistoryCountAggregateOutputType> | number
+        }
+      }
+    }
+    Payroll: {
+      payload: Prisma.$PayrollPayload<ExtArgs>
+      fields: Prisma.PayrollFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PayrollFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayrollPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PayrollFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayrollPayload>
+        }
+        findFirst: {
+          args: Prisma.PayrollFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayrollPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PayrollFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayrollPayload>
+        }
+        findMany: {
+          args: Prisma.PayrollFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayrollPayload>[]
+        }
+        create: {
+          args: Prisma.PayrollCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayrollPayload>
+        }
+        createMany: {
+          args: Prisma.PayrollCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PayrollCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayrollPayload>[]
+        }
+        delete: {
+          args: Prisma.PayrollDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayrollPayload>
+        }
+        update: {
+          args: Prisma.PayrollUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayrollPayload>
+        }
+        deleteMany: {
+          args: Prisma.PayrollDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PayrollUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PayrollUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayrollPayload>[]
+        }
+        upsert: {
+          args: Prisma.PayrollUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PayrollPayload>
+        }
+        aggregate: {
+          args: Prisma.PayrollAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePayroll>
+        }
+        groupBy: {
+          args: Prisma.PayrollGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PayrollGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PayrollCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PayrollCountAggregateOutputType> | number
         }
       }
     }
@@ -2503,12 +2653,56 @@ export const StaffScalarFieldEnum = {
   workingDays: 'workingDays',
   status: 'status',
   availabilityStatus: 'availabilityStatus',
+  baseSalary: 'baseSalary',
+  commissionRate: 'commissionRate',
+  salaryEffectiveFrom: 'salaryEffectiveFrom',
   tenantId: 'tenantId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type StaffScalarFieldEnum = (typeof StaffScalarFieldEnum)[keyof typeof StaffScalarFieldEnum]
+
+
+export const SalaryHistoryScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  baseSalary: 'baseSalary',
+  commissionRate: 'commissionRate',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt'
+} as const
+
+export type SalaryHistoryScalarFieldEnum = (typeof SalaryHistoryScalarFieldEnum)[keyof typeof SalaryHistoryScalarFieldEnum]
+
+
+export const PayrollScalarFieldEnum = {
+  id: 'id',
+  staffId: 'staffId',
+  month: 'month',
+  year: 'year',
+  baseSalary: 'baseSalary',
+  commissionRate: 'commissionRate',
+  commissionAmount: 'commissionAmount',
+  revenueGenerated: 'revenueGenerated',
+  presentDays: 'presentDays',
+  absentDays: 'absentDays',
+  leaveDays: 'leaveDays',
+  halfDays: 'halfDays',
+  totalWorkingDays: 'totalWorkingDays',
+  leaveDeduction: 'leaveDeduction',
+  grossPay: 'grossPay',
+  netPay: 'netPay',
+  payslipNumber: 'payslipNumber',
+  status: 'status',
+  generatedAt: 'generatedAt',
+  paidAt: 'paidAt',
+  tenantId: 'tenantId'
+} as const
+
+export type PayrollScalarFieldEnum = (typeof PayrollScalarFieldEnum)[keyof typeof PayrollScalarFieldEnum]
 
 
 export const AppointmentScalarFieldEnum = {
@@ -3273,6 +3467,8 @@ export type GlobalOmitConfig = {
   customer?: Prisma.CustomerOmit
   service?: Prisma.ServiceOmit
   staff?: Prisma.StaffOmit
+  salaryHistory?: Prisma.SalaryHistoryOmit
+  payroll?: Prisma.PayrollOmit
   appointment?: Prisma.AppointmentOmit
   invoice?: Prisma.InvoiceOmit
   invoiceItem?: Prisma.InvoiceItemOmit

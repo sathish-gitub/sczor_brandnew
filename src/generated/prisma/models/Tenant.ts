@@ -380,6 +380,8 @@ export type TenantWhereInput = {
   products?: Prisma.ProductListRelationFilter
   stockMovements?: Prisma.StockMovementListRelationFilter
   purchaseOrders?: Prisma.PurchaseOrderListRelationFilter
+  salaryHistory?: Prisma.SalaryHistoryListRelationFilter
+  payrolls?: Prisma.PayrollListRelationFilter
 }
 
 export type TenantOrderByWithRelationInput = {
@@ -429,6 +431,8 @@ export type TenantOrderByWithRelationInput = {
   products?: Prisma.ProductOrderByRelationAggregateInput
   stockMovements?: Prisma.StockMovementOrderByRelationAggregateInput
   purchaseOrders?: Prisma.PurchaseOrderOrderByRelationAggregateInput
+  salaryHistory?: Prisma.SalaryHistoryOrderByRelationAggregateInput
+  payrolls?: Prisma.PayrollOrderByRelationAggregateInput
 }
 
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -481,6 +485,8 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   products?: Prisma.ProductListRelationFilter
   stockMovements?: Prisma.StockMovementListRelationFilter
   purchaseOrders?: Prisma.PurchaseOrderListRelationFilter
+  salaryHistory?: Prisma.SalaryHistoryListRelationFilter
+  payrolls?: Prisma.PayrollListRelationFilter
 }, "id" | "slug">
 
 export type TenantOrderByWithAggregationInput = {
@@ -598,6 +604,8 @@ export type TenantCreateInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateInput = {
@@ -647,6 +655,8 @@ export type TenantUncheckedCreateInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUpdateInput = {
@@ -696,6 +706,8 @@ export type TenantUpdateInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateInput = {
@@ -745,6 +757,8 @@ export type TenantUncheckedUpdateInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateManyInput = {
@@ -1033,6 +1047,34 @@ export type TenantUpdateOneRequiredWithoutStaffNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutStaffInput, Prisma.TenantUpdateWithoutStaffInput>, Prisma.TenantUncheckedUpdateWithoutStaffInput>
 }
 
+export type TenantCreateNestedOneWithoutSalaryHistoryInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutSalaryHistoryInput, Prisma.TenantUncheckedCreateWithoutSalaryHistoryInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutSalaryHistoryInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutSalaryHistoryNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutSalaryHistoryInput, Prisma.TenantUncheckedCreateWithoutSalaryHistoryInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutSalaryHistoryInput
+  upsert?: Prisma.TenantUpsertWithoutSalaryHistoryInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutSalaryHistoryInput, Prisma.TenantUpdateWithoutSalaryHistoryInput>, Prisma.TenantUncheckedUpdateWithoutSalaryHistoryInput>
+}
+
+export type TenantCreateNestedOneWithoutPayrollsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutPayrollsInput, Prisma.TenantUncheckedCreateWithoutPayrollsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutPayrollsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutPayrollsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutPayrollsInput, Prisma.TenantUncheckedCreateWithoutPayrollsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutPayrollsInput
+  upsert?: Prisma.TenantUpsertWithoutPayrollsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutPayrollsInput, Prisma.TenantUpdateWithoutPayrollsInput>, Prisma.TenantUncheckedUpdateWithoutPayrollsInput>
+}
+
 export type TenantCreateNestedOneWithoutAppointmentsInput = {
   create?: Prisma.XOR<Prisma.TenantCreateWithoutAppointmentsInput, Prisma.TenantUncheckedCreateWithoutAppointmentsInput>
   connectOrCreate?: Prisma.TenantCreateOrConnectWithoutAppointmentsInput
@@ -1275,6 +1317,8 @@ export type TenantCreateWithoutUsersInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutUsersInput = {
@@ -1323,6 +1367,8 @@ export type TenantUncheckedCreateWithoutUsersInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutUsersInput = {
@@ -1387,6 +1433,8 @@ export type TenantUpdateWithoutUsersInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutUsersInput = {
@@ -1435,6 +1483,8 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutCustomersInput = {
@@ -1483,6 +1533,8 @@ export type TenantCreateWithoutCustomersInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutCustomersInput = {
@@ -1531,6 +1583,8 @@ export type TenantUncheckedCreateWithoutCustomersInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutCustomersInput = {
@@ -1595,6 +1649,8 @@ export type TenantUpdateWithoutCustomersInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutCustomersInput = {
@@ -1643,6 +1699,8 @@ export type TenantUncheckedUpdateWithoutCustomersInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutServicesInput = {
@@ -1691,6 +1749,8 @@ export type TenantCreateWithoutServicesInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutServicesInput = {
@@ -1739,6 +1799,8 @@ export type TenantUncheckedCreateWithoutServicesInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutServicesInput = {
@@ -1803,6 +1865,8 @@ export type TenantUpdateWithoutServicesInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutServicesInput = {
@@ -1851,6 +1915,8 @@ export type TenantUncheckedUpdateWithoutServicesInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutStaffInput = {
@@ -1899,6 +1965,8 @@ export type TenantCreateWithoutStaffInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutStaffInput = {
@@ -1947,6 +2015,8 @@ export type TenantUncheckedCreateWithoutStaffInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutStaffInput = {
@@ -2011,6 +2081,8 @@ export type TenantUpdateWithoutStaffInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutStaffInput = {
@@ -2059,6 +2131,440 @@ export type TenantUncheckedUpdateWithoutStaffInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutSalaryHistoryInput = {
+  id?: string
+  name: string
+  tagline?: string | null
+  slug: string
+  logo?: string | null
+  website?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  pincode?: string | null
+  phone?: string | null
+  email?: string | null
+  gstNumber?: string | null
+  openTime?: string
+  closeTime?: string
+  workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
+  plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutTenantInput
+  services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
+  staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
+  holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
+  settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
+  loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
+  waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutTenantInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutSalaryHistoryInput = {
+  id?: string
+  name: string
+  tagline?: string | null
+  slug: string
+  logo?: string | null
+  website?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  pincode?: string | null
+  phone?: string | null
+  email?: string | null
+  gstNumber?: string | null
+  openTime?: string
+  closeTime?: string
+  workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
+  plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutTenantInput
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
+  staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
+  holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
+  settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
+  loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
+  waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutTenantInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutSalaryHistoryInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutSalaryHistoryInput, Prisma.TenantUncheckedCreateWithoutSalaryHistoryInput>
+}
+
+export type TenantUpsertWithoutSalaryHistoryInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutSalaryHistoryInput, Prisma.TenantUncheckedUpdateWithoutSalaryHistoryInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutSalaryHistoryInput, Prisma.TenantUncheckedCreateWithoutSalaryHistoryInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutSalaryHistoryInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutSalaryHistoryInput, Prisma.TenantUncheckedUpdateWithoutSalaryHistoryInput>
+}
+
+export type TenantUpdateWithoutSalaryHistoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openTime?: Prisma.StringFieldUpdateOperationsInput | string
+  closeTime?: Prisma.StringFieldUpdateOperationsInput | string
+  workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutTenantNestedInput
+  services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
+  staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
+  holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
+  settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
+  loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
+  waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutTenantNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutSalaryHistoryInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openTime?: Prisma.StringFieldUpdateOperationsInput | string
+  closeTime?: Prisma.StringFieldUpdateOperationsInput | string
+  workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutTenantNestedInput
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
+  staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
+  holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
+  settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
+  waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutTenantNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutPayrollsInput = {
+  id?: string
+  name: string
+  tagline?: string | null
+  slug: string
+  logo?: string | null
+  website?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  pincode?: string | null
+  phone?: string | null
+  email?: string | null
+  gstNumber?: string | null
+  openTime?: string
+  closeTime?: string
+  workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
+  plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutTenantInput
+  services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
+  staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
+  holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
+  settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
+  loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
+  waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutTenantInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutPayrollsInput = {
+  id?: string
+  name: string
+  tagline?: string | null
+  slug: string
+  logo?: string | null
+  website?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  pincode?: string | null
+  phone?: string | null
+  email?: string | null
+  gstNumber?: string | null
+  openTime?: string
+  closeTime?: string
+  workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
+  plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutTenantInput
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
+  staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
+  holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
+  settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
+  loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
+  waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutTenantInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutPayrollsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutPayrollsInput, Prisma.TenantUncheckedCreateWithoutPayrollsInput>
+}
+
+export type TenantUpsertWithoutPayrollsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutPayrollsInput, Prisma.TenantUncheckedUpdateWithoutPayrollsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutPayrollsInput, Prisma.TenantUncheckedCreateWithoutPayrollsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutPayrollsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutPayrollsInput, Prisma.TenantUncheckedUpdateWithoutPayrollsInput>
+}
+
+export type TenantUpdateWithoutPayrollsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openTime?: Prisma.StringFieldUpdateOperationsInput | string
+  closeTime?: Prisma.StringFieldUpdateOperationsInput | string
+  workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutTenantNestedInput
+  services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
+  staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
+  holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
+  settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
+  loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
+  waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutTenantNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutPayrollsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openTime?: Prisma.StringFieldUpdateOperationsInput | string
+  closeTime?: Prisma.StringFieldUpdateOperationsInput | string
+  workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutTenantNestedInput
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
+  staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
+  holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
+  settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
+  waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutTenantNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutAppointmentsInput = {
@@ -2107,6 +2613,8 @@ export type TenantCreateWithoutAppointmentsInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAppointmentsInput = {
@@ -2155,6 +2663,8 @@ export type TenantUncheckedCreateWithoutAppointmentsInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAppointmentsInput = {
@@ -2219,6 +2729,8 @@ export type TenantUpdateWithoutAppointmentsInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAppointmentsInput = {
@@ -2267,6 +2779,8 @@ export type TenantUncheckedUpdateWithoutAppointmentsInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutInvoicesInput = {
@@ -2315,6 +2829,8 @@ export type TenantCreateWithoutInvoicesInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutInvoicesInput = {
@@ -2363,6 +2879,8 @@ export type TenantUncheckedCreateWithoutInvoicesInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutInvoicesInput = {
@@ -2427,6 +2945,8 @@ export type TenantUpdateWithoutInvoicesInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutInvoicesInput = {
@@ -2475,6 +2995,8 @@ export type TenantUncheckedUpdateWithoutInvoicesInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutServiceCategoriesInput = {
@@ -2523,6 +3045,8 @@ export type TenantCreateWithoutServiceCategoriesInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutServiceCategoriesInput = {
@@ -2571,6 +3095,8 @@ export type TenantUncheckedCreateWithoutServiceCategoriesInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutServiceCategoriesInput = {
@@ -2635,6 +3161,8 @@ export type TenantUpdateWithoutServiceCategoriesInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutServiceCategoriesInput = {
@@ -2683,6 +3211,8 @@ export type TenantUncheckedUpdateWithoutServiceCategoriesInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutLoyaltyCardsInput = {
@@ -2731,6 +3261,8 @@ export type TenantCreateWithoutLoyaltyCardsInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutLoyaltyCardsInput = {
@@ -2779,6 +3311,8 @@ export type TenantUncheckedCreateWithoutLoyaltyCardsInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutLoyaltyCardsInput = {
@@ -2843,6 +3377,8 @@ export type TenantUpdateWithoutLoyaltyCardsInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutLoyaltyCardsInput = {
@@ -2891,6 +3427,8 @@ export type TenantUncheckedUpdateWithoutLoyaltyCardsInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutAttendancesInput = {
@@ -2939,6 +3477,8 @@ export type TenantCreateWithoutAttendancesInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAttendancesInput = {
@@ -2987,6 +3527,8 @@ export type TenantUncheckedCreateWithoutAttendancesInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAttendancesInput = {
@@ -3051,6 +3593,8 @@ export type TenantUpdateWithoutAttendancesInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAttendancesInput = {
@@ -3099,6 +3643,8 @@ export type TenantUncheckedUpdateWithoutAttendancesInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutSettingsInput = {
@@ -3147,6 +3693,8 @@ export type TenantCreateWithoutSettingsInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutSettingsInput = {
@@ -3195,6 +3743,8 @@ export type TenantUncheckedCreateWithoutSettingsInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutSettingsInput = {
@@ -3259,6 +3809,8 @@ export type TenantUpdateWithoutSettingsInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutSettingsInput = {
@@ -3307,6 +3859,8 @@ export type TenantUncheckedUpdateWithoutSettingsInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutHolidaysInput = {
@@ -3355,6 +3909,8 @@ export type TenantCreateWithoutHolidaysInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutHolidaysInput = {
@@ -3403,6 +3959,8 @@ export type TenantUncheckedCreateWithoutHolidaysInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutHolidaysInput = {
@@ -3467,6 +4025,8 @@ export type TenantUpdateWithoutHolidaysInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutHolidaysInput = {
@@ -3515,6 +4075,8 @@ export type TenantUncheckedUpdateWithoutHolidaysInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutWaitlistInput = {
@@ -3563,6 +4125,8 @@ export type TenantCreateWithoutWaitlistInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutWaitlistInput = {
@@ -3611,6 +4175,8 @@ export type TenantUncheckedCreateWithoutWaitlistInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutWaitlistInput = {
@@ -3675,6 +4241,8 @@ export type TenantUpdateWithoutWaitlistInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutWaitlistInput = {
@@ -3723,6 +4291,8 @@ export type TenantUncheckedUpdateWithoutWaitlistInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutPaymentsInput = {
@@ -3771,6 +4341,8 @@ export type TenantCreateWithoutPaymentsInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutPaymentsInput = {
@@ -3819,6 +4391,8 @@ export type TenantUncheckedCreateWithoutPaymentsInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutPaymentsInput = {
@@ -3883,6 +4457,8 @@ export type TenantUpdateWithoutPaymentsInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutPaymentsInput = {
@@ -3931,6 +4507,8 @@ export type TenantUncheckedUpdateWithoutPaymentsInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutSuppliersInput = {
@@ -3979,6 +4557,8 @@ export type TenantCreateWithoutSuppliersInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutSuppliersInput = {
@@ -4027,6 +4607,8 @@ export type TenantUncheckedCreateWithoutSuppliersInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutSuppliersInput = {
@@ -4091,6 +4673,8 @@ export type TenantUpdateWithoutSuppliersInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutSuppliersInput = {
@@ -4139,6 +4723,8 @@ export type TenantUncheckedUpdateWithoutSuppliersInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutProductCategoriesInput = {
@@ -4187,6 +4773,8 @@ export type TenantCreateWithoutProductCategoriesInput = {
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutProductCategoriesInput = {
@@ -4235,6 +4823,8 @@ export type TenantUncheckedCreateWithoutProductCategoriesInput = {
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutProductCategoriesInput = {
@@ -4299,6 +4889,8 @@ export type TenantUpdateWithoutProductCategoriesInput = {
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutProductCategoriesInput = {
@@ -4347,6 +4939,8 @@ export type TenantUncheckedUpdateWithoutProductCategoriesInput = {
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutProductsInput = {
@@ -4395,6 +4989,8 @@ export type TenantCreateWithoutProductsInput = {
   productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutProductsInput = {
@@ -4443,6 +5039,8 @@ export type TenantUncheckedCreateWithoutProductsInput = {
   productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutProductsInput = {
@@ -4507,6 +5105,8 @@ export type TenantUpdateWithoutProductsInput = {
   productCategories?: Prisma.ProductCategoryUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutProductsInput = {
@@ -4555,6 +5155,8 @@ export type TenantUncheckedUpdateWithoutProductsInput = {
   productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutStockMovementsInput = {
@@ -4603,6 +5205,8 @@ export type TenantCreateWithoutStockMovementsInput = {
   productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutTenantInput
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutStockMovementsInput = {
@@ -4651,6 +5255,8 @@ export type TenantUncheckedCreateWithoutStockMovementsInput = {
   productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutTenantInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutStockMovementsInput = {
@@ -4715,6 +5321,8 @@ export type TenantUpdateWithoutStockMovementsInput = {
   productCategories?: Prisma.ProductCategoryUpdateManyWithoutTenantNestedInput
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutStockMovementsInput = {
@@ -4763,6 +5371,8 @@ export type TenantUncheckedUpdateWithoutStockMovementsInput = {
   productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutTenantNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutPurchaseOrdersInput = {
@@ -4811,6 +5421,8 @@ export type TenantCreateWithoutPurchaseOrdersInput = {
   productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutTenantInput
   products?: Prisma.ProductCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutPurchaseOrdersInput = {
@@ -4859,6 +5471,8 @@ export type TenantUncheckedCreateWithoutPurchaseOrdersInput = {
   productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutTenantInput
   products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
   stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutPurchaseOrdersInput = {
@@ -4923,6 +5537,8 @@ export type TenantUpdateWithoutPurchaseOrdersInput = {
   productCategories?: Prisma.ProductCategoryUpdateManyWithoutTenantNestedInput
   products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutPurchaseOrdersInput = {
@@ -4971,6 +5587,8 @@ export type TenantUncheckedUpdateWithoutPurchaseOrdersInput = {
   productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutTenantNestedInput
   products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
   stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 
@@ -4996,6 +5614,8 @@ export type TenantCountOutputType = {
   products: number
   stockMovements: number
   purchaseOrders: number
+  salaryHistory: number
+  payrolls: number
 }
 
 export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -5016,6 +5636,8 @@ export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   products?: boolean | TenantCountOutputTypeCountProductsArgs
   stockMovements?: boolean | TenantCountOutputTypeCountStockMovementsArgs
   purchaseOrders?: boolean | TenantCountOutputTypeCountPurchaseOrdersArgs
+  salaryHistory?: boolean | TenantCountOutputTypeCountSalaryHistoryArgs
+  payrolls?: boolean | TenantCountOutputTypeCountPayrollsArgs
 }
 
 /**
@@ -5147,6 +5769,20 @@ export type TenantCountOutputTypeCountPurchaseOrdersArgs<ExtArgs extends runtime
   where?: Prisma.PurchaseOrderWhereInput
 }
 
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountSalaryHistoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SalaryHistoryWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountPayrollsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PayrollWhereInput
+}
+
 
 export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -5195,6 +5831,8 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   products?: boolean | Prisma.Tenant$productsArgs<ExtArgs>
   stockMovements?: boolean | Prisma.Tenant$stockMovementsArgs<ExtArgs>
   purchaseOrders?: boolean | Prisma.Tenant$purchaseOrdersArgs<ExtArgs>
+  salaryHistory?: boolean | Prisma.Tenant$salaryHistoryArgs<ExtArgs>
+  payrolls?: boolean | Prisma.Tenant$payrollsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
 
@@ -5311,6 +5949,8 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   products?: boolean | Prisma.Tenant$productsArgs<ExtArgs>
   stockMovements?: boolean | Prisma.Tenant$stockMovementsArgs<ExtArgs>
   purchaseOrders?: boolean | Prisma.Tenant$purchaseOrdersArgs<ExtArgs>
+  salaryHistory?: boolean | Prisma.Tenant$salaryHistoryArgs<ExtArgs>
+  payrolls?: boolean | Prisma.Tenant$payrollsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TenantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -5337,6 +5977,8 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     products: Prisma.$ProductPayload<ExtArgs>[]
     stockMovements: Prisma.$StockMovementPayload<ExtArgs>[]
     purchaseOrders: Prisma.$PurchaseOrderPayload<ExtArgs>[]
+    salaryHistory: Prisma.$SalaryHistoryPayload<ExtArgs>[]
+    payrolls: Prisma.$PayrollPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -5779,6 +6421,8 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   products<T extends Prisma.Tenant$productsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$productsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   stockMovements<T extends Prisma.Tenant$stockMovementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$stockMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   purchaseOrders<T extends Prisma.Tenant$purchaseOrdersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$purchaseOrdersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PurchaseOrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  salaryHistory<T extends Prisma.Tenant$salaryHistoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$salaryHistoryArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SalaryHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  payrolls<T extends Prisma.Tenant$payrollsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$payrollsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PayrollPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6653,6 +7297,54 @@ export type Tenant$purchaseOrdersArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.PurchaseOrderScalarFieldEnum | Prisma.PurchaseOrderScalarFieldEnum[]
+}
+
+/**
+ * Tenant.salaryHistory
+ */
+export type Tenant$salaryHistoryArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SalaryHistory
+   */
+  select?: Prisma.SalaryHistorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SalaryHistory
+   */
+  omit?: Prisma.SalaryHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SalaryHistoryInclude<ExtArgs> | null
+  where?: Prisma.SalaryHistoryWhereInput
+  orderBy?: Prisma.SalaryHistoryOrderByWithRelationInput | Prisma.SalaryHistoryOrderByWithRelationInput[]
+  cursor?: Prisma.SalaryHistoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SalaryHistoryScalarFieldEnum | Prisma.SalaryHistoryScalarFieldEnum[]
+}
+
+/**
+ * Tenant.payrolls
+ */
+export type Tenant$payrollsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Payroll
+   */
+  select?: Prisma.PayrollSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Payroll
+   */
+  omit?: Prisma.PayrollOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PayrollInclude<ExtArgs> | null
+  where?: Prisma.PayrollWhereInput
+  orderBy?: Prisma.PayrollOrderByWithRelationInput | Prisma.PayrollOrderByWithRelationInput[]
+  cursor?: Prisma.PayrollWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PayrollScalarFieldEnum | Prisma.PayrollScalarFieldEnum[]
 }
 
 /**

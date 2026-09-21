@@ -24,6 +24,8 @@ const updateStaffSchema = z.object({
     .optional(),
   status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
   availabilityStatus: z.enum(["AVAILABLE", "BUSY", "OFF_DUTY"]).optional(),
+  baseSalary: z.number().nonnegative().nullable().optional(),
+  commissionRate: z.number().min(0).max(100).nullable().optional(),
 });
 
 async function tenantIdOrNull() {
@@ -82,6 +84,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
             where: { date: { gte: month.start, lte: month.end } },
             orderBy: { date: "asc" },
           },
+          salaryHistory: {
+            orderBy: { effectiveFrom: "desc" },
+          },
         },
       }),
       prisma.staffRating.aggregate({
@@ -123,6 +128,16 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         availabilityStatus: staff.availabilityStatus,
         workingDays: staff.workingDays,
         createdAt: staff.createdAt,
+        baseSalary: staff.baseSalary === null ? null : Number(staff.baseSalary),
+        commissionRate: staff.commissionRate === null ? null : Number(staff.commissionRate),
+        salaryEffectiveFrom: staff.salaryEffectiveFrom,
+        salaryHistory: staff.salaryHistory.map((entry) => ({
+          id: entry.id,
+          baseSalary: Number(entry.baseSalary),
+          commissionRate: Number(entry.commissionRate),
+          effectiveFrom: entry.effectiveFrom,
+          effectiveTo: entry.effectiveTo,
+        })),
         stats: {
           totalAppointments: allAppointments.length,
           monthAppointments: monthAppointments.length,
@@ -186,20 +201,68 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const payload = parsed.data;
 
-    const updated = await prisma.staff.updateMany({
-      where: {
-        id,
-        tenantId,
-      },
-      data: {
-        name: payload.name,
-        designation: payload.designation,
-        mobile: payload.mobile === "" ? null : payload.mobile,
-        email: payload.email === "" ? null : payload.email,
-        workingDays: payload.workingDays,
-        status: payload.status,
-        availabilityStatus: payload.availabilityStatus,
-      },
+    const existing = await prisma.staff.findFirst({
+      where: { id, tenantId },
+      select: { baseSalary: true, commissionRate: true },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: "Staff not found." }, { status: 404 });
+    }
+
+    const currentBaseSalary = existing.baseSalary === null ? null : Number(existing.baseSalary);
+    const currentCommissionRate = existing.commissionRate === null ? null : Number(existing.commissionRate);
+    const nextBaseSalary = payload.baseSalary !== undefined ? payload.baseSalary : currentBaseSalary;
+    const nextCommissionRate = payload.commissionRate !== undefined ? payload.commissionRate : currentCommissionRate;
+
+    const salaryProvided = payload.baseSalary !== undefined || payload.commissionRate !== undefined;
+    const salaryChanged =
+      salaryProvided &&
+      nextBaseSalary !== null &&
+      nextCommissionRate !== null &&
+      (nextBaseSalary !== currentBaseSalary || nextCommissionRate !== currentCommissionRate);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const result = await tx.staff.updateMany({
+        where: {
+          id,
+          tenantId,
+        },
+        data: {
+          name: payload.name,
+          designation: payload.designation,
+          mobile: payload.mobile === "" ? null : payload.mobile,
+          email: payload.email === "" ? null : payload.email,
+          workingDays: payload.workingDays,
+          status: payload.status,
+          availabilityStatus: payload.availabilityStatus,
+          baseSalary: payload.baseSalary,
+          commissionRate: payload.commissionRate,
+          salaryEffectiveFrom: salaryChanged ? today : undefined,
+        },
+      });
+
+      if (salaryChanged && result.count > 0) {
+        await tx.salaryHistory.updateMany({
+          where: { staffId: id, tenantId, effectiveTo: null },
+          data: { effectiveTo: today },
+        });
+
+        await tx.salaryHistory.create({
+          data: {
+            staffId: id,
+            tenantId,
+            baseSalary: nextBaseSalary,
+            commissionRate: nextCommissionRate,
+            effectiveFrom: today,
+          },
+        });
+      }
+
+      return result;
     });
 
     if (updated.count === 0) {
@@ -219,6 +282,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Unable to update staff." }, { status: 500 });
   }
 }
+
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const tenantId = await tenantIdOrNull();

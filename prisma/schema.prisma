@@ -54,6 +54,8 @@ model Tenant {
   products          Product[]
   stockMovements    StockMovement[]
   purchaseOrders    PurchaseOrder[]
+  salaryHistory     SalaryHistory[]
+  payrolls          Payroll[]
 
   @@index([isActive])
   @@index([plan])
@@ -126,27 +128,78 @@ model Service {
 }
 
 model Staff {
-  id                 String        @id @default(cuid())
-  name               String
-  designation        String
-  mobile             String?
-  email              String?
-  workingDays        String[]      @default(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
-  status             Status        @default(ACTIVE)
-  availabilityStatus Availability  @default(AVAILABLE)
-  tenantId           String
-  tenant             Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  appointments       Appointment[]
-  attendances        Attendance[]
-  invoices           Invoice[]
-  invoiceItems       InvoiceItem[]
-  ratings            StaffRating[]
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  id                  String          @id @default(cuid())
+  name                String
+  designation         String
+  mobile              String?
+  email               String?
+  workingDays         String[]        @default(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
+  status              Status          @default(ACTIVE)
+  availabilityStatus  Availability    @default(AVAILABLE)
+  baseSalary          Decimal?        @db.Decimal(10, 2)
+  commissionRate      Decimal?        @db.Decimal(5, 2)
+  salaryEffectiveFrom DateTime?
+  tenantId            String
+  tenant              Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  appointments        Appointment[]
+  attendances         Attendance[]
+  invoices            Invoice[]
+  invoiceItems        InvoiceItem[]
+  ratings             StaffRating[]
+  salaryHistory       SalaryHistory[]
+  payrolls            Payroll[]
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
 
   @@index([tenantId])
   @@index([tenantId, status])
   @@index([tenantId, availabilityStatus])
+}
+
+model SalaryHistory {
+  id             String    @id @default(cuid())
+  staffId        String
+  staff          Staff     @relation(fields: [staffId], references: [id])
+  baseSalary     Decimal   @db.Decimal(10, 2)
+  commissionRate Decimal   @db.Decimal(5, 2)
+  effectiveFrom  DateTime
+  effectiveTo    DateTime? // null = currently active
+  tenantId       String
+  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  createdAt      DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([staffId])
+}
+
+model Payroll {
+  id               String   @id @default(cuid())
+  staffId          String
+  staff            Staff    @relation(fields: [staffId], references: [id])
+  month            Int // 1-12
+  year             Int
+  baseSalary       Decimal  @db.Decimal(10, 2)
+  commissionRate   Decimal  @db.Decimal(5, 2)
+  commissionAmount Decimal  @db.Decimal(10, 2) // calculated: revenue * rate
+  revenueGenerated Decimal  @db.Decimal(10, 2) // total service revenue credited to staff this month
+  presentDays      Int
+  absentDays       Int
+  leaveDays        Int
+  halfDays         Int
+  totalWorkingDays Int // present + absent + leave + half
+  leaveDeduction   Decimal  @db.Decimal(10, 2) // proportional salary deduction for unpaid leave/absent days
+  grossPay         Decimal  @db.Decimal(10, 2) // baseSalary + commissionAmount
+  netPay           Decimal  @db.Decimal(10, 2) // grossPay - leaveDeduction
+  payslipNumber    String // e.g. PAY-2026-09-0001
+  status           String   @default("GENERATED") // GENERATED | PAID
+  generatedAt      DateTime @default(now())
+  paidAt           DateTime?
+  tenantId         String
+  tenant           Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@unique([staffId, month, year])
+  @@unique([payslipNumber, tenantId])
+  @@index([tenantId])
 }
 
 model Appointment {
