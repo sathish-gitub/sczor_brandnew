@@ -116,6 +116,15 @@ export default function ReportsOverviewPage() {
         <DateRangePicker value={range} onChange={setRange} />
       </header>
 
+      <div className="flex flex-wrap gap-2">
+        <Link
+          href="/reports/inventory"
+          className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
+        >
+          Inventory Reports
+        </Link>
+      </div>
+
       {loading ? (
         <div className="h-72 animate-pulse rounded-xl border border-[var(--border)] bg-white" />
       ) : (

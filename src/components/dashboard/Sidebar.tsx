@@ -13,6 +13,7 @@ import {
   FileText,
   LayoutDashboard,
   LogOut,
+  Package,
   Scissors,
   Settings,
   Star,
@@ -67,6 +68,11 @@ const sections: SidebarSection[] = [
         href: "/services",
         label: "Services",
         icon: Scissors,
+      },
+      {
+        href: "/inventory",
+        label: "Inventory",
+        icon: Package,
       },
       {
         href: "/staff",

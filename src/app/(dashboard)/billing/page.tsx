@@ -8,7 +8,7 @@ import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { PaymentSummary } from "@/components/billing/PaymentSummary";
-import { POSCart, type POSCartItem, type POSStaffOption } from "@/components/billing/POSCart";
+import { POSCart, cartItemKey, type POSCartItem, type POSStaffOption } from "@/components/billing/POSCart";
 
 type ServiceItem = {
   id: string;
@@ -16,6 +16,16 @@ type ServiceItem = {
   category: string;
   price: number;
   duration: number;
+};
+
+type ProductItem = {
+  id: string;
+  name: string;
+  sku: string | null;
+  unit: string;
+  price: number;
+  currentStock: number;
+  category: string | null;
 };
 
 type CustomerSummary = {
@@ -67,7 +77,10 @@ export default function BillingPage() {
   const appointmentId = searchParams.get("appointmentId");
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loadingServices, setLoadingServices] = useState(true);
+  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
   const [staffOptions, setStaffOptions] = useState<POSStaffOption[]>([]);
+  const [itemTab, setItemTab] = useState<"SERVICES" | "PRODUCTS">("SERVICES");
 
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("ALL");
@@ -148,6 +161,35 @@ export default function BillingPage() {
   useEffect(() => {
     let active = true;
 
+    async function loadProducts() {
+      setLoadingProducts(true);
+      const response = await fetch("/api/billing/products", { cache: "no-store" });
+      const payload = (await response.json().catch(() => null)) as { error?: string; items?: ProductItem[] } | null;
+
+      if (!active) {
+        return;
+      }
+
+      if (!response.ok) {
+        pushToast("error", payload?.error ?? "Unable to load products.");
+        setLoadingProducts(false);
+        return;
+      }
+
+      setProducts(payload?.items ?? []);
+      setLoadingProducts(false);
+    }
+
+    loadProducts();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
     async function loadStaff() {
       const response = await fetch("/api/staff?status=ACTIVE", { cache: "no-store" });
       const payload = (await response.json().catch(() => null)) as
@@ -210,6 +252,7 @@ export default function BillingPage() {
       });
       setCart([
         {
+          type: "SERVICE",
           serviceId: appointment.service.id,
           name: appointment.service.name,
           duration: appointment.service.duration,
@@ -286,14 +329,29 @@ export default function BillingPage() {
     });
   }, [services, query, category]);
 
+  const visibleProducts = useMemo(() => {
+    const input = query.trim().toLowerCase();
+
+    if (itemTab !== "PRODUCTS") {
+      return [];
+    }
+
+    return products.filter((item) => {
+      return !input || item.name.toLowerCase().includes(input) || (item.sku ?? "").toLowerCase().includes(input);
+    });
+  }, [products, query, itemTab]);
+
   function addServiceToCart(service: ServiceItem) {
+    const key = `SERVICE:${service.id}`;
+
     setCart((current) => {
-      const existing = current.find((item) => item.serviceId === service.id);
+      const existing = current.find((item) => cartItemKey(item) === key);
 
       if (!existing) {
         return [
           ...current,
           {
+            type: "SERVICE" as const,
             serviceId: service.id,
             name: service.name,
             duration: service.duration,
@@ -306,7 +364,7 @@ export default function BillingPage() {
       }
 
       return current.map((item) =>
-        item.serviceId === service.id
+        cartItemKey(item) === key
           ? {
               ...item,
               quantity: item.quantity + 1,
@@ -316,30 +374,75 @@ export default function BillingPage() {
     });
   }
 
-  function updateQuantity(serviceId: string, delta: number) {
+  function addProductToCart(product: ProductItem) {
+    const key = `PRODUCT:${product.id}`;
+
+    setCart((current) => {
+      const existing = current.find((item) => cartItemKey(item) === key);
+
+      if (!existing) {
+        return [
+          ...current,
+          {
+            type: "PRODUCT" as const,
+            productId: product.id,
+            name: product.name,
+            unit: product.unit,
+            price: product.price,
+            quantity: 1,
+            maxStock: product.currentStock,
+          },
+        ];
+      }
+
+      if (existing.type === "PRODUCT" && existing.quantity >= existing.maxStock) {
+        pushToast("error", `Only ${existing.maxStock} ${product.unit} of ${product.name} in stock.`);
+        return current;
+      }
+
+      return current.map((item) =>
+        cartItemKey(item) === key
+          ? {
+              ...item,
+              quantity: item.quantity + 1,
+            }
+          : item,
+      );
+    });
+  }
+
+  function updateQuantity(key: string, delta: number) {
     setCart((current) =>
       current
-        .map((item) =>
-          item.serviceId === serviceId
-            ? {
-                ...item,
-                quantity: Math.max(0, item.quantity + delta),
-              }
-            : item,
-        )
+        .map((item) => {
+          if (cartItemKey(item) !== key) {
+            return item;
+          }
+
+          const nextQuantity = Math.max(0, item.quantity + delta);
+
+          if (item.type === "PRODUCT" && delta > 0 && nextQuantity > item.maxStock) {
+            pushToast("error", `Only ${item.maxStock} ${item.unit} of ${item.name} in stock.`);
+            return item;
+          }
+
+          return { ...item, quantity: nextQuantity };
+        })
         .filter((item) => item.quantity > 0),
     );
   }
 
-  function removeFromCart(serviceId: string) {
-    setCart((current) => current.filter((item) => item.serviceId !== serviceId));
+  function removeFromCart(key: string) {
+    setCart((current) => current.filter((item) => cartItemKey(item) !== key));
   }
 
-  function updateCartStaff(serviceId: string, staffId: string) {
+  function updateCartStaff(key: string, staffId: string) {
     const staffName = staffOptions.find((option) => option.id === staffId)?.name ?? "";
 
     setCart((current) =>
-      current.map((item) => (item.serviceId === serviceId ? { ...item, staffId, staffName } : item)),
+      current.map((item) =>
+        item.type === "SERVICE" && cartItemKey(item) === key ? { ...item, staffId, staffName } : item,
+      ),
     );
   }
 
@@ -417,7 +520,7 @@ export default function BillingPage() {
 
   async function completePayment() {
     if (cart.length === 0) {
-      pushToast("error", "Add at least one service to cart.");
+      pushToast("error", "Add at least one item to cart.");
       return;
     }
 
@@ -437,11 +540,20 @@ export default function BillingPage() {
         customerId: customer.id,
         appointmentId: linkedAppointmentId ?? undefined,
         paymentMethod,
-        items: cart.map((item) => ({
-          serviceId: item.serviceId,
-          quantity: item.quantity,
-          staffId: item.staffId || undefined,
-        })),
+        items: cart.map((item) =>
+          item.type === "SERVICE"
+            ? {
+                type: "SERVICE" as const,
+                serviceId: item.serviceId,
+                quantity: item.quantity,
+                staffId: item.staffId || undefined,
+              }
+            : {
+                type: "PRODUCT" as const,
+                productId: item.productId,
+                quantity: item.quantity,
+              },
+        ),
         discountType,
         discountValue,
         useLoyaltyPoints,
@@ -576,35 +688,89 @@ export default function BillingPage() {
 
       <div className="grid gap-4 lg:grid-cols-[3fr_2fr]">
         <section className="space-y-3 rounded-xl border border-[var(--border)] bg-white p-4">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setItemTab("SERVICES")}
+              className={[
+                "flex-1 rounded-xl border px-3 py-2 text-sm font-semibold",
+                itemTab === "SERVICES"
+                  ? "border-slate-900 bg-slate-900 text-white"
+                  : "border-[var(--border)] bg-white text-slate-700",
+              ].join(" ")}
+            >
+              Services
+            </button>
+            <button
+              type="button"
+              onClick={() => setItemTab("PRODUCTS")}
+              className={[
+                "flex-1 rounded-xl border px-3 py-2 text-sm font-semibold",
+                itemTab === "PRODUCTS"
+                  ? "border-slate-900 bg-slate-900 text-white"
+                  : "border-[var(--border)] bg-white text-slate-700",
+              ].join(" ")}
+            >
+              Products
+            </button>
+          </div>
+
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-3 h-4 w-4 text-slate-400" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search services..."
+              placeholder={itemTab === "SERVICES" ? "Search services..." : "Search products..."}
               className="h-10 w-full rounded-xl border border-[var(--border)] pl-9 pr-3 text-sm"
             />
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {categories.map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setCategory(tab)}
-                className={[
-                  "rounded-full border px-3 py-1 text-xs font-semibold",
-                  category === tab
-                    ? "border-slate-900 bg-slate-900 text-white"
-                    : "border-[var(--border)] bg-white text-slate-700",
-                ].join(" ")}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
+          {itemTab === "SERVICES" ? (
+            <>
+              <div className="flex flex-wrap gap-2">
+                {categories.map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setCategory(tab)}
+                    className={[
+                      "rounded-full border px-3 py-1 text-xs font-semibold",
+                      category === tab
+                        ? "border-slate-900 bg-slate-900 text-white"
+                        : "border-[var(--border)] bg-white text-slate-700",
+                    ].join(" ")}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
 
-          {loadingServices ? (
+              {loadingServices ? (
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {Array.from({ length: 9 }).map((_, index) => (
+                    <div key={index} className="h-36 animate-pulse rounded-xl border border-[var(--border)] bg-slate-50" />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  {visibleServices.map((service) => (
+                    <article key={service.id} className="rounded-xl border border-[var(--border)] bg-slate-50 p-3">
+                      <p className="text-sm font-semibold text-[var(--foreground)]">{service.name}</p>
+                      <p className="text-xs text-[var(--muted)]">{formatCurrency(service.price)}</p>
+                      <p className="mt-1 text-xs text-[var(--muted)]">{service.duration} min</p>
+                      <button
+                        type="button"
+                        onClick={() => addServiceToCart(service)}
+                        className="mt-3 inline-flex h-8 items-center justify-center rounded-lg bg-[var(--primary)] px-3 text-xs font-semibold text-white"
+                      >
+                        + Add
+                      </button>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : loadingProducts ? (
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {Array.from({ length: 9 }).map((_, index) => (
                 <div key={index} className="h-36 animate-pulse rounded-xl border border-[var(--border)] bg-slate-50" />
@@ -612,20 +778,33 @@ export default function BillingPage() {
             </div>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {visibleServices.map((service) => (
-                <article key={service.id} className="rounded-xl border border-[var(--border)] bg-slate-50 p-3">
-                  <p className="text-sm font-semibold text-[var(--foreground)]">{service.name}</p>
-                  <p className="text-xs text-[var(--muted)]">{formatCurrency(service.price)}</p>
-                  <p className="mt-1 text-xs text-[var(--muted)]">{service.duration} min</p>
-                  <button
-                    type="button"
-                    onClick={() => addServiceToCart(service)}
-                    className="mt-3 inline-flex h-8 items-center justify-center rounded-lg bg-[var(--primary)] px-3 text-xs font-semibold text-white"
+              {visibleProducts.map((product) => {
+                const outOfStock = product.currentStock <= 0;
+
+                return (
+                  <article
+                    key={product.id}
+                    className={[
+                      "rounded-xl border p-3",
+                      outOfStock ? "border-[var(--border)] bg-slate-100 opacity-60" : "border-[var(--border)] bg-slate-50",
+                    ].join(" ")}
                   >
-                    + Add
-                  </button>
-                </article>
-              ))}
+                    <p className="text-sm font-semibold text-[var(--foreground)]">{product.name}</p>
+                    <p className="text-xs text-[var(--muted)]">{formatCurrency(product.price)}</p>
+                    <p className="mt-1 text-xs text-[var(--muted)]">
+                      {outOfStock ? "Out of stock" : `${product.currentStock} ${product.unit} in stock`}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => addProductToCart(product)}
+                      disabled={outOfStock}
+                      className="mt-3 inline-flex h-8 items-center justify-center rounded-lg bg-[var(--primary)] px-3 text-xs font-semibold text-white disabled:opacity-50"
+                    >
+                      + Add
+                    </button>
+                  </article>
+                );
+              })}
             </div>
           )}
         </section>

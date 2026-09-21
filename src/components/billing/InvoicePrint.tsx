@@ -178,7 +178,7 @@ export function InvoicePrint({ invoice, tenant }: InvoicePrintProps) {
             <thead className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">
               <tr>
                 <th className="py-2">#</th>
-                <th className="py-2">Service</th>
+                <th className="py-2">Item</th>
                 <th className="py-2">Staff</th>
                 <th className="py-2">Price</th>
                 <th className="py-2">Qty</th>

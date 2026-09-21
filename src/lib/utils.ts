@@ -53,6 +53,15 @@ export function generateSlug(name: string) {
 
 export const DEFAULT_SERVICE_CATEGORIES = ["Hair", "Skin", "Nail", "Makeup", "Spa", "Other"] as const;
 
+export const DEFAULT_PRODUCT_CATEGORIES = [
+  "Hair Care",
+  "Skin Care",
+  "Nail Care",
+  "Tools & Equipment",
+  "Retail",
+  "Other",
+] as const;
+
 export type LoyaltyThresholds = {
   silverThreshold: number;
   goldThreshold: number;

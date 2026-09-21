@@ -49,6 +49,11 @@ model Tenant {
   waitlist     WaitlistInterest[]
   serviceCategories ServiceCategory[]
   payments     Payment[]
+  suppliers         Supplier[]
+  productCategories ProductCategory[]
+  products          Product[]
+  stockMovements    StockMovement[]
+  purchaseOrders    PurchaseOrder[]
 
   @@index([isActive])
   @@index([plan])
@@ -216,11 +221,14 @@ model InvoiceItem {
   invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
   serviceId String?
   service   Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   staffId   String?
   staff     Staff?   @relation(fields: [staffId], references: [id], onDelete: SetNull)
 
   @@index([invoiceId])
   @@index([serviceId])
+  @@index([productId])
   @@index([staffId])
 }
 
@@ -424,6 +432,112 @@ model AppSettings {
   razorpayKeySecret     String?
   razorpayWebhookSecret String?
   updatedAt             DateTime @updatedAt
+}
+
+model Supplier {
+  id             String          @id @default(cuid())
+  name           String
+  contactPerson  String?
+  phone          String?
+  email          String?
+  address        String?
+  notes          String?
+  tenantId       String
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products       Product[]
+  purchaseOrders PurchaseOrder[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([tenantId])
+}
+
+model ProductCategory {
+  id        String    @id @default(cuid())
+  name      String
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products  Product[]
+  createdAt DateTime  @default(now())
+
+  @@unique([name, tenantId])
+  @@index([tenantId])
+}
+
+model Product {
+  id             String           @id @default(cuid())
+  name           String
+  sku            String?
+  categoryId     String?
+  category       ProductCategory? @relation(fields: [categoryId], references: [id])
+  brand          String?
+  unit           String           @default("pcs")
+  costPrice      Decimal          @db.Decimal(10, 2)
+  sellingPrice   Decimal          @db.Decimal(10, 2)
+  currentStock   Decimal          @default(0) @db.Decimal(10, 2)
+  reorderLevel   Decimal          @default(0) @db.Decimal(10, 2)
+  isRetailItem   Boolean          @default(true)
+  status         Status           @default(ACTIVE)
+  supplierId     String?
+  supplier       Supplier?        @relation(fields: [supplierId], references: [id])
+  tenantId       String
+  tenant         Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  stockMovements StockMovement[]
+  invoiceItems   InvoiceItem[]
+  purchaseOrderItems PurchaseOrderItem[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([tenantId])
+  @@index([categoryId])
+}
+
+model StockMovement {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type      String
+  quantity  Decimal  @db.Decimal(10, 2)
+  reason    String?
+  reference String?
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([productId])
+}
+
+model PurchaseOrder {
+  id          String              @id @default(cuid())
+  poNumber    String
+  supplierId  String
+  supplier    Supplier            @relation(fields: [supplierId], references: [id])
+  status      String              @default("PENDING") // PENDING | RECEIVED | CANCELLED
+  totalAmount Decimal             @db.Decimal(10, 2)
+  notes       String?
+  tenantId    String
+  tenant      Tenant              @relation(fields: [tenantId], references: [id])
+  items       PurchaseOrderItem[]
+  createdAt   DateTime            @default(now())
+  receivedAt  DateTime?
+
+  @@unique([poNumber, tenantId])
+  @@index([tenantId])
+}
+
+model PurchaseOrderItem {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productId       String
+  product         Product       @relation(fields: [productId], references: [id])
+  quantity        Decimal       @db.Decimal(10, 2)
+  unitCost        Decimal       @db.Decimal(10, 2)
+  amount          Decimal       @db.Decimal(10, 2)
+
+  @@index([purchaseOrderId])
+  @@index([productId])
 }
 
 model RateLimitAttempt {

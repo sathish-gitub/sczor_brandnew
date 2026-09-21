@@ -19,6 +19,7 @@ import { PaymentMethodDonut, type PaymentMethodPoint } from "@/components/charts
 import { RevenueTrendChart, type RevenueTrendPoint } from "@/components/charts/RevenueTrendChart";
 import { ServicePopularityDonut, type ServicePopularityPoint } from "@/components/charts/ServicePopularityDonut";
 import { StaffPerformanceBarChart, type StaffPerformancePoint } from "@/components/charts/StaffPerformanceBarChart";
+import { LowStockWidget } from "@/components/inventory/LowStockWidget";
 
 type DashboardStats = {
   todayAppointments: number;
@@ -548,6 +549,10 @@ export default function DashboardPage() {
             )}
           </div>
         </SectionCard>
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-5">
+        <LowStockWidget />
       </div>
 
       <div className="space-y-4">

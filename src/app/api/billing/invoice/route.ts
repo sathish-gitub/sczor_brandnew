@@ -7,11 +7,23 @@ import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
 import { calculateLoyaltyTier } from "@/lib/utils";
 
-const itemSchema = z.object({
-  serviceId: z.string().cuid(),
-  quantity: z.number().int().min(1).max(50),
-  staffId: z.string().cuid().optional(),
-});
+const itemSchema = z
+  .object({
+    type: z.enum(["SERVICE", "PRODUCT"]).default("SERVICE"),
+    serviceId: z.string().cuid().optional(),
+    productId: z.string().cuid().optional(),
+    quantity: z.number().int().min(1).max(50),
+    staffId: z.string().cuid().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === "SERVICE" && !data.serviceId) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "serviceId is required for SERVICE items." });
+    }
+
+    if (data.type === "PRODUCT" && !data.productId) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "productId is required for PRODUCT items." });
+    }
+  });
 
 const payloadSchema = z.object({
   customerId: z.string().cuid(),
@@ -82,7 +94,10 @@ export async function POST(request: Request) {
 
     const payload = parsed.data;
 
-    const [settings, customer, services] = await Promise.all([
+    const serviceItems = payload.items.filter((item) => item.type === "SERVICE");
+    const productItems = payload.items.filter((item) => item.type === "PRODUCT");
+
+    const [settings, customer, services, products] = await Promise.all([
       prisma.salonSettings.findUnique({
         where: {
           tenantId: session.user.tenantId,
@@ -119,13 +134,28 @@ export async function POST(request: Request) {
           tenantId: session.user.tenantId,
           status: "ACTIVE",
           id: {
-            in: payload.items.map((item) => item.serviceId),
+            in: serviceItems.map((item) => item.serviceId!),
           },
         },
         select: {
           id: true,
           name: true,
           price: true,
+        },
+      }),
+      prisma.product.findMany({
+        where: {
+          tenantId: session.user.tenantId,
+          status: "ACTIVE",
+          id: {
+            in: productItems.map((item) => item.productId!),
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          sellingPrice: true,
+          currentStock: true,
         },
       }),
     ]);
@@ -136,12 +166,18 @@ export async function POST(request: Request) {
 
     const serviceMap = new Map(services.map((item) => [item.id, item]));
 
-    if (serviceMap.size !== payload.items.length) {
+    if (serviceMap.size !== serviceItems.length) {
       return NextResponse.json({ error: "One or more services are unavailable." }, { status: 400 });
     }
 
+    const productMap = new Map(products.map((item) => [item.id, item]));
+
+    if (productMap.size !== new Set(productItems.map((item) => item.productId)).size) {
+      return NextResponse.json({ error: "One or more products are unavailable." }, { status: 400 });
+    }
+
     const requestedStaffIds = [
-      ...new Set(payload.items.map((item) => item.staffId).filter((value): value is string => Boolean(value))),
+      ...new Set(serviceItems.map((item) => item.staffId).filter((value): value is string => Boolean(value))),
     ];
 
     const validStaff = requestedStaffIds.length
@@ -158,12 +194,31 @@ export async function POST(request: Request) {
     }
 
     const normalizedItems = payload.items.map((item) => {
-      const service = serviceMap.get(item.serviceId)!;
+      if (item.type === "PRODUCT") {
+        const product = productMap.get(item.productId!)!;
+        const unitPrice = Number(product.sellingPrice);
+        const amount = roundMoney(unitPrice * item.quantity);
+
+        return {
+          type: "PRODUCT" as const,
+          productId: item.productId!,
+          serviceId: null,
+          staffId: null,
+          name: product.name,
+          quantity: item.quantity,
+          unitPrice,
+          amount,
+        };
+      }
+
+      const service = serviceMap.get(item.serviceId!)!;
       const unitPrice = Number(service.price);
       const amount = roundMoney(unitPrice * item.quantity);
 
       return {
-        serviceId: item.serviceId,
+        type: "SERVICE" as const,
+        serviceId: item.serviceId!,
+        productId: null,
         staffId: item.staffId && validStaffIds.has(item.staffId) ? item.staffId : null,
         name: service.name,
         quantity: item.quantity,
@@ -171,6 +226,25 @@ export async function POST(request: Request) {
         amount,
       };
     });
+
+    const requestedProductQuantities = new Map<string, number>();
+    for (const item of normalizedItems) {
+      if (item.type === "PRODUCT") {
+        requestedProductQuantities.set(item.productId, (requestedProductQuantities.get(item.productId) ?? 0) + item.quantity);
+      }
+    }
+
+    for (const [productId, quantity] of requestedProductQuantities) {
+      const product = productMap.get(productId)!;
+      const availableStock = Number(product.currentStock);
+
+      if (quantity > availableStock) {
+        return NextResponse.json(
+          { error: `Insufficient stock for ${product.name}: requested ${quantity}, available ${availableStock}.` },
+          { status: 400 },
+        );
+      }
+    }
 
     const subtotal = roundMoney(normalizedItems.reduce((sum, item) => sum + item.amount, 0));
 
@@ -228,6 +302,7 @@ export async function POST(request: Request) {
               quantity: item.quantity,
               amount: item.amount,
               serviceId: item.serviceId,
+              productId: item.productId,
               staffId: item.staffId,
             })),
           },
@@ -236,6 +311,27 @@ export async function POST(request: Request) {
           items: true,
         },
       });
+
+      for (const item of normalizedItems) {
+        if (item.type !== "PRODUCT") {
+          continue;
+        }
+
+        await tx.product.update({
+          where: { id: item.productId },
+          data: { currentStock: { decrement: item.quantity } },
+        });
+
+        await tx.stockMovement.create({
+          data: {
+            tenantId: session.user.tenantId,
+            productId: item.productId,
+            type: "SALE_OUT",
+            quantity: item.quantity,
+            reference: invoice.invoiceNumber,
+          },
+        });
+      }
 
       let totalPointsAfter = availablePoints;
 
