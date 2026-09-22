@@ -5,15 +5,16 @@ type StatCardProps = {
   value: string | number;
   trendPercent?: number;
   trendLabel?: string;
+  valueClassName?: string;
 };
 
-export function StatCard({ label, value, trendPercent, trendLabel }: StatCardProps) {
+export function StatCard({ label, value, trendPercent, trendLabel, valueClassName }: StatCardProps) {
   const positive = (trendPercent ?? 0) >= 0;
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-white p-4">
       <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">{label}</p>
-      <p className="mt-2 text-2xl font-bold text-[var(--foreground)]">{value}</p>
+      <p className={`mt-2 text-2xl font-bold ${valueClassName ?? "text-[var(--foreground)]"}`}>{value}</p>
 
       {trendPercent !== undefined ? (
         <p className="mt-2 inline-flex items-center gap-1 text-xs font-semibold">

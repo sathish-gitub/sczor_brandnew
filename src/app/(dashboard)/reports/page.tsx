@@ -118,6 +118,12 @@ export default function ReportsOverviewPage() {
 
       <div className="flex flex-wrap gap-2">
         <Link
+          href="/reports/profit-loss"
+          className="inline-flex items-center gap-1.5 rounded-full bg-[var(--primary)] px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90"
+        >
+          Profit & Loss Analysis
+        </Link>
+        <Link
           href="/reports/inventory"
           className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
         >

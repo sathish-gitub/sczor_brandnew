@@ -9,9 +9,9 @@ import {
   CalendarCheck,
   Check,
   CreditCard,
-  Gift,
   Building2,
   Boxes,
+  LineChart,
   MessageCircleMore,
   MessageSquare,
   Quote,
@@ -23,6 +23,7 @@ import {
   UserPlus,
   UserRoundCog,
   Users,
+  Wallet,
   WalletCards,
 } from "lucide-react";
 
@@ -94,6 +95,24 @@ const modules = [
     description:
       "Send invoices and receipts directly to customer WhatsApp after every billing.",
   },
+  {
+    icon: Boxes,
+    title: "Inventory Management",
+    description:
+      "Track products, suppliers, purchase orders and stock levels - retail sales integrated right into your POS.",
+  },
+  {
+    icon: Wallet,
+    title: "HR & Payroll",
+    description:
+      "Configure staff salaries and commission, auto-calculate attendance-based payroll, and generate professional payslips.",
+  },
+  {
+    icon: LineChart,
+    title: "Profit & Loss Analysis",
+    description:
+      "See your real business health - revenue, costs, and net profit broken down clearly, updated automatically.",
+  },
 ];
 
 const highlights = [
@@ -134,12 +153,6 @@ const highlights = [
 
 const soonFeatures = [
   {
-    icon: Gift,
-    title: "Loyalty Cards & Rewards",
-    description:
-      "Digital loyalty cards for customers to view and track points on their phone.",
-  },
-  {
     icon: MessageCircleMore,
     title: "Customer Engagement",
     description:
@@ -150,12 +163,6 @@ const soonFeatures = [
     title: "Bulk SMS Marketing",
     description:
       "Send promotional SMS campaigns to all customers or filtered segments at once.",
-  },
-  {
-    icon: Boxes,
-    title: "Inventory Management",
-    description:
-      "Track salon products, stock levels, purchase orders and usage per service.",
   },
   {
     icon: Building2,
@@ -373,7 +380,7 @@ export default function Home() {
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div data-reveal className="translate-y-6 text-center opacity-0 transition-all duration-700">
             <h2 className="text-3xl font-extrabold text-[#0D1B3E] sm:text-4xl">Everything your salon needs, today</h2>
-            <p className="mt-3 text-lg text-slate-600">9 powerful modules - all included free</p>
+            <p className="mt-3 text-lg text-slate-600">12 powerful modules - all included free</p>
           </div>
 
           <div className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
@@ -398,14 +405,6 @@ export default function Home() {
               );
             })}
           </div>
-        </div>
-      </section>
-
-      <section className="py-8">
-        <div className="mx-auto flex w-full max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
-          <div className="h-px flex-1 bg-slate-200" />
-          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Coming up next</span>
-          <div className="h-px flex-1 bg-slate-200" />
         </div>
       </section>
 
@@ -448,6 +447,14 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="py-8">
+        <div className="mx-auto flex w-full max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+          <div className="h-px flex-1 bg-slate-200" />
+          <span className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">Coming up next</span>
+          <div className="h-px flex-1 bg-slate-200" />
+        </div>
+      </section>
+
       <section id="coming-soon" className="bg-[#F8FAFF] py-20">
         <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
           <div data-reveal className="translate-y-6 text-center opacity-0 transition-all duration-700">
@@ -456,7 +463,7 @@ export default function Home() {
             </span>
             <h2 className="mt-5 text-3xl font-extrabold text-[#0D1B3E] sm:text-4xl">More powerful features on the way</h2>
             <p className="mt-3 text-lg text-slate-600">
-              We are actively building these 5 features. They will be available in upcoming releases.
+              We are actively building these 4 features. They will be available in upcoming releases.
             </p>
           </div>
 
