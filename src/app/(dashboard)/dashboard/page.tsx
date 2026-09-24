@@ -28,6 +28,7 @@ type DashboardStats = {
   newCustomers: number;
   staffPresent: number;
   totalStaff: number;
+  staffPresentIsAverage?: boolean;
   range?: string;
 };
 
@@ -194,6 +195,42 @@ function SectionCard({ children, className = "" }: { children: React.ReactNode; 
   return <section className={`rounded-xl border border-[var(--border)] bg-white ${className}`}>{children}</section>;
 }
 
+// Reused label for the current selected period, e.g. "This Week" or "Sep 1 - Sep 7" for a custom range.
+function getPeriodLabel(range: DashboardRange, customFrom: string, customTo: string): string {
+  if (range === "custom") {
+    if (customFrom && customTo) {
+      const formatDate = (iso: string) =>
+        new Date(`${iso}T00:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      return `${formatDate(customFrom)} - ${formatDate(customTo)}`;
+    }
+
+    return "Custom Range";
+  }
+
+  return rangeLabel[range];
+}
+
+function getCardTitle(
+  metric: "appointments" | "revenue" | "customers",
+  range: DashboardRange,
+  periodLabel: string,
+): string {
+  if (range === "custom") {
+    const metricName = metric === "appointments" ? "Appointments" : metric === "revenue" ? "Revenue" : "New Customers";
+    return `${metricName} (${periodLabel})`;
+  }
+
+  if (metric === "appointments") {
+    return `${periodLabel}'s Appointments`;
+  }
+
+  if (metric === "revenue") {
+    return `Revenue ${periodLabel}`;
+  }
+
+  return `New Customers ${periodLabel}`;
+}
+
 function DashboardSkeleton() {
   return (
     <div className="space-y-6">
@@ -352,38 +389,47 @@ export default function DashboardPage() {
     };
   }, [chartsRange]);
 
+  const periodLabel = useMemo(
+    () => getPeriodLabel(selectedRange, customFrom, customTo),
+    [selectedRange, customFrom, customTo],
+  );
+
   const statCards = useMemo(
     () => [
       {
+        key: "appointments",
         icon: CalendarPlus,
-        label: "Today's Appointments",
+        label: getCardTitle("appointments", selectedRange, periodLabel),
         value: stats.todayAppointments.toString(),
-        trend: rangeLabel[selectedRange],
+        trend: periodLabel,
         trendTone: "text-emerald-600",
       },
       {
+        key: "revenue",
         icon: IndianRupee,
-        label: "Revenue",
+        label: getCardTitle("revenue", selectedRange, periodLabel),
         value: formatCurrency(stats.todayRevenue),
-        trend: rangeLabel[selectedRange],
+        trend: periodLabel,
         trendTone: "text-emerald-600",
       },
       {
+        key: "customers",
         icon: UserPlus,
-        label: "New Customers",
+        label: getCardTitle("customers", selectedRange, periodLabel),
         value: stats.newCustomers.toString(),
-        trend: rangeLabel[selectedRange],
+        trend: periodLabel,
         trendTone: "text-slate-500",
       },
       {
+        key: "staff",
         icon: Users,
         label: "Staff Present",
         value: `${stats.staffPresent}/${stats.totalStaff}`,
-        trend: rangeLabel[selectedRange],
+        trend: stats.staffPresentIsAverage ? `${periodLabel} \u00b7 avg/day` : periodLabel,
         trendTone: "text-slate-500",
       },
     ],
-    [stats, selectedRange],
+    [stats, selectedRange, periodLabel],
   );
 
   if (loading) {
@@ -438,7 +484,7 @@ export default function DashboardPage() {
           const Icon = card.icon;
 
           return (
-            <SectionCard key={card.label} className="p-4">
+            <SectionCard key={card.key} className="p-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-[13px] font-medium text-[var(--muted)]">{card.label}</p>

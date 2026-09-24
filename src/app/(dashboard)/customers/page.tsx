@@ -297,6 +297,7 @@ export default function CustomersPage() {
                         href={`/customers/${customer.id}`}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] hover:border-[var(--accent)]"
                         aria-label="View profile"
+                        title="View"
                       >
                         <Eye className="h-4 w-4" />
                       </Link>
@@ -304,6 +305,7 @@ export default function CustomersPage() {
                         href={`/appointments/new?customerId=${customer.id}`}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] hover:border-[var(--accent)]"
                         aria-label="New appointment"
+                        title="New Appointment"
                       >
                         <Calendar className="h-4 w-4" />
                       </Link>
@@ -312,6 +314,7 @@ export default function CustomersPage() {
                         onClick={() => removeCustomer(customer.id)}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50"
                         aria-label="Delete customer"
+                        title="Delete"
                       >
                         <Trash className="h-4 w-4" />
                       </button>

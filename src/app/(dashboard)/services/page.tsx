@@ -421,21 +421,25 @@ export default function ServicesPage() {
                 >
                   {item.name}
                   <span className="hidden items-center gap-1 group-hover:inline-flex">
-                    <Pencil
-                      className="h-3 w-3 opacity-70 hover:opacity-100"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        setEditingCategoryId(item.id);
-                        setEditingCategoryName(item.name);
-                      }}
-                    />
-                    <Trash2
-                      className="h-3 w-3 opacity-70 hover:opacity-100"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleDeleteCategory(item);
-                      }}
-                    />
+                    <span title="Rename category">
+                      <Pencil
+                        className="h-3 w-3 opacity-70 hover:opacity-100"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setEditingCategoryId(item.id);
+                          setEditingCategoryName(item.name);
+                        }}
+                      />
+                    </span>
+                    <span title="Delete category">
+                      <Trash2
+                        className="h-3 w-3 opacity-70 hover:opacity-100"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleDeleteCategory(item);
+                        }}
+                      />
+                    </span>
                   </span>
                 </button>
               )}

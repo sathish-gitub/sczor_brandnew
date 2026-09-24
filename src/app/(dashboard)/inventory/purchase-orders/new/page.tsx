@@ -16,6 +16,7 @@ type ProductOption = {
   sku: string | null;
   unit: string;
   costPrice: number;
+  currentStock: number;
 };
 
 type LineItem = {
@@ -56,14 +57,24 @@ export default function NewPurchaseOrderPage() {
     async function loadOptions() {
       const [suppliersResponse, productsResponse] = await Promise.all([
         fetch("/api/inventory/suppliers", { cache: "no-store" }),
-        fetch("/api/inventory/products", { cache: "no-store" }),
+        // Purchase Orders restock inventory, so out-of-stock products must still be selectable here.
+        fetch("/api/inventory/products?status=ACTIVE", { cache: "no-store" }),
       ]);
 
       const suppliersPayload = (await suppliersResponse.json().catch(() => null)) as
         | { items?: SupplierOption[] }
         | null;
       const productsPayload = (await productsResponse.json().catch(() => null)) as
-        | { items?: Array<{ id: string; name: string; sku: string | null; unit: string; costPrice: number }> }
+        | {
+            items?: Array<{
+              id: string;
+              name: string;
+              sku: string | null;
+              unit: string;
+              costPrice: number;
+              currentStock: number;
+            }>;
+          }
         | null;
 
       if (!active) {
@@ -77,6 +88,7 @@ export default function NewPurchaseOrderPage() {
         sku: item.sku,
         unit: item.unit,
         costPrice: item.costPrice,
+        currentStock: item.currentStock,
       }));
       setProducts(loadedProducts);
 
@@ -211,20 +223,32 @@ export default function NewPurchaseOrderPage() {
             </button>
           </div>
 
-          {items.map((item, index) => (
+          {items.map((item, index) => {
+            const selectedProduct = productMap.get(item.productId);
+            const selectedOutOfStock = selectedProduct ? selectedProduct.currentStock <= 0 : false;
+
+            return (
             <div key={index} className="grid gap-2 rounded-xl border border-[var(--border)] p-3 sm:grid-cols-[2fr_1fr_1fr_1fr_auto]">
-              <select
-                value={item.productId}
-                onChange={(event) => selectProduct(index, event.target.value)}
-                className="h-10 w-full rounded-lg border border-[var(--border)] px-2 text-sm"
-              >
-                <option value="">Select product</option>
-                {products.map((product) => (
-                  <option key={product.id} value={product.id}>
-                    {product.name} {product.sku ? `(${product.sku})` : ""}
-                  </option>
-                ))}
-              </select>
+              <div className="space-y-1">
+                <select
+                  value={item.productId}
+                  onChange={(event) => selectProduct(index, event.target.value)}
+                  className="h-10 w-full rounded-lg border border-[var(--border)] px-2 text-sm"
+                >
+                  <option value="">Select product</option>
+                  {products.map((product) => (
+                    <option key={product.id} value={product.id}>
+                      {product.name} {product.sku ? `(${product.sku})` : ""}
+                      {product.currentStock <= 0 ? " \u2014 Out of Stock" : ""}
+                    </option>
+                  ))}
+                </select>
+                {selectedOutOfStock ? (
+                  <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[11px] font-semibold text-red-700">
+                    Out of Stock
+                  </span>
+                ) : null}
+              </div>
 
               <input
                 value={item.quantity}
@@ -254,12 +278,14 @@ export default function NewPurchaseOrderPage() {
                 type="button"
                 onClick={() => removeLine(index)}
                 disabled={items.length === 1}
+                title="Remove line"
                 className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50 disabled:opacity-40"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="flex justify-end">

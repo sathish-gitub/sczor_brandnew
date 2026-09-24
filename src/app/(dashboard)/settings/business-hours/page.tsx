@@ -217,7 +217,12 @@ export default function BusinessHoursPage() {
                   <p className="text-sm">
                     <span className="font-semibold">{holiday.date}</span> - {holiday.name}
                   </p>
-                  <button type="button" onClick={() => setRemoveIndex(index)} className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-red-200 text-red-600">
+                  <button
+                    type="button"
+                    onClick={() => setRemoveIndex(index)}
+                    title="Remove holiday"
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-red-200 text-red-600"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>

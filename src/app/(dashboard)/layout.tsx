@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { DashboardShell } from "@/components/dashboard/DashboardShell";
@@ -59,34 +58,12 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
 
   return (
     <AccessProvider accessLevel={access.accessLevel}>
-      <DashboardShell tenantName={tenant.name} user={user}>
-        {access.accessLevel === "READ_ONLY" && (
-          <div className="sticky top-0 z-50 bg-red-600 py-3 text-center text-sm font-medium text-white">
-            🔒 {access.message} — You can view your existing data but cannot create or edit records.
-            <Link
-              href="/settings/subscription"
-              className="ml-3 rounded-full bg-white px-3 py-1 font-bold text-red-600 underline"
-            >
-              Subscribe Now →
-            </Link>
-          </div>
-        )}
-        {trialStatus.status === "TRIAL" && (
-          <div className="bg-blue-600 py-2 text-center text-sm font-medium text-white">
-            ⏰ Free trial: {trialStatus.daysLeft} days remaining
-            <Link href="/settings/subscription" className="ml-3 font-bold underline">
-              Upgrade Now →
-            </Link>
-          </div>
-        )}
-        {trialStatus.status === "TRIAL" && trialStatus.daysLeft !== null && trialStatus.daysLeft <= 3 && (
-          <div className="bg-red-500 py-2 text-center text-sm font-medium text-white">
-            ⚠️ Trial expires in {trialStatus.daysLeft} day(s)!
-            <Link href="/settings/subscription" className="ml-3 font-bold underline">
-              Subscribe Now →
-            </Link>
-          </div>
-        )}
+      <DashboardShell
+        tenantName={tenant.name}
+        user={user}
+        initialTrialStatus={trialStatus}
+        initialAccessMessage={access.accessLevel === "READ_ONLY" ? access.message : null}
+      >
         {children}
       </DashboardShell>
     </AccessProvider>

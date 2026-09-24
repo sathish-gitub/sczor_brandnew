@@ -409,6 +409,7 @@ export default function AppointmentsPage() {
                         href={`/appointments/${row.id}`}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
                         aria-label="View appointment"
+                        title="View"
                       >
                         <Eye className="h-4 w-4" />
                       </Link>
@@ -417,6 +418,7 @@ export default function AppointmentsPage() {
                           href={`/appointments/${row.id}/edit`}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
                           aria-label="Edit appointment"
+                          title="Edit"
                         >
                           <Edit className="h-4 w-4" />
                         </Link>
@@ -427,6 +429,7 @@ export default function AppointmentsPage() {
                           onClick={() => cancelAppointment(row.id)}
                           className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-200 text-red-600 hover:bg-red-50"
                           aria-label="Cancel appointment"
+                          title="Cancel"
                         >
                           <Trash className="h-4 w-4" />
                         </button>

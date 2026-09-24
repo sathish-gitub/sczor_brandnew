@@ -4,6 +4,24 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+// Counts days between [start, end) whose weekday is in the tenant's workingDays (closed days aren't counted).
+function countWorkingDays(start: Date, end: Date, workingDays: string[]) {
+  let count = 0;
+  const cursor = new Date(start);
+  cursor.setHours(0, 0, 0, 0);
+
+  while (cursor < end) {
+    if (workingDays.includes(weekdayLabels[cursor.getDay()])) {
+      count += 1;
+    }
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  return count;
+}
+
 function rangeBounds(range: string | null, from: string | null, to: string | null) {
   const now = new Date();
   const start = new Date(now);
@@ -64,8 +82,14 @@ export async function GET(request: Request) {
 
     const tenantId = session.user.tenantId;
     const { start, end } = rangeBounds(range, from, to);
+    const isSingleDayRange = range === null || range === "today";
 
-    const [todayAppointments, todayRevenue, newCustomers, staffPresent, totalStaff] = await Promise.all([
+    const [tenant, todayAppointments, todayRevenue, newCustomers, presentAttendanceCount, totalStaff] =
+      await Promise.all([
+        prisma.tenant.findUnique({
+          where: { id: tenantId },
+          select: { workingDays: true },
+        }),
         prisma.appointment.count({
           where: {
             tenantId,
@@ -101,12 +125,24 @@ export async function GET(request: Request) {
         }),
       ]);
 
+    let staffPresent = presentAttendanceCount;
+    const staffPresentIsAverage = !isSingleDayRange;
+
+    if (staffPresentIsAverage) {
+      const workingDays = countWorkingDays(start, end, tenant?.workingDays ?? []);
+      staffPresent = workingDays > 0 ? Math.round(presentAttendanceCount / workingDays) : 0;
+    }
+
+    // Defensive cap: the average (or raw count) should never exceed the total active staff count.
+    staffPresent = Math.min(staffPresent, totalStaff);
+
     return NextResponse.json(
       {
         todayAppointments,
         todayRevenue: Number(todayRevenue._sum.total || 0),
         newCustomers,
         staffPresent,
+        staffPresentIsAverage,
         totalStaff,
         range: range ?? "today",
       },

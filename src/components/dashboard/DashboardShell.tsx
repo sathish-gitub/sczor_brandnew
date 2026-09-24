@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import { maskId } from "@/lib/formatId";
+import type { TrialStatus } from "@/lib/subscription";
 
 import { Navbar } from "@/components/dashboard/Navbar";
 import { Sidebar } from "@/components/dashboard/Sidebar";
@@ -17,13 +18,50 @@ type DashboardShellProps = {
     name: string;
     role: "OWNER" | "MANAGER" | "STAFF";
   };
+  initialTrialStatus: TrialStatus;
+  initialAccessMessage: string | null;
   children: ReactNode;
 };
 
-export function DashboardShell({ tenantName, user, children }: DashboardShellProps) {
+export function DashboardShell({
+  tenantName,
+  user,
+  initialTrialStatus,
+  initialAccessMessage,
+  children,
+}: DashboardShellProps) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dynamicLabels, setDynamicLabels] = useState<Record<number, string>>({});
+  const [trialStatus, setTrialStatus] = useState(initialTrialStatus);
+  const [accessMessage, setAccessMessage] = useState(initialAccessMessage);
   const pathname = usePathname();
+
+  useEffect(() => {
+    let active = true;
+
+    async function refreshTrialStatus() {
+      try {
+        const response = await fetch("/api/subscription/trial-status", { cache: "no-store" });
+        if (!response.ok) return;
+        const payload = (await response.json()) as {
+          trialStatus: TrialStatus;
+          access: { accessLevel: "FULL" | "READ_ONLY"; message: string };
+        };
+        if (active) {
+          setTrialStatus(payload.trialStatus);
+          setAccessMessage(payload.access.accessLevel === "READ_ONLY" ? payload.access.message : null);
+        }
+      } catch {
+        // Keep showing the last known status if the refresh fails.
+      }
+    }
+
+    refreshTrialStatus();
+
+    return () => {
+      active = false;
+    };
+  }, [pathname]);
 
   const pathSegments = useMemo(() => {
     const segments = pathname.split("/").filter(Boolean);
@@ -142,6 +180,33 @@ export function DashboardShell({ tenantName, user, children }: DashboardShellPro
         />
         <div className="flex min-h-screen flex-col">
           <Navbar userName={user.name} onMenuClick={() => setMobileSidebarOpen(true)} />
+          {accessMessage && (
+            <div className="sticky top-0 z-50 mb-4 bg-red-600 py-3 text-center text-sm font-medium text-white">
+              🔒 {accessMessage} — You can view your existing data but cannot create or edit records.
+              <Link
+                href="/settings/subscription"
+                className="ml-3 rounded-full bg-white px-3 py-1 font-bold text-red-600 underline"
+              >
+                Subscribe Now →
+              </Link>
+            </div>
+          )}
+          {trialStatus.status === "TRIAL" && (
+            <div className="mb-4 bg-blue-600 py-2 text-center text-sm font-medium text-white">
+              ⏰ Free trial: {trialStatus.daysLeft} days remaining
+              <Link href="/settings/subscription" className="ml-3 font-bold underline">
+                Upgrade Now →
+              </Link>
+            </div>
+          )}
+          {trialStatus.status === "TRIAL" && trialStatus.daysLeft !== null && trialStatus.daysLeft <= 3 && (
+            <div className="mb-4 bg-red-500 py-2 text-center text-sm font-medium text-white">
+              ⚠️ Trial expires in {trialStatus.daysLeft} day(s)!
+              <Link href="/settings/subscription" className="ml-3 font-bold underline">
+                Subscribe Now →
+              </Link>
+            </div>
+          )}
           <div className="flex-1 p-4 sm:p-6 lg:p-8">
             <nav className="mb-4 flex flex-wrap items-center gap-1 text-xs text-[var(--muted)]">
               <Link href="/dashboard" className="hover:text-[var(--foreground)]">Dashboard</Link>

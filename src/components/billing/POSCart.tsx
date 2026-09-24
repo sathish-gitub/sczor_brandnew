@@ -81,6 +81,7 @@ export function POSCart({
                   <button
                     type="button"
                     onClick={() => onRemove(key)}
+                    title="Remove item"
                     className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-red-200 text-red-600 hover:bg-red-50"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
