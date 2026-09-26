@@ -70,6 +70,12 @@ export default function Navbar() {
           >
             Start Free
           </Link>
+          <Link
+            href="/contact"
+            className="inline-flex h-11 items-center rounded-xl bg-[#e36c23] px-5 text-sm font-semibold text-[#fff] transition hover:bg-[#c15c1e]"
+          >
+            Book a Demo
+          </Link>
         </div>
 
         <button
@@ -99,20 +105,29 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col gap-3 pt-2">
+            <div className="flex gap-3">
+              <Link
+                href="/login"
+                onClick={() => setMobileOpen(false)}
+                className="inline-flex h-10 flex-1 items-center justify-center rounded-lg border border-[#1E40AF]/25 text-sm font-semibold text-[#1E40AF]"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                onClick={() => setMobileOpen(false)}
+                className="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-[#1E40AF] text-sm font-semibold text-white"
+              >
+                Start Free
+              </Link>
+            </div>
             <Link
-              href="/login"
+              href="/contact"
               onClick={() => setMobileOpen(false)}
-              className="inline-flex h-10 flex-1 items-center justify-center rounded-lg border border-[#1E40AF]/25 text-sm font-semibold text-[#1E40AF]"
+              className="inline-flex h-10 items-center justify-center rounded-lg bg-[#e36c23] text-sm font-semibold text-[#fff] transition hover:bg-[#c15c1e]"
             >
-              Login
-            </Link>
-            <Link
-              href="/signup"
-              onClick={() => setMobileOpen(false)}
-              className="inline-flex h-10 flex-1 items-center justify-center rounded-lg bg-[#1E40AF] text-sm font-semibold text-white"
-            >
-              Start Free
+              Book a Demo
             </Link>
           </div>
         </div>
