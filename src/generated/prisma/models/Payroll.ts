@@ -37,6 +37,8 @@ export type PayrollAvgAggregateOutputType = {
   absentDays: number | null
   leaveDays: number | null
   halfDays: number | null
+  paidLeaveDays: number | null
+  lopDays: runtime.Decimal | null
   totalWorkingDays: number | null
   leaveDeduction: runtime.Decimal | null
   grossPay: runtime.Decimal | null
@@ -54,6 +56,8 @@ export type PayrollSumAggregateOutputType = {
   absentDays: number | null
   leaveDays: number | null
   halfDays: number | null
+  paidLeaveDays: number | null
+  lopDays: runtime.Decimal | null
   totalWorkingDays: number | null
   leaveDeduction: runtime.Decimal | null
   grossPay: runtime.Decimal | null
@@ -73,6 +77,8 @@ export type PayrollMinAggregateOutputType = {
   absentDays: number | null
   leaveDays: number | null
   halfDays: number | null
+  paidLeaveDays: number | null
+  lopDays: runtime.Decimal | null
   totalWorkingDays: number | null
   leaveDeduction: runtime.Decimal | null
   grossPay: runtime.Decimal | null
@@ -97,6 +103,8 @@ export type PayrollMaxAggregateOutputType = {
   absentDays: number | null
   leaveDays: number | null
   halfDays: number | null
+  paidLeaveDays: number | null
+  lopDays: runtime.Decimal | null
   totalWorkingDays: number | null
   leaveDeduction: runtime.Decimal | null
   grossPay: runtime.Decimal | null
@@ -121,6 +129,8 @@ export type PayrollCountAggregateOutputType = {
   absentDays: number
   leaveDays: number
   halfDays: number
+  paidLeaveDays: number
+  lopDays: number
   totalWorkingDays: number
   leaveDeduction: number
   grossPay: number
@@ -145,6 +155,8 @@ export type PayrollAvgAggregateInputType = {
   absentDays?: true
   leaveDays?: true
   halfDays?: true
+  paidLeaveDays?: true
+  lopDays?: true
   totalWorkingDays?: true
   leaveDeduction?: true
   grossPay?: true
@@ -162,6 +174,8 @@ export type PayrollSumAggregateInputType = {
   absentDays?: true
   leaveDays?: true
   halfDays?: true
+  paidLeaveDays?: true
+  lopDays?: true
   totalWorkingDays?: true
   leaveDeduction?: true
   grossPay?: true
@@ -181,6 +195,8 @@ export type PayrollMinAggregateInputType = {
   absentDays?: true
   leaveDays?: true
   halfDays?: true
+  paidLeaveDays?: true
+  lopDays?: true
   totalWorkingDays?: true
   leaveDeduction?: true
   grossPay?: true
@@ -205,6 +221,8 @@ export type PayrollMaxAggregateInputType = {
   absentDays?: true
   leaveDays?: true
   halfDays?: true
+  paidLeaveDays?: true
+  lopDays?: true
   totalWorkingDays?: true
   leaveDeduction?: true
   grossPay?: true
@@ -229,6 +247,8 @@ export type PayrollCountAggregateInputType = {
   absentDays?: true
   leaveDays?: true
   halfDays?: true
+  paidLeaveDays?: true
+  lopDays?: true
   totalWorkingDays?: true
   leaveDeduction?: true
   grossPay?: true
@@ -340,6 +360,8 @@ export type PayrollGroupByOutputType = {
   absentDays: number
   leaveDays: number
   halfDays: number
+  paidLeaveDays: number
+  lopDays: runtime.Decimal
   totalWorkingDays: number
   leaveDeduction: runtime.Decimal
   grossPay: runtime.Decimal
@@ -387,6 +409,8 @@ export type PayrollWhereInput = {
   absentDays?: Prisma.IntFilter<"Payroll"> | number
   leaveDays?: Prisma.IntFilter<"Payroll"> | number
   halfDays?: Prisma.IntFilter<"Payroll"> | number
+  paidLeaveDays?: Prisma.IntFilter<"Payroll"> | number
+  lopDays?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFilter<"Payroll"> | number
   leaveDeduction?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -413,6 +437,8 @@ export type PayrollOrderByWithRelationInput = {
   absentDays?: Prisma.SortOrder
   leaveDays?: Prisma.SortOrder
   halfDays?: Prisma.SortOrder
+  paidLeaveDays?: Prisma.SortOrder
+  lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
   grossPay?: Prisma.SortOrder
@@ -444,6 +470,8 @@ export type PayrollWhereUniqueInput = Prisma.AtLeast<{
   absentDays?: Prisma.IntFilter<"Payroll"> | number
   leaveDays?: Prisma.IntFilter<"Payroll"> | number
   halfDays?: Prisma.IntFilter<"Payroll"> | number
+  paidLeaveDays?: Prisma.IntFilter<"Payroll"> | number
+  lopDays?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFilter<"Payroll"> | number
   leaveDeduction?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -470,6 +498,8 @@ export type PayrollOrderByWithAggregationInput = {
   absentDays?: Prisma.SortOrder
   leaveDays?: Prisma.SortOrder
   halfDays?: Prisma.SortOrder
+  paidLeaveDays?: Prisma.SortOrder
+  lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
   grossPay?: Prisma.SortOrder
@@ -502,6 +532,8 @@ export type PayrollScalarWhereWithAggregatesInput = {
   absentDays?: Prisma.IntWithAggregatesFilter<"Payroll"> | number
   leaveDays?: Prisma.IntWithAggregatesFilter<"Payroll"> | number
   halfDays?: Prisma.IntWithAggregatesFilter<"Payroll"> | number
+  paidLeaveDays?: Prisma.IntWithAggregatesFilter<"Payroll"> | number
+  lopDays?: Prisma.DecimalWithAggregatesFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntWithAggregatesFilter<"Payroll"> | number
   leaveDeduction?: Prisma.DecimalWithAggregatesFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalWithAggregatesFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -525,6 +557,8 @@ export type PayrollCreateInput = {
   absentDays: number
   leaveDays: number
   halfDays: number
+  paidLeaveDays?: number
+  lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -550,6 +584,8 @@ export type PayrollUncheckedCreateInput = {
   absentDays: number
   leaveDays: number
   halfDays: number
+  paidLeaveDays?: number
+  lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -573,6 +609,8 @@ export type PayrollUpdateInput = {
   absentDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   halfDays?: Prisma.IntFieldUpdateOperationsInput | number
+  paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -598,6 +636,8 @@ export type PayrollUncheckedUpdateInput = {
   absentDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   halfDays?: Prisma.IntFieldUpdateOperationsInput | number
+  paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -622,6 +662,8 @@ export type PayrollCreateManyInput = {
   absentDays: number
   leaveDays: number
   halfDays: number
+  paidLeaveDays?: number
+  lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -645,6 +687,8 @@ export type PayrollUpdateManyMutationInput = {
   absentDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   halfDays?: Prisma.IntFieldUpdateOperationsInput | number
+  paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -668,6 +712,8 @@ export type PayrollUncheckedUpdateManyInput = {
   absentDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   halfDays?: Prisma.IntFieldUpdateOperationsInput | number
+  paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -713,6 +759,8 @@ export type PayrollCountOrderByAggregateInput = {
   absentDays?: Prisma.SortOrder
   leaveDays?: Prisma.SortOrder
   halfDays?: Prisma.SortOrder
+  paidLeaveDays?: Prisma.SortOrder
+  lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
   grossPay?: Prisma.SortOrder
@@ -735,6 +783,8 @@ export type PayrollAvgOrderByAggregateInput = {
   absentDays?: Prisma.SortOrder
   leaveDays?: Prisma.SortOrder
   halfDays?: Prisma.SortOrder
+  paidLeaveDays?: Prisma.SortOrder
+  lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
   grossPay?: Prisma.SortOrder
@@ -754,6 +804,8 @@ export type PayrollMaxOrderByAggregateInput = {
   absentDays?: Prisma.SortOrder
   leaveDays?: Prisma.SortOrder
   halfDays?: Prisma.SortOrder
+  paidLeaveDays?: Prisma.SortOrder
+  lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
   grossPay?: Prisma.SortOrder
@@ -778,6 +830,8 @@ export type PayrollMinOrderByAggregateInput = {
   absentDays?: Prisma.SortOrder
   leaveDays?: Prisma.SortOrder
   halfDays?: Prisma.SortOrder
+  paidLeaveDays?: Prisma.SortOrder
+  lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
   grossPay?: Prisma.SortOrder
@@ -800,6 +854,8 @@ export type PayrollSumOrderByAggregateInput = {
   absentDays?: Prisma.SortOrder
   leaveDays?: Prisma.SortOrder
   halfDays?: Prisma.SortOrder
+  paidLeaveDays?: Prisma.SortOrder
+  lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
   grossPay?: Prisma.SortOrder
@@ -902,6 +958,8 @@ export type PayrollCreateWithoutTenantInput = {
   absentDays: number
   leaveDays: number
   halfDays: number
+  paidLeaveDays?: number
+  lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -926,6 +984,8 @@ export type PayrollUncheckedCreateWithoutTenantInput = {
   absentDays: number
   leaveDays: number
   halfDays: number
+  paidLeaveDays?: number
+  lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -978,6 +1038,8 @@ export type PayrollScalarWhereInput = {
   absentDays?: Prisma.IntFilter<"Payroll"> | number
   leaveDays?: Prisma.IntFilter<"Payroll"> | number
   halfDays?: Prisma.IntFilter<"Payroll"> | number
+  paidLeaveDays?: Prisma.IntFilter<"Payroll"> | number
+  lopDays?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFilter<"Payroll"> | number
   leaveDeduction?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1001,6 +1063,8 @@ export type PayrollCreateWithoutStaffInput = {
   absentDays: number
   leaveDays: number
   halfDays: number
+  paidLeaveDays?: number
+  lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1024,6 +1088,8 @@ export type PayrollUncheckedCreateWithoutStaffInput = {
   absentDays: number
   leaveDays: number
   halfDays: number
+  paidLeaveDays?: number
+  lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1074,6 +1140,8 @@ export type PayrollCreateManyTenantInput = {
   absentDays: number
   leaveDays: number
   halfDays: number
+  paidLeaveDays?: number
+  lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1096,6 +1164,8 @@ export type PayrollUpdateWithoutTenantInput = {
   absentDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   halfDays?: Prisma.IntFieldUpdateOperationsInput | number
+  paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1120,6 +1190,8 @@ export type PayrollUncheckedUpdateWithoutTenantInput = {
   absentDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   halfDays?: Prisma.IntFieldUpdateOperationsInput | number
+  paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1143,6 +1215,8 @@ export type PayrollUncheckedUpdateManyWithoutTenantInput = {
   absentDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   halfDays?: Prisma.IntFieldUpdateOperationsInput | number
+  paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1165,6 +1239,8 @@ export type PayrollCreateManyStaffInput = {
   absentDays: number
   leaveDays: number
   halfDays: number
+  paidLeaveDays?: number
+  lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1188,6 +1264,8 @@ export type PayrollUpdateWithoutStaffInput = {
   absentDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   halfDays?: Prisma.IntFieldUpdateOperationsInput | number
+  paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1211,6 +1289,8 @@ export type PayrollUncheckedUpdateWithoutStaffInput = {
   absentDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   halfDays?: Prisma.IntFieldUpdateOperationsInput | number
+  paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1234,6 +1314,8 @@ export type PayrollUncheckedUpdateManyWithoutStaffInput = {
   absentDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   halfDays?: Prisma.IntFieldUpdateOperationsInput | number
+  paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
+  lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   grossPay?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1260,6 +1342,8 @@ export type PayrollSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   absentDays?: boolean
   leaveDays?: boolean
   halfDays?: boolean
+  paidLeaveDays?: boolean
+  lopDays?: boolean
   totalWorkingDays?: boolean
   leaveDeduction?: boolean
   grossPay?: boolean
@@ -1286,6 +1370,8 @@ export type PayrollSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   absentDays?: boolean
   leaveDays?: boolean
   halfDays?: boolean
+  paidLeaveDays?: boolean
+  lopDays?: boolean
   totalWorkingDays?: boolean
   leaveDeduction?: boolean
   grossPay?: boolean
@@ -1312,6 +1398,8 @@ export type PayrollSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   absentDays?: boolean
   leaveDays?: boolean
   halfDays?: boolean
+  paidLeaveDays?: boolean
+  lopDays?: boolean
   totalWorkingDays?: boolean
   leaveDeduction?: boolean
   grossPay?: boolean
@@ -1338,6 +1426,8 @@ export type PayrollSelectScalar = {
   absentDays?: boolean
   leaveDays?: boolean
   halfDays?: boolean
+  paidLeaveDays?: boolean
+  lopDays?: boolean
   totalWorkingDays?: boolean
   leaveDeduction?: boolean
   grossPay?: boolean
@@ -1349,7 +1439,7 @@ export type PayrollSelectScalar = {
   tenantId?: boolean
 }
 
-export type PayrollOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "month" | "year" | "baseSalary" | "commissionRate" | "commissionAmount" | "revenueGenerated" | "presentDays" | "absentDays" | "leaveDays" | "halfDays" | "totalWorkingDays" | "leaveDeduction" | "grossPay" | "netPay" | "payslipNumber" | "status" | "generatedAt" | "paidAt" | "tenantId", ExtArgs["result"]["payroll"]>
+export type PayrollOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "month" | "year" | "baseSalary" | "commissionRate" | "commissionAmount" | "revenueGenerated" | "presentDays" | "absentDays" | "leaveDays" | "halfDays" | "paidLeaveDays" | "lopDays" | "totalWorkingDays" | "leaveDeduction" | "grossPay" | "netPay" | "payslipNumber" | "status" | "generatedAt" | "paidAt" | "tenantId", ExtArgs["result"]["payroll"]>
 export type PayrollInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1382,6 +1472,8 @@ export type $PayrollPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     absentDays: number
     leaveDays: number
     halfDays: number
+    paidLeaveDays: number
+    lopDays: runtime.Decimal
     totalWorkingDays: number
     leaveDeduction: runtime.Decimal
     grossPay: runtime.Decimal
@@ -1828,6 +1920,8 @@ export interface PayrollFieldRefs {
   readonly absentDays: Prisma.FieldRef<"Payroll", 'Int'>
   readonly leaveDays: Prisma.FieldRef<"Payroll", 'Int'>
   readonly halfDays: Prisma.FieldRef<"Payroll", 'Int'>
+  readonly paidLeaveDays: Prisma.FieldRef<"Payroll", 'Int'>
+  readonly lopDays: Prisma.FieldRef<"Payroll", 'Decimal'>
   readonly totalWorkingDays: Prisma.FieldRef<"Payroll", 'Int'>
   readonly leaveDeduction: Prisma.FieldRef<"Payroll", 'Decimal'>
   readonly grossPay: Prisma.FieldRef<"Payroll", 'Decimal'>

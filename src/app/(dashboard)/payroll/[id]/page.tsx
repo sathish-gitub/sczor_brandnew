@@ -20,6 +20,8 @@ type PayrollDetail = {
   absentDays: number;
   leaveDays: number;
   halfDays: number;
+  paidLeaveDays: number;
+  lopDays: number;
   totalWorkingDays: number;
   leaveDeduction: number;
   grossPay: number;
@@ -200,15 +202,15 @@ export default function PayslipPage({ params }: { params: Promise<{ id: string }
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Deductions</p>
           <div className="space-y-1.5 text-sm">
             <div className="flex items-center justify-between text-[var(--muted)]">
-              <span>Absent Days</span>
-              <span>{payroll.absentDays}</span>
+              <span>Absent + LOP days</span>
+              <span>{payroll.absentDays + payroll.lopDays}</span>
             </div>
             <div className="flex items-center justify-between text-[var(--muted)]">
-              <span>Half Days</span>
-              <span>{payroll.halfDays}</span>
+              <span>Half Day</span>
+              <span>{payroll.halfDays} (0.5)</span>
             </div>
             <div className="flex items-center justify-between font-semibold text-red-600">
-              <span>Leave Deduction</span>
+              <span>Deduction</span>
               <span>-{formatCurrency(payroll.leaveDeduction)}</span>
             </div>
           </div>
@@ -222,8 +224,8 @@ export default function PayslipPage({ params }: { params: Promise<{ id: string }
         <div className="pt-4 text-sm">
           <p className="mb-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Attendance Summary</p>
           <p className="text-[var(--muted)]">
-            Present: {payroll.presentDays} | Absent: {payroll.absentDays} | Leave: {payroll.leaveDays} | Half Day:{" "}
-            {payroll.halfDays}
+            Present: {payroll.presentDays} | Absent: {payroll.absentDays} | Leave (paid): {payroll.paidLeaveDays} | Leave
+            (LOP): {payroll.lopDays} | Half Day: {payroll.halfDays}
           </p>
         </div>
       </div>

@@ -29,11 +29,13 @@ export type AggregateSalaryHistory = {
 export type SalaryHistoryAvgAggregateOutputType = {
   baseSalary: runtime.Decimal | null
   commissionRate: runtime.Decimal | null
+  paidLeavesPerMonth: number | null
 }
 
 export type SalaryHistorySumAggregateOutputType = {
   baseSalary: runtime.Decimal | null
   commissionRate: runtime.Decimal | null
+  paidLeavesPerMonth: number | null
 }
 
 export type SalaryHistoryMinAggregateOutputType = {
@@ -41,6 +43,7 @@ export type SalaryHistoryMinAggregateOutputType = {
   staffId: string | null
   baseSalary: runtime.Decimal | null
   commissionRate: runtime.Decimal | null
+  paidLeavesPerMonth: number | null
   effectiveFrom: Date | null
   effectiveTo: Date | null
   tenantId: string | null
@@ -52,6 +55,7 @@ export type SalaryHistoryMaxAggregateOutputType = {
   staffId: string | null
   baseSalary: runtime.Decimal | null
   commissionRate: runtime.Decimal | null
+  paidLeavesPerMonth: number | null
   effectiveFrom: Date | null
   effectiveTo: Date | null
   tenantId: string | null
@@ -63,6 +67,7 @@ export type SalaryHistoryCountAggregateOutputType = {
   staffId: number
   baseSalary: number
   commissionRate: number
+  paidLeavesPerMonth: number
   effectiveFrom: number
   effectiveTo: number
   tenantId: number
@@ -74,11 +79,13 @@ export type SalaryHistoryCountAggregateOutputType = {
 export type SalaryHistoryAvgAggregateInputType = {
   baseSalary?: true
   commissionRate?: true
+  paidLeavesPerMonth?: true
 }
 
 export type SalaryHistorySumAggregateInputType = {
   baseSalary?: true
   commissionRate?: true
+  paidLeavesPerMonth?: true
 }
 
 export type SalaryHistoryMinAggregateInputType = {
@@ -86,6 +93,7 @@ export type SalaryHistoryMinAggregateInputType = {
   staffId?: true
   baseSalary?: true
   commissionRate?: true
+  paidLeavesPerMonth?: true
   effectiveFrom?: true
   effectiveTo?: true
   tenantId?: true
@@ -97,6 +105,7 @@ export type SalaryHistoryMaxAggregateInputType = {
   staffId?: true
   baseSalary?: true
   commissionRate?: true
+  paidLeavesPerMonth?: true
   effectiveFrom?: true
   effectiveTo?: true
   tenantId?: true
@@ -108,6 +117,7 @@ export type SalaryHistoryCountAggregateInputType = {
   staffId?: true
   baseSalary?: true
   commissionRate?: true
+  paidLeavesPerMonth?: true
   effectiveFrom?: true
   effectiveTo?: true
   tenantId?: true
@@ -206,6 +216,7 @@ export type SalaryHistoryGroupByOutputType = {
   staffId: string
   baseSalary: runtime.Decimal
   commissionRate: runtime.Decimal
+  paidLeavesPerMonth: number | null
   effectiveFrom: Date
   effectiveTo: Date | null
   tenantId: string
@@ -240,6 +251,7 @@ export type SalaryHistoryWhereInput = {
   staffId?: Prisma.StringFilter<"SalaryHistory"> | string
   baseSalary?: Prisma.DecimalFilter<"SalaryHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFilter<"SalaryHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.IntNullableFilter<"SalaryHistory"> | number | null
   effectiveFrom?: Prisma.DateTimeFilter<"SalaryHistory"> | Date | string
   effectiveTo?: Prisma.DateTimeNullableFilter<"SalaryHistory"> | Date | string | null
   tenantId?: Prisma.StringFilter<"SalaryHistory"> | string
@@ -253,6 +265,7 @@ export type SalaryHistoryOrderByWithRelationInput = {
   staffId?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrderInput | Prisma.SortOrder
   effectiveFrom?: Prisma.SortOrder
   effectiveTo?: Prisma.SortOrderInput | Prisma.SortOrder
   tenantId?: Prisma.SortOrder
@@ -269,6 +282,7 @@ export type SalaryHistoryWhereUniqueInput = Prisma.AtLeast<{
   staffId?: Prisma.StringFilter<"SalaryHistory"> | string
   baseSalary?: Prisma.DecimalFilter<"SalaryHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFilter<"SalaryHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.IntNullableFilter<"SalaryHistory"> | number | null
   effectiveFrom?: Prisma.DateTimeFilter<"SalaryHistory"> | Date | string
   effectiveTo?: Prisma.DateTimeNullableFilter<"SalaryHistory"> | Date | string | null
   tenantId?: Prisma.StringFilter<"SalaryHistory"> | string
@@ -282,6 +296,7 @@ export type SalaryHistoryOrderByWithAggregationInput = {
   staffId?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrderInput | Prisma.SortOrder
   effectiveFrom?: Prisma.SortOrder
   effectiveTo?: Prisma.SortOrderInput | Prisma.SortOrder
   tenantId?: Prisma.SortOrder
@@ -301,6 +316,7 @@ export type SalaryHistoryScalarWhereWithAggregatesInput = {
   staffId?: Prisma.StringWithAggregatesFilter<"SalaryHistory"> | string
   baseSalary?: Prisma.DecimalWithAggregatesFilter<"SalaryHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalWithAggregatesFilter<"SalaryHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.IntNullableWithAggregatesFilter<"SalaryHistory"> | number | null
   effectiveFrom?: Prisma.DateTimeWithAggregatesFilter<"SalaryHistory"> | Date | string
   effectiveTo?: Prisma.DateTimeNullableWithAggregatesFilter<"SalaryHistory"> | Date | string | null
   tenantId?: Prisma.StringWithAggregatesFilter<"SalaryHistory"> | string
@@ -311,6 +327,7 @@ export type SalaryHistoryCreateInput = {
   id?: string
   baseSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: number | null
   effectiveFrom: Date | string
   effectiveTo?: Date | string | null
   createdAt?: Date | string
@@ -323,6 +340,7 @@ export type SalaryHistoryUncheckedCreateInput = {
   staffId: string
   baseSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: number | null
   effectiveFrom: Date | string
   effectiveTo?: Date | string | null
   tenantId: string
@@ -333,6 +351,7 @@ export type SalaryHistoryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   baseSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -345,6 +364,7 @@ export type SalaryHistoryUncheckedUpdateInput = {
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
   baseSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -356,6 +376,7 @@ export type SalaryHistoryCreateManyInput = {
   staffId: string
   baseSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: number | null
   effectiveFrom: Date | string
   effectiveTo?: Date | string | null
   tenantId: string
@@ -366,6 +387,7 @@ export type SalaryHistoryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   baseSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -376,6 +398,7 @@ export type SalaryHistoryUncheckedUpdateManyInput = {
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
   baseSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -397,6 +420,7 @@ export type SalaryHistoryCountOrderByAggregateInput = {
   staffId?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrder
   effectiveFrom?: Prisma.SortOrder
   effectiveTo?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
@@ -406,6 +430,7 @@ export type SalaryHistoryCountOrderByAggregateInput = {
 export type SalaryHistoryAvgOrderByAggregateInput = {
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrder
 }
 
 export type SalaryHistoryMaxOrderByAggregateInput = {
@@ -413,6 +438,7 @@ export type SalaryHistoryMaxOrderByAggregateInput = {
   staffId?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrder
   effectiveFrom?: Prisma.SortOrder
   effectiveTo?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
@@ -424,6 +450,7 @@ export type SalaryHistoryMinOrderByAggregateInput = {
   staffId?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrder
   effectiveFrom?: Prisma.SortOrder
   effectiveTo?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
@@ -433,6 +460,7 @@ export type SalaryHistoryMinOrderByAggregateInput = {
 export type SalaryHistorySumOrderByAggregateInput = {
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrder
 }
 
 export type SalaryHistoryCreateNestedManyWithoutTenantInput = {
@@ -523,6 +551,7 @@ export type SalaryHistoryCreateWithoutTenantInput = {
   id?: string
   baseSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: number | null
   effectiveFrom: Date | string
   effectiveTo?: Date | string | null
   createdAt?: Date | string
@@ -534,6 +563,7 @@ export type SalaryHistoryUncheckedCreateWithoutTenantInput = {
   staffId: string
   baseSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: number | null
   effectiveFrom: Date | string
   effectiveTo?: Date | string | null
   createdAt?: Date | string
@@ -573,6 +603,7 @@ export type SalaryHistoryScalarWhereInput = {
   staffId?: Prisma.StringFilter<"SalaryHistory"> | string
   baseSalary?: Prisma.DecimalFilter<"SalaryHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFilter<"SalaryHistory"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.IntNullableFilter<"SalaryHistory"> | number | null
   effectiveFrom?: Prisma.DateTimeFilter<"SalaryHistory"> | Date | string
   effectiveTo?: Prisma.DateTimeNullableFilter<"SalaryHistory"> | Date | string | null
   tenantId?: Prisma.StringFilter<"SalaryHistory"> | string
@@ -583,6 +614,7 @@ export type SalaryHistoryCreateWithoutStaffInput = {
   id?: string
   baseSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: number | null
   effectiveFrom: Date | string
   effectiveTo?: Date | string | null
   createdAt?: Date | string
@@ -593,6 +625,7 @@ export type SalaryHistoryUncheckedCreateWithoutStaffInput = {
   id?: string
   baseSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: number | null
   effectiveFrom: Date | string
   effectiveTo?: Date | string | null
   tenantId: string
@@ -630,6 +663,7 @@ export type SalaryHistoryCreateManyTenantInput = {
   staffId: string
   baseSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: number | null
   effectiveFrom: Date | string
   effectiveTo?: Date | string | null
   createdAt?: Date | string
@@ -639,6 +673,7 @@ export type SalaryHistoryUpdateWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   baseSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -650,6 +685,7 @@ export type SalaryHistoryUncheckedUpdateWithoutTenantInput = {
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
   baseSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -660,6 +696,7 @@ export type SalaryHistoryUncheckedUpdateManyWithoutTenantInput = {
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
   baseSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -669,6 +706,7 @@ export type SalaryHistoryCreateManyStaffInput = {
   id?: string
   baseSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate: runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: number | null
   effectiveFrom: Date | string
   effectiveTo?: Date | string | null
   tenantId: string
@@ -679,6 +717,7 @@ export type SalaryHistoryUpdateWithoutStaffInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   baseSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -689,6 +728,7 @@ export type SalaryHistoryUncheckedUpdateWithoutStaffInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   baseSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -699,6 +739,7 @@ export type SalaryHistoryUncheckedUpdateManyWithoutStaffInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   baseSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   commissionRate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   effectiveFrom?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -712,6 +753,7 @@ export type SalaryHistorySelect<ExtArgs extends runtime.Types.Extensions.Interna
   staffId?: boolean
   baseSalary?: boolean
   commissionRate?: boolean
+  paidLeavesPerMonth?: boolean
   effectiveFrom?: boolean
   effectiveTo?: boolean
   tenantId?: boolean
@@ -725,6 +767,7 @@ export type SalaryHistorySelectCreateManyAndReturn<ExtArgs extends runtime.Types
   staffId?: boolean
   baseSalary?: boolean
   commissionRate?: boolean
+  paidLeavesPerMonth?: boolean
   effectiveFrom?: boolean
   effectiveTo?: boolean
   tenantId?: boolean
@@ -738,6 +781,7 @@ export type SalaryHistorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   staffId?: boolean
   baseSalary?: boolean
   commissionRate?: boolean
+  paidLeavesPerMonth?: boolean
   effectiveFrom?: boolean
   effectiveTo?: boolean
   tenantId?: boolean
@@ -751,13 +795,14 @@ export type SalaryHistorySelectScalar = {
   staffId?: boolean
   baseSalary?: boolean
   commissionRate?: boolean
+  paidLeavesPerMonth?: boolean
   effectiveFrom?: boolean
   effectiveTo?: boolean
   tenantId?: boolean
   createdAt?: boolean
 }
 
-export type SalaryHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "baseSalary" | "commissionRate" | "effectiveFrom" | "effectiveTo" | "tenantId" | "createdAt", ExtArgs["result"]["salaryHistory"]>
+export type SalaryHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "baseSalary" | "commissionRate" | "paidLeavesPerMonth" | "effectiveFrom" | "effectiveTo" | "tenantId" | "createdAt", ExtArgs["result"]["salaryHistory"]>
 export type SalaryHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -782,6 +827,7 @@ export type $SalaryHistoryPayload<ExtArgs extends runtime.Types.Extensions.Inter
     staffId: string
     baseSalary: runtime.Decimal
     commissionRate: runtime.Decimal
+    paidLeavesPerMonth: number | null
     effectiveFrom: Date
     effectiveTo: Date | null
     tenantId: string
@@ -1215,6 +1261,7 @@ export interface SalaryHistoryFieldRefs {
   readonly staffId: Prisma.FieldRef<"SalaryHistory", 'String'>
   readonly baseSalary: Prisma.FieldRef<"SalaryHistory", 'Decimal'>
   readonly commissionRate: Prisma.FieldRef<"SalaryHistory", 'Decimal'>
+  readonly paidLeavesPerMonth: Prisma.FieldRef<"SalaryHistory", 'Int'>
   readonly effectiveFrom: Prisma.FieldRef<"SalaryHistory", 'DateTime'>
   readonly effectiveTo: Prisma.FieldRef<"SalaryHistory", 'DateTime'>
   readonly tenantId: Prisma.FieldRef<"SalaryHistory", 'String'>

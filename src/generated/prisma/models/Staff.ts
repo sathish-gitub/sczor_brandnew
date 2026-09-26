@@ -29,11 +29,13 @@ export type AggregateStaff = {
 export type StaffAvgAggregateOutputType = {
   baseSalary: runtime.Decimal | null
   commissionRate: runtime.Decimal | null
+  paidLeavesPerMonth: number | null
 }
 
 export type StaffSumAggregateOutputType = {
   baseSalary: runtime.Decimal | null
   commissionRate: runtime.Decimal | null
+  paidLeavesPerMonth: number | null
 }
 
 export type StaffMinAggregateOutputType = {
@@ -46,6 +48,7 @@ export type StaffMinAggregateOutputType = {
   availabilityStatus: $Enums.Availability | null
   baseSalary: runtime.Decimal | null
   commissionRate: runtime.Decimal | null
+  paidLeavesPerMonth: number | null
   salaryEffectiveFrom: Date | null
   tenantId: string | null
   createdAt: Date | null
@@ -62,6 +65,7 @@ export type StaffMaxAggregateOutputType = {
   availabilityStatus: $Enums.Availability | null
   baseSalary: runtime.Decimal | null
   commissionRate: runtime.Decimal | null
+  paidLeavesPerMonth: number | null
   salaryEffectiveFrom: Date | null
   tenantId: string | null
   createdAt: Date | null
@@ -79,6 +83,7 @@ export type StaffCountAggregateOutputType = {
   availabilityStatus: number
   baseSalary: number
   commissionRate: number
+  paidLeavesPerMonth: number
   salaryEffectiveFrom: number
   tenantId: number
   createdAt: number
@@ -90,11 +95,13 @@ export type StaffCountAggregateOutputType = {
 export type StaffAvgAggregateInputType = {
   baseSalary?: true
   commissionRate?: true
+  paidLeavesPerMonth?: true
 }
 
 export type StaffSumAggregateInputType = {
   baseSalary?: true
   commissionRate?: true
+  paidLeavesPerMonth?: true
 }
 
 export type StaffMinAggregateInputType = {
@@ -107,6 +114,7 @@ export type StaffMinAggregateInputType = {
   availabilityStatus?: true
   baseSalary?: true
   commissionRate?: true
+  paidLeavesPerMonth?: true
   salaryEffectiveFrom?: true
   tenantId?: true
   createdAt?: true
@@ -123,6 +131,7 @@ export type StaffMaxAggregateInputType = {
   availabilityStatus?: true
   baseSalary?: true
   commissionRate?: true
+  paidLeavesPerMonth?: true
   salaryEffectiveFrom?: true
   tenantId?: true
   createdAt?: true
@@ -140,6 +149,7 @@ export type StaffCountAggregateInputType = {
   availabilityStatus?: true
   baseSalary?: true
   commissionRate?: true
+  paidLeavesPerMonth?: true
   salaryEffectiveFrom?: true
   tenantId?: true
   createdAt?: true
@@ -244,6 +254,7 @@ export type StaffGroupByOutputType = {
   availabilityStatus: $Enums.Availability
   baseSalary: runtime.Decimal | null
   commissionRate: runtime.Decimal | null
+  paidLeavesPerMonth: number | null
   salaryEffectiveFrom: Date | null
   tenantId: string
   createdAt: Date
@@ -284,6 +295,7 @@ export type StaffWhereInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFilter<"Staff"> | $Enums.Availability
   baseSalary?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.IntNullableFilter<"Staff"> | number | null
   salaryEffectiveFrom?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   tenantId?: Prisma.StringFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
@@ -309,6 +321,7 @@ export type StaffOrderByWithRelationInput = {
   availabilityStatus?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrderInput | Prisma.SortOrder
   commissionRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrderInput | Prisma.SortOrder
   salaryEffectiveFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -337,6 +350,7 @@ export type StaffWhereUniqueInput = Prisma.AtLeast<{
   availabilityStatus?: Prisma.EnumAvailabilityFilter<"Staff"> | $Enums.Availability
   baseSalary?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.IntNullableFilter<"Staff"> | number | null
   salaryEffectiveFrom?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   tenantId?: Prisma.StringFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
@@ -362,6 +376,7 @@ export type StaffOrderByWithAggregationInput = {
   availabilityStatus?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrderInput | Prisma.SortOrder
   commissionRate?: Prisma.SortOrderInput | Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrderInput | Prisma.SortOrder
   salaryEffectiveFrom?: Prisma.SortOrderInput | Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -387,6 +402,7 @@ export type StaffScalarWhereWithAggregatesInput = {
   availabilityStatus?: Prisma.EnumAvailabilityWithAggregatesFilter<"Staff"> | $Enums.Availability
   baseSalary?: Prisma.DecimalNullableWithAggregatesFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.DecimalNullableWithAggregatesFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.IntNullableWithAggregatesFilter<"Staff"> | number | null
   salaryEffectiveFrom?: Prisma.DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
   tenantId?: Prisma.StringWithAggregatesFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Staff"> | Date | string
@@ -404,6 +420,7 @@ export type StaffCreateInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -428,6 +445,7 @@ export type StaffUncheckedCreateInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
@@ -452,6 +470,7 @@ export type StaffUpdateInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -476,6 +495,7 @@ export type StaffUncheckedUpdateInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -500,6 +520,7 @@ export type StaffCreateManyInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
@@ -517,6 +538,7 @@ export type StaffUpdateManyMutationInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -533,6 +555,7 @@ export type StaffUncheckedUpdateManyInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -560,6 +583,7 @@ export type StaffCountOrderByAggregateInput = {
   availabilityStatus?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrder
   salaryEffectiveFrom?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -569,6 +593,7 @@ export type StaffCountOrderByAggregateInput = {
 export type StaffAvgOrderByAggregateInput = {
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrder
 }
 
 export type StaffMaxOrderByAggregateInput = {
@@ -581,6 +606,7 @@ export type StaffMaxOrderByAggregateInput = {
   availabilityStatus?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrder
   salaryEffectiveFrom?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -597,6 +623,7 @@ export type StaffMinOrderByAggregateInput = {
   availabilityStatus?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrder
   salaryEffectiveFrom?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -606,6 +633,7 @@ export type StaffMinOrderByAggregateInput = {
 export type StaffSumOrderByAggregateInput = {
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
+  paidLeavesPerMonth?: Prisma.SortOrder
 }
 
 export type StaffScalarRelationFilter = {
@@ -679,6 +707,14 @@ export type NullableDecimalFieldUpdateOperationsInput = {
   decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
   multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type StaffCreateNestedOneWithoutSalaryHistoryInput = {
@@ -794,6 +830,7 @@ export type StaffCreateWithoutTenantInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -817,6 +854,7 @@ export type StaffUncheckedCreateWithoutTenantInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -869,6 +907,7 @@ export type StaffScalarWhereInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFilter<"Staff"> | $Enums.Availability
   baseSalary?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.IntNullableFilter<"Staff"> | number | null
   salaryEffectiveFrom?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   tenantId?: Prisma.StringFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
@@ -886,6 +925,7 @@ export type StaffCreateWithoutSalaryHistoryInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -909,6 +949,7 @@ export type StaffUncheckedCreateWithoutSalaryHistoryInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
@@ -948,6 +989,7 @@ export type StaffUpdateWithoutSalaryHistoryInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -971,6 +1013,7 @@ export type StaffUncheckedUpdateWithoutSalaryHistoryInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -994,6 +1037,7 @@ export type StaffCreateWithoutPayrollsInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1017,6 +1061,7 @@ export type StaffUncheckedCreateWithoutPayrollsInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
@@ -1056,6 +1101,7 @@ export type StaffUpdateWithoutPayrollsInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1079,6 +1125,7 @@ export type StaffUncheckedUpdateWithoutPayrollsInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1102,6 +1149,7 @@ export type StaffCreateWithoutAppointmentsInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1125,6 +1173,7 @@ export type StaffUncheckedCreateWithoutAppointmentsInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
@@ -1164,6 +1213,7 @@ export type StaffUpdateWithoutAppointmentsInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1187,6 +1237,7 @@ export type StaffUncheckedUpdateWithoutAppointmentsInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1210,6 +1261,7 @@ export type StaffCreateWithoutInvoicesInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1233,6 +1285,7 @@ export type StaffUncheckedCreateWithoutInvoicesInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
@@ -1272,6 +1325,7 @@ export type StaffUpdateWithoutInvoicesInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1295,6 +1349,7 @@ export type StaffUncheckedUpdateWithoutInvoicesInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1318,6 +1373,7 @@ export type StaffCreateWithoutInvoiceItemsInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1341,6 +1397,7 @@ export type StaffUncheckedCreateWithoutInvoiceItemsInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
@@ -1380,6 +1437,7 @@ export type StaffUpdateWithoutInvoiceItemsInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1403,6 +1461,7 @@ export type StaffUncheckedUpdateWithoutInvoiceItemsInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1426,6 +1485,7 @@ export type StaffCreateWithoutRatingsInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1449,6 +1509,7 @@ export type StaffUncheckedCreateWithoutRatingsInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
@@ -1488,6 +1549,7 @@ export type StaffUpdateWithoutRatingsInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1511,6 +1573,7 @@ export type StaffUncheckedUpdateWithoutRatingsInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1534,6 +1597,7 @@ export type StaffCreateWithoutAttendancesInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1557,6 +1621,7 @@ export type StaffUncheckedCreateWithoutAttendancesInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   tenantId: string
   createdAt?: Date | string
@@ -1596,6 +1661,7 @@ export type StaffUpdateWithoutAttendancesInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1619,6 +1685,7 @@ export type StaffUncheckedUpdateWithoutAttendancesInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1642,6 +1709,7 @@ export type StaffCreateManyTenantInput = {
   availabilityStatus?: $Enums.Availability
   baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1658,6 +1726,7 @@ export type StaffUpdateWithoutTenantInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1681,6 +1750,7 @@ export type StaffUncheckedUpdateWithoutTenantInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1704,6 +1774,7 @@ export type StaffUncheckedUpdateManyWithoutTenantInput = {
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
   baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1805,6 +1876,7 @@ export type StaffSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   availabilityStatus?: boolean
   baseSalary?: boolean
   commissionRate?: boolean
+  paidLeavesPerMonth?: boolean
   salaryEffectiveFrom?: boolean
   tenantId?: boolean
   createdAt?: boolean
@@ -1831,6 +1903,7 @@ export type StaffSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   availabilityStatus?: boolean
   baseSalary?: boolean
   commissionRate?: boolean
+  paidLeavesPerMonth?: boolean
   salaryEffectiveFrom?: boolean
   tenantId?: boolean
   createdAt?: boolean
@@ -1849,6 +1922,7 @@ export type StaffSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   availabilityStatus?: boolean
   baseSalary?: boolean
   commissionRate?: boolean
+  paidLeavesPerMonth?: boolean
   salaryEffectiveFrom?: boolean
   tenantId?: boolean
   createdAt?: boolean
@@ -1867,13 +1941,14 @@ export type StaffSelectScalar = {
   availabilityStatus?: boolean
   baseSalary?: boolean
   commissionRate?: boolean
+  paidLeavesPerMonth?: boolean
   salaryEffectiveFrom?: boolean
   tenantId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "designation" | "mobile" | "email" | "workingDays" | "status" | "availabilityStatus" | "baseSalary" | "commissionRate" | "salaryEffectiveFrom" | "tenantId" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
+export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "designation" | "mobile" | "email" | "workingDays" | "status" | "availabilityStatus" | "baseSalary" | "commissionRate" | "paidLeavesPerMonth" | "salaryEffectiveFrom" | "tenantId" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
 export type StaffInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   appointments?: boolean | Prisma.Staff$appointmentsArgs<ExtArgs>
@@ -1915,6 +1990,7 @@ export type $StaffPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     availabilityStatus: $Enums.Availability
     baseSalary: runtime.Decimal | null
     commissionRate: runtime.Decimal | null
+    paidLeavesPerMonth: number | null
     salaryEffectiveFrom: Date | null
     tenantId: string
     createdAt: Date
@@ -2360,6 +2436,7 @@ export interface StaffFieldRefs {
   readonly availabilityStatus: Prisma.FieldRef<"Staff", 'Availability'>
   readonly baseSalary: Prisma.FieldRef<"Staff", 'Decimal'>
   readonly commissionRate: Prisma.FieldRef<"Staff", 'Decimal'>
+  readonly paidLeavesPerMonth: Prisma.FieldRef<"Staff", 'Int'>
   readonly salaryEffectiveFrom: Prisma.FieldRef<"Staff", 'DateTime'>
   readonly tenantId: Prisma.FieldRef<"Staff", 'String'>
   readonly createdAt: Prisma.FieldRef<"Staff", 'DateTime'>

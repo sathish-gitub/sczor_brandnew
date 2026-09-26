@@ -27,6 +27,7 @@ type StaffPayload = {
   workingDays: string[];
   baseSalary: number | null;
   commissionRate: number | null;
+  paidLeavesPerMonth: number | null;
 };
 
 export default function EditStaffPage() {
@@ -55,6 +56,8 @@ export default function EditStaffPage() {
   const [workingDays, setWorkingDays] = useState<string[]>([]);
   const [baseSalary, setBaseSalary] = useState("");
   const [commissionRate, setCommissionRate] = useState("");
+  const [paidLeavesPerMonth, setPaidLeavesPerMonth] = useState("");
+  const [defaultPaidLeavesPerMonth, setDefaultPaidLeavesPerMonth] = useState(1);
 
   useEffect(() => {
     let active = true;
@@ -63,8 +66,14 @@ export default function EditStaffPage() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/staff/${params.id}`, { cache: "no-store" });
+      const [response, settingsResponse] = await Promise.all([
+        fetch(`/api/staff/${params.id}`, { cache: "no-store" }),
+        fetch("/api/settings", { cache: "no-store" }),
+      ]);
       const payload = (await response.json()) as { error?: string; staff?: StaffPayload };
+      const settingsPayload = (await settingsResponse.json().catch(() => null)) as {
+        payroll?: { defaultPaidLeavesPerMonth: number };
+      } | null;
 
       if (!response.ok || !payload.staff) {
         if (active) {
@@ -78,6 +87,10 @@ export default function EditStaffPage() {
         return;
       }
 
+      if (settingsPayload?.payroll) {
+        setDefaultPaidLeavesPerMonth(settingsPayload.payroll.defaultPaidLeavesPerMonth);
+      }
+
       setName(payload.staff.name);
       setDesignation(payload.staff.designation as (typeof designations)[number]);
       setMobile(payload.staff.mobile || "");
@@ -87,6 +100,7 @@ export default function EditStaffPage() {
       setWorkingDays(payload.staff.workingDays);
       setBaseSalary(payload.staff.baseSalary === null ? "" : String(payload.staff.baseSalary));
       setCommissionRate(payload.staff.commissionRate === null ? "" : String(payload.staff.commissionRate));
+      setPaidLeavesPerMonth(payload.staff.paidLeavesPerMonth === null ? "" : String(payload.staff.paidLeavesPerMonth));
       setLoading(false);
     }
 
@@ -134,6 +148,7 @@ export default function EditStaffPage() {
         workingDays,
         baseSalary: baseSalary.trim() === "" ? null : Number(baseSalary),
         commissionRate: commissionRate.trim() === "" ? null : Number(commissionRate),
+        paidLeavesPerMonth: paidLeavesPerMonth.trim() === "" ? null : Number(paidLeavesPerMonth),
       }),
     });
 
@@ -299,6 +314,23 @@ export default function EditStaffPage() {
           <p className="mt-2 text-xs text-[var(--muted)]">
             Commission is calculated on revenue from services this staff member completed.
           </p>
+
+          <label className="mt-4 block space-y-1 text-sm">
+            <span className="font-medium text-[var(--foreground)]">Paid Leaves Per Month</span>
+            <input
+              value={paidLeavesPerMonth}
+              onChange={(event) => setPaidLeavesPerMonth(event.target.value)}
+              type="number"
+              min={0}
+              step="1"
+              placeholder={`Salon default (${defaultPaidLeavesPerMonth})`}
+              className="h-10 w-full max-w-xs rounded-xl border border-[var(--border)] px-3"
+            />
+            <p className="text-xs text-[var(--muted)]">
+              Leave blank to use the salon&apos;s default paid leave policy ({defaultPaidLeavesPerMonth} days/month). Set
+              a specific number to override it for this staff member only.
+            </p>
+          </label>
         </section>
 
         <div className="flex items-center gap-2">

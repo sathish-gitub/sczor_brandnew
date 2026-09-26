@@ -63,6 +63,8 @@ async function generateForStaff(tenantId: string, staffId: string, month: number
       absentDays: result.absentDays,
       leaveDays: result.leaveDays,
       halfDays: result.halfDays,
+      paidLeaveDays: result.paidLeaveDays,
+      lopDays: result.lopDays,
       totalWorkingDays: result.totalWorkingDays,
       leaveDeduction: result.leaveDeduction,
       grossPay: result.grossPay,

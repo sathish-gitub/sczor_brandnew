@@ -14,6 +14,9 @@ export type PayrollCalculationResult = {
   absentDays: number;
   leaveDays: number;
   halfDays: number;
+  paidLeaveDays: number;
+  lopDays: number;
+  usedDefaultLeaveAllowance: boolean;
   totalWorkingDays: number;
   leaveDeduction: number;
   grossPay: number;
@@ -40,23 +43,35 @@ export async function calculatePayroll(
   year: number,
   tenantId: string,
 ): Promise<PayrollCalculationResult> {
-  const staff = await prisma.staff.findFirst({
-    where: { id: staffId, tenantId },
-    select: {
-      name: true,
-      designation: true,
-      baseSalary: true,
-      commissionRate: true,
-      salaryHistory: {
-        orderBy: { effectiveFrom: "desc" },
-        select: { baseSalary: true, commissionRate: true, effectiveFrom: true, effectiveTo: true },
+  const [staff, salonSettings] = await Promise.all([
+    prisma.staff.findFirst({
+      where: { id: staffId, tenantId },
+      select: {
+        name: true,
+        designation: true,
+        baseSalary: true,
+        commissionRate: true,
+        paidLeavesPerMonth: true,
+        salaryHistory: {
+          orderBy: { effectiveFrom: "desc" },
+          select: {
+            baseSalary: true,
+            commissionRate: true,
+            paidLeavesPerMonth: true,
+            effectiveFrom: true,
+            effectiveTo: true,
+          },
+        },
       },
-    },
-  });
+    }),
+    prisma.salonSettings.findUnique({ where: { tenantId }, select: { defaultPaidLeavesPerMonth: true } }),
+  ]);
 
   if (!staff) {
     throw new PayrollCalculationError("Staff not found.");
   }
+
+  const tenantDefaultPaidLeaves = salonSettings?.defaultPaidLeavesPerMonth ?? 1;
 
   const { start, end } = monthBounds(year, month);
 
@@ -76,6 +91,11 @@ export async function calculatePayroll(
     : staff.commissionRate === null
       ? null
       : Number(staff.commissionRate);
+
+  // A staff-level or as-of-month history override takes precedence; null means "use the salon's default".
+  const configuredPaidLeavesPerMonth = applicableHistory ? applicableHistory.paidLeavesPerMonth : staff.paidLeavesPerMonth;
+  const usedDefaultLeaveAllowance = configuredPaidLeavesPerMonth === null;
+  const paidLeavesPerMonth = configuredPaidLeavesPerMonth ?? tenantDefaultPaidLeaves;
 
   if (baseSalary === null || commissionRate === null) {
     throw new PayrollCalculationError("Salary is not configured for this staff member.");
@@ -99,9 +119,12 @@ export async function calculatePayroll(
 
   const totalWorkingDays = counts.PRESENT + counts.ABSENT + counts.LEAVE + counts.HALF_DAY;
 
-  // LEAVE is paid leave (no deduction); only ABSENT and HALF_DAY reduce pay.
+  // Leave within the staff's monthly allowance stays fully paid; excess leave becomes LOP, deducted like ABSENT.
+  const paidLeaveDays = Math.min(counts.LEAVE, paidLeavesPerMonth);
+  const lopDays = Math.max(0, counts.LEAVE - paidLeavesPerMonth);
+
   const dailyRate = baseSalary / totalWorkingDays;
-  const leaveDeduction = roundMoney((counts.ABSENT + counts.HALF_DAY * 0.5) * dailyRate);
+  const leaveDeduction = roundMoney((counts.ABSENT + lopDays + counts.HALF_DAY * 0.5) * dailyRate);
 
   // Reuses the same revenue query as the Staff Performance report (src/app/api/reports/staff/route.ts).
   const invoices = await prisma.invoice.findMany({
@@ -132,6 +155,9 @@ export async function calculatePayroll(
     absentDays: counts.ABSENT,
     leaveDays: counts.LEAVE,
     halfDays: counts.HALF_DAY,
+    paidLeaveDays,
+    lopDays,
+    usedDefaultLeaveAllowance,
     totalWorkingDays,
     leaveDeduction,
     grossPay,

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 
+import { Modal } from "@/components/ui/Modal";
+
 type StaffOverviewItem = {
   id: string;
   name: string;
@@ -15,6 +17,21 @@ type StaffOverviewItem = {
   payrollId: string | null;
   payrollStatus: string | null;
 };
+
+type PayrollPreviewResult = {
+  presentDays: number;
+  absentDays: number;
+  leaveDays: number;
+  paidLeaveDays: number;
+  lopDays: number;
+  halfDays: number;
+  usedDefaultLeaveAllowance: boolean;
+  netPay: number;
+};
+
+type SingleGenerateTarget = { staffId: string; staffName: string; regenerate: boolean };
+
+type BulkPreviewItem = { staffId: string; staffName: string; result?: PayrollPreviewResult; error?: string };
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -38,6 +55,16 @@ export default function PayrollPage() {
   const [bulkSummary, setBulkSummary] = useState<{ generated: number; failed: Array<{ staffName: string; reason: string }> } | null>(
     null,
   );
+
+  const [singleTarget, setSingleTarget] = useState<SingleGenerateTarget | null>(null);
+  const [singlePreview, setSinglePreview] = useState<PayrollPreviewResult | null>(null);
+  const [singlePreviewLoading, setSinglePreviewLoading] = useState(false);
+  const [singlePreviewError, setSinglePreviewError] = useState<string | null>(null);
+
+  const [bulkPreviewOpen, setBulkPreviewOpen] = useState(false);
+  const [bulkPreviewItems, setBulkPreviewItems] = useState<BulkPreviewItem[] | null>(null);
+  const [bulkPreviewLoading, setBulkPreviewLoading] = useState(false);
+  const [bulkPreviewError, setBulkPreviewError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -100,21 +127,88 @@ export default function PayrollPage() {
     }
   }
 
-  async function generateAll() {
+  async function openSinglePreview(staffId: string, staffName: string, regenerate: boolean) {
+    setSingleTarget({ staffId, staffName, regenerate });
+    setSinglePreview(null);
+    setSinglePreviewError(null);
+    setSinglePreviewLoading(true);
+
+    try {
+      const response = await fetch("/api/payroll/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staffId, month, year }),
+      });
+      const payload = (await response.json()) as { error?: string; result?: PayrollPreviewResult };
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Unable to calculate payroll preview.");
+      }
+
+      setSinglePreview(payload.result ?? null);
+    } catch (previewError) {
+      setSinglePreviewError(previewError instanceof Error ? previewError.message : "Unable to calculate payroll preview.");
+    } finally {
+      setSinglePreviewLoading(false);
+    }
+  }
+
+  function closeSinglePreview() {
+    setSingleTarget(null);
+    setSinglePreview(null);
+    setSinglePreviewError(null);
+    setSinglePreviewLoading(false);
+  }
+
+  async function confirmSingleGenerate() {
+    if (!singleTarget) {
+      return;
+    }
+
+    await generateForStaff(singleTarget.staffId, singleTarget.regenerate);
+    closeSinglePreview();
+  }
+
+  async function openBulkPreview() {
     const eligibleCount = items.filter((item) => item.salaryConfigured).length;
 
     if (eligibleCount === 0) {
       return;
     }
 
-    const confirmed = window.confirm(
-      `Generate payroll for ${eligibleCount} staff member${eligibleCount === 1 ? "" : "s"} for ${months[month - 1]} ${year}?`,
-    );
+    setBulkPreviewOpen(true);
+    setBulkPreviewItems(null);
+    setBulkPreviewError(null);
+    setBulkPreviewLoading(true);
 
-    if (!confirmed) {
-      return;
+    try {
+      const response = await fetch("/api/payroll/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ month, year, generateForAll: true }),
+      });
+      const payload = (await response.json()) as { error?: string; previews?: BulkPreviewItem[] };
+
+      if (!response.ok) {
+        throw new Error(payload.error ?? "Unable to calculate payroll preview.");
+      }
+
+      setBulkPreviewItems(payload.previews ?? []);
+    } catch (previewError) {
+      setBulkPreviewError(previewError instanceof Error ? previewError.message : "Unable to calculate payroll preview.");
+    } finally {
+      setBulkPreviewLoading(false);
     }
+  }
 
+  function closeBulkPreview() {
+    setBulkPreviewOpen(false);
+    setBulkPreviewItems(null);
+    setBulkPreviewError(null);
+    setBulkPreviewLoading(false);
+  }
+
+  async function confirmBulkGenerate() {
     setBulkPending(true);
     setBulkSummary(null);
 
@@ -135,6 +229,7 @@ export default function PayrollPage() {
       }
 
       setBulkSummary({ generated: payload.generated?.length ?? 0, failed: payload.failed ?? [] });
+      closeBulkPreview();
       await load();
     } catch (generateError) {
       setError(generateError instanceof Error ? generateError.message : "Unable to generate payroll.");
@@ -193,7 +288,7 @@ export default function PayrollPage() {
 
           <button
             type="button"
-            onClick={generateAll}
+            onClick={openBulkPreview}
             disabled={bulkPending || loading}
             className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
           >
@@ -285,11 +380,7 @@ export default function PayrollPage() {
                             <button
                               type="button"
                               disabled={pendingIds.has(item.id)}
-                              onClick={() => {
-                                if (window.confirm(`Regenerate payroll for ${item.name} for ${months[month - 1]} ${year}?`)) {
-                                  generateForStaff(item.id, true);
-                                }
-                              }}
+                              onClick={() => openSinglePreview(item.id, item.name, true)}
                               className="text-xs font-semibold text-slate-600 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
                             >
                               {pendingIds.has(item.id) ? "Regenerating..." : "Regenerate"}
@@ -301,7 +392,7 @@ export default function PayrollPage() {
                             <button
                               type="button"
                               disabled={!item.salaryConfigured || pendingIds.has(item.id)}
-                              onClick={() => generateForStaff(item.id, false)}
+                              onClick={() => openSinglePreview(item.id, item.name, false)}
                               title={item.salaryConfigured ? undefined : "Configure salary first"}
                               className="text-xs font-semibold text-[var(--primary)] hover:underline disabled:cursor-not-allowed disabled:text-slate-400 disabled:no-underline"
                             >
@@ -319,6 +410,158 @@ export default function PayrollPage() {
           </div>
         )}
       </div>
+
+      <Modal open={singleTarget !== null} onClose={closeSinglePreview} title="Confirm Payslip Generation" size="sm">
+        {singleTarget ? (
+          <div className="space-y-4">
+            <p className="text-sm font-semibold text-[var(--foreground)]">
+              {singleTarget.staffName} - {months[month - 1]} {year}
+            </p>
+
+            {singlePreviewLoading ? (
+              <div className="space-y-2">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="h-8 animate-pulse rounded-lg bg-slate-100" />
+                ))}
+              </div>
+            ) : singlePreviewError ? (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {singlePreviewError}
+              </div>
+            ) : singlePreview ? (
+              <div className="space-y-1.5 rounded-xl border border-[var(--border)] bg-slate-50 px-3 py-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-[var(--muted)]">Present</span>
+                  <span className="font-medium text-[var(--foreground)]">{singlePreview.presentDays} days</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[var(--muted)]">Absent</span>
+                  <span className="font-medium text-[var(--foreground)]">{singlePreview.absentDays} days</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[var(--muted)]">Leave (paid)</span>
+                  <span className="font-medium text-[var(--foreground)]">
+                    {singlePreview.paidLeaveDays} days
+                    {singlePreview.usedDefaultLeaveAllowance ? (
+                      <span className="ml-1 font-normal text-[var(--muted)]">(salon default)</span>
+                    ) : null}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[var(--muted)]">Leave (unpaid/LOP)</span>
+                  <span className="font-medium text-[var(--foreground)]">{singlePreview.lopDays} days</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[var(--muted)]">Half Days</span>
+                  <span className="font-medium text-[var(--foreground)]">{singlePreview.halfDays} days</span>
+                </div>
+                <div className="mt-2 flex items-center justify-between border-t border-[var(--border)] pt-2 font-semibold text-[var(--foreground)]">
+                  <span>Estimated Net Pay</span>
+                  <span>{formatCurrency(singlePreview.netPay)}</span>
+                </div>
+              </div>
+            ) : null}
+
+            <p className="text-xs text-[var(--muted)]">
+              If this doesn&apos;t look right, cancel and update attendance records first, then come back to generate.
+            </p>
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={closeSinglePreview}
+                className="h-10 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmSingleGenerate}
+                disabled={!singlePreview || pendingIds.has(singleTarget.staffId)}
+                className="h-10 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {pendingIds.has(singleTarget.staffId) ? "Generating..." : "Confirm & Generate"}
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
+
+      <Modal open={bulkPreviewOpen} onClose={closeBulkPreview} title="Confirm Bulk Payslip Generation" size="lg">
+        <div className="space-y-4">
+          <p className="text-sm font-semibold text-[var(--foreground)]">
+            {months[month - 1]} {year}
+          </p>
+
+          {bulkPreviewLoading ? (
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="h-8 animate-pulse rounded-lg bg-slate-100" />
+              ))}
+            </div>
+          ) : bulkPreviewError ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{bulkPreviewError}</div>
+          ) : bulkPreviewItems ? (
+            <div className="max-h-80 overflow-y-auto rounded-xl border border-[var(--border)]">
+              <table className="w-full text-left text-sm">
+                <thead className="border-b border-[var(--border)] bg-slate-50 text-xs uppercase tracking-[0.06em] text-[var(--muted)]">
+                  <tr>
+                    <th className="px-3 py-2">Staff</th>
+                    <th className="px-3 py-2">Leave (paid/LOP)</th>
+                    <th className="px-3 py-2">Estimated Net Pay</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bulkPreviewItems.map((entry) => (
+                    <tr key={entry.staffId} className="border-b border-[var(--border)] last:border-b-0">
+                      <td className="px-3 py-2 font-medium text-[var(--foreground)]">{entry.staffName}</td>
+                      {entry.result ? (
+                        <>
+                          <td className="px-3 py-2 text-[var(--muted)]">
+                            {entry.result.paidLeaveDays} / {entry.result.lopDays}
+                            {entry.result.usedDefaultLeaveAllowance ? (
+                              <span className="ml-1 text-xs">(salon default)</span>
+                            ) : null}
+                          </td>
+                          <td className="px-3 py-2 font-medium text-[var(--foreground)]">
+                            {formatCurrency(entry.result.netPay)}
+                          </td>
+                        </>
+                      ) : (
+                        <td className="px-3 py-2 text-amber-700" colSpan={2}>
+                          {entry.error}
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
+
+          <p className="text-xs text-[var(--muted)]">
+            If this doesn&apos;t look right, cancel and update attendance records first, then come back to generate.
+          </p>
+
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={closeBulkPreview}
+              className="h-10 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={confirmBulkGenerate}
+              disabled={bulkPending || !bulkPreviewItems}
+              className="h-10 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {bulkPending ? "Generating..." : "Confirm & Generate"}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

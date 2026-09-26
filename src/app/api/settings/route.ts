@@ -108,6 +108,9 @@ export async function GET() {
         whatsappEnabled: settings?.whatsappEnabled ?? false,
         emailEnabled: settings?.emailEnabled ?? false,
       },
+      payroll: {
+        defaultPaidLeavesPerMonth: settings?.defaultPaidLeavesPerMonth ?? 1,
+      },
       account: {
         ownerName: user.name,
         email: user.email,

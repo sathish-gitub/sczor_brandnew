@@ -57,6 +57,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         absentDays: payroll.absentDays,
         leaveDays: payroll.leaveDays,
         halfDays: payroll.halfDays,
+        paidLeaveDays: payroll.paidLeaveDays,
+        lopDays: Number(payroll.lopDays),
         totalWorkingDays: payroll.totalWorkingDays,
         leaveDeduction: Number(payroll.leaveDeduction),
         grossPay: Number(payroll.grossPay),

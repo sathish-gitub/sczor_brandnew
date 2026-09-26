@@ -138,6 +138,7 @@ model Staff {
   availabilityStatus  Availability    @default(AVAILABLE)
   baseSalary          Decimal?        @db.Decimal(10, 2)
   commissionRate      Decimal?        @db.Decimal(5, 2)
+  paidLeavesPerMonth  Int?
   salaryEffectiveFrom DateTime?
   tenantId            String
   tenant              Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -162,6 +163,7 @@ model SalaryHistory {
   staff          Staff     @relation(fields: [staffId], references: [id])
   baseSalary     Decimal   @db.Decimal(10, 2)
   commissionRate Decimal   @db.Decimal(5, 2)
+  paidLeavesPerMonth Int?
   effectiveFrom  DateTime
   effectiveTo    DateTime? // null = currently active
   tenantId       String
@@ -186,6 +188,8 @@ model Payroll {
   absentDays       Int
   leaveDays        Int
   halfDays         Int
+  paidLeaveDays    Int      @default(0) // leave days within allowance, unpaid deduction
+  lopDays          Decimal  @db.Decimal(5, 2) @default(0) // excess leave treated as LOP (can include half-day fractions)
   totalWorkingDays Int // present + absent + leave + half
   leaveDeduction   Decimal  @db.Decimal(10, 2) // proportional salary deduction for unpaid leave/absent days
   grossPay         Decimal  @db.Decimal(10, 2) // baseSalary + commissionAmount
@@ -373,6 +377,7 @@ model SalonSettings {
   goldThreshold         Int      @default(2000)
   platinumThreshold     Int      @default(5000)
   slotDurationMinutes   Int      @default(30)
+  defaultPaidLeavesPerMonth Int  @default(1)
   mondayEnabled         Boolean  @default(true)
   mondayOpen            String   @default("09:00")
   mondayClose           String   @default("21:00")

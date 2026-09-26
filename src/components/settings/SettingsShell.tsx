@@ -7,6 +7,7 @@ const navItems = [
   { href: "/settings/salon-profile", label: "Salon Profile" },
   { href: "/settings/business-hours", label: "Business Hours" },
   { href: "/settings/tax-billing", label: "Tax & Billing" },
+  { href: "/settings/payroll", label: "Payroll" },
   { href: "/loyalty/settings", label: "Loyalty Program" },
   { href: "/settings", label: "Notifications" },
   { href: "/settings/account", label: "Account & Security" },

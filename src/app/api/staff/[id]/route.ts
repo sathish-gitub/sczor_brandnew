@@ -26,6 +26,7 @@ const updateStaffSchema = z.object({
   availabilityStatus: z.enum(["AVAILABLE", "BUSY", "OFF_DUTY"]).optional(),
   baseSalary: z.number().nonnegative().nullable().optional(),
   commissionRate: z.number().min(0).max(100).nullable().optional(),
+  paidLeavesPerMonth: z.number().int().min(0).nullable().optional(),
 });
 
 async function tenantIdOrNull() {
@@ -130,11 +131,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         createdAt: staff.createdAt,
         baseSalary: staff.baseSalary === null ? null : Number(staff.baseSalary),
         commissionRate: staff.commissionRate === null ? null : Number(staff.commissionRate),
+        paidLeavesPerMonth: staff.paidLeavesPerMonth,
         salaryEffectiveFrom: staff.salaryEffectiveFrom,
         salaryHistory: staff.salaryHistory.map((entry) => ({
           id: entry.id,
           baseSalary: Number(entry.baseSalary),
           commissionRate: Number(entry.commissionRate),
+          paidLeavesPerMonth: entry.paidLeavesPerMonth,
           effectiveFrom: entry.effectiveFrom,
           effectiveTo: entry.effectiveTo,
         })),
@@ -203,7 +206,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const existing = await prisma.staff.findFirst({
       where: { id, tenantId },
-      select: { baseSalary: true, commissionRate: true },
+      select: { baseSalary: true, commissionRate: true, paidLeavesPerMonth: true },
     });
 
     if (!existing) {
@@ -212,15 +215,21 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const currentBaseSalary = existing.baseSalary === null ? null : Number(existing.baseSalary);
     const currentCommissionRate = existing.commissionRate === null ? null : Number(existing.commissionRate);
+    const currentPaidLeavesPerMonth = existing.paidLeavesPerMonth;
     const nextBaseSalary = payload.baseSalary !== undefined ? payload.baseSalary : currentBaseSalary;
     const nextCommissionRate = payload.commissionRate !== undefined ? payload.commissionRate : currentCommissionRate;
+    const nextPaidLeavesPerMonth =
+      payload.paidLeavesPerMonth !== undefined ? payload.paidLeavesPerMonth : currentPaidLeavesPerMonth;
 
-    const salaryProvided = payload.baseSalary !== undefined || payload.commissionRate !== undefined;
+    const salaryProvided =
+      payload.baseSalary !== undefined || payload.commissionRate !== undefined || payload.paidLeavesPerMonth !== undefined;
     const salaryChanged =
       salaryProvided &&
       nextBaseSalary !== null &&
       nextCommissionRate !== null &&
-      (nextBaseSalary !== currentBaseSalary || nextCommissionRate !== currentCommissionRate);
+      (nextBaseSalary !== currentBaseSalary ||
+        nextCommissionRate !== currentCommissionRate ||
+        nextPaidLeavesPerMonth !== currentPaidLeavesPerMonth);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -241,6 +250,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           availabilityStatus: payload.availabilityStatus,
           baseSalary: payload.baseSalary,
           commissionRate: payload.commissionRate,
+          paidLeavesPerMonth: payload.paidLeavesPerMonth,
           salaryEffectiveFrom: salaryChanged ? today : undefined,
         },
       });
@@ -257,6 +267,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             tenantId,
             baseSalary: nextBaseSalary,
             commissionRate: nextCommissionRate,
+            paidLeavesPerMonth: nextPaidLeavesPerMonth,
             effectiveFrom: today,
           },
         });
