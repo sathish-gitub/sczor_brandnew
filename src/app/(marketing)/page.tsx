@@ -27,6 +27,9 @@ import {
   WalletCards,
 } from "lucide-react";
 
+// Bump this when dashboard-preview.png is replaced with the same filename, to bust the browser/CDN cache.
+const DASHBOARD_PREVIEW_VERSION = "2";
+
 type CounterItem = {
   label: string;
   target: number;
@@ -349,7 +352,7 @@ export default function Home() {
             >
               <div className="relative w-full">
                 <Image
-                  src="/images/dashboard-preview.png"
+                  src={`/images/dashboard-preview.png?v=${DASHBOARD_PREVIEW_VERSION}`}
                   alt="sczor dashboard preview"
                   width={1400}
                   height={900}

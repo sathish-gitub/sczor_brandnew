@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://sczor.app"),
+  metadataBase: new URL("https://sczor.com"),
   title: "sczor | Salon Management Software",
   description: "Salon management software for modern teams.",
   openGraph: {
     title: "sczor | Salon Management Software",
     description: "Appointments, billing, loyalty, and reports in one salon workspace.",
-    url: "https://sczor.app",
+    url: "https://sczor.com",
     siteName: "sczor",
     images: [
       {
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     images: ["/og-image.svg"],
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: "/favicon.png",
   },
 };
 

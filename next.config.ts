@@ -11,6 +11,16 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+    localPatterns: [
+      {
+        pathname: "/**",
+        search: "",
+      },
+      {
+        pathname: "/images/dashboard-preview.png",
+        search: "?v=2",
+      },
+    ],
   },
 };
 
