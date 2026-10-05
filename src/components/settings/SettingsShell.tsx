@@ -8,14 +8,17 @@ const navItems = [
   { href: "/settings/business-hours", label: "Business Hours" },
   { href: "/settings/tax-billing", label: "Tax & Billing" },
   { href: "/settings/payroll", label: "Payroll" },
-  { href: "/loyalty/settings", label: "Loyalty Program" },
+  { href: "/settings/loyalty", label: "Loyalty Settings" },
   { href: "/settings", label: "Notifications" },
   { href: "/settings/account", label: "Account & Security" },
   { href: "/settings/subscription", label: "Subscription" },
 ];
 
 function isActive(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(`${href}/`);
+  if (pathname === href) return true;
+  // Only match startsWith if it's a more specific sub-path
+  if (href === "/settings") return false; // Notifications should only match exact /settings
+  return pathname.startsWith(`${href}/`);
 }
 
 export function SettingsShell({ children }: { children: React.ReactNode }) {

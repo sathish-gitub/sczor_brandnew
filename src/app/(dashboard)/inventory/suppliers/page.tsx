@@ -13,7 +13,7 @@ type SupplierItem = {
   contactPerson: string | null;
   phone: string | null;
   email: string | null;
-  productCount: number;
+  products: string[];
 };
 
 export default function SuppliersPage() {
@@ -175,7 +175,18 @@ export default function SuppliersPage() {
                   <td className="px-4 py-3 text-[var(--muted)]">{supplier.contactPerson || "—"}</td>
                   <td className="px-4 py-3 text-[var(--muted)]">{supplier.phone || "—"}</td>
                   <td className="px-4 py-3 text-[var(--muted)]">{supplier.email || "—"}</td>
-                  <td className="px-4 py-3 text-[var(--muted)]">{supplier.productCount}</td>
+                  <td className="px-4 py-3 text-[var(--muted)]">
+                    {supplier.products.length === 0 ? (
+                      "No products"
+                    ) : (
+                      <span
+                        title={supplier.products.join(", ")}
+                        className="block truncate"
+                      >
+                        {supplier.products.join(", ")}
+                      </span>
+                    )}
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
                       <Link

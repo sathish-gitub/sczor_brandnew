@@ -17,7 +17,6 @@ export async function GET() {
         tenantId: session.user.tenantId,
         isRetailItem: true,
         status: "ACTIVE",
-        currentStock: { gt: 0 },
       },
       orderBy: { name: "asc" },
       select: {
@@ -25,6 +24,7 @@ export async function GET() {
         name: true,
         sku: true,
         unit: true,
+        packSize: true,
         sellingPrice: true,
         currentStock: true,
         category: { select: { name: true } },
@@ -37,6 +37,7 @@ export async function GET() {
         name: product.name,
         sku: product.sku,
         unit: product.unit,
+        packSize: product.packSize === null ? null : Number(product.packSize),
         price: Number(product.sellingPrice),
         currentStock: Number(product.currentStock),
         category: product.category?.name ?? null,

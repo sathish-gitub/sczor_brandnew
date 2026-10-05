@@ -6,8 +6,7 @@ import { useState } from "react";
 
 import { ProductCategorySelect } from "@/components/inventory/ProductCategorySelect";
 import { SupplierSelect } from "@/components/inventory/SupplierSelect";
-
-const UNIT_OPTIONS = ["pcs", "ml", "g", "l", "kg"];
+import { UNIT_OPTIONS, isSizedUnit } from "@/lib/productUnits";
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -17,6 +16,7 @@ export default function NewProductPage() {
   const [categoryId, setCategoryId] = useState("");
   const [brand, setBrand] = useState("");
   const [unit, setUnit] = useState("pcs");
+  const [packSize, setPackSize] = useState("");
   const [costPrice, setCostPrice] = useState("0");
   const [sellingPrice, setSellingPrice] = useState("0");
   const [initialStock, setInitialStock] = useState("0");
@@ -26,6 +26,15 @@ export default function NewProductPage() {
   const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const requiresPackSize = isSizedUnit(unit);
+
+  function changeUnit(nextUnit: string) {
+    setUnit(nextUnit);
+    if (!isSizedUnit(nextUnit)) {
+      setPackSize("");
+    }
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,6 +50,7 @@ export default function NewProductPage() {
         categoryId,
         brand,
         unit,
+        packSize: requiresPackSize ? packSize : "",
         costPrice,
         sellingPrice,
         initialStock,
@@ -115,17 +125,42 @@ export default function NewProductPage() {
             <span className="font-medium text-[var(--foreground)]">Unit</span>
             <select
               value={unit}
-              onChange={(event) => setUnit(event.target.value)}
+              onChange={(event) => changeUnit(event.target.value)}
               className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
             >
               {UNIT_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>
           </label>
 
+          {requiresPackSize ? (
+            <label className="space-y-1 text-sm sm:col-span-2">
+              <span className="font-medium text-[var(--foreground)]">
+                Pack Size <span className="text-red-500">*</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <input
+                  value={packSize}
+                  onChange={(event) => setPackSize(event.target.value)}
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  required
+                  className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
+                />
+                <span className="text-sm font-medium text-[var(--muted)]">{unit.toUpperCase()}</span>
+              </div>
+              <span className="text-xs text-[var(--muted)]">
+                Amount in one pack/bottle. Cost and selling price are per pack.
+              </span>
+            </label>
+          ) : null}
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-1 text-sm">
             <span className="font-medium text-[var(--foreground)]">Cost Price (INR)</span>
             <input

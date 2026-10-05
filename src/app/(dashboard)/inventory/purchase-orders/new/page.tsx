@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
+import { formatPackSize } from "@/lib/productUnits";
+
 type SupplierOption = {
   id: string;
   name: string;
@@ -15,6 +17,7 @@ type ProductOption = {
   name: string;
   sku: string | null;
   unit: string;
+  packSize: number | null;
   costPrice: number;
   currentStock: number;
 };
@@ -71,6 +74,7 @@ export default function NewPurchaseOrderPage() {
               name: string;
               sku: string | null;
               unit: string;
+              packSize: number | null;
               costPrice: number;
               currentStock: number;
             }>;
@@ -87,6 +91,7 @@ export default function NewPurchaseOrderPage() {
         name: item.name,
         sku: item.sku,
         unit: item.unit,
+        packSize: item.packSize,
         costPrice: item.costPrice,
         currentStock: item.currentStock,
       }));
@@ -239,6 +244,7 @@ export default function NewPurchaseOrderPage() {
                   {products.map((product) => (
                     <option key={product.id} value={product.id}>
                       {product.name} {product.sku ? `(${product.sku})` : ""}
+                      {formatPackSize(product.unit, product.packSize) ? ` — ${formatPackSize(product.unit, product.packSize)}` : ""}
                       {product.currentStock <= 0 ? " \u2014 Out of Stock" : ""}
                     </option>
                   ))}

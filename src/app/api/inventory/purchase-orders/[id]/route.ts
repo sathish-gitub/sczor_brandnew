@@ -19,7 +19,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       supplier: { select: { id: true, name: true, phone: true, email: true } },
       items: {
         include: {
-          product: { select: { id: true, name: true, unit: true, sku: true } },
+          product: { select: { id: true, name: true, unit: true, packSize: true, sku: true } },
         },
       },
     },
@@ -38,6 +38,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         quantity: Number(item.quantity),
         unitCost: Number(item.unitCost),
         amount: Number(item.amount),
+        product: {
+          ...item.product,
+          packSize: item.product.packSize === null ? null : Number(item.product.packSize),
+        },
       })),
     },
   });

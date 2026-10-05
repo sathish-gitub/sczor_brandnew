@@ -5,6 +5,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
+import { upsertServiceCategory } from "@/lib/serviceCategories";
 
 const createServiceSchema = z.object({
   name: z.string().trim().min(2, "Service name is required."),
@@ -82,22 +83,20 @@ export async function POST(request: Request) {
 
     const payload = parsed.data;
 
-    await prisma.serviceCategory.upsert({
-      where: { name_tenantId: { name: payload.category, tenantId } },
-      create: { name: payload.category, tenantId },
-      update: {},
-    });
+    const service = await prisma.$transaction(async (tx) => {
+      const categoryName = await upsertServiceCategory(tx, tenantId, payload.category);
 
-    const service = await prisma.service.create({
-      data: {
-        tenantId,
-        name: payload.name,
-        category: payload.category,
-        description: payload.description || null,
-        price: payload.price,
-        duration: payload.duration,
-        status: payload.status,
-      },
+      return tx.service.create({
+        data: {
+          tenantId,
+          name: payload.name,
+          category: categoryName,
+          description: payload.description || null,
+          price: payload.price,
+          duration: payload.duration,
+          status: payload.status,
+        },
+      });
     });
 
     return NextResponse.json(

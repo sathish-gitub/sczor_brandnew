@@ -5,27 +5,67 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
+import { isSizedUnit } from "@/lib/productUnits";
 
-const createProductSchema = z.object({
-  name: z.string().trim().min(2, "Product name is required."),
-  sku: z.string().optional().or(z.literal("")),
-  categoryId: z.string().optional().or(z.literal("")),
-  brand: z.string().optional().or(z.literal("")),
-  unit: z.string().trim().min(1, "Unit is required.").default("pcs"),
-  costPrice: z.coerce.number().min(0, "Cost price must be zero or greater."),
-  sellingPrice: z.coerce.number().min(0, "Selling price must be zero or greater."),
-  initialStock: z.coerce.number().min(0, "Initial stock must be zero or greater.").default(0),
-  reorderLevel: z.coerce.number().min(0, "Reorder level must be zero or greater.").default(0),
-  isRetailItem: z.coerce.boolean().default(true),
-  supplierId: z.string().optional().or(z.literal("")),
-  status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
-});
+function hasAtMostTwoDecimals(value: number) {
+  return Math.abs(value * 100 - Math.round(value * 100)) < 1e-9;
+}
+
+const createProductSchema = z
+  .object({
+    name: z.string().trim().min(2, "Product name is required."),
+    sku: z.string().optional().or(z.literal("")),
+    categoryId: z.string().optional().or(z.literal("")),
+    brand: z.string().optional().or(z.literal("")),
+    unit: z.string().trim().min(1, "Unit is required.").default("pcs"),
+    packSize: z
+      .union([z.string(), z.number(), z.null()])
+      .optional()
+      .transform((value) => {
+        if (value === "" || value === null || value === undefined) {
+          return null;
+        }
+        const num = typeof value === "number" ? value : Number(value);
+        return Number.isFinite(num) ? num : NaN;
+      }),
+    costPrice: z.coerce.number().min(0, "Cost price must be zero or greater."),
+    sellingPrice: z.coerce.number().min(0, "Selling price must be zero or greater."),
+    initialStock: z.coerce.number().min(0, "Initial stock must be zero or greater.").default(0),
+    reorderLevel: z.coerce.number().min(0, "Reorder level must be zero or greater.").default(0),
+    isRetailItem: z.coerce.boolean().default(true),
+    supplierId: z.string().optional().or(z.literal("")),
+    status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
+  })
+  .superRefine((data, ctx) => {
+    if (!isSizedUnit(data.unit)) {
+      return;
+    }
+
+    if (data.packSize === null || Number.isNaN(data.packSize)) {
+      ctx.addIssue({
+        code: "custom",
+        message: `Pack size is required for ${data.unit.toUpperCase()} products.`,
+        path: ["packSize"],
+      });
+      return;
+    }
+
+    if (data.packSize <= 0) {
+      ctx.addIssue({ code: "custom", message: "Pack size must be a positive number.", path: ["packSize"] });
+      return;
+    }
+
+    if (!hasAtMostTwoDecimals(data.packSize)) {
+      ctx.addIssue({ code: "custom", message: "Pack size can have at most 2 decimal places.", path: ["packSize"] });
+    }
+  });
 
 function serializeProduct(product: {
   costPrice: unknown;
   sellingPrice: unknown;
   currentStock: unknown;
   reorderLevel: unknown;
+  packSize: unknown;
   [key: string]: unknown;
 }) {
   return {
@@ -34,6 +74,7 @@ function serializeProduct(product: {
     sellingPrice: Number(product.sellingPrice),
     currentStock: Number(product.currentStock),
     reorderLevel: Number(product.reorderLevel),
+    packSize: product.packSize === null ? null : Number(product.packSize),
   };
 }
 
@@ -110,6 +151,8 @@ export async function POST(request: Request) {
       );
     }
 
+    const packSize = isSizedUnit(payload.unit) ? payload.packSize : null;
+
     const product = await prisma.$transaction(async (tx) => {
       const created = await tx.product.create({
         data: {
@@ -119,6 +162,7 @@ export async function POST(request: Request) {
           categoryId: payload.categoryId || null,
           brand: payload.brand || null,
           unit: payload.unit,
+          packSize,
           costPrice: payload.costPrice,
           sellingPrice: payload.sellingPrice,
           currentStock: payload.initialStock,

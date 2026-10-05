@@ -37,7 +37,7 @@ export async function GET(request: Request) {
         name: search ? { contains: search, mode: "insensitive" } : undefined,
       },
       orderBy: { name: "asc" },
-      include: { _count: { select: { products: true } } },
+      include: { products: { select: { name: true } } },
     });
 
     return NextResponse.json({
@@ -49,7 +49,7 @@ export async function GET(request: Request) {
         email: supplier.email,
         address: supplier.address,
         notes: supplier.notes,
-        productCount: supplier._count.products,
+        products: supplier.products.map((p) => p.name),
       })),
     });
   } catch (error) {

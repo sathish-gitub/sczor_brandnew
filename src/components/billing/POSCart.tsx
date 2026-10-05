@@ -1,5 +1,7 @@
 import { Trash2 } from "lucide-react";
 
+import { formatPackSize } from "@/lib/productUnits";
+
 export type POSServiceCartItem = {
   type: "SERVICE";
   serviceId: string;
@@ -17,6 +19,7 @@ export type POSProductCartItem = {
   name: string;
   price: number;
   unit: string;
+  packSize: number | null;
   quantity: number;
   maxStock: number;
 };
@@ -74,7 +77,9 @@ export function POSCart({
                   <div>
                     <p className="text-sm font-semibold text-[var(--foreground)]">{item.name}</p>
                     <p className="text-xs text-[var(--muted)]">
-                      {item.type === "SERVICE" ? `${item.duration} min` : `Product • ${item.unit}`}
+                      {item.type === "SERVICE"
+                        ? `${item.duration} min`
+                        : `Product${formatPackSize(item.unit, item.packSize) ? ` • ${formatPackSize(item.unit, item.packSize)}` : ` • ${item.unit}`}`}
                     </p>
                   </div>
 

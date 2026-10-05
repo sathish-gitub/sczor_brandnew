@@ -6,8 +6,7 @@ import { useEffect, useState } from "react";
 
 import { ProductCategorySelect } from "@/components/inventory/ProductCategorySelect";
 import { SupplierSelect } from "@/components/inventory/SupplierSelect";
-
-const UNIT_OPTIONS = ["pcs", "ml", "g", "l", "kg"];
+import { UNIT_OPTIONS, formatStock, isSizedUnit } from "@/lib/productUnits";
 
 type ProductPayload = {
   id: string;
@@ -16,6 +15,7 @@ type ProductPayload = {
   categoryId: string | null;
   brand: string | null;
   unit: string;
+  packSize: number | null;
   costPrice: number;
   sellingPrice: number;
   currentStock: number;
@@ -38,6 +38,8 @@ export default function EditProductPage() {
   const [categoryId, setCategoryId] = useState("");
   const [brand, setBrand] = useState("");
   const [unit, setUnit] = useState("pcs");
+  const [packSize, setPackSize] = useState("");
+  const [missingPackSizeOnLoad, setMissingPackSizeOnLoad] = useState(false);
   const [costPrice, setCostPrice] = useState("0");
   const [sellingPrice, setSellingPrice] = useState("0");
   const [currentStock, setCurrentStock] = useState(0);
@@ -45,6 +47,16 @@ export default function EditProductPage() {
   const [isRetailItem, setIsRetailItem] = useState(true);
   const [supplierId, setSupplierId] = useState("");
   const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
+
+  const requiresPackSize = isSizedUnit(unit);
+
+  function changeUnit(nextUnit: string) {
+    setUnit(nextUnit);
+    if (!isSizedUnit(nextUnit)) {
+      setPackSize("");
+      setMissingPackSizeOnLoad(false);
+    }
+  }
 
   useEffect(() => {
     let active = true;
@@ -74,6 +86,8 @@ export default function EditProductPage() {
       setCategoryId(product.categoryId || "");
       setBrand(product.brand || "");
       setUnit(product.unit);
+      setPackSize(product.packSize === null ? "" : String(product.packSize));
+      setMissingPackSizeOnLoad(isSizedUnit(product.unit) && product.packSize === null);
       setCostPrice(String(product.costPrice));
       setSellingPrice(String(product.sellingPrice));
       setCurrentStock(product.currentStock);
@@ -105,6 +119,7 @@ export default function EditProductPage() {
         categoryId,
         brand,
         unit,
+        packSize: requiresPackSize ? packSize : "",
         costPrice,
         sellingPrice,
         reorderLevel,
@@ -182,16 +197,48 @@ export default function EditProductPage() {
             <span className="font-medium text-[var(--foreground)]">Unit</span>
             <select
               value={unit}
-              onChange={(event) => setUnit(event.target.value)}
+              onChange={(event) => changeUnit(event.target.value)}
               className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
             >
               {UNIT_OPTIONS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
+                <option key={option.value} value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>
           </label>
+
+          {requiresPackSize ? (
+            <label className="space-y-1 text-sm">
+              <span className="font-medium text-[var(--foreground)]">
+                Pack Size <span className="text-red-500">*</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <input
+                  value={packSize}
+                  onChange={(event) => {
+                    setPackSize(event.target.value);
+                    setMissingPackSizeOnLoad(false);
+                  }}
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  required
+                  className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
+                />
+                <span className="text-sm font-medium text-[var(--muted)]">{unit.toUpperCase()}</span>
+              </div>
+              {missingPackSizeOnLoad ? (
+                <span className="text-xs text-amber-600">
+                  This product has no pack size yet. Set one to save.
+                </span>
+              ) : (
+                <span className="text-xs text-[var(--muted)]">
+                  Amount in one pack/bottle. Cost and selling price are per pack.
+                </span>
+              )}
+            </label>
+          ) : null}
 
           <label className="space-y-1 text-sm">
             <span className="font-medium text-[var(--foreground)]">Cost Price (INR)</span>
@@ -224,7 +271,7 @@ export default function EditProductPage() {
           <label className="space-y-1 text-sm">
             <span className="font-medium text-[var(--foreground)]">Current Stock</span>
             <input
-              value={`${currentStock} ${unit}`}
+              value={formatStock(currentStock, unit, requiresPackSize ? (Number(packSize) || null) : null)}
               disabled
               readOnly
               className="h-10 w-full rounded-xl border border-[var(--border)] bg-slate-50 px-3 text-slate-500"

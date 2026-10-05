@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Package, Plus, Truck } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { useAccess } from "@/contexts/AccessContext";
@@ -14,6 +14,7 @@ type ProductItem = {
   name: string;
   sku: string | null;
   unit: string;
+  packSize: number | null;
   sellingPrice: number;
   currentStock: number;
   reorderLevel: number;
@@ -192,38 +193,6 @@ export default function InventoryPage() {
             Add Product
           </Link>
         </div>
-
-        <nav className="flex flex-wrap items-center gap-2 border-b border-[var(--border)] pb-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-3 py-1.5 text-sm font-semibold text-white">
-            <Package className="h-3.5 w-3.5" />
-            Products
-          </span>
-          <Link
-            href="/inventory/suppliers"
-            className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
-          >
-            <Truck className="h-3.5 w-3.5" />
-            Suppliers
-          </Link>
-          <Link
-            href="/inventory/purchase-orders"
-            className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
-          >
-            Purchase Orders
-          </Link>
-          <Link
-            href="/inventory/low-stock"
-            className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
-          >
-            Low Stock
-          </Link>
-          <Link
-            href="/reports/inventory"
-            className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
-          >
-            Reports
-          </Link>
-        </nav>
 
         <div className="flex flex-wrap items-center gap-3">
           <select

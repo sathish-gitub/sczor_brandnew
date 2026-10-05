@@ -69,10 +69,11 @@ export default function NewServicePage() {
       <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-[var(--border)] bg-white p-5">
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-1 text-sm">
-            <span className="font-medium text-[var(--foreground)]">Service Name</span>
+            <span className="font-medium text-[var(--foreground)]">Name</span>
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
+              placeholder="Hair Cut"
               required
               className="h-10 w-full rounded-xl border border-[var(--border)] px-3 outline-none focus:border-[var(--accent)]"
             />
@@ -108,7 +109,7 @@ export default function NewServicePage() {
           </label>
 
           <label className="space-y-1 text-sm">
-            <span className="font-medium text-[var(--foreground)]">Duration (min)</span>
+            <span className="font-medium text-[var(--foreground)]">Duration (Min)</span>
             <input
               value={duration}
               onChange={(event) => setDuration(event.target.value)}

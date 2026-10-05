@@ -8,6 +8,7 @@ import { StatCard } from "@/components/reports/StatCard";
 import { CategoryStockDonut, type CategoryStockPoint } from "@/components/charts/CategoryStockDonut";
 import { StockMovementTrendChart, type StockMovementTrendPoint } from "@/components/charts/StockMovementTrendChart";
 import { TopMovingProductsBarChart, type TopMovingProductPoint } from "@/components/charts/TopMovingProductsBarChart";
+import { InventoryTabs } from "@/components/inventory/InventoryTabs";
 
 type InventoryReportPayload = {
   stockValuation: {
@@ -93,6 +94,8 @@ export default function InventoryReportsPage() {
 
   return (
     <div className="space-y-5">
+      <InventoryTabs />
+
       <header className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Inventory Reports</h1>

@@ -247,28 +247,29 @@ type ProductSeed = {
   reorderLevel: number;
   isRetailItem: boolean;
   unit: string;
+  packSize?: number;
 };
 
 const PRODUCTS_DATA: ProductSeed[] = [
-  { name: "Shampoo 250ml", category: "Hair Care", supplier: 0, costPrice: 180, sellingPrice: 350, reorderLevel: 10, isRetailItem: true, unit: "bottle" },
-  { name: "Conditioner 250ml", category: "Hair Care", supplier: 0, costPrice: 190, sellingPrice: 360, reorderLevel: 10, isRetailItem: true, unit: "bottle" },
-  { name: "Hair Serum 100ml", category: "Hair Care", supplier: 1, costPrice: 220, sellingPrice: 450, reorderLevel: 8, isRetailItem: true, unit: "bottle" },
-  { name: "Hair Oil 200ml", category: "Hair Care", supplier: 2, costPrice: 120, sellingPrice: 250, reorderLevel: 12, isRetailItem: true, unit: "bottle" },
-  { name: "Keratin Treatment Kit", category: "Hair Care", supplier: 1, costPrice: 900, sellingPrice: 1600, reorderLevel: 4, isRetailItem: false, unit: "kit" },
-  { name: "Hair Mask 200g", category: "Hair Care", supplier: 0, costPrice: 260, sellingPrice: 520, reorderLevel: 8, isRetailItem: true, unit: "jar" },
-  { name: "Face Wash 100ml", category: "Skin Care", supplier: 2, costPrice: 140, sellingPrice: 280, reorderLevel: 10, isRetailItem: true, unit: "bottle" },
-  { name: "Moisturizer 200g", category: "Skin Care", supplier: 2, costPrice: 210, sellingPrice: 420, reorderLevel: 8, isRetailItem: true, unit: "jar" },
-  { name: "Sunscreen SPF50 100ml", category: "Skin Care", supplier: 3, costPrice: 260, sellingPrice: 520, reorderLevel: 8, isRetailItem: true, unit: "bottle" },
-  { name: "Face Pack 100g", category: "Skin Care", supplier: 3, costPrice: 160, sellingPrice: 320, reorderLevel: 10, isRetailItem: true, unit: "jar" },
-  { name: "Under Eye Cream 30g", category: "Skin Care", supplier: 2, costPrice: 300, sellingPrice: 600, reorderLevel: 6, isRetailItem: true, unit: "jar" },
+  { name: "Shampoo 250ml", category: "Hair Care", supplier: 0, costPrice: 180, sellingPrice: 350, reorderLevel: 10, isRetailItem: true, unit: "ml", packSize: 250 },
+  { name: "Conditioner 250ml", category: "Hair Care", supplier: 0, costPrice: 190, sellingPrice: 360, reorderLevel: 10, isRetailItem: true, unit: "ml", packSize: 250 },
+  { name: "Hair Serum 100ml", category: "Hair Care", supplier: 1, costPrice: 220, sellingPrice: 450, reorderLevel: 8, isRetailItem: true, unit: "ml", packSize: 100 },
+  { name: "Hair Oil 200ml", category: "Hair Care", supplier: 2, costPrice: 120, sellingPrice: 250, reorderLevel: 12, isRetailItem: true, unit: "ml", packSize: 200 },
+  { name: "Keratin Treatment Kit", category: "Hair Care", supplier: 1, costPrice: 900, sellingPrice: 1600, reorderLevel: 4, isRetailItem: false, unit: "pcs" },
+  { name: "Hair Mask 200g", category: "Hair Care", supplier: 0, costPrice: 260, sellingPrice: 520, reorderLevel: 8, isRetailItem: true, unit: "g", packSize: 200 },
+  { name: "Face Wash 100ml", category: "Skin Care", supplier: 2, costPrice: 140, sellingPrice: 280, reorderLevel: 10, isRetailItem: true, unit: "ml", packSize: 100 },
+  { name: "Moisturizer 200g", category: "Skin Care", supplier: 2, costPrice: 210, sellingPrice: 420, reorderLevel: 8, isRetailItem: true, unit: "g", packSize: 200 },
+  { name: "Sunscreen SPF50 100ml", category: "Skin Care", supplier: 3, costPrice: 260, sellingPrice: 520, reorderLevel: 8, isRetailItem: true, unit: "ml", packSize: 100 },
+  { name: "Face Pack 100g", category: "Skin Care", supplier: 3, costPrice: 160, sellingPrice: 320, reorderLevel: 10, isRetailItem: true, unit: "g", packSize: 100 },
+  { name: "Under Eye Cream 30g", category: "Skin Care", supplier: 2, costPrice: 300, sellingPrice: 600, reorderLevel: 6, isRetailItem: true, unit: "g", packSize: 30 },
   { name: "Nail Polish (assorted)", category: "Nail Care", supplier: 3, costPrice: 90, sellingPrice: 200, reorderLevel: 15, isRetailItem: true, unit: "pcs" },
-  { name: "Nail Polish Remover 200ml", category: "Nail Care", supplier: 3, costPrice: 70, sellingPrice: 150, reorderLevel: 10, isRetailItem: true, unit: "bottle" },
-  { name: "Cuticle Oil 30ml", category: "Nail Care", supplier: 3, costPrice: 110, sellingPrice: 240, reorderLevel: 8, isRetailItem: true, unit: "bottle" },
-  { name: "Nail Art Stickers Pack", category: "Nail Care", supplier: 3, costPrice: 40, sellingPrice: 100, reorderLevel: 12, isRetailItem: true, unit: "pack" },
+  { name: "Nail Polish Remover 200ml", category: "Nail Care", supplier: 3, costPrice: 70, sellingPrice: 150, reorderLevel: 10, isRetailItem: true, unit: "ml", packSize: 200 },
+  { name: "Cuticle Oil 30ml", category: "Nail Care", supplier: 3, costPrice: 110, sellingPrice: 240, reorderLevel: 8, isRetailItem: true, unit: "ml", packSize: 30 },
+  { name: "Nail Art Stickers Pack", category: "Nail Care", supplier: 3, costPrice: 40, sellingPrice: 100, reorderLevel: 12, isRetailItem: true, unit: "pcs" },
   { name: "Hair Dryer (Professional)", category: "Tools & Equipment", supplier: 1, costPrice: 2200, sellingPrice: 2200, reorderLevel: 2, isRetailItem: false, unit: "pcs" },
   { name: "Hair Straightener", category: "Tools & Equipment", supplier: 1, costPrice: 1800, sellingPrice: 1800, reorderLevel: 2, isRetailItem: false, unit: "pcs" },
-  { name: "Trimmer Kit", category: "Tools & Equipment", supplier: 1, costPrice: 1200, sellingPrice: 1200, reorderLevel: 2, isRetailItem: false, unit: "kit" },
-  { name: "Disposable Towels (Pack of 50)", category: "Tools & Equipment", supplier: 0, costPrice: 300, sellingPrice: 300, reorderLevel: 5, isRetailItem: false, unit: "pack" },
+  { name: "Trimmer Kit", category: "Tools & Equipment", supplier: 1, costPrice: 1200, sellingPrice: 1200, reorderLevel: 2, isRetailItem: false, unit: "pcs" },
+  { name: "Disposable Towels (Pack of 50)", category: "Tools & Equipment", supplier: 0, costPrice: 300, sellingPrice: 300, reorderLevel: 5, isRetailItem: false, unit: "pcs" },
   { name: "Salon Gift Hamper", category: "Retail", supplier: 0, costPrice: 500, sellingPrice: 999, reorderLevel: 5, isRetailItem: true, unit: "pcs" },
 ];
 
@@ -510,6 +511,7 @@ async function main() {
         name: p.name,
         categoryId: productCategoryMap.get(p.category) ?? null,
         unit: p.unit,
+        packSize: p.packSize ?? null,
         costPrice: p.costPrice,
         sellingPrice: p.sellingPrice,
         currentStock: 0,

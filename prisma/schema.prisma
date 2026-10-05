@@ -530,6 +530,7 @@ model Product {
   category       ProductCategory? @relation(fields: [categoryId], references: [id])
   brand          String?
   unit           String           @default("pcs")
+  packSize       Decimal?         @db.Decimal(10, 2)
   costPrice      Decimal          @db.Decimal(10, 2)
   sellingPrice   Decimal          @db.Decimal(10, 2)
   currentStock   Decimal          @default(0) @db.Decimal(10, 2)

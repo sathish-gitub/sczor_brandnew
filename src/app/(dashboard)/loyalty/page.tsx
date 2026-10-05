@@ -237,7 +237,7 @@ export default function LoyaltyPage() {
           <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Loyalty Program</h1>
         </div>
 
-        <Link href="/loyalty/settings" className="inline-flex h-10 items-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700">
+        <Link href="/settings/loyalty" className="inline-flex h-10 items-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700">
           <Settings className="h-4 w-4" />
           Program Settings
         </Link>

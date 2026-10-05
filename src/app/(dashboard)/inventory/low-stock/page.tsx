@@ -4,10 +4,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 
+import { formatStock } from "@/lib/productUnits";
+
 type LowStockItem = {
   id: string;
   name: string;
   unit: string;
+  packSize: number | null;
   currentStock: number;
   reorderLevel: number;
   category: string | null;
@@ -126,10 +129,10 @@ export default function LowStockPage() {
                     </td>
                     <td className="px-4 py-3 text-[var(--muted)]">{item.category ?? "—"}</td>
                     <td className="px-4 py-3 text-[var(--muted)]">
-                      {item.currentStock} {item.unit}
+                      {formatStock(item.currentStock, item.unit, item.packSize)}
                     </td>
                     <td className="px-4 py-3 text-[var(--muted)]">
-                      {item.reorderLevel} {item.unit}
+                      {formatStock(item.reorderLevel, item.unit, item.packSize)}
                     </td>
                     <td className="px-4 py-3 text-[var(--muted)]">{item.supplier ?? "—"}</td>
                     <td className="px-4 py-3">

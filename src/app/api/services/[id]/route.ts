@@ -5,10 +5,11 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
+import { upsertServiceCategory } from "@/lib/serviceCategories";
 
 const updateServiceSchema = z.object({
   name: z.string().trim().min(2).optional(),
-  category: z.enum(["Hair", "Skin", "Nail", "Makeup", "Spa", "Other"]).optional(),
+  category: z.string().trim().min(2, "Category is required.").optional(),
   description: z.string().optional().or(z.literal("")),
   price: z.coerce.number().positive().optional(),
   duration: z.coerce.number().int().positive().optional(),
@@ -75,39 +76,47 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const payload = parsed.data;
 
-    const updated = await prisma.service.updateMany({
-      where: {
-        id,
-        tenantId,
-      },
-      data: {
-        name: payload.name,
-        category: payload.category,
-        description: payload.description === "" ? null : payload.description,
-        price: payload.price,
-        duration: payload.duration,
-        status: payload.status,
-      },
+    const service = await prisma.$transaction(async (tx) => {
+      const categoryName = payload.category
+        ? await upsertServiceCategory(tx, tenantId, payload.category)
+        : undefined;
+
+      const updated = await tx.service.updateMany({
+        where: {
+          id,
+          tenantId,
+        },
+        data: {
+          name: payload.name,
+          category: categoryName,
+          description: payload.description === "" ? null : payload.description,
+          price: payload.price,
+          duration: payload.duration,
+          status: payload.status,
+        },
+      });
+
+      if (updated.count === 0) {
+        return null;
+      }
+
+      return tx.service.findFirst({
+        where: {
+          id,
+          tenantId,
+        },
+      });
     });
 
-    if (updated.count === 0) {
+    if (!service) {
       return NextResponse.json({ error: "Service not found." }, { status: 404 });
     }
 
-    const service = await prisma.service.findFirst({
-      where: {
-        id,
-        tenantId,
-      },
-    });
-
     return NextResponse.json({
-      service: service
-        ? {
-            ...service,
-            price: Number(service.price),
-          }
-        : null,
+      service: {
+        ...service,
+        price: Number(service.price),
+      },
     });
   } catch (error) {
     console.error("Failed to update service", error);

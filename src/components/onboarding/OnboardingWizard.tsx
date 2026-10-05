@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BadgeIndianRupee,
   Building2,
@@ -20,7 +20,6 @@ import { OnboardingLayout } from "@/components/onboarding/OnboardingLayout";
 
 const stepLabels = ["Salon Profile", "Add Services", "Add Staff", "All Done"];
 const workingDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
-const serviceCategories = ["Hair", "Skin", "Nail", "Makeup", "Spa", "Other"] as const;
 const staffDesignations = [
   "Beautician",
   "Hair Stylist",
@@ -50,6 +49,11 @@ type ServiceRow = {
   category: string;
   price: string;
   duration: string;
+};
+
+type ServiceCategoryOption = {
+  id: string;
+  name: string;
 };
 
 type StaffRow = {
@@ -99,8 +103,11 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
   const [profile, setProfile] = useState(initialProfile);
   const [services, setServices] = useState<ServiceRow[]>([emptyServiceRow()]);
   const [staff, setStaff] = useState<StaffRow[]>([emptyStaffRow()]);
+  const [categoryOptions, setCategoryOptions] = useState<ServiceCategoryOption[]>([]);
   const [showCustomCategory, setShowCustomCategory] = useState<string | null>(null);
   const [customCategoryName, setCustomCategoryName] = useState("");
+  const [categoryError, setCategoryError] = useState<string | null>(null);
+  const [savingCategory, setSavingCategory] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<number[]>(
     initialProfile.step1Complete ? [1] : [],
   );
@@ -110,6 +117,71 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
   const [staffMobileErrors, setStaffMobileErrors] = useState<Record<string, string>>({});
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadCategories() {
+      const response = await fetch("/api/services/categories", { cache: "no-store" });
+      const payload = (await response.json().catch(() => null)) as
+        | { items?: ServiceCategoryOption[] }
+        | null;
+
+      if (!active || !response.ok) {
+        return;
+      }
+
+      setCategoryOptions(payload?.items ?? []);
+    }
+
+    loadCategories();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  async function addCustomCategory(serviceId: string) {
+    const name = customCategoryName.trim();
+
+    if (name.length < 2) {
+      setCategoryError("Category name must be at least 2 characters.");
+      return;
+    }
+
+    setSavingCategory(true);
+    setCategoryError(null);
+
+    const response = await fetch("/api/services/categories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+
+    const payload = (await response.json().catch(() => null)) as
+      | { error?: string; category?: ServiceCategoryOption }
+      | null;
+
+    setSavingCategory(false);
+
+    if (!response.ok || !payload?.category) {
+      setCategoryError(payload?.error ?? "Unable to add category.");
+      return;
+    }
+
+    const created = payload.category;
+
+    setCategoryOptions((current) =>
+      current.some((item) => item.id === created.id)
+        ? current
+        : [...current, created].sort((a, b) => a.name.localeCompare(b.name)),
+    );
+    setServices((existing) =>
+      existing.map((item) => (item.id === serviceId ? { ...item, category: created.name } : item)),
+    );
+    setShowCustomCategory(null);
+    setCustomCategoryName("");
+  }
 
   function updateCompleted(step: number) {
     setCompletedSteps((existing) =>
@@ -545,7 +617,7 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
             <span>Name</span>
             <span>Category</span>
             <span>Price</span>
-            <span>Duration</span>
+            <span>Duration (Min)</span>
             <span className="text-right">Remove</span>
           </div>
 
@@ -556,7 +628,7 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
                   <label className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)] md:hidden">Name</label>
                   <input
                     value={service.name}
-                    placeholder="Enter service name"
+                    placeholder="Hair Cut"
                     onChange={(event) => {
                       setServices((existing) =>
                         existing.map((item) =>
@@ -574,6 +646,8 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
                     onChange={(event) => {
                       if (event.target.value === "__custom__") {
                         setShowCustomCategory(service.id);
+                        setCustomCategoryName("");
+                        setCategoryError(null);
                         return;
                       }
 
@@ -591,41 +665,42 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
                     className="h-11 w-full rounded-2xl border border-[var(--border)] bg-white px-4 text-sm outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_4px_rgba(37,99,235,0.12)]"
                   >
                     <option value="">Select category</option>
-                    {serviceCategories.map((category) => (
-                      <option key={category} value={category}>
-                        {category}
+                    {categoryOptions.map((category) => (
+                      <option key={category.id} value={category.name}>
+                        {category.name}
                       </option>
                     ))}
+                    {service.category &&
+                    !categoryOptions.some((category) => category.name === service.category) ? (
+                      <option value={service.category}>{service.category}</option>
+                    ) : null}
                     <option value="__custom__">+ Add Custom Category</option>
                   </select>
 
                   {showCustomCategory === service.id && (
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="Enter category name"
-                        value={customCategoryName}
-                        onChange={(event) => setCustomCategoryName(event.target.value)}
-                        className="flex-1 rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setServices((existing) =>
-                            existing.map((item) =>
-                              item.id === service.id ? { ...item, category: customCategoryName } : item,
-                            ),
-                          );
-                          setShowCustomCategory(null);
-                          setCustomCategoryName("");
-                        }}
-                        className="rounded-lg bg-blue-600 px-3 py-2 text-sm text-white"
-                      >
-                        Add
-                      </button>
+                    <div className="space-y-1">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Enter category name"
+                          value={customCategoryName}
+                          onChange={(event) => setCustomCategoryName(event.target.value)}
+                          className="flex-1 rounded-lg border border-[var(--border)] px-3 py-2 text-sm"
+                        />
+                        <button
+                          type="button"
+                          disabled={savingCategory}
+                          onClick={() => addCustomCategory(service.id)}
+                          className="rounded-lg bg-blue-600 px-3 py-2 text-sm text-white disabled:opacity-60"
+                        >
+                          {savingCategory ? "Adding..." : "Add"}
+                        </button>
+                      </div>
+                      {categoryError ? <p className="text-xs text-red-500">{categoryError}</p> : null}
                     </div>
                   )}
                 </div>
+
                 <div className="space-y-2">
                   <label className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)] md:hidden">Price</label>
                   <input
@@ -643,7 +718,7 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)] md:hidden">Duration</label>
+                  <label className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)] md:hidden">Duration (Min)</label>
                   <input
                     value={service.duration}
                     inputMode="numeric"

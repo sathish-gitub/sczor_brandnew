@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { PaymentSummary } from "@/components/billing/PaymentSummary";
 import { POSCart, cartItemKey, type POSCartItem, type POSStaffOption } from "@/components/billing/POSCart";
+import { formatStock } from "@/lib/productUnits";
 
 type ServiceItem = {
   id: string;
@@ -23,6 +24,7 @@ type ProductItem = {
   name: string;
   sku: string | null;
   unit: string;
+  packSize: number | null;
   price: number;
   currentStock: number;
   category: string | null;
@@ -375,6 +377,10 @@ export default function BillingPage() {
   }
 
   function addProductToCart(product: ProductItem) {
+    if (product.currentStock <= 0) {
+      return;
+    }
+
     const key = `PRODUCT:${product.id}`;
 
     setCart((current) => {
@@ -388,6 +394,7 @@ export default function BillingPage() {
             productId: product.id,
             name: product.name,
             unit: product.unit,
+            packSize: product.packSize,
             price: product.price,
             quantity: 1,
             maxStock: product.currentStock,
@@ -785,20 +792,27 @@ export default function BillingPage() {
                   <article
                     key={product.id}
                     className={[
-                      "rounded-xl border p-3",
-                      outOfStock ? "border-[var(--border)] bg-slate-100 opacity-60" : "border-[var(--border)] bg-slate-50",
+                      "relative rounded-xl border p-3",
+                      outOfStock
+                        ? "border-[var(--border)] bg-slate-100 opacity-60 grayscale"
+                        : "border-[var(--border)] bg-slate-50",
                     ].join(" ")}
                   >
+                    {outOfStock ? (
+                      <span className="absolute right-2 top-2 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                        Out of Stock
+                      </span>
+                    ) : null}
                     <p className="text-sm font-semibold text-[var(--foreground)]">{product.name}</p>
                     <p className="text-xs text-[var(--muted)]">{formatCurrency(product.price)}</p>
                     <p className="mt-1 text-xs text-[var(--muted)]">
-                      {outOfStock ? "Out of stock" : `${product.currentStock} ${product.unit} in stock`}
+                      {outOfStock ? "Out of stock" : formatStock(product.currentStock, product.unit, product.packSize) + " in stock"}
                     </p>
                     <button
                       type="button"
                       onClick={() => addProductToCart(product)}
                       disabled={outOfStock}
-                      className="mt-3 inline-flex h-8 items-center justify-center rounded-lg bg-[var(--primary)] px-3 text-xs font-semibold text-white disabled:opacity-50"
+                      className="mt-3 inline-flex h-8 items-center justify-center rounded-lg bg-[var(--primary)] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       + Add
                     </button>

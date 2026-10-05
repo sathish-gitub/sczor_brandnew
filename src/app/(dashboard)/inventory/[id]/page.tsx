@@ -8,6 +8,7 @@ import { ArrowLeft, PackagePlus } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { useAccess } from "@/contexts/AccessContext";
+import { formatStock } from "@/lib/productUnits";
 
 type ProductPayload = {
   id: string;
@@ -15,6 +16,7 @@ type ProductPayload = {
   sku: string | null;
   brand: string | null;
   unit: string;
+  packSize: number | null;
   costPrice: number;
   sellingPrice: number;
   currentStock: number;
@@ -229,14 +231,14 @@ export default function ProductDetailPage() {
               {isLowStock ? (
                 <span className={`h-2.5 w-2.5 rounded-full ${product.currentStock <= 0 ? "bg-red-500" : "bg-amber-500"}`} />
               ) : null}
-              {product.currentStock} {product.unit}
+              {formatStock(product.currentStock, product.unit, product.packSize)}
             </p>
             {isLowStock ? <p className="mt-1 text-xs font-medium text-amber-600">Low stock — reorder soon.</p> : null}
           </div>
           <div className="rounded-xl bg-slate-50 p-3">
             <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">Reorder Level</p>
             <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">
-              {product.reorderLevel} {product.unit}
+              {formatStock(product.reorderLevel, product.unit, product.packSize)}
             </p>
           </div>
           <div className="rounded-xl bg-slate-50 p-3">
@@ -295,7 +297,7 @@ export default function ProductDetailPage() {
                     </td>
                     <td className="px-4 py-3 font-medium text-[var(--foreground)]">
                       {OUTGOING_TYPES.has(movement.type) ? "-" : "+"}
-                      {movement.quantity} {product.unit}
+                      {formatStock(movement.quantity, product.unit, product.packSize)}
                     </td>
                     <td className="px-4 py-3 text-[var(--muted)]">{movement.reason || "—"}</td>
                     <td className="px-4 py-3 text-[var(--muted)]">{movement.reference || "—"}</td>

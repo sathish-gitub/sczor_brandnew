@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { useAccess } from "@/contexts/AccessContext";
 import { useToast } from "@/components/ui/Toast";
+import { formatStock } from "@/lib/productUnits";
 
 type PurchaseOrderPayload = {
   id: string;
@@ -22,7 +23,7 @@ type PurchaseOrderPayload = {
     quantity: number;
     unitCost: number;
     amount: number;
-    product: { id: string; name: string; unit: string; sku: string | null };
+    product: { id: string; name: string; unit: string; packSize: number | null; sku: string | null };
   }>;
 };
 
@@ -232,7 +233,7 @@ export default function PurchaseOrderDetailPage() {
                     {item.product.name} {item.product.sku ? <span className="text-xs text-[var(--muted)]">({item.product.sku})</span> : null}
                   </td>
                   <td className="px-4 py-3 text-[var(--muted)]">
-                    {item.quantity} {item.product.unit}
+                    {formatStock(item.quantity, item.product.unit, item.product.packSize)}
                   </td>
                   <td className="px-4 py-3 text-[var(--muted)]">{formatCurrency(item.unitCost)}</td>
                   <td className="px-4 py-3 text-right font-semibold text-[var(--foreground)]">{formatCurrency(item.amount)}</td>

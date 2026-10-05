@@ -2990,6 +2990,7 @@ export const ProductScalarFieldEnum = {
   categoryId: 'categoryId',
   brand: 'brand',
   unit: 'unit',
+  packSize: 'packSize',
   costPrice: 'costPrice',
   sellingPrice: 'sellingPrice',
   currentStock: 'currentStock',

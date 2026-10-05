@@ -1,12 +1,15 @@
 import { Edit3, Eye, Trash2 } from "lucide-react";
 import Link from "next/link";
 
+import { formatStock } from "@/lib/productUnits";
+
 type ProductCardProps = {
   product: {
     id: string;
     name: string;
     sku: string | null;
     unit: string;
+    packSize: number | null;
     sellingPrice: number;
     currentStock: number;
     reorderLevel: number;
@@ -50,7 +53,7 @@ export function ProductCard({ product, onDelete, busy }: ProductCardProps) {
                 title="Low stock"
               />
             ) : null}
-            {product.currentStock} {product.unit}
+            {formatStock(product.currentStock, product.unit, product.packSize)}
           </p>
         </div>
         <div className="rounded-xl bg-slate-50 p-3">

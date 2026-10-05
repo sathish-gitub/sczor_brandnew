@@ -4,10 +4,13 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AlertTriangle, PackageCheck } from "lucide-react";
 
+import { formatStock } from "@/lib/productUnits";
+
 type LowStockItem = {
   id: string;
   name: string;
   unit: string;
+  packSize: number | null;
   currentStock: number;
   reorderLevel: number;
   category: string | null;
@@ -94,7 +97,8 @@ export function LowStockWidget() {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-[var(--foreground)]">{item.name}</p>
                     <p className="truncate text-xs text-[var(--muted)]">
-                      {item.currentStock} {item.unit} left (reorder at {item.reorderLevel} {item.unit})
+                      {formatStock(item.currentStock, item.unit, item.packSize)} left (reorder at{" "}
+                      {formatStock(item.reorderLevel, item.unit, item.packSize)})
                     </p>
                   </div>
                   <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${level.className}`}>
