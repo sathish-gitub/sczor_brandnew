@@ -232,7 +232,27 @@ function SignupForm() {
             className="mt-0.5 h-4 w-4 rounded border-[var(--border)] text-[var(--accent)]"
             {...register("terms")}
           />
-          <span>I agree to the terms of service and privacy policy for my salon workspace.</span>
+          <span>
+            I agree to the{" "}
+            <Link
+              href="/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[var(--accent)] hover:text-[var(--primary)]"
+            >
+              terms of service
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-[var(--accent)] hover:text-[var(--primary)]"
+            >
+              privacy policy
+            </Link>{" "}
+            for my salon workspace.
+          </span>
         </label>
         {errors.terms ? <p className="text-sm text-red-600">{errors.terms.message}</p> : null}
 

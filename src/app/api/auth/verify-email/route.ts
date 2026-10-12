@@ -3,6 +3,7 @@ import { encode } from "next-auth/jwt";
 
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, recordAttempt } from "@/lib/rateLimit";
+import { sendWelcomeEmail } from "@/lib/resend";
 
 const SESSION_COOKIE_NAME =
   process.env.NODE_ENV === "production"
@@ -91,6 +92,11 @@ export async function POST(request: Request) {
       },
     });
 
+    const tenant = await prisma.tenant.findUnique({
+      where: { id: updatedUser.tenantId },
+      select: { name: true, plan: true, trialEndsAt: true },
+    });
+
     const token = await encode({
       token: {
         sub: updatedUser.id,
@@ -105,6 +111,12 @@ export async function POST(request: Request) {
       },
       secret: process.env.NEXTAUTH_SECRET!,
     });
+
+    try {
+      await sendWelcomeEmail(updatedUser.email, updatedUser.name || "there");
+    } catch (emailError) {
+      console.error("Failed to send welcome email:", emailError);
+    }
 
     const response = NextResponse.json({ success: true });
     response.cookies.set(SESSION_COOKIE_NAME, token, {

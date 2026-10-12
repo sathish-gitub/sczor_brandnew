@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,6 +12,7 @@ import { z } from "zod";
 const completeSignupSchema = z.object({
   salonName: z.string().trim().min(2, "Salon name is required."),
   mobile: z.string().trim().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
+  terms: z.boolean().refine((val) => val === true, "You must agree to the terms of service."),
 });
 
 type CompleteSignupValues = z.infer<typeof completeSignupSchema>;
@@ -25,7 +27,7 @@ export default function CompleteSignupPage() {
     formState: { errors, isSubmitting },
   } = useForm<CompleteSignupValues>({
     resolver: zodResolver(completeSignupSchema),
-    defaultValues: { salonName: "", mobile: "" },
+    defaultValues: { salonName: "", mobile: "", terms: false },
   });
 
   const onSubmit = handleSubmit(async (values) => {
@@ -106,6 +108,38 @@ export default function CompleteSignupPage() {
           />
           {errors.mobile ? <p className="text-sm text-red-600">{errors.mobile.message}</p> : null}
         </div>
+
+        <div className="flex items-start gap-3">
+          <input
+            id="terms"
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 rounded border-[var(--border)] text-[var(--accent)]"
+            {...register("terms")}
+          />
+          <label htmlFor="terms" className="text-sm leading-6 text-[var(--foreground)]">
+            <span>
+              I agree to the{" "}
+              <Link
+                href="/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[var(--accent)] hover:text-[var(--primary)]"
+              >
+                terms of service
+              </Link>{" "}
+              and{" "}
+              <Link
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-[var(--accent)] hover:text-[var(--primary)]"
+              >
+                privacy policy
+              </Link>
+            </span>
+          </label>
+        </div>
+        {errors.terms ? <p className="text-sm text-red-600">{errors.terms.message}</p> : null}
 
         {formError ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

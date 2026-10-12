@@ -4,8 +4,11 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
+import { ExportButtons } from "@/components/reports/ExportButtons";
 import { RevenueChart } from "@/components/reports/RevenueChart";
 import { StatCard } from "@/components/reports/StatCard";
+import { useAccess } from "@/contexts/AccessContext";
+import { formatPeriodLabel } from "@/lib/exportReport";
 
 function toDateString(date: Date) {
   const year = date.getFullYear();
@@ -32,6 +35,7 @@ function formatCurrency(value: number) {
 }
 
 export default function ReportsOverviewPage() {
+  const { tenantName } = useAccess();
   const [range, setRange] = useState(thisWeekRange());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -151,9 +155,26 @@ export default function ReportsOverviewPage() {
           <RevenueChart title="Daily Revenue" data={chartData} />
 
           <section className="rounded-xl border border-[var(--border)] bg-white p-4">
-            <div className="mb-3 flex items-center justify-between">
+            <div className="mb-3 flex items-center justify-between gap-2">
               <h2 className="text-base font-semibold text-[var(--foreground)]">Top Services</h2>
-              <Link href="/reports/revenue" className="text-xs font-semibold text-[var(--primary)]">View detailed revenue report</Link>
+              <div className="flex items-center gap-3">
+                <Link href="/reports/revenue" className="text-xs font-semibold text-[var(--primary)]">View detailed revenue report</Link>
+                <ExportButtons
+                  getConfig={() => ({
+                    title: "Top Services Report",
+                    salonName: tenantName,
+                    periodLabel: formatPeriodLabel(range.startDate, range.endDate),
+                    columns: [
+                      { header: "Service", key: "service", type: "text" },
+                      { header: "Count", key: "count", type: "number" },
+                      { header: "Revenue", key: "revenue", type: "currency" },
+                      { header: "% of Total", key: "sharePercent", type: "percent" },
+                    ],
+                    rows: services,
+                    filename: `sczor-top-services-${range.startDate}_to_${range.endDate}`,
+                  })}
+                />
+              </div>
             </div>
 
             {services.length === 0 ? (

@@ -3,8 +3,6 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { CheckCircle2 } from "lucide-react";
 
-import { AuthSessionProvider } from "@/components/providers/AuthSessionProvider";
-
 const features = [
   "Multi-tenant salon operations built for owners and front desk teams.",
   "Appointments, billing, and loyalty workflows in one secure workspace.",
@@ -56,9 +54,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       </section>
 
       <section className="flex items-center justify-center px-4 py-8 sm:px-6 lg:px-10 lg:py-14">
-        <div className="w-full max-w-md">
-          <AuthSessionProvider>{children}</AuthSessionProvider>
-        </div>
+        <div className="w-full max-w-md">{children}</div>
       </section>
     </div>
   );

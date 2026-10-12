@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       description,
     } = body;
 
-    if (!businessName || !contactPerson || !mobile || !city || !description) {
+    if (!businessName || !contactPerson || !mobile || !city) {
       return NextResponse.json(
         { error: "Please fill all required fields" },
         { status: 400 },
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
           <p><b>Subscription Interested:</b> ${escapeHtml(subscriptionRequired)}</p>
           <p><b>Address:</b> ${escapeHtml(address) || "Not provided"}</p>
           <p><b>Message:</b></p>
-          <p>${escapeHtml(description)}</p>
+          <p>${escapeHtml(description) || "Not provided"}</p>
         `,
       });
     } catch (emailError) {

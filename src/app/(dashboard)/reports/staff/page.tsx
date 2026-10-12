@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 
 import { DataTable } from "@/components/reports/DataTable";
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
+import { useAccess } from "@/contexts/AccessContext";
+import { formatPeriodLabel } from "@/lib/exportReport";
 
 function toDateString(date: Date) {
   const year = date.getFullYear();
@@ -38,6 +40,7 @@ type Row = {
 };
 
 export default function StaffReportPage() {
+  const { tenantName } = useAccess();
   const [range, setRange] = useState(monthRange());
   const [staffFilter, setStaffFilter] = useState("ALL");
   const [staffOptions, setStaffOptions] = useState<Array<{ id: string; name: string }>>([]);
@@ -133,7 +136,23 @@ export default function StaffReportPage() {
               { key: "absent", label: "Absent", sortable: true, render: (row) => row.absentDays, sortValue: (row) => row.absentDays },
             ]}
             rows={items}
-            csvFileName="staff-performance.csv"
+            exportConfig={{
+              title: "Staff Performance Report",
+              salonName: tenantName,
+              periodLabel: formatPeriodLabel(range.startDate, range.endDate),
+              filtersLabel: staffFilter !== "ALL" ? `Staff: ${staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter}` : undefined,
+              columns: [
+                { header: "Staff", key: "name", type: "text" },
+                { header: "Appointments", key: "appointments", type: "number" },
+                { header: "Revenue", key: "revenue", type: "currency" },
+                { header: "Invoices", key: "invoices", type: "number" },
+                { header: "Avg Invoice", key: "avgInvoice", type: "currency" },
+                { header: "Attendance %", key: "attendancePercent", type: "percent" },
+                { header: "Present", key: "presentDays", type: "number" },
+                { header: "Absent", key: "absentDays", type: "number" },
+              ],
+              filename: `sczor-staff-performance-${range.startDate}_to_${range.endDate}`,
+            }}
             emptyText="No staff performance data found."
           />
 

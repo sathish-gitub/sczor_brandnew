@@ -47,7 +47,10 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const page = Math.max(1, Number(url.searchParams.get("page") ?? "1"));
-  const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? "20")));
+  const isExport = url.searchParams.get("export") === "true";
+  const limit = isExport
+    ? 10000
+    : Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? "20")));
   const search = url.searchParams.get("search")?.trim() ?? "";
   const paymentMethod = url.searchParams.get("paymentMethod")?.trim();
   const from = parseDateParam(url.searchParams.get("from"), false);
@@ -93,11 +96,22 @@ export async function GET(request: Request) {
   };
 
   try {
+    const total = await prisma.invoice.count({ where });
+
+    if (isExport && total > 50000) {
+      return NextResponse.json(
+        {
+          error: "Too many records to export",
+          message: "This export would include more than 50,000 records. Please narrow your date range or filters and try again.",
+        },
+        { status: 400 }
+      );
+    }
+
     const today = dayBounds();
     const thisMonth = monthBounds();
 
-    const [total, invoices, todayAggregate, monthAggregate] = await Promise.all([
-      prisma.invoice.count({ where }),
+    const [invoices, todayAggregate, monthAggregate] = await Promise.all([
       prisma.invoice.findMany({
         where,
         orderBy: {

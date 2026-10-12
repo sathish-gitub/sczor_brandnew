@@ -196,11 +196,18 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       if (patchParsed.success) {
         const existing = await prisma.appointment.findFirst({
           where: { id, tenantId },
-          select: { staffId: true },
+          select: { staffId: true, status: true },
         });
 
         if (!existing) {
           return NextResponse.json({ error: "Appointment not found." }, { status: 404 });
+        }
+
+        if (patchParsed.data.status === "CANCELLED" && (existing.status === "COMPLETED" || existing.status === "BILLED")) {
+          return NextResponse.json(
+            { error: `Cannot cancel a ${existing.status === "COMPLETED" ? "completed" : "billed"} appointment.` },
+            { status: 400 },
+          );
         }
 
         await prisma.appointment.update({
@@ -301,11 +308,18 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
   const existing = await prisma.appointment.findFirst({
     where: { id, tenantId },
-    select: { staffId: true },
+    select: { staffId: true, status: true },
   });
 
   if (!existing) {
     return NextResponse.json({ error: "Appointment not found." }, { status: 404 });
+  }
+
+  if (existing.status === "COMPLETED" || existing.status === "BILLED") {
+    return NextResponse.json(
+      { error: `Cannot cancel a ${existing.status === "COMPLETED" ? "completed" : "billed"} appointment.` },
+      { status: 400 },
+    );
   }
 
   await prisma.appointment.update({

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 
+import { ExportButtons } from "@/components/reports/ExportButtons";
+import { useAccess } from "@/contexts/AccessContext";
 import { formatStock } from "@/lib/productUnits";
 
 type LowStockItem = {
@@ -30,6 +32,7 @@ function severity(item: LowStockItem) {
 }
 
 export default function LowStockPage() {
+  const { tenantName } = useAccess();
   const [items, setItems] = useState<LowStockItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,9 +87,35 @@ export default function LowStockPage() {
         Back to Inventory
       </Link>
 
-      <header>
-        <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Low Stock Products</h1>
-        <p className="mt-1 text-sm text-[var(--muted)]">All active products at or below their reorder level.</p>
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Low Stock Products</h1>
+          <p className="mt-1 text-sm text-[var(--muted)]">All active products at or below their reorder level.</p>
+        </div>
+        <ExportButtons
+          disabled={items.length === 0}
+          getConfig={() => ({
+            title: "Low Stock Products",
+            salonName: tenantName,
+            columns: [
+              { header: "Product", key: "name", type: "text" },
+              { header: "Category", key: "category", type: "text" },
+              { header: "Current Stock", key: "currentStock", type: "text" },
+              { header: "Reorder Level", key: "reorderLevel", type: "text" },
+              { header: "Supplier", key: "supplier", type: "text" },
+              { header: "Status", key: "status", type: "text" },
+            ],
+            rows: items.map((item) => ({
+              name: item.name,
+              category: item.category ?? "—",
+              currentStock: formatStock(item.currentStock, item.unit, item.packSize),
+              reorderLevel: formatStock(item.reorderLevel, item.unit, item.packSize),
+              supplier: item.supplier ?? "—",
+              status: severity(item).label,
+            })),
+            filename: "sczor-low-stock-products",
+          })}
+        />
       </header>
 
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}

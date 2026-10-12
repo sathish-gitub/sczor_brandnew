@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+import { AuthSessionProvider } from "@/components/providers/AuthSessionProvider";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://sczor.com"),
   title: "sczor | Salon Management Software",
@@ -36,7 +38,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full bg-[var(--background)] text-[var(--foreground)] font-sans flex flex-col">
-        {children}
+        <AuthSessionProvider>{children}</AuthSessionProvider>
       </body>
     </html>
   );

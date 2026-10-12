@@ -125,6 +125,7 @@ export default function AppointmentsPage() {
   const savedDate = searchParams.get("date");
   const createdAppointmentId = searchParams.get("appointmentId");
   const [salonName, setSalonName] = useState("");
+  const [salonPhone, setSalonPhone] = useState("");
   const [period, setPeriod] = useState<"today" | "this_week" | "this_month">(
     savedDate ? periodContaining(savedDate) : "today",
   );
@@ -222,9 +223,12 @@ export default function AppointmentsPage() {
   useEffect(() => {
     fetch("/api/settings", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : null))
-      .then((data: { salonProfile?: { salonName?: string } } | null) => {
+      .then((data: { salonProfile?: { salonName?: string; phone?: string } } | null) => {
         if (data?.salonProfile?.salonName) {
           setSalonName(data.salonProfile.salonName);
+        }
+        if (data?.salonProfile?.phone) {
+          setSalonPhone(data.salonProfile.phone);
         }
       })
       .catch(() => null);
@@ -279,6 +283,7 @@ export default function AppointmentsPage() {
               customerName={createdAppointment.customer.name}
               mobile={createdAppointment.customer.mobile}
               salonName={salonName}
+              salonPhone={salonPhone}
               appointmentDate={createdAppointment.appointmentDate}
               appointmentTime={createdAppointment.appointmentTime}
               className="inline-flex h-8 items-center justify-center rounded-lg border border-emerald-300 bg-white px-3 text-xs font-semibold text-emerald-700 hover:border-emerald-400"
@@ -423,7 +428,7 @@ export default function AppointmentsPage() {
                           <Edit className="h-4 w-4" />
                         </Link>
                       ) : null}
-                      {row.status !== "BILLED" && row.status !== "CANCELLED" ? (
+                      {row.status !== "BILLED" && row.status !== "CANCELLED" && row.status !== "COMPLETED" ? (
                         <button
                           type="button"
                           onClick={() => cancelAppointment(row.id)}

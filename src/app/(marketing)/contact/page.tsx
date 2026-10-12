@@ -41,7 +41,7 @@ export default function ContactPage() {
     setError("");
     setSuccess("");
 
-    if (!form.businessName || !form.contactPerson || !form.mobile || !form.city || !form.description) {
+    if (!form.businessName || !form.contactPerson || !form.mobile || !form.city) {
       setError("Please fill all required fields.");
       return;
     }
@@ -167,7 +167,7 @@ export default function ContactPage() {
               </label>
 
               <label className="space-y-2 text-sm font-medium text-slate-700">
-                <span>How can we help you?*</span>
+                <span>How can we help you?</span>
                 <textarea
                   value={form.description}
                   onChange={(event) => updateField("description", event.target.value)}

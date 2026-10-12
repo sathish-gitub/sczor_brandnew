@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AlertTriangle, PackageCheck } from "lucide-react";
+import { AlertTriangle, ChevronDown, PackageCheck } from "lucide-react";
 
 import { formatStock } from "@/lib/productUnits";
 
@@ -33,12 +33,13 @@ export function LowStockWidget() {
   const [items, setItems] = useState<LowStockItem[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     let active = true;
 
     async function load() {
-      const response = await fetch("/api/dashboard/low-stock?limit=6", { cache: "no-store" });
+      const response = await fetch("/api/dashboard/low-stock?limit=100", { cache: "no-store" });
       const payload = (await response.json().catch(() => null)) as
         | { items?: LowStockItem[]; totalCount?: number }
         | null;
@@ -60,13 +61,15 @@ export function LowStockWidget() {
     };
   }, []);
 
+  const hasMore = items.length > 5;
+
   return (
     <section className="rounded-xl border border-[var(--border)] bg-white">
       <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
         <h2 className="text-base font-semibold text-[var(--foreground)]">Low Stock Alerts</h2>
         {totalCount > items.length ? (
           <Link href="/inventory/low-stock" className="text-sm font-semibold text-[var(--accent)] hover:text-[var(--primary)]">
-            View All
+            Full Report
           </Link>
         ) : null}
       </div>
@@ -85,35 +88,72 @@ export function LowStockWidget() {
           </div>
         ) : (
           <div className="space-y-2">
-            {items.map((item) => {
-              const level = severity(item);
+            <div>
+              {items.slice(0, 5).map((item) => {
+                const level = severity(item);
 
-              return (
-                <Link
-                  key={item.id}
-                  href={`/inventory/${item.id}`}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] px-3 py-2.5 hover:bg-slate-50"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-[var(--foreground)]">{item.name}</p>
-                    <p className="truncate text-xs text-[var(--muted)]">
-                      {formatStock(item.currentStock, item.unit, item.packSize)} left (reorder at{" "}
-                      {formatStock(item.reorderLevel, item.unit, item.packSize)})
-                    </p>
-                  </div>
-                  <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${level.className}`}>
-                    <AlertTriangle className="h-3 w-3" />
-                    {level.label}
-                  </span>
-                </Link>
-              );
-            })}
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/inventory/${item.id}`}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] px-3 py-2.5 hover:bg-slate-50"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-[var(--foreground)]">{item.name}</p>
+                      <p className="truncate text-xs text-[var(--muted)]">
+                        {formatStock(item.currentStock, item.unit, item.packSize)} left (reorder at{" "}
+                        {formatStock(item.reorderLevel, item.unit, item.packSize)})
+                      </p>
+                    </div>
+                    <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${level.className}`}>
+                      <AlertTriangle className="h-3 w-3" />
+                      {level.label}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {expanded ? (
+              <div className="overflow-hidden transition-all duration-300">
+                {items.slice(5).map((item) => {
+                  const level = severity(item);
+
+                  return (
+                    <Link
+                      key={item.id}
+                      href={`/inventory/${item.id}`}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-[var(--border)] px-3 py-2.5 hover:bg-slate-50"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-[var(--foreground)]">{item.name}</p>
+                        <p className="truncate text-xs text-[var(--muted)]">
+                          {formatStock(item.currentStock, item.unit, item.packSize)} left (reorder at{" "}
+                          {formatStock(item.reorderLevel, item.unit, item.packSize)})
+                        </p>
+                      </div>
+                      <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${level.className}`}>
+                        <AlertTriangle className="h-3 w-3" />
+                        {level.label}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : null}
+
+            {hasMore ? (
+              <button
+                type="button"
+                onClick={() => setExpanded(!expanded)}
+                className="mt-2 w-full py-2 text-sm font-semibold text-[var(--accent)] hover:text-[var(--primary)] transition-colors flex items-center justify-center gap-1"
+              >
+                {expanded ? "Show Less" : `View More (${items.length - 5} more)`}
+                <ChevronDown className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`} />
+              </button>
+            ) : null}
           </div>
         )}
-
-        {totalCount > items.length ? (
-          <p className="mt-3 text-center text-xs text-[var(--muted)]">and {totalCount - items.length} more</p>
-        ) : null}
       </div>
     </section>
   );

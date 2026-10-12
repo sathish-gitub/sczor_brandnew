@@ -74,3 +74,46 @@ export async function sendPasswordResetEmail(email: string, name: string, otp: s
   });
 }
 
+export async function sendWelcomeEmail(
+  email: string,
+  name: string,
+) {
+  return resend.emails.send({
+    from: `sczor <${process.env.RESEND_FROM_EMAIL ?? "noreply@sczor.com"}>`,
+    to: email,
+    subject: `Welcome to sczor, ${name}! Your salon is ready`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; background: #ffffff;">
+        <div style="background: #111111; padding: 32px 24px; text-align: center;">
+          <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 2px;">SCZOR</h1>
+          <p style="color: #aaaaaa; margin: 8px 0 0; font-size: 12px; letter-spacing: 1px;">Less Admin. More Glam.</p>
+        </div>
+        <div style="padding: 32px 24px; color: #333333;">
+          <p style="font-size: 16px;">Hi ${name},</p>
+          <p style="font-size: 14px; line-height: 1.6;">
+            Welcome to sczor! Your salon workspace is all set up and ready to go.
+          </p>
+          <p style="font-size: 14px; font-weight: bold; margin: 24px 0 12px; color: #111111;">Quick Start Guide:</p>
+          <ol style="font-size: 14px; line-height: 1.8; color: #333333; margin: 0; padding-left: 20px;">
+            <li><strong>Add Your Services</strong> – Set up your salon's services with pricing and duration</li>
+            <li><strong>Add Your Staff</strong> – Add team members and set their availability</li>
+            <li><strong>Book Your First Appointment</strong> – Start managing appointments and customers</li>
+          </ol>
+          <div style="margin: 24px 0; text-align: center;">
+            <a href="https://sczor.com/login" style="display: inline-block; background: #1E40AF; color: white; text-decoration: none; padding: 12px 32px; border-radius: 8px; font-weight: bold; font-size: 14px;">
+              Log in to your dashboard
+            </a>
+          </div>
+          <p style="font-size: 13px; color: #777777; line-height: 1.6;">
+            Need help? Our support team is here for you at <a href="mailto:connect@droletechnologies.com" style="color: #1E40AF; text-decoration: none;">connect@droletechnologies.com</a>
+          </p>
+        </div>
+        <div style="background: #f9f9f9; padding: 16px 24px; text-align: center; border-top: 1px solid #eeeeee;">
+          <p style="font-size: 12px; color: #999999; margin: 0;">
+            © 2024 sczor. All rights reserved.
+          </p>
+        </div>
+      </div>
+    `,
+  });
+}

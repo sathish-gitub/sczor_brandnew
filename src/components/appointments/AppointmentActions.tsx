@@ -63,7 +63,7 @@ export function AppointmentActions({ appointmentId, status }: AppointmentActions
     await updateStatus("CANCELLED");
   }
 
-  const isLocked = currentStatus === "BILLED" || currentStatus === "CANCELLED";
+  const isLocked = currentStatus === "BILLED" || currentStatus === "CANCELLED" || currentStatus === "COMPLETED";
 
   return (
     <div className="space-y-3">

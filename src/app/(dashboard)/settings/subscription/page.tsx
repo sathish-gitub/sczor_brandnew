@@ -1,7 +1,9 @@
 "use client";
 
 import Script from "next/script";
-import { Fragment, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Fragment, Suspense, useEffect, useState } from "react";
 import { Check, CheckCircle2, ChevronDown, LoaderCircle } from "lucide-react";
 
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -55,6 +57,17 @@ function formatPreciseCurrency(value: number) {
 }
 
 export default function SubscriptionPage() {
+  return (
+    <Suspense fallback={null}>
+      <SubscriptionPageContent />
+    </Suspense>
+  );
+}
+
+function SubscriptionPageContent() {
+  const searchParams = useSearchParams();
+  const requestedBilling = searchParams.get("billing")?.toUpperCase();
+  const { update } = useSession();
   const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,7 +75,9 @@ export default function SubscriptionPage() {
   const [loadingPlan, setLoadingPlan] = useState<PlanKey | null>(null);
   const [expandedPaymentId, setExpandedPaymentId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [billingCycle, setBillingCycle] = useState<BillingCycle>("MONTHLY");
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>(
+    requestedBilling === "YEARLY" ? "YEARLY" : "MONTHLY",
+  );
 
   useEffect(() => {
     let active = true;
@@ -84,7 +99,11 @@ export default function SubscriptionPage() {
 
         setSubscription(payload.subscription);
         setPayments(payload.payments ?? []);
-        setBillingCycle(payload.subscription.plan === "YEARLY" ? "YEARLY" : "MONTHLY");
+        // Honour an explicit ?billing= request (e.g. from the trial-expired or
+        // read-only CTAs); otherwise default to whatever the tenant already has.
+        if (requestedBilling !== "YEARLY" && requestedBilling !== "MONTHLY") {
+          setBillingCycle(payload.subscription.plan === "YEARLY" ? "YEARLY" : "MONTHLY");
+        }
       } catch (loadError) {
         if (!active) {
           return;
@@ -103,7 +122,7 @@ export default function SubscriptionPage() {
     return () => {
       active = false;
     };
-  }, [refreshKey]);
+  }, [refreshKey, requestedBilling]);
 
   async function subscribe(plan: PlanKey) {
     setLoadingPlan(plan);
@@ -140,6 +159,10 @@ export default function SubscriptionPage() {
           });
 
           if (verifyResponse.ok) {
+            // The JWT cookie caches trialExpired/isSubscribed and is only rewritten
+            // when a session update is triggered - without this, the proxy would
+            // keep bouncing an otherwise-paid tenant back to /subscription-required.
+            await update();
             setLoadingPlan(null);
             setLoading(true);
             setRefreshKey((key) => key + 1);
@@ -213,7 +236,10 @@ export default function SubscriptionPage() {
             cycle={`/ ${PRICING_PLANS.TRIAL.duration}`}
             features={[...PRICING_PLANS.TRIAL.features]}
             state={
-              subscription?.plan === "FREE_TRIAL"
+              // Use the live access status (not the raw plan field) so an expired trial
+              // shows "Trial Ended" instead of a stale "N days left" from a FREE_TRIAL
+              // tenant row whose trialEndsAt has already passed.
+              access?.status === "TRIAL"
                 ? { kind: "info", label: `Trial Active — ${access?.daysLeft ?? 0} days left` }
                 : { kind: "disabled", label: "Trial Ended" }
             }
@@ -231,14 +257,19 @@ export default function SubscriptionPage() {
             features={[...middlePlan.features]}
             highlighted
             state={
-              subscription?.plan === billingCycle
+              // Only treat the plan as "current" while it's actually active - an expired
+              // MONTHLY/YEARLY subscriber still has subscription.plan === billingCycle, but
+              // must see a renew action rather than a disabled "Current Plan" button.
+              subscription?.plan === billingCycle && access?.status === "ACTIVE"
                 ? { kind: "current" }
                 : {
                     kind: "action",
                     label:
-                      subscription?.plan === "MONTHLY" || subscription?.plan === "YEARLY"
-                        ? `Switch to ${billingCycle === "MONTHLY" ? "Monthly" : "Yearly"}`
-                        : "Subscribe",
+                      access?.status === "SUBSCRIPTION_EXPIRED" && subscription?.plan === billingCycle
+                        ? "Renew"
+                        : subscription?.plan === "MONTHLY" || subscription?.plan === "YEARLY"
+                          ? `Switch to ${billingCycle === "MONTHLY" ? "Monthly" : "Yearly"}`
+                          : "Subscribe",
                     loading: loadingPlan === billingCycle,
                     onClick: () => subscribe(billingCycle),
                   }

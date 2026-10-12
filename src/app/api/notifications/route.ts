@@ -97,6 +97,7 @@ export async function GET() {
     return NextResponse.json({ items: notifications, count: notifications.length });
   } catch (error) {
     console.error("Failed to load notifications", error);
-    return NextResponse.json({ error: "Unable to load notifications." }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Unable to load notifications.";
+    return NextResponse.json({ error: "Unable to load notifications.", message }, { status: 500 });
   }
 }

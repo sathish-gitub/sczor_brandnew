@@ -110,7 +110,13 @@ export async function GET(request: Request) {
       orderBy: [{ status: "asc" }, { name: "asc" }],
     });
 
-    return NextResponse.json({ items: products.map(serializeProduct) });
+    const totalProducts = await prisma.product.count({
+      where: {
+        tenantId,
+      },
+    });
+
+    return NextResponse.json({ items: products.map(serializeProduct), totalProducts });
   } catch (error) {
     console.error("Failed to list products", error);
     return NextResponse.json({ error: "Unable to load products." }, { status: 500 });

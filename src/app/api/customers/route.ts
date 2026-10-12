@@ -46,8 +46,11 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const search = url.searchParams.get("search")?.trim() ?? "";
-  const page = Math.max(Number(url.searchParams.get("page") ?? "1"), 1);
-  const limit = Math.min(Math.max(Number(url.searchParams.get("limit") ?? "20"), 1), 100);
+  const isExport = url.searchParams.get("export") === "true";
+  const page = isExport ? 1 : Math.max(Number(url.searchParams.get("page") ?? "1"), 1);
+  const limit = isExport
+    ? 10000
+    : Math.min(Math.max(Number(url.searchParams.get("limit") ?? "20"), 1), 100);
 
   const where = {
     tenantId,
@@ -69,9 +72,19 @@ export async function GET(request: Request) {
   };
 
   try {
-    const [total, customers] = await Promise.all([
-      prisma.customer.count({ where }),
-      prisma.customer.findMany({
+    const total = await prisma.customer.count({ where });
+
+    if (isExport && total > 50000) {
+      return NextResponse.json(
+        {
+          error: "Too many records to export",
+          message: "This export would include more than 50,000 records. Please narrow your search or date range and try again.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const customers = await prisma.customer.findMany({
         where,
         orderBy: {
           createdAt: "desc",
@@ -95,8 +108,7 @@ export async function GET(request: Request) {
             },
           },
         },
-      }),
-    ]);
+      });
 
     const items = customers.map((customer) => ({
       id: customer.id,

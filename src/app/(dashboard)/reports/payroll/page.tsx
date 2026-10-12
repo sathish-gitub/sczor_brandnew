@@ -5,8 +5,10 @@ import { useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 
 import { StatCard } from "@/components/reports/StatCard";
+import { ExportButtons } from "@/components/reports/ExportButtons";
 import { PayrollTrendChart, type PayrollTrendPoint } from "@/components/charts/PayrollTrendChart";
 import { CommissionVsBaseBarChart, type CommissionVsBasePoint } from "@/components/charts/CommissionVsBaseBarChart";
+import { useAccess } from "@/contexts/AccessContext";
 
 type StaffBreakdownRow = {
   payrollId: string;
@@ -42,6 +44,7 @@ function formatCurrency(value: number) {
 }
 
 export default function PayrollReportsPage() {
+  const { tenantName } = useAccess();
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
@@ -122,6 +125,40 @@ export default function PayrollReportsPage() {
               </option>
             ))}
           </select>
+          <ExportButtons
+            disabled={!data}
+            getConfig={() => ({
+              title: "Payroll Report — Staff Breakdown",
+              salonName: tenantName,
+              periodLabel: `${months[month - 1]} ${year}`,
+              columns: [
+                { header: "Name", key: "staffName", type: "text" },
+                { header: "Base", key: "baseSalary", type: "currency" },
+                { header: "Commission", key: "commission", type: "currency" },
+                { header: "Deduction", key: "deduction", type: "currency" },
+                { header: "Net Pay", key: "netPay", type: "currency" },
+              ],
+              rows: data?.staffBreakdown ?? [],
+              totals: {
+                staffName: "Total",
+                baseSalary: data?.summary.totalBaseSalary ?? 0,
+                commission: data?.summary.totalCommission ?? 0,
+                deduction: data?.summary.totalDeductions ?? 0,
+                netPay: data?.summary.totalNetPay ?? 0,
+              },
+              extraSections: [
+                {
+                  title: "Not Yet Processed",
+                  columns: [
+                    { header: "Name", key: "staffName", type: "text" },
+                    { header: "Reason", key: "reason", type: "text" },
+                  ],
+                  rows: data?.unpaidStaff ?? [],
+                },
+              ],
+              filename: `sczor-payroll-${year}-${String(month).padStart(2, "0")}`,
+            })}
+          />
         </div>
       </header>
 

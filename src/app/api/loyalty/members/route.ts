@@ -13,7 +13,10 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const page = Math.max(1, Number(url.searchParams.get("page") ?? "1"));
-  const limit = Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? "20")));
+  const isExport = url.searchParams.get("export") === "true";
+  const limit = isExport
+    ? 10000
+    : Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? "20")));
   const search = url.searchParams.get("search")?.trim() ?? "";
 
   const where = {
@@ -38,9 +41,19 @@ export async function GET(request: Request) {
   };
 
   try {
-    const [total, cards] = await Promise.all([
-      prisma.loyaltyCard.count({ where }),
-      prisma.loyaltyCard.findMany({
+    const total = await prisma.loyaltyCard.count({ where });
+
+    if (isExport && total > 50000) {
+      return NextResponse.json(
+        {
+          error: "Too many records to export",
+          message: "This export would include more than 50,000 records. Please narrow your search and try again.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const cards = await prisma.loyaltyCard.findMany({
         where,
         orderBy: {
           updatedAt: "desc",
@@ -65,8 +78,7 @@ export async function GET(request: Request) {
             },
           },
         },
-      }),
-    ]);
+      });
 
     const items = cards.map((card) => ({
       customerId: card.customer.id,

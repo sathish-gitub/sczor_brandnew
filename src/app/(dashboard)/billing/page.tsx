@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { PaymentSummary } from "@/components/billing/PaymentSummary";
 import { POSCart, cartItemKey, type POSCartItem, type POSStaffOption } from "@/components/billing/POSCart";
 import { formatStock } from "@/lib/productUnits";
+import { buildPostBillingMessage } from "@/lib/whatsappMessages";
 
 type ServiceItem = {
   id: string;
@@ -45,10 +46,17 @@ type DiscountType = "PERCENT" | "FLAT";
 type CheckoutSuccess = {
   invoiceId: string;
   invoiceNumber: string;
+  invoiceDate: string;
   customerName: string;
+  customerMobile: string;
   total: number;
   pointsEarned: number;
   totalPoints: number;
+  salonName: string;
+  salonPhone: string;
+  googleReviewUrl: string;
+  publicInvoiceUrl: string;
+  appointment: { appointmentDate: string; appointmentTime: string } | null;
 };
 
 type ToastMessage = {
@@ -573,10 +581,17 @@ export default function BillingPage() {
           error?: string;
           invoiceId?: string;
           invoiceNumber?: string;
+          invoiceDate?: string;
           customerName?: string;
+          customerMobile?: string;
           total?: number;
           pointsEarned?: number;
           totalPoints?: number;
+          salonName?: string;
+          salonPhone?: string;
+          googleReviewUrl?: string;
+          publicInvoiceUrl?: string;
+          appointment?: { appointmentDate: string; appointmentTime: string } | null;
         }
       | null;
 
@@ -589,10 +604,17 @@ export default function BillingPage() {
     setSuccess({
       invoiceId: payload.invoiceId,
       invoiceNumber: payload.invoiceNumber,
+      invoiceDate: payload.invoiceDate ?? new Date().toISOString(),
       customerName: payload.customerName,
+      customerMobile: payload.customerMobile ?? customer.mobile,
       total: payload.total,
       pointsEarned: payload.pointsEarned ?? 0,
       totalPoints: payload.totalPoints ?? customer.loyalty.totalPoints,
+      salonName: payload.salonName ?? "",
+      salonPhone: payload.salonPhone ?? "",
+      googleReviewUrl: payload.googleReviewUrl ?? "",
+      publicInvoiceUrl: payload.publicInvoiceUrl ?? "",
+      appointment: payload.appointment ?? null,
     });
 
     setProcessingPayment(false);
@@ -635,14 +657,43 @@ export default function BillingPage() {
           >
             Print Receipt
           </button>
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(`Invoice ${success.invoiceNumber} - ${formatCurrency(success.total)}`)}`}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
-          >
-            Send on WhatsApp
-          </a>
+          {(() => {
+            const phone = success.customerMobile?.replace(/[^0-9]/g, "");
+
+            if (!phone) {
+              return null;
+            }
+
+            const message = success.appointment
+              ? buildPostBillingMessage({
+                  customerName: success.customerName,
+                  salonName: success.salonName || "Our Salon",
+                  googleReviewUrl: success.googleReviewUrl,
+                  publicInvoiceUrl: success.publicInvoiceUrl,
+                  isWalkIn: false,
+                  appointmentDate: success.appointment.appointmentDate,
+                  appointmentTime: success.appointment.appointmentTime,
+                })
+              : buildPostBillingMessage({
+                  customerName: success.customerName,
+                  salonName: success.salonName || "Our Salon",
+                  googleReviewUrl: success.googleReviewUrl,
+                  publicInvoiceUrl: success.publicInvoiceUrl,
+                  isWalkIn: true,
+                  invoiceDate: success.invoiceDate,
+                });
+
+            return (
+              <a
+                href={`https://wa.me/91${phone}?text=${encodeURIComponent(message)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
+              >
+                Send on WhatsApp
+              </a>
+            );
+          })()}
           <button
             type="button"
             onClick={resetForNewSale}

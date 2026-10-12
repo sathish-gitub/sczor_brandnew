@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { DataTable } from "@/components/reports/DataTable";
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
 import { StatCard } from "@/components/reports/StatCard";
+import { useAccess } from "@/contexts/AccessContext";
+import { formatPeriodLabel } from "@/lib/exportReport";
 
 function toDateString(date: Date) {
   const year = date.getFullYear();
@@ -67,6 +69,7 @@ function formatDate(value: string | null) {
 }
 
 export default function CustomerReportPage() {
+  const { tenantName } = useAccess();
   const [range, setRange] = useState(monthRange());
 
   const [loading, setLoading] = useState(true);
@@ -182,7 +185,21 @@ export default function CustomerReportPage() {
                 { key: "last", label: "Last Visit", sortable: true, render: (row) => formatDate(row.lastVisit), sortValue: (row) => row.lastVisit ?? "" },
               ]}
               rows={topRows}
-              csvFileName="top-customers.csv"
+              exportConfig={{
+                title: "Customer Analytics — Top Customers",
+                salonName: tenantName,
+                periodLabel: formatPeriodLabel(range.startDate, range.endDate),
+                columns: [
+                  { header: "Rank", key: "rank", type: "number" },
+                  { header: "Customer", key: "name", type: "text" },
+                  { header: "Mobile", key: "mobile", type: "text" },
+                  { header: "Visits", key: "visits", type: "number" },
+                  { header: "Total Spent", key: "totalSpent", type: "currency" },
+                  { header: "Loyalty Tier", key: "tier", type: "text" },
+                  { header: "Last Visit", key: "lastVisit", type: "date" },
+                ],
+                filename: `sczor-top-customers-${range.startDate}_to_${range.endDate}`,
+              }}
               emptyText="No top customers in this period."
             />
           </section>
@@ -195,7 +212,18 @@ export default function CustomerReportPage() {
               { key: "total", label: "Total Visits", sortable: true, render: (row) => row.totalVisits, sortValue: (row) => row.totalVisits },
             ]}
             rows={acquisitionRows}
-            csvFileName="customer-acquisition.csv"
+            exportConfig={{
+              title: "Customer Analytics — Acquisition",
+              salonName: tenantName,
+              periodLabel: formatPeriodLabel(range.startDate, range.endDate),
+              columns: [
+                { header: "Month", key: "month", type: "text" },
+                { header: "New Customers", key: "newCustomers", type: "number" },
+                { header: "Returning", key: "returning", type: "number" },
+                { header: "Total Visits", key: "totalVisits", type: "number" },
+              ],
+              filename: `sczor-customer-acquisition-${range.startDate}_to_${range.endDate}`,
+            }}
             emptyText="No acquisition data available."
           />
         </>

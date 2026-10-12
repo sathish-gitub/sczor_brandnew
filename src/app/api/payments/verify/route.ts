@@ -17,13 +17,17 @@ const bodySchema = z.object({
   plan: z.enum(["MONTHLY", "YEARLY"]),
 });
 
-async function nextSubscriptionInvoiceNumber(tenantId: string) {
+async function nextSubscriptionInvoiceNumber() {
   const year = new Date().getFullYear();
   const basePrefix = `SUB-INV-${year}-`;
 
+  // `Payment.invoiceNumber` is unique across all tenants (not scoped per tenant), so the
+  // next sequence number must also be computed globally - otherwise two tenants whose own
+  // payment history both lack this prefix would independently compute the same number and
+  // collide on the unique constraint, causing verify to fail after Razorpay already charged
+  // the customer.
   const latest = await prisma.payment.findFirst({
     where: {
-      tenantId,
       invoiceNumber: {
         startsWith: basePrefix,
       },
@@ -90,7 +94,7 @@ export async function POST(request: Request) {
     where: { razorpayOrderId: razorpay_order_id, tenantId: session.user.tenantId },
   });
 
-  const invoiceNumber = paymentRecord ? await nextSubscriptionInvoiceNumber(session.user.tenantId) : null;
+  const invoiceNumber = paymentRecord ? await nextSubscriptionInvoiceNumber() : null;
   const gstBreakdown = paymentRecord ? calculateGSTBreakdown(paymentRecord.amount) : null;
 
   await prisma.payment.updateMany({

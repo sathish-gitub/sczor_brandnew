@@ -5,6 +5,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DEFAULT_SERVICE_CATEGORIES } from "@/lib/utils";
+import { sendWelcomeEmail } from "@/lib/resend";
 
 const schema = z.object({
   salonName: z.string().trim().min(2, "Salon name is required."),
@@ -81,7 +82,7 @@ export async function POST(request: Request) {
           isActive: true,
           isSubscribed: false,
         },
-        select: { id: true, slug: true },
+        select: { id: true, slug: true, plan: true },
       });
 
       const createdUser = await tx.user.create({
@@ -123,6 +124,12 @@ export async function POST(request: Request) {
 
       return { tenant: createdTenant, user: createdUser };
     });
+
+    try {
+      await sendWelcomeEmail(email, name);
+    } catch (emailError) {
+      console.error("Failed to send welcome email:", emailError);
+    }
 
     return NextResponse.json({
       success: true,

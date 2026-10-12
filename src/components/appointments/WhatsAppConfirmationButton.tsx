@@ -1,37 +1,22 @@
 "use client";
 
+import { buildBookingConfirmationMessage } from "@/lib/whatsappMessages";
+
 type WhatsAppConfirmationButtonProps = {
   customerName: string;
   mobile: string;
   salonName: string;
+  salonPhone?: string | null;
   appointmentDate: string | Date;
   appointmentTime: string;
   className?: string;
 };
 
-function formatAppointmentDate(value: string | Date) {
-  const date = typeof value === "string" ? new Date(value) : value;
-
-  return new Intl.DateTimeFormat("en-IN", {
-    day: "numeric",
-    month: "long",
-  }).format(date);
-}
-
-function formatAppointmentTime(time: string) {
-  const [hoursPart, minutesPart] = time.split(":");
-  const hours = Number(hoursPart);
-  const minutes = Number(minutesPart ?? "0");
-  const period = hours >= 12 ? "PM" : "AM";
-  const twelveHour = hours % 12 === 0 ? 12 : hours % 12;
-
-  return `${twelveHour}:${String(minutes).padStart(2, "0")} ${period}`;
-}
-
 export function WhatsAppConfirmationButton({
   customerName,
   mobile,
   salonName,
+  salonPhone,
   appointmentDate,
   appointmentTime,
   className,
@@ -42,9 +27,13 @@ export function WhatsAppConfirmationButton({
     return null;
   }
 
-  const message =
-    `Hi ${customerName}, your appointment has been confirmed at ${salonName} on ` +
-    `${formatAppointmentDate(appointmentDate)} at ${formatAppointmentTime(appointmentTime)}.\n\n${salonName}`;
+  const message = buildBookingConfirmationMessage({
+    customerName,
+    salonName,
+    salonPhone,
+    appointmentDate,
+    appointmentTime,
+  });
 
   const url = `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
 

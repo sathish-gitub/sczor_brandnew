@@ -71,6 +71,8 @@ export async function GET() {
         city: tenant.city ?? "",
         state: tenant.state ?? "",
         pincode: tenant.pincode ?? "",
+        instagramUrl: tenant.instagramUrl ?? "",
+        googleReviewUrl: tenant.googleReviewUrl ?? "",
       },
       businessHours: {
         days,

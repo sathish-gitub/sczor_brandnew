@@ -5,9 +5,12 @@ import { Info } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
+import { ExportButtons } from "@/components/reports/ExportButtons";
 import { StatCard } from "@/components/reports/StatCard";
 import { PLTrendChart, type PLTrendPoint } from "@/components/charts/PLTrendChart";
 import { CategoryAmountDonut, type CategoryAmountPoint } from "@/components/charts/CategoryAmountDonut";
+import { useAccess } from "@/contexts/AccessContext";
+import { formatPeriodLabel } from "@/lib/exportReport";
 
 type PLPayload = {
   current: {
@@ -51,6 +54,7 @@ function formatCurrency(value: number) {
 }
 
 export default function ProfitLossReportPage() {
+  const { tenantName } = useAccess();
   const [range, setRange] = useState(currentMonthRange());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -108,7 +112,52 @@ export default function ProfitLossReportPage() {
           <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Profit & Loss Analysis</h1>
           <p className="mt-1 text-sm text-[var(--muted)]">Revenue, cost of goods, and operating expenses in one financial overview.</p>
         </div>
-        <DateRangePicker value={range} onChange={setRange} />
+        <div className="flex flex-wrap items-center gap-2">
+          <DateRangePicker value={range} onChange={setRange} />
+          <ExportButtons
+            disabled={!pl}
+            getConfig={() => ({
+              title: "Profit & Loss Statement",
+              salonName: tenantName,
+              periodLabel: formatPeriodLabel(range.startDate, range.endDate),
+              columns: [
+                { header: "Line Item", key: "label", type: "text" },
+                { header: "Amount", key: "amount", type: "currency" },
+              ],
+              rows: [
+                { label: "Service Revenue", amount: pl?.revenue.serviceRevenue ?? 0 },
+                { label: "Retail Product Revenue", amount: pl?.revenue.productRevenue ?? 0 },
+                { label: "Total Revenue", amount: pl?.revenue.totalRevenue ?? 0 },
+                { label: "Product Costs (COGS)", amount: -(pl?.cogs.productCost ?? 0) },
+                { label: "Gross Profit", amount: pl?.grossProfit ?? 0 },
+                { label: "Staff Payroll", amount: -(pl?.operatingExpenses.payrollCost ?? 0) },
+                { label: "Inventory Purchases", amount: -(pl?.operatingExpenses.inventoryPurchases ?? 0) },
+                { label: "Loyalty Discounts", amount: -(pl?.operatingExpenses.loyaltyDiscounts ?? 0) },
+                { label: "Total Operating Expenses", amount: -(pl?.operatingExpenses.totalOperatingExpenses ?? 0) },
+                { label: "Net Profit", amount: pl?.netProfit ?? 0 },
+              ],
+              extraSections: [
+                {
+                  title: "Revenue Breakdown",
+                  columns: [
+                    { header: "Category", key: "category", type: "text" },
+                    { header: "Amount", key: "amount", type: "currency" },
+                  ],
+                  rows: data?.revenueBreakdown ?? [],
+                },
+                {
+                  title: "Expense Breakdown",
+                  columns: [
+                    { header: "Category", key: "category", type: "text" },
+                    { header: "Amount", key: "amount", type: "currency" },
+                  ],
+                  rows: data?.expenseBreakdown ?? [],
+                },
+              ],
+              filename: `sczor-profit-loss-${range.startDate}_to_${range.endDate}`,
+            })}
+          />
+        </div>
       </header>
 
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}

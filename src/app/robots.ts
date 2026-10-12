@@ -14,6 +14,7 @@ export default function robots(): MetadataRoute.Robots {
           "/attendance",
           "/billing",
           "/customers",
+          "/invoice",
           "/inventory",
           "/loyalty",
           "/payroll",

@@ -1,10 +1,12 @@
 "use client";
 
-import { Download } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { ExportButtons } from "@/components/reports/ExportButtons";
 import { MonthCalendar } from "@/components/attendance/MonthCalendar";
 import { StaffAvatar } from "@/components/staff/StaffAvatar";
+import { useAccess } from "@/contexts/AccessContext";
+import type { ExportColumn } from "@/lib/exportReport";
 
 type CellStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY" | "OFF";
 
@@ -84,6 +86,7 @@ function statusCellLabel(status: CellStatus) {
 }
 
 export default function AttendanceReportsPage() {
+  const { tenantName } = useAccess();
   const now = useMemo(() => new Date(), []);
   const [monthInput, setMonthInput] = useState(formatMonthInput(now.getFullYear(), now.getMonth() + 1));
   const [staffFilter, setStaffFilter] = useState("ALL");
@@ -161,46 +164,62 @@ export default function AttendanceReportsPage() {
     };
   }, [monthInput, staffFilter]);
 
-  function exportCsv() {
-    if (!report || report.items.length === 0) {
-      return;
+  function getAttendanceExportConfig() {
+    if (!report) {
+      return {
+        title: "Attendance Report",
+        salonName: tenantName,
+        columns: [{ header: "Staff", key: "name", type: "text" as const }],
+        rows: [],
+        filename: "sczor-attendance-report",
+      };
     }
 
-    const header = [
-      "Staff",
-      "Designation",
-      ...report.days.map((day) => `${day.day} ${day.weekday}`),
-      "Present",
-      "Absent",
-      "Leave",
-      "Half Day",
-      "Attendance %",
+    const dayColumns: ExportColumn[] = report.days.map((day) => ({
+      header: `${day.day} ${day.weekday}`,
+      key: `day${day.day}`,
+      type: "text",
+      width: 8,
+    }));
+
+    const columns: ExportColumn[] = [
+      { header: "Staff", key: "name", type: "text" },
+      { header: "Designation", key: "designation", type: "text" },
+      ...dayColumns,
+      { header: "Present", key: "present", type: "number" },
+      { header: "Absent", key: "absent", type: "number" },
+      { header: "Leave", key: "leave", type: "number" },
+      { header: "Half Day", key: "halfDay", type: "number" },
+      { header: "Attendance %", key: "attendancePercent", type: "percent" },
     ];
 
-    const lines = report.items.map((item) => [
-      item.name,
-      item.designation,
-      ...item.cells.map((cell) => statusCellLabel(cell.status)),
-      String(item.summary.present),
-      String(item.summary.absent),
-      String(item.summary.leave),
-      String(item.summary.halfDay),
-      String(item.summary.attendancePercent),
-    ]);
+    const rows = report.items.map((item) => {
+      const row: Record<string, unknown> = {
+        name: item.name,
+        designation: item.designation,
+        present: item.summary.present,
+        absent: item.summary.absent,
+        leave: item.summary.leave,
+        halfDay: item.summary.halfDay,
+        attendancePercent: item.summary.attendancePercent,
+      };
 
-    const csvText = [header, ...lines]
-      .map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(","))
-      .join("\n");
+      item.cells.forEach((cell) => {
+        row[`day${cell.day}`] = statusCellLabel(cell.status);
+      });
 
-    const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
-    const href = URL.createObjectURL(blob);
+      return row;
+    });
 
-    const link = document.createElement("a");
-    link.href = href;
-    link.download = `attendance-${report.year}-${`${report.month}`.padStart(2, "0")}.csv`;
-    link.click();
-
-    URL.revokeObjectURL(href);
+    return {
+      title: "Attendance Report",
+      salonName: tenantName,
+      periodLabel: `${report.month}/${report.year}`,
+      filtersLabel: staffFilter !== "ALL" ? `Staff: ${staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter}` : undefined,
+      columns,
+      rows,
+      filename: `sczor-attendance-${report.year}-${String(report.month).padStart(2, "0")}`,
+    };
   }
 
   const calendarTarget = report?.items[0] ?? null;
@@ -239,14 +258,7 @@ export default function AttendanceReportsPage() {
             <p className="mt-1 text-sm text-[var(--muted)]">Monthly attendance analytics for your staff team.</p>
           </div>
 
-          <button
-            type="button"
-            onClick={exportCsv}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700 hover:border-[var(--accent)] hover:text-[var(--accent)]"
-          >
-            <Download className="h-4 w-4" />
-            Export to CSV
-          </button>
+          <ExportButtons getConfig={getAttendanceExportConfig} disabled={!report} />
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

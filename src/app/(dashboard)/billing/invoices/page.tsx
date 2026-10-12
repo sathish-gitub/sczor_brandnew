@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+import { ExportButtons } from "@/components/reports/ExportButtons";
+import { useAccess } from "@/contexts/AccessContext";
+import { formatPeriodLabel } from "@/lib/exportReport";
+
 type InvoiceRow = {
   id: string;
   invoiceNumber: string;
@@ -58,6 +62,7 @@ const paymentStatusBadge: Record<InvoiceRow["paymentStatus"], string> = {
 };
 
 export default function InvoicesPage() {
+  const { tenantName } = useAccess();
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("ALL");
@@ -127,52 +132,59 @@ export default function InvoicesPage() {
     };
   }, [page, paymentMethod, query, fromDate, toDate]);
 
-  function exportCsv() {
-    if (!payload || payload.items.length === 0) {
-      return;
+  async function getInvoiceExportConfig() {
+    const params = new URLSearchParams({
+      export: "true",
+      paymentMethod,
+    });
+
+    if (query) {
+      params.set("search", query);
     }
 
-    const headers = [
-      "Invoice#",
-      "Date",
-      "Customer",
-      "Items",
-      "Subtotal",
-      "GST",
-      "Discount",
-      "Loyalty Discount",
-      "Total",
-      "Payment",
-      "Status",
-    ];
+    if (fromDate) {
+      params.set("from", fromDate);
+    }
 
-    const rows = payload.items.map((item) => [
-      item.invoiceNumber,
-      formatDate(item.invoiceDate),
-      item.customerName,
-      String(item.itemsCount),
-      String(item.subtotal),
-      String(item.gst),
-      String(item.discount),
-      String(item.loyaltyDiscount),
-      String(item.total),
-      item.paymentMethod,
-      item.paymentStatus,
-    ]);
+    if (toDate) {
+      params.set("to", toDate);
+    }
 
-    const csvText = [headers, ...rows]
-      .map((line) => line.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(","))
-      .join("\n");
+    const response = await fetch(`/api/billing/invoices?${params.toString()}`, { cache: "no-store" });
+    const data = (await response.json().catch(() => null)) as (InvoicesResponse & { error?: string }) | null;
 
-    const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
-    const href = URL.createObjectURL(blob);
+    if (!response.ok || !data) {
+      throw new Error(data?.error ?? "Unable to export invoices.");
+    }
 
-    const anchor = document.createElement("a");
-    anchor.href = href;
-    anchor.download = "invoices.csv";
-    anchor.click();
+    const filtersLabel = [
+      paymentMethod !== "ALL" ? `Payment: ${paymentMethod}` : null,
+      query ? `Search: ${query}` : null,
+    ]
+      .filter(Boolean)
+      .join(", ") || undefined;
 
-    URL.revokeObjectURL(href);
+    return {
+      title: "Invoices",
+      salonName: tenantName,
+      periodLabel: fromDate || toDate ? formatPeriodLabel(fromDate || toDate, toDate || fromDate) : undefined,
+      filtersLabel,
+      columns: [
+        { header: "Invoice#", key: "invoiceNumber", type: "text" as const },
+        { header: "Date", key: "invoiceDate", type: "date" as const },
+        { header: "Customer", key: "customerName", type: "text" as const },
+        { header: "Items", key: "itemsCount", type: "number" as const },
+        { header: "Subtotal", key: "subtotal", type: "currency" as const },
+        { header: "GST", key: "gst", type: "currency" as const },
+        { header: "Discount", key: "discount", type: "currency" as const },
+        { header: "Loyalty Discount", key: "loyaltyDiscount", type: "number" as const },
+        { header: "Total", key: "total", type: "currency" as const },
+        { header: "Payment", key: "paymentMethod", type: "text" as const },
+        { header: "Status", key: "paymentStatus", type: "text" as const },
+      ],
+      rows: data.items,
+      filename: `sczor-invoices-${fromDate || "all"}_to_${toDate || "all"}`,
+    };
   }
 
   const summary = useMemo(
@@ -196,13 +208,7 @@ export default function InvoicesPage() {
           <p className="text-sm text-[var(--muted)]">Track revenue and billing activity.</p>
         </div>
 
-        <button
-          type="button"
-          onClick={exportCsv}
-          className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
-        >
-          Export CSV
-        </button>
+        <ExportButtons getConfig={getInvoiceExportConfig} />
       </header>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">

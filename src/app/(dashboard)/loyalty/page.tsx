@@ -4,6 +4,9 @@ import Link from "next/link";
 import { Settings } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { ExportButtons } from "@/components/reports/ExportButtons";
+import { useAccess } from "@/contexts/AccessContext";
+
 type Tier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 
 type MemberRow = {
@@ -55,6 +58,7 @@ function tierRanges(thresholds: { silverThreshold: number; goldThreshold: number
 }
 
 export default function LoyaltyPage() {
+  const { tenantName } = useAccess();
   const [stats, setStats] = useState({
     totalMembers: 0,
     pointsIssued: 0,
@@ -224,6 +228,37 @@ export default function LoyaltyPage() {
   const tierCards = useMemo(() => ["BRONZE", "SILVER", "GOLD", "PLATINUM"] as const, []);
   const ranges = useMemo(() => tierRanges(stats.thresholds), [stats.thresholds]);
 
+  async function getLoyaltyExportConfig() {
+    const params = new URLSearchParams({ export: "true" });
+
+    if (query) {
+      params.set("search", query);
+    }
+
+    const response = await fetch(`/api/loyalty/members?${params.toString()}`, { cache: "no-store" });
+    const data = (await response.json().catch(() => null)) as { error?: string; items?: MemberRow[] } | null;
+
+    if (!response.ok || !data) {
+      throw new Error(data?.error ?? "Unable to export loyalty members.");
+    }
+
+    return {
+      title: "Loyalty Members",
+      salonName: tenantName,
+      filtersLabel: query ? `Search: ${query}` : undefined,
+      columns: [
+        { header: "Customer", key: "customerName", type: "text" as const },
+        { header: "Mobile", key: "mobile", type: "text" as const },
+        { header: "Tier", key: "tier", type: "text" as const },
+        { header: "Points", key: "points", type: "number" as const },
+        { header: "Total Spent", key: "totalSpent", type: "currency" as const },
+        { header: "Last Transaction", key: "lastTransaction", type: "date" as const },
+      ],
+      rows: data.items ?? [],
+      filename: "sczor-loyalty-members",
+    };
+  }
+
   return (
     <div className="space-y-5">
       {toast ? (
@@ -237,10 +272,13 @@ export default function LoyaltyPage() {
           <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Loyalty Program</h1>
         </div>
 
-        <Link href="/settings/loyalty" className="inline-flex h-10 items-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700">
-          <Settings className="h-4 w-4" />
-          Program Settings
-        </Link>
+        <div className="flex items-center gap-2">
+          <ExportButtons getConfig={getLoyaltyExportConfig} />
+          <Link href="/settings/loyalty" className="inline-flex h-10 items-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700">
+            <Settings className="h-4 w-4" />
+            Program Settings
+          </Link>
+        </div>
       </header>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">

@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { ExportButtons } from "@/components/reports/ExportButtons";
+import { useAccess } from "@/contexts/AccessContext";
+
 type HistoryItem = {
   id: string;
   staffId: string;
@@ -30,6 +33,7 @@ function formatDate(value: string) {
 }
 
 export default function PayrollHistoryPage() {
+  const { tenantName } = useAccess();
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [staffOptions, setStaffOptions] = useState<StaffOption[]>([]);
   const [staffFilter, setStaffFilter] = useState("ALL");
@@ -120,6 +124,34 @@ export default function PayrollHistoryPage() {
               </option>
             ))}
           </select>
+          <ExportButtons
+            disabled={items.length === 0}
+            getConfig={() => ({
+              title: "Payroll History",
+              salonName: tenantName,
+              filtersLabel: [
+                staffFilter !== "ALL" ? `Staff: ${staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter}` : null,
+                yearFilter !== "ALL" ? `Year: ${yearFilter}` : null,
+              ]
+                .filter(Boolean)
+                .join(", ") || undefined,
+              columns: [
+                { header: "Staff Name", key: "staffName", type: "text" },
+                { header: "Month/Year", key: "monthYear", type: "text" },
+                { header: "Net Pay", key: "netPay", type: "currency" },
+                { header: "Payslip Number", key: "payslipNumber", type: "text" },
+                { header: "Generated Date", key: "generatedAt", type: "date" },
+              ],
+              rows: items.map((item) => ({
+                staffName: item.staffName,
+                monthYear: `${months[item.month - 1]} ${item.year}`,
+                netPay: item.netPay,
+                payslipNumber: item.payslipNumber,
+                generatedAt: item.generatedAt,
+              })),
+              filename: `sczor-payroll-history-${staffFilter}-${yearFilter}`,
+            })}
+          />
           <Link
             href="/payroll"
             className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"

@@ -32,6 +32,12 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
             },
           },
         },
+        appointment: {
+          select: {
+            appointmentDate: true,
+            appointmentTime: true,
+          },
+        },
         items: {
           select: {
             id: true,
@@ -66,6 +72,8 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         phone: true,
         email: true,
         gstNumber: true,
+        instagramUrl: true,
+        googleReviewUrl: true,
       },
     }),
   ]);
@@ -102,6 +110,13 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           total: Number(invoice.total),
           paymentMethod: invoice.paymentMethod,
           paymentStatus: invoice.paymentStatus,
+          publicToken: invoice.publicToken,
+          appointment: invoice.appointment
+            ? {
+                appointmentDate: invoice.appointment.appointmentDate.toISOString(),
+                appointmentTime: invoice.appointment.appointmentTime,
+              }
+            : null,
           customer: {
             name: invoice.customer.name,
             mobile: invoice.customer.mobile,

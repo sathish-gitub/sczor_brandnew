@@ -1,3 +1,5 @@
+import crypto from "node:crypto";
+
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { z } from "zod";
@@ -6,6 +8,7 @@ import { authOptions } from "@/lib/auth";
 import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
 import { calculateLoyaltyTier } from "@/lib/utils";
+import { buildPublicInvoiceUrl } from "@/lib/whatsappMessages";
 
 const itemSchema = z
   .object({
@@ -42,6 +45,10 @@ function clamp(value: number, min: number, max: number) {
 
 function roundMoney(value: number) {
   return Math.round(value * 100) / 100;
+}
+
+function generatePublicToken() {
+  return crypto.randomBytes(24).toString("base64url");
 }
 
 async function nextInvoiceNumber(tenantId: string, prefix: string) {
@@ -97,7 +104,7 @@ export async function POST(request: Request) {
     const serviceItems = payload.items.filter((item) => item.type === "SERVICE");
     const productItems = payload.items.filter((item) => item.type === "PRODUCT");
 
-    const [settings, customer, services, products] = await Promise.all([
+    const [settings, customer, services, products, tenant] = await Promise.all([
       prisma.salonSettings.findUnique({
         where: {
           tenantId: session.user.tenantId,
@@ -119,6 +126,7 @@ export async function POST(request: Request) {
         select: {
           id: true,
           name: true,
+          mobile: true,
           loyaltyCard: {
             select: {
               id: true,
@@ -156,6 +164,14 @@ export async function POST(request: Request) {
           name: true,
           sellingPrice: true,
           currentStock: true,
+        },
+      }),
+      prisma.tenant.findUnique({
+        where: { id: session.user.tenantId },
+        select: {
+          name: true,
+          phone: true,
+          googleReviewUrl: true,
         },
       }),
     ]);
@@ -276,9 +292,11 @@ export async function POST(request: Request) {
     const linkedAppointment = payload.appointmentId
       ? await prisma.appointment.findFirst({
           where: { id: payload.appointmentId, tenantId: session.user.tenantId, invoice: null },
-          select: { id: true },
+          select: { id: true, appointmentDate: true, appointmentTime: true },
         })
       : null;
+
+    const publicToken = generatePublicToken();
 
     const created = await prisma.$transaction(async (tx) => {
       const invoice = await tx.invoice.create({
@@ -286,6 +304,7 @@ export async function POST(request: Request) {
           tenantId: session.user.tenantId,
           customerId: customer.id,
           invoiceNumber,
+          publicToken,
           subtotal,
           taxRate: gstRate,
           taxAmount,
@@ -411,7 +430,9 @@ export async function POST(request: Request) {
       success: true,
       invoiceId: created.invoice.id,
       invoiceNumber: created.invoice.invoiceNumber,
+      invoiceDate: created.invoice.invoiceDate.toISOString(),
       customerName: customer.name,
+      customerMobile: customer.mobile,
       total: Number(created.invoice.total),
       subtotal: Number(created.invoice.subtotal),
       discount: Number(created.invoice.discount),
@@ -419,6 +440,16 @@ export async function POST(request: Request) {
       gst: Number(created.invoice.taxAmount),
       pointsEarned: created.pointsEarned,
       totalPoints: created.totalPointsAfter,
+      salonName: tenant?.name ?? "",
+      salonPhone: tenant?.phone ?? "",
+      googleReviewUrl: tenant?.googleReviewUrl ?? "",
+      publicInvoiceUrl: buildPublicInvoiceUrl(publicToken),
+      appointment: linkedAppointment
+        ? {
+            appointmentDate: linkedAppointment.appointmentDate.toISOString(),
+            appointmentTime: linkedAppointment.appointmentTime,
+          }
+        : null,
     });
   } catch (error) {
     console.error("Failed to create invoice", error);

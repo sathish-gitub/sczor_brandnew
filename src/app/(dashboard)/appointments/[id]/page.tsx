@@ -62,7 +62,7 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
     }),
     prisma.tenant.findUnique({
       where: { id: session.user.tenantId },
-      select: { name: true },
+      select: { name: true, phone: true },
     }),
   ]);
 
@@ -154,6 +154,7 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
             customerName={appointment.customer.name}
             mobile={appointment.customer.mobile}
             salonName={tenant?.name ?? "Our Salon"}
+            salonPhone={tenant?.phone}
             appointmentDate={appointment.appointmentDate}
             appointmentTime={appointment.appointmentTime}
           />

@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { DataTable } from "@/components/reports/DataTable";
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
 import { StatCard } from "@/components/reports/StatCard";
+import { useAccess } from "@/contexts/AccessContext";
+import { formatPeriodLabel } from "@/lib/exportReport";
 
 function toDateString(date: Date) {
   const year = date.getFullYear();
@@ -37,6 +39,7 @@ type Payload = {
 };
 
 export default function RevenueReportPage() {
+  const { tenantName } = useAccess();
   const [range, setRange] = useState(monthRange());
   const [paymentMethod, setPaymentMethod] = useState("ALL");
   const [staffId, setStaffId] = useState("ALL");
@@ -169,7 +172,30 @@ export default function RevenueReportPage() {
               { key: "invoices", label: "Invoices", sortable: true, render: (row) => row.invoices, sortValue: (row) => row.invoices },
             ]}
             rows={payload.daily}
-            csvFileName="revenue-daily.csv"
+            exportConfig={{
+              title: "Revenue Report — Daily Breakdown",
+              salonName: tenantName,
+              periodLabel: formatPeriodLabel(range.startDate, range.endDate),
+              filtersLabel: [paymentMethod !== "ALL" ? `Payment: ${paymentMethod}` : null, staffId !== "ALL" ? `Staff: ${staffOptions.find((s) => s.id === staffId)?.name ?? staffId}` : null]
+                .filter(Boolean)
+                .join(", ") || undefined,
+              columns: [
+                { header: "Date", key: "date", type: "date" },
+                { header: "Revenue", key: "revenue", type: "currency" },
+                { header: "GST", key: "gst", type: "currency" },
+                { header: "Discount", key: "discount", type: "currency" },
+                { header: "Net", key: "net", type: "currency" },
+                { header: "Invoices", key: "invoices", type: "number" },
+              ],
+              totals: {
+                revenue: payload.totals.grossRevenue,
+                gst: payload.totals.gstCollected,
+                discount: payload.totals.discountsGiven,
+                net: payload.totals.netRevenue,
+                invoices: payload.daily.reduce((sum, row) => sum + row.invoices, 0),
+              },
+              filename: `sczor-revenue-${range.startDate}_to_${range.endDate}`,
+            }}
             emptyText="No daily revenue data found."
           />
         </>

@@ -6,6 +6,7 @@ import { useAccess } from "@/contexts/AccessContext";
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { ExportButtons } from "@/components/reports/ExportButtons";
 import { StaffCard } from "@/components/staff/StaffCard";
 
 type StaffRow = {
@@ -108,23 +109,55 @@ export default function StaffPage() {
             <p className="mt-1 text-sm text-[var(--muted)]">Manage staff roster, availability, and profile insights.</p>
           </div>
 
-          <Link
-            href={access.accessLevel === "READ_ONLY" ? "#" : "/staff/new"}
-            aria-disabled={access.accessLevel === "READ_ONLY"}
-            onClick={(event) => {
-              if (access.accessLevel === "READ_ONLY") {
-                event.preventDefault();
+          <div className="flex items-center gap-2">
+            <ExportButtons
+              disabled={filtered.length === 0}
+              getConfig={() => ({
+                title: "Staff Directory",
+                salonName: access.tenantName,
+                filtersLabel: [status !== "ALL" ? `Status: ${status}` : null, query ? `Search: ${query}` : null].filter(Boolean).join(", ") || undefined,
+                columns: [
+                  { header: "Name", key: "name", type: "text" },
+                  { header: "Designation", key: "designation", type: "text" },
+                  { header: "Mobile", key: "mobile", type: "text" },
+                  { header: "Email", key: "email", type: "text" },
+                  { header: "Status", key: "status", type: "text" },
+                  { header: "Today's Appointments", key: "todayAppointments", type: "number" },
+                  { header: "Total Appointments", key: "totalAppointments", type: "number" },
+                  { header: "Avg Rating", key: "avgRating", type: "number" },
+                ],
+                rows: filtered.map((member) => ({
+                  name: member.name,
+                  designation: member.designation,
+                  mobile: member.mobile ?? "—",
+                  email: member.email ?? "—",
+                  status: member.status,
+                  todayAppointments: member.todayAppointments,
+                  totalAppointments: member.totalAppointments,
+                  avgRating: member.avgRating,
+                })),
+                filename: "sczor-staff-directory",
+              })}
+            />
+
+            <Link
+              href={access.accessLevel === "READ_ONLY" ? "#" : "/staff/new"}
+              aria-disabled={access.accessLevel === "READ_ONLY"}
+              onClick={(event) => {
+                if (access.accessLevel === "READ_ONLY") {
+                  event.preventDefault();
+                }
+              }}
+              className={
+                access.accessLevel === "READ_ONLY"
+                  ? "inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-slate-300 px-4 text-sm font-semibold text-slate-500"
+                  : "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
               }
-            }}
-            className={
-              access.accessLevel === "READ_ONLY"
-                ? "inline-flex h-10 cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-slate-300 px-4 text-sm font-semibold text-slate-500"
-                : "inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
-            }
-          >
-            <Plus className="h-4 w-4" />
-            Add Staff
-          </Link>
+            >
+              <Plus className="h-4 w-4" />
+              Add Staff
+            </Link>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

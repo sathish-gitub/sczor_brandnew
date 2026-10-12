@@ -38,6 +38,8 @@ export type TenantMinAggregateOutputType = {
   phone: string | null
   email: string | null
   gstNumber: string | null
+  instagramUrl: string | null
+  googleReviewUrl: string | null
   openTime: string | null
   closeTime: string | null
   plan: $Enums.Plan | null
@@ -68,6 +70,8 @@ export type TenantMaxAggregateOutputType = {
   phone: string | null
   email: string | null
   gstNumber: string | null
+  instagramUrl: string | null
+  googleReviewUrl: string | null
   openTime: string | null
   closeTime: string | null
   plan: $Enums.Plan | null
@@ -98,6 +102,8 @@ export type TenantCountAggregateOutputType = {
   phone: number
   email: number
   gstNumber: number
+  instagramUrl: number
+  googleReviewUrl: number
   openTime: number
   closeTime: number
   workingDays: number
@@ -131,6 +137,8 @@ export type TenantMinAggregateInputType = {
   phone?: true
   email?: true
   gstNumber?: true
+  instagramUrl?: true
+  googleReviewUrl?: true
   openTime?: true
   closeTime?: true
   plan?: true
@@ -161,6 +169,8 @@ export type TenantMaxAggregateInputType = {
   phone?: true
   email?: true
   gstNumber?: true
+  instagramUrl?: true
+  googleReviewUrl?: true
   openTime?: true
   closeTime?: true
   plan?: true
@@ -191,6 +201,8 @@ export type TenantCountAggregateInputType = {
   phone?: true
   email?: true
   gstNumber?: true
+  instagramUrl?: true
+  googleReviewUrl?: true
   openTime?: true
   closeTime?: true
   workingDays?: true
@@ -295,6 +307,8 @@ export type TenantGroupByOutputType = {
   phone: string | null
   email: string | null
   gstNumber: string | null
+  instagramUrl: string | null
+  googleReviewUrl: string | null
   openTime: string
   closeTime: string
   workingDays: string[]
@@ -347,6 +361,8 @@ export type TenantWhereInput = {
   phone?: Prisma.StringNullableFilter<"Tenant"> | string | null
   email?: Prisma.StringNullableFilter<"Tenant"> | string | null
   gstNumber?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  instagramUrl?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  googleReviewUrl?: Prisma.StringNullableFilter<"Tenant"> | string | null
   openTime?: Prisma.StringFilter<"Tenant"> | string
   closeTime?: Prisma.StringFilter<"Tenant"> | string
   workingDays?: Prisma.StringNullableListFilter<"Tenant">
@@ -398,6 +414,8 @@ export type TenantOrderByWithRelationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   gstNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  instagramUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleReviewUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   openTime?: Prisma.SortOrder
   closeTime?: Prisma.SortOrder
   workingDays?: Prisma.SortOrder
@@ -452,6 +470,8 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   phone?: Prisma.StringNullableFilter<"Tenant"> | string | null
   email?: Prisma.StringNullableFilter<"Tenant"> | string | null
   gstNumber?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  instagramUrl?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  googleReviewUrl?: Prisma.StringNullableFilter<"Tenant"> | string | null
   openTime?: Prisma.StringFilter<"Tenant"> | string
   closeTime?: Prisma.StringFilter<"Tenant"> | string
   workingDays?: Prisma.StringNullableListFilter<"Tenant">
@@ -503,6 +523,8 @@ export type TenantOrderByWithAggregationInput = {
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   gstNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  instagramUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleReviewUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   openTime?: Prisma.SortOrder
   closeTime?: Prisma.SortOrder
   workingDays?: Prisma.SortOrder
@@ -540,6 +562,8 @@ export type TenantScalarWhereWithAggregatesInput = {
   phone?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   gstNumber?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  instagramUrl?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  googleReviewUrl?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   openTime?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   closeTime?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   workingDays?: Prisma.StringNullableListFilter<"Tenant">
@@ -571,6 +595,8 @@ export type TenantCreateInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -622,6 +648,8 @@ export type TenantUncheckedCreateInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -673,6 +701,8 @@ export type TenantUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -724,6 +754,8 @@ export type TenantUncheckedUpdateInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -775,6 +807,8 @@ export type TenantCreateManyInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -806,6 +840,8 @@ export type TenantUpdateManyMutationInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -837,6 +873,8 @@ export type TenantUncheckedUpdateManyInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -876,6 +914,8 @@ export type TenantCountOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   gstNumber?: Prisma.SortOrder
+  instagramUrl?: Prisma.SortOrder
+  googleReviewUrl?: Prisma.SortOrder
   openTime?: Prisma.SortOrder
   closeTime?: Prisma.SortOrder
   workingDays?: Prisma.SortOrder
@@ -907,6 +947,8 @@ export type TenantMaxOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   gstNumber?: Prisma.SortOrder
+  instagramUrl?: Prisma.SortOrder
+  googleReviewUrl?: Prisma.SortOrder
   openTime?: Prisma.SortOrder
   closeTime?: Prisma.SortOrder
   plan?: Prisma.SortOrder
@@ -937,6 +979,8 @@ export type TenantMinOrderByAggregateInput = {
   phone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   gstNumber?: Prisma.SortOrder
+  instagramUrl?: Prisma.SortOrder
+  googleReviewUrl?: Prisma.SortOrder
   openTime?: Prisma.SortOrder
   closeTime?: Prisma.SortOrder
   plan?: Prisma.SortOrder
@@ -1285,6 +1329,8 @@ export type TenantCreateWithoutUsersInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -1335,6 +1381,8 @@ export type TenantUncheckedCreateWithoutUsersInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -1401,6 +1449,8 @@ export type TenantUpdateWithoutUsersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -1451,6 +1501,8 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -1501,6 +1553,8 @@ export type TenantCreateWithoutCustomersInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -1551,6 +1605,8 @@ export type TenantUncheckedCreateWithoutCustomersInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -1617,6 +1673,8 @@ export type TenantUpdateWithoutCustomersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -1667,6 +1725,8 @@ export type TenantUncheckedUpdateWithoutCustomersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -1717,6 +1777,8 @@ export type TenantCreateWithoutServicesInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -1767,6 +1829,8 @@ export type TenantUncheckedCreateWithoutServicesInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -1833,6 +1897,8 @@ export type TenantUpdateWithoutServicesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -1883,6 +1949,8 @@ export type TenantUncheckedUpdateWithoutServicesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -1933,6 +2001,8 @@ export type TenantCreateWithoutStaffInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -1983,6 +2053,8 @@ export type TenantUncheckedCreateWithoutStaffInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -2049,6 +2121,8 @@ export type TenantUpdateWithoutStaffInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -2099,6 +2173,8 @@ export type TenantUncheckedUpdateWithoutStaffInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -2149,6 +2225,8 @@ export type TenantCreateWithoutSalaryHistoryInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -2199,6 +2277,8 @@ export type TenantUncheckedCreateWithoutSalaryHistoryInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -2265,6 +2345,8 @@ export type TenantUpdateWithoutSalaryHistoryInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -2315,6 +2397,8 @@ export type TenantUncheckedUpdateWithoutSalaryHistoryInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -2365,6 +2449,8 @@ export type TenantCreateWithoutPayrollsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -2415,6 +2501,8 @@ export type TenantUncheckedCreateWithoutPayrollsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -2481,6 +2569,8 @@ export type TenantUpdateWithoutPayrollsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -2531,6 +2621,8 @@ export type TenantUncheckedUpdateWithoutPayrollsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -2581,6 +2673,8 @@ export type TenantCreateWithoutAppointmentsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -2631,6 +2725,8 @@ export type TenantUncheckedCreateWithoutAppointmentsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -2697,6 +2793,8 @@ export type TenantUpdateWithoutAppointmentsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -2747,6 +2845,8 @@ export type TenantUncheckedUpdateWithoutAppointmentsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -2797,6 +2897,8 @@ export type TenantCreateWithoutInvoicesInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -2847,6 +2949,8 @@ export type TenantUncheckedCreateWithoutInvoicesInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -2913,6 +3017,8 @@ export type TenantUpdateWithoutInvoicesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -2963,6 +3069,8 @@ export type TenantUncheckedUpdateWithoutInvoicesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -3013,6 +3121,8 @@ export type TenantCreateWithoutServiceCategoriesInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -3063,6 +3173,8 @@ export type TenantUncheckedCreateWithoutServiceCategoriesInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -3129,6 +3241,8 @@ export type TenantUpdateWithoutServiceCategoriesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -3179,6 +3293,8 @@ export type TenantUncheckedUpdateWithoutServiceCategoriesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -3229,6 +3345,8 @@ export type TenantCreateWithoutLoyaltyCardsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -3279,6 +3397,8 @@ export type TenantUncheckedCreateWithoutLoyaltyCardsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -3345,6 +3465,8 @@ export type TenantUpdateWithoutLoyaltyCardsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -3395,6 +3517,8 @@ export type TenantUncheckedUpdateWithoutLoyaltyCardsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -3445,6 +3569,8 @@ export type TenantCreateWithoutAttendancesInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -3495,6 +3621,8 @@ export type TenantUncheckedCreateWithoutAttendancesInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -3561,6 +3689,8 @@ export type TenantUpdateWithoutAttendancesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -3611,6 +3741,8 @@ export type TenantUncheckedUpdateWithoutAttendancesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -3661,6 +3793,8 @@ export type TenantCreateWithoutSettingsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -3711,6 +3845,8 @@ export type TenantUncheckedCreateWithoutSettingsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -3777,6 +3913,8 @@ export type TenantUpdateWithoutSettingsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -3827,6 +3965,8 @@ export type TenantUncheckedUpdateWithoutSettingsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -3877,6 +4017,8 @@ export type TenantCreateWithoutHolidaysInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -3927,6 +4069,8 @@ export type TenantUncheckedCreateWithoutHolidaysInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -3993,6 +4137,8 @@ export type TenantUpdateWithoutHolidaysInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -4043,6 +4189,8 @@ export type TenantUncheckedUpdateWithoutHolidaysInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -4093,6 +4241,8 @@ export type TenantCreateWithoutWaitlistInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -4143,6 +4293,8 @@ export type TenantUncheckedCreateWithoutWaitlistInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -4209,6 +4361,8 @@ export type TenantUpdateWithoutWaitlistInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -4259,6 +4413,8 @@ export type TenantUncheckedUpdateWithoutWaitlistInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -4309,6 +4465,8 @@ export type TenantCreateWithoutPaymentsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -4359,6 +4517,8 @@ export type TenantUncheckedCreateWithoutPaymentsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -4425,6 +4585,8 @@ export type TenantUpdateWithoutPaymentsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -4475,6 +4637,8 @@ export type TenantUncheckedUpdateWithoutPaymentsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -4525,6 +4689,8 @@ export type TenantCreateWithoutSuppliersInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -4575,6 +4741,8 @@ export type TenantUncheckedCreateWithoutSuppliersInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -4641,6 +4809,8 @@ export type TenantUpdateWithoutSuppliersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -4691,6 +4861,8 @@ export type TenantUncheckedUpdateWithoutSuppliersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -4741,6 +4913,8 @@ export type TenantCreateWithoutProductCategoriesInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -4791,6 +4965,8 @@ export type TenantUncheckedCreateWithoutProductCategoriesInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -4857,6 +5033,8 @@ export type TenantUpdateWithoutProductCategoriesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -4907,6 +5085,8 @@ export type TenantUncheckedUpdateWithoutProductCategoriesInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -4957,6 +5137,8 @@ export type TenantCreateWithoutProductsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -5007,6 +5189,8 @@ export type TenantUncheckedCreateWithoutProductsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -5073,6 +5257,8 @@ export type TenantUpdateWithoutProductsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -5123,6 +5309,8 @@ export type TenantUncheckedUpdateWithoutProductsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -5173,6 +5361,8 @@ export type TenantCreateWithoutStockMovementsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -5223,6 +5413,8 @@ export type TenantUncheckedCreateWithoutStockMovementsInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -5289,6 +5481,8 @@ export type TenantUpdateWithoutStockMovementsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -5339,6 +5533,8 @@ export type TenantUncheckedUpdateWithoutStockMovementsInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -5389,6 +5585,8 @@ export type TenantCreateWithoutPurchaseOrdersInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -5439,6 +5637,8 @@ export type TenantUncheckedCreateWithoutPurchaseOrdersInput = {
   phone?: string | null
   email?: string | null
   gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
   openTime?: string
   closeTime?: string
   workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
@@ -5505,6 +5705,8 @@ export type TenantUpdateWithoutPurchaseOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -5555,6 +5757,8 @@ export type TenantUncheckedUpdateWithoutPurchaseOrdersInput = {
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   openTime?: Prisma.StringFieldUpdateOperationsInput | string
   closeTime?: Prisma.StringFieldUpdateOperationsInput | string
   workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
@@ -5798,6 +6002,8 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   phone?: boolean
   email?: boolean
   gstNumber?: boolean
+  instagramUrl?: boolean
+  googleReviewUrl?: boolean
   openTime?: boolean
   closeTime?: boolean
   workingDays?: boolean
@@ -5850,6 +6056,8 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   phone?: boolean
   email?: boolean
   gstNumber?: boolean
+  instagramUrl?: boolean
+  googleReviewUrl?: boolean
   openTime?: boolean
   closeTime?: boolean
   workingDays?: boolean
@@ -5881,6 +6089,8 @@ export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   phone?: boolean
   email?: boolean
   gstNumber?: boolean
+  instagramUrl?: boolean
+  googleReviewUrl?: boolean
   openTime?: boolean
   closeTime?: boolean
   workingDays?: boolean
@@ -5912,6 +6122,8 @@ export type TenantSelectScalar = {
   phone?: boolean
   email?: boolean
   gstNumber?: boolean
+  instagramUrl?: boolean
+  googleReviewUrl?: boolean
   openTime?: boolean
   closeTime?: boolean
   workingDays?: boolean
@@ -5929,7 +6141,7 @@ export type TenantSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "tagline" | "slug" | "logo" | "website" | "address" | "city" | "state" | "pincode" | "phone" | "email" | "gstNumber" | "openTime" | "closeTime" | "workingDays" | "plan" | "trialEndsAt" | "subscriptionPlan" | "subscriptionEndsAt" | "isSubscribed" | "subscriptionStart" | "subscriptionEnd" | "razorpayCustomerId" | "razorpaySubId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "tagline" | "slug" | "logo" | "website" | "address" | "city" | "state" | "pincode" | "phone" | "email" | "gstNumber" | "instagramUrl" | "googleReviewUrl" | "openTime" | "closeTime" | "workingDays" | "plan" | "trialEndsAt" | "subscriptionPlan" | "subscriptionEndsAt" | "isSubscribed" | "subscriptionStart" | "subscriptionEnd" | "razorpayCustomerId" | "razorpaySubId" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.Tenant$usersArgs<ExtArgs>
   customers?: boolean | Prisma.Tenant$customersArgs<ExtArgs>
@@ -5994,6 +6206,8 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     phone: string | null
     email: string | null
     gstNumber: string | null
+    instagramUrl: string | null
+    googleReviewUrl: string | null
     openTime: string
     closeTime: string
     workingDays: string[]
@@ -6465,6 +6679,8 @@ export interface TenantFieldRefs {
   readonly phone: Prisma.FieldRef<"Tenant", 'String'>
   readonly email: Prisma.FieldRef<"Tenant", 'String'>
   readonly gstNumber: Prisma.FieldRef<"Tenant", 'String'>
+  readonly instagramUrl: Prisma.FieldRef<"Tenant", 'String'>
+  readonly googleReviewUrl: Prisma.FieldRef<"Tenant", 'String'>
   readonly openTime: Prisma.FieldRef<"Tenant", 'String'>
   readonly closeTime: Prisma.FieldRef<"Tenant", 'String'>
   readonly workingDays: Prisma.FieldRef<"Tenant", 'String[]'>

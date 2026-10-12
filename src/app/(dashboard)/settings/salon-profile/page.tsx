@@ -18,6 +18,8 @@ type SalonProfileForm = {
   city: string;
   state: string;
   pincode: string;
+  instagramUrl: string;
+  googleReviewUrl: string;
 };
 
 const defaultForm: SalonProfileForm = {
@@ -32,13 +34,19 @@ const defaultForm: SalonProfileForm = {
   city: "",
   state: "",
   pincode: "",
+  instagramUrl: "",
+  googleReviewUrl: "",
 };
+
+const MAX_LOGO_SIZE_BYTES = 1 * 1024 * 1024;
+const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg"];
 
 export default function SalonProfileSettingsPage() {
   const { showToast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<SalonProfileForm>(defaultForm);
+  const [logoError, setLogoError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -70,7 +78,21 @@ export default function SalonProfileSettingsPage() {
 
   function onLogoChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
+    event.target.value = "";
+
     if (!file) {
+      return;
+    }
+
+    setLogoError(null);
+
+    if (!ALLOWED_LOGO_TYPES.includes(file.type)) {
+      setLogoError("Please upload a PNG or JPG image.");
+      return;
+    }
+
+    if (file.size > MAX_LOGO_SIZE_BYTES) {
+      setLogoError("Logo must be 1 MB or smaller.");
       return;
     }
 
@@ -78,6 +100,9 @@ export default function SalonProfileSettingsPage() {
     reader.onload = () => {
       const value = typeof reader.result === "string" ? reader.result : "";
       setForm((current) => ({ ...current, logo: value }));
+    };
+    reader.onerror = () => {
+      setLogoError("Could not read that file. Please try another image.");
     };
     reader.readAsDataURL(file);
   }
@@ -121,14 +146,22 @@ export default function SalonProfileSettingsPage() {
       />
 
       <section className="space-y-4 rounded-xl border border-[var(--border)] bg-white p-5">
-        <div className="flex items-center gap-4">
-          <div className="h-20 w-20 overflow-hidden rounded-xl border border-[var(--border)] bg-slate-50">
-            {form.logo ? <Image src={form.logo} alt="Salon logo preview" width={80} height={80} className="h-full w-full object-cover" /> : null}
+        <div className="flex items-start gap-4">
+          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl border border-[var(--border)] bg-slate-50">
+            {form.logo ? (
+              <Image src={form.logo} alt="Salon logo preview" width={80} height={80} className="h-full w-full object-contain" />
+            ) : null}
           </div>
-          <label className="inline-flex h-10 cursor-pointer items-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700">
-            Upload Logo
-            <input type="file" accept="image/*" className="hidden" onChange={onLogoChange} />
-          </label>
+          <div className="space-y-1">
+            <label className="inline-flex h-10 cursor-pointer items-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700">
+              Upload Logo
+              <input type="file" accept="image/png,image/jpeg" className="hidden" onChange={onLogoChange} />
+            </label>
+            <p className="text-xs text-[var(--muted)]">
+              Recommended: landscape ~400&times;160px or square 300&times;300px. PNG or JPG, max 1 MB.
+            </p>
+            {logoError ? <p className="text-xs font-medium text-rose-600">{logoError}</p> : null}
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -138,6 +171,21 @@ export default function SalonProfileSettingsPage() {
           <Field label="Email" value={form.email} onChange={(value) => setForm((current) => ({ ...current, email: value }))} />
           <Field label="Website" value={form.website} onChange={(value) => setForm((current) => ({ ...current, website: value }))} />
           <Field label="GST Number" value={form.gstNumber} onChange={(value) => setForm((current) => ({ ...current, gstNumber: value }))} />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label="Instagram"
+            value={form.instagramUrl}
+            onChange={(value) => setForm((current) => ({ ...current, instagramUrl: value }))}
+            placeholder="@yoursalon or https://instagram.com/yoursalon"
+          />
+          <Field
+            label="Google Business Review Link"
+            value={form.googleReviewUrl}
+            onChange={(value) => setForm((current) => ({ ...current, googleReviewUrl: value }))}
+            placeholder="https://g.page/r/your-link/review"
+          />
         </div>
 
         <label className="block text-sm">
@@ -169,11 +217,26 @@ export default function SalonProfileSettingsPage() {
   );
 }
 
-function Field({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+function Field({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+}) {
   return (
     <label className="block text-sm">
       <span className="text-[var(--muted)]">{label}</span>
-      <input value={value} onChange={(event) => onChange(event.target.value)} className="mt-1 h-10 w-full rounded-xl border border-[var(--border)] px-3" />
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className="mt-1 h-10 w-full rounded-xl border border-[var(--border)] px-3"
+      />
     </label>
   );
 }

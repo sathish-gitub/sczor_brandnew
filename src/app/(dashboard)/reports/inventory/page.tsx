@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
+import { ExportButtons } from "@/components/reports/ExportButtons";
 import { StatCard } from "@/components/reports/StatCard";
 import { CategoryStockDonut, type CategoryStockPoint } from "@/components/charts/CategoryStockDonut";
 import { StockMovementTrendChart, type StockMovementTrendPoint } from "@/components/charts/StockMovementTrendChart";
 import { TopMovingProductsBarChart, type TopMovingProductPoint } from "@/components/charts/TopMovingProductsBarChart";
 import { InventoryTabs } from "@/components/inventory/InventoryTabs";
+import { useAccess } from "@/contexts/AccessContext";
+import { formatPeriodLabel } from "@/lib/exportReport";
 
 type InventoryReportPayload = {
   stockValuation: {
@@ -45,6 +48,7 @@ function formatCurrency(value: number) {
 }
 
 export default function InventoryReportsPage() {
+  const { tenantName } = useAccess();
   const [range, setRange] = useState(last30DaysRange());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,7 +105,53 @@ export default function InventoryReportsPage() {
           <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Inventory Reports</h1>
           <p className="mt-1 text-sm text-[var(--muted)]">Stock valuation, movement trends, and product performance.</p>
         </div>
-        <DateRangePicker value={range} onChange={setRange} />
+        <div className="flex flex-wrap items-center gap-2">
+          <DateRangePicker value={range} onChange={setRange} />
+          <ExportButtons
+            disabled={!data}
+            getConfig={() => ({
+              title: "Inventory Report — Slow Moving Products",
+              salonName: tenantName,
+              periodLabel: formatPeriodLabel(range.startDate, range.endDate),
+              columns: [
+                { header: "Product", key: "name", type: "text" },
+                { header: "Units Sold", key: "unitsSold", type: "number" },
+                { header: "Days Since Last Sale", key: "daysSinceLastSale", type: "number" },
+              ],
+              rows: data?.slowMovingProducts ?? [],
+              extraSections: [
+                {
+                  title: "Top Moving Products",
+                  columns: [
+                    { header: "Product", key: "name", type: "text" },
+                    { header: "Units Sold", key: "unitsSold", type: "number" },
+                  ],
+                  rows: data?.topMovingProducts ?? [],
+                },
+                {
+                  title: "Purchase Order Summary",
+                  columns: [
+                    { header: "Total Orders", key: "totalOrders", type: "number" },
+                    { header: "Pending Orders", key: "pendingOrders", type: "number" },
+                    { header: "Total Spend (Received)", key: "totalSpend", type: "currency" },
+                  ],
+                  rows: data ? [data.purchaseOrderSummary] : [],
+                },
+                {
+                  title: "Stock Valuation",
+                  columns: [
+                    { header: "Total Cost Value", key: "totalCostValue", type: "currency" },
+                    { header: "Total Retail Value", key: "totalRetailValue", type: "currency" },
+                    { header: "Total Products", key: "totalProducts", type: "number" },
+                    { header: "Total Units in Stock", key: "totalUnits", type: "number" },
+                  ],
+                  rows: data ? [data.stockValuation] : [],
+                },
+              ],
+              filename: `sczor-inventory-report-${range.startDate}_to_${range.endDate}`,
+            })}
+          />
+        </div>
       </header>
 
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}

@@ -150,6 +150,7 @@ export async function GET(request: Request) {
     );
   } catch (error) {
     console.error("Stats error:", error);
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+    const message = error instanceof Error ? error.message : "Failed to load stats.";
+    return NextResponse.json({ error: "Failed", message }, { status: 500 });
   }
 }

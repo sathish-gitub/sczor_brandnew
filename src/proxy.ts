@@ -3,6 +3,8 @@ import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 const protectedPrefixes = [
+  // Note: "/invoice" (public invoice links, src/app/invoice/[token]/page.tsx) is
+  // intentionally NOT listed here or in the matcher below — it must stay public.
   "/dashboard",
   "/appointments",
   "/customers",

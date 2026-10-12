@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
   CalendarPlus,
+  ChevronDown,
   Clock3,
   CreditCard,
   IndianRupee,
@@ -254,6 +255,7 @@ export default function DashboardPage() {
   const [customTo, setCustomTo] = useState("");
   const [stats, setStats] = useState<DashboardStats>(defaultStats);
   const [appointments, setAppointments] = useState<DashboardAppointment[]>([]);
+  const [appointmentsExpanded, setAppointmentsExpanded] = useState(false);
   const [staff, setStaff] = useState<StaffAvailability[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -261,6 +263,7 @@ export default function DashboardPage() {
   const [chartsRange, setChartsRange] = useState<ChartsRange>("30d");
   const [chartsData, setChartsData] = useState<ChartsData>(defaultChartsData);
   const [chartsLoading, setChartsLoading] = useState(true);
+  const [chartsError, setChartsError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -282,23 +285,40 @@ export default function DashboardPage() {
           fetch("/api/dashboard/staff-availability", { cache: "no-store" }),
         ]);
 
-        if (!statsResponse.ok || !appointmentsResponse.ok || !staffResponse.ok) {
+        // Stats and appointments are required
+        if (!statsResponse.ok || !appointmentsResponse.ok) {
+          const failedEndpoints: string[] = [];
+          if (!statsResponse.ok) failedEndpoints.push(`stats (${statsResponse.status})`);
+          if (!appointmentsResponse.ok) failedEndpoints.push(`appointments (${appointmentsResponse.status})`);
+          
+          console.error("Dashboard data loading failed:", failedEndpoints.join(", "));
           throw new Error("Unable to load dashboard data.");
         }
 
-        const [statsData, appointmentsData, staffData] = await Promise.all([
-          statsResponse.json() as Promise<DashboardStats>,
-          appointmentsResponse.json() as Promise<DashboardAppointment[] | { appointments: DashboardAppointment[] }>,
-          staffResponse.json() as Promise<StaffAvailability[] | { staff: StaffAvailability[] }>,
-        ]);
+        // Staff is optional; if it fails, continue with empty staff
+        let staffData: StaffAvailability[] = [];
+        if (!staffResponse.ok) {
+          console.warn(`Staff availability failed (${staffResponse.status}), continuing without staff data`);
+        }
+
+        // Parse required responses
+        const statsData = (await statsResponse.json()) as DashboardStats;
+        const data = (await appointmentsResponse.json()) as DashboardAppointment[] | { appointments: DashboardAppointment[] };
+        const appointmentsData = Array.isArray(data) ? data : data.appointments ?? [];
+
+        // Parse optional staff response
+        if (staffResponse.ok) {
+          const staffJson = (await staffResponse.json()) as StaffAvailability[] | { staff: StaffAvailability[] };
+          staffData = Array.isArray(staffJson) ? staffJson : staffJson.staff ?? [];
+        }
 
         if (!active) {
           return;
         }
 
         setStats(statsData);
-        setAppointments(Array.isArray(appointmentsData) ? appointmentsData : appointmentsData.appointments ?? []);
-        setStaff(Array.isArray(staffData) ? staffData : staffData.staff ?? []);
+        setAppointments(appointmentsData);
+        setStaff(staffData);
       } catch (loadError) {
         if (!active) {
           return;
@@ -358,6 +378,7 @@ export default function DashboardPage() {
 
     async function loadCharts() {
       setChartsLoading(true);
+      setChartsError(null);
 
       try {
         const response = await fetch(`/api/dashboard/charts?${new URLSearchParams({ range: chartsRange }).toString()}`, {
@@ -365,16 +386,23 @@ export default function DashboardPage() {
         });
 
         if (!response.ok) {
-          throw new Error("Unable to load chart data.");
+          const errorData = await response.json().catch(() => ({}));
+          const errorMessage = errorData.error || errorData.message || "Unable to load chart data.";
+          throw new Error(errorMessage);
         }
 
         const data = (await response.json()) as ChartsData;
 
         if (active) {
           setChartsData(data);
+          setChartsError(null);
         }
       } catch (loadError) {
-        console.error(loadError);
+        const message = loadError instanceof Error ? loadError.message : "Unable to load chart data.";
+        console.error("Charts error:", loadError);
+        if (active) {
+          setChartsError(message);
+        }
       } finally {
         if (active) {
           setChartsLoading(false);
@@ -500,7 +528,7 @@ export default function DashboardPage() {
         })}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-5">
+      <div className="grid items-start gap-6 xl:grid-cols-5">
         <SectionCard className="xl:col-span-3">
           <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
             <h2 className="text-base font-semibold text-[var(--foreground)]">Today&apos;s Appointments</h2>
@@ -516,7 +544,7 @@ export default function DashboardPage() {
               <p className="text-sm text-[var(--muted)]">Create a new booking to get today&apos;s schedule started.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div>
               <table className="min-w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-[var(--border)] text-xs uppercase tracking-[0.08em] text-[var(--muted)]">
@@ -528,7 +556,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {appointments.map((appointment) => {
+                  {appointments.slice(0, 5).map((appointment) => {
                     const chip = statusChip(appointment.status);
 
                     return (
@@ -547,6 +575,45 @@ export default function DashboardPage() {
                   })}
                 </tbody>
               </table>
+
+              {appointmentsExpanded ? (
+                <div className="overflow-hidden transition-all duration-300">
+                  <table className="min-w-full text-left text-sm">
+                    <tbody>
+                      {appointments.slice(5).map((appointment) => {
+                        const chip = statusChip(appointment.status);
+
+                        return (
+                          <tr key={appointment.id} className="border-b border-slate-100 last:border-b-0">
+                            <td className="px-5 py-3 font-medium text-[var(--foreground)]">{appointment.appointmentTime}</td>
+                            <td className="px-5 py-3 text-[var(--foreground)]">{appointment.customer.name}</td>
+                            <td className="px-5 py-3 text-[var(--foreground)]">{appointment.service.name}</td>
+                            <td className="px-5 py-3 text-[var(--foreground)]">{appointment.staff.name}</td>
+                            <td className="px-5 py-3">
+                              <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${chip.className}`}>
+                                {chip.label}
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
+
+              {appointments.length > 5 ? (
+                <div className="border-t border-[var(--border)] px-5 py-3">
+                  <button
+                    type="button"
+                    onClick={() => setAppointmentsExpanded(!appointmentsExpanded)}
+                    className="text-sm font-semibold text-[var(--accent)] hover:text-[var(--primary)] transition-colors flex items-center gap-1"
+                  >
+                    {appointmentsExpanded ? "Show Less" : `View More (${appointments.length - 5} more)`}
+                    <ChevronDown className={`h-4 w-4 transition-transform ${appointmentsExpanded ? "rotate-180" : ""}`} />
+                  </button>
+                </div>
+              ) : null}
             </div>
           )}
         </SectionCard>
@@ -625,24 +692,32 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <RevenueTrendChart data={chartsData.revenueTrend} loading={chartsLoading} />
-          <AppointmentBarChart data={chartsData.appointmentBreakdown} loading={chartsLoading} />
-        </div>
+        {chartsError ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+            <p className="text-sm text-red-800">{chartsError}</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <RevenueTrendChart data={chartsData.revenueTrend} loading={chartsLoading} />
+              <AppointmentBarChart data={chartsData.appointmentBreakdown} loading={chartsLoading} />
+            </div>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <ServicePopularityDonut data={chartsData.servicePopularity} loading={chartsLoading} />
-          <CustomerGrowthChart data={chartsData.customerGrowth} loading={chartsLoading} />
-        </div>
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <ServicePopularityDonut data={chartsData.servicePopularity} loading={chartsLoading} />
+              <CustomerGrowthChart data={chartsData.customerGrowth} loading={chartsLoading} />
+            </div>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <StaffPerformanceBarChart data={chartsData.staffPerformance} loading={chartsLoading} />
-          <PaymentMethodDonut data={chartsData.paymentMethodSplit} loading={chartsLoading} />
-        </div>
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <StaffPerformanceBarChart data={chartsData.staffPerformance} loading={chartsLoading} />
+              <PaymentMethodDonut data={chartsData.paymentMethodSplit} loading={chartsLoading} />
+            </div>
 
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-          <LoyaltyTierDonut data={chartsData.loyaltyTierDistribution} loading={chartsLoading} />
-        </div>
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+              <LoyaltyTierDonut data={chartsData.loyaltyTierDistribution} loading={chartsLoading} />
+            </div>
+          </>
+        )}
       </div>
 
       <SectionCard className="p-4">

@@ -248,7 +248,31 @@ export async function GET(request: Request) {
       { headers: { "Cache-Control": "no-store, no-cache, must-revalidate" } },
     );
   } catch (error) {
-    console.error("Dashboard charts error:", error);
-    return NextResponse.json({ error: "Failed" }, { status: 500 });
+    const isDevelopment = process.env.NODE_ENV === "development";
+    
+    // Log full error details for debugging
+    if (isDevelopment) {
+      if (error instanceof Error) {
+        const errorObj: Record<string, unknown> = {
+          message: error.message,
+          stack: error.stack,
+        };
+        if ("code" in error) {
+          errorObj.code = (error as Record<string, unknown>).code;
+        }
+        console.error("Dashboard charts error:", errorObj);
+      } else {
+        console.error("Dashboard charts error:", error);
+      }
+    } else {
+      console.error("Dashboard charts error:", error);
+    }
+    
+    const message = error instanceof Error ? error.message : "Failed to load chart data.";
+    const responseBody = isDevelopment 
+      ? { error: "Failed", message }
+      : { error: "Failed" };
+    
+    return NextResponse.json(responseBody, { status: 500 });
   }
 }

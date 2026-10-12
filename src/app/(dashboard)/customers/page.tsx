@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Calendar, Eye, Search, Trash } from "lucide-react";
 
+import { ExportButtons } from "@/components/reports/ExportButtons";
 import { useAccess } from "@/contexts/AccessContext";
 
 type LoyaltyTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
@@ -87,7 +88,7 @@ function TableSkeleton() {
 }
 
 export default function CustomersPage() {
-  const { accessLevel } = useAccess();
+  const { accessLevel, tenantName } = useAccess();
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -164,6 +165,37 @@ export default function CustomersPage() {
     };
   }, [search, page]);
 
+  async function getCustomersExportConfig() {
+    const params = new URLSearchParams({ export: "true" });
+
+    if (search) {
+      params.set("search", search);
+    }
+
+    const response = await fetch(`/api/customers?${params.toString()}`, { cache: "no-store" });
+    const data = (await response.json().catch(() => null)) as { error?: string; items?: CustomerRow[] } | null;
+
+    if (!response.ok || !data) {
+      throw new Error(data?.error ?? "Unable to export customers.");
+    }
+
+    return {
+      title: "Customers",
+      salonName: tenantName,
+      filtersLabel: search ? `Search: ${search}` : undefined,
+      columns: [
+        { header: "Name", key: "name", type: "text" as const },
+        { header: "Mobile", key: "mobile", type: "text" as const },
+        { header: "Total Visits", key: "totalVisits", type: "number" as const },
+        { header: "Total Spent", key: "totalSpent", type: "currency" as const },
+        { header: "Loyalty Tier", key: "loyaltyTier", type: "text" as const },
+        { header: "Last Visit", key: "lastVisit", type: "date" as const },
+      ],
+      rows: data.items ?? [],
+      filename: "sczor-customers",
+    };
+  }
+
   async function removeCustomer(customerId: string) {
     const allowed = window.confirm("Delete this customer? This cannot be undone.");
 
@@ -210,6 +242,7 @@ export default function CustomersPage() {
               className="h-11 w-full rounded-xl border border-[var(--border)] bg-white pl-9 pr-3 text-sm outline-none focus:border-[var(--accent)]"
             />
           </div>
+          <ExportButtons getConfig={getCustomersExportConfig} />
           {accessLevel === "READ_ONLY" ? (
             <span
               title="Subscription required to add customers"

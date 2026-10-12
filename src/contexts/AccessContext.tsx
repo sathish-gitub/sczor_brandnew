@@ -6,18 +6,21 @@ import type { AccessLevel } from "@/lib/subscription";
 
 type AccessContextValue = {
   accessLevel: AccessLevel;
+  tenantName: string;
 };
 
-const AccessContext = createContext<AccessContextValue>({ accessLevel: "FULL" });
+const AccessContext = createContext<AccessContextValue>({ accessLevel: "FULL", tenantName: "" });
 
 export function AccessProvider({
   accessLevel,
+  tenantName,
   children,
 }: {
   accessLevel: AccessLevel;
+  tenantName: string;
   children: React.ReactNode;
 }) {
-  return <AccessContext.Provider value={{ accessLevel }}>{children}</AccessContext.Provider>;
+  return <AccessContext.Provider value={{ accessLevel, tenantName }}>{children}</AccessContext.Provider>;
 }
 
 export function useAccess() {

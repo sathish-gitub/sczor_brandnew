@@ -57,7 +57,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
   };
 
   return (
-    <AccessProvider accessLevel={access.accessLevel}>
+    <AccessProvider accessLevel={access.accessLevel} tenantName={tenant.name}>
       <DashboardShell
         tenantName={tenant.name}
         user={user}

@@ -17,7 +17,71 @@ const schema = z.object({
   city: z.string().optional().or(z.literal("")),
   state: z.string().optional().or(z.literal("")),
   pincode: z.string().regex(/^\d{6}$|^$/, "Pincode must be 6 digits.").optional().or(z.literal("")),
+  instagramUrl: z.string().optional().or(z.literal("")),
+  googleReviewUrl: z.string().optional().or(z.literal("")),
 });
+
+const INSTAGRAM_HANDLE_PATTERN = /^[A-Za-z0-9._]{1,30}$/;
+
+function normalizeInstagramUrl(raw: string): { value: string | null; error?: string } {
+  const trimmed = raw.trim();
+
+  if (!trimmed) {
+    return { value: null };
+  }
+
+  const invalidMessage = "Enter a valid Instagram link (e.g. https://instagram.com/yoursalon) or handle (e.g. @yoursalon).";
+
+  if (trimmed.startsWith("@")) {
+    const handle = trimmed.slice(1).trim();
+
+    if (!INSTAGRAM_HANDLE_PATTERN.test(handle)) {
+      return { value: null, error: invalidMessage };
+    }
+
+    return { value: `https://instagram.com/${handle}` };
+  }
+
+  let url: URL;
+
+  try {
+    url = new URL(trimmed.includes("://") ? trimmed : `https://${trimmed}`);
+  } catch {
+    return { value: null, error: invalidMessage };
+  }
+
+  const host = url.hostname.toLowerCase().replace(/^www\./, "");
+
+  if (host !== "instagram.com") {
+    return { value: null, error: invalidMessage };
+  }
+
+  return { value: `https://instagram.com${url.pathname}${url.search}` };
+}
+
+function normalizeGoogleReviewUrl(raw: string): { value: string | null; error?: string } {
+  const trimmed = raw.trim();
+
+  if (!trimmed) {
+    return { value: null };
+  }
+
+  const invalidMessage = "Enter a valid Google review link starting with https://.";
+
+  let url: URL;
+
+  try {
+    url = new URL(trimmed);
+  } catch {
+    return { value: null, error: invalidMessage };
+  }
+
+  if (url.protocol !== "https:") {
+    return { value: null, error: invalidMessage };
+  }
+
+  return { value: url.toString() };
+}
 
 export async function PUT(request: Request) {
   const session = await getServerSession(authOptions);
@@ -36,6 +100,18 @@ export async function PUT(request: Request) {
 
     const data = parsed.data;
 
+    const instagram = normalizeInstagramUrl(data.instagramUrl ?? "");
+
+    if (instagram.error) {
+      return NextResponse.json({ error: instagram.error }, { status: 400 });
+    }
+
+    const googleReview = normalizeGoogleReviewUrl(data.googleReviewUrl ?? "");
+
+    if (googleReview.error) {
+      return NextResponse.json({ error: googleReview.error }, { status: 400 });
+    }
+
     await prisma.tenant.update({
       where: { id: session.user.tenantId },
       data: {
@@ -50,6 +126,8 @@ export async function PUT(request: Request) {
         city: data.city || null,
         state: data.state || null,
         pincode: data.pincode || null,
+        instagramUrl: instagram.value,
+        googleReviewUrl: googleReview.value,
       },
     });
 

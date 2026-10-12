@@ -51,6 +51,7 @@ export default function InventoryPage() {
   const [categoryId, setCategoryId] = useState("ALL");
   const [search, setSearch] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [hasAnyProducts, setHasAnyProducts] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -90,17 +91,20 @@ export default function InventoryPage() {
         }
 
         const response = await fetch(`/api/inventory/products?${params.toString()}`, { cache: "no-store" });
-        const payload = (await response.json()) as { error?: string; items?: ProductItem[] };
+        const payload = (await response.json()) as { error?: string; items?: ProductItem[]; totalProducts?: number } | null;
 
         if (!response.ok) {
-          throw new Error(payload.error ?? "Unable to load products.");
+          throw new Error(payload?.error ?? "Unable to load products.");
         }
 
         if (!active) {
           return;
         }
 
-        setItems(payload.items ?? []);
+        setItems(payload?.items ?? []);
+        if (payload?.totalProducts !== undefined) {
+          setHasAnyProducts(payload.totalProducts > 0);
+        }
       } catch (loadError) {
         if (!active) {
           return;
@@ -225,13 +229,23 @@ export default function InventoryPage() {
         </div>
       ) : items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[var(--border)] bg-white px-6 py-16 text-center">
-          <p className="text-base font-semibold text-[var(--foreground)]">No products found.</p>
-          <Link
-            href="/inventory/new"
-            className="mt-4 inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
-          >
-            Add Your First Product
-          </Link>
+          {!hasAnyProducts ? (
+            <>
+              <p className="text-base font-semibold text-[var(--foreground)]">No stock added</p>
+              <p className="mt-1 text-sm text-[var(--muted)]">Start by adding your first product to your inventory.</p>
+              <Link
+                href="/inventory/new"
+                className="mt-4 inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
+              >
+                Add First Product
+              </Link>
+            </>
+          ) : (
+            <>
+              <p className="text-base font-semibold text-[var(--foreground)]">No products match your filters</p>
+              <p className="mt-1 text-sm text-[var(--muted)]">Try adjusting your search or category selection.</p>
+            </>
+          )}
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

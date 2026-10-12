@@ -21,6 +21,8 @@ model Tenant {
   phone        String?
   email        String?
   gstNumber    String?
+  instagramUrl      String?
+  googleReviewUrl   String?
   openTime     String          @default("09:00")
   closeTime    String          @default("21:00")
   workingDays  String[]        @default(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
@@ -240,6 +242,7 @@ model Invoice {
   id            String              @id @default(cuid())
   invoiceNumber String
   invoiceDate   DateTime            @default(now())
+  publicToken   String?             @unique
   subtotal      Decimal             @db.Decimal(10, 2)
   taxRate       Decimal             @default(18) @db.Decimal(5, 2)
   taxAmount     Decimal             @db.Decimal(10, 2)

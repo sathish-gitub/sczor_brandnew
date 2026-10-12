@@ -1,11 +1,8 @@
-const FEATURES = [
-  "All 9 modules included",
-  "Unlimited appointments",
-  "POS & GST billing",
-  "Loyalty program",
-  "Reports & analytics",
-  "Priority support",
-];
+import Link from "next/link";
+
+import { PRICING_PLANS } from "@/lib/pricing";
+
+const FEATURES = PRICING_PLANS.MONTHLY.features;
 
 export default function SubscriptionRequiredPage() {
   return (
@@ -22,30 +19,30 @@ export default function SubscriptionRequiredPage() {
 
         <div className="mb-8 grid grid-cols-2 gap-4">
           <div className="rounded-xl border-2 border-gray-200 p-4">
-            <p className="mb-1 text-sm text-gray-500">Monthly</p>
-            <p className="text-3xl font-bold text-[#0D1B3E]">₹599</p>
-            <p className="text-xs text-gray-400">per month</p>
-            <a
-              href="mailto:connect@droletechnologies.com?subject=Subscribe%20to%20Monthly%20Plan"
+            <p className="mb-1 text-sm text-gray-500">{PRICING_PLANS.MONTHLY.name}</p>
+            <p className="text-3xl font-bold text-[#0D1B3E]">₹{PRICING_PLANS.MONTHLY.price.toLocaleString("en-IN")}</p>
+            <p className="text-xs text-gray-400">per {PRICING_PLANS.MONTHLY.period}</p>
+            <Link
+              href="/settings/subscription?billing=MONTHLY"
               className="mt-4 block w-full rounded-lg bg-[#1E40AF] py-2 text-sm font-medium text-white"
             >
               Subscribe Monthly
-            </a>
+            </Link>
           </div>
 
           <div className="relative rounded-xl border-2 border-[#1E40AF] p-4">
             <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-green-500 px-2 py-0.5 text-xs text-white">
-              Save 17%
+              Save {PRICING_PLANS.YEARLY.savingsPercent}%
             </span>
-            <p className="mb-1 text-sm text-gray-500">Yearly</p>
-            <p className="text-3xl font-bold text-[#0D1B3E]">₹5,999</p>
-            <p className="text-xs text-gray-400">per year</p>
-            <a
-              href="mailto:connect@droletechnologies.com?subject=Subscribe%20to%20Yearly%20Plan"
+            <p className="mb-1 text-sm text-gray-500">{PRICING_PLANS.YEARLY.name}</p>
+            <p className="text-3xl font-bold text-[#0D1B3E]">₹{PRICING_PLANS.YEARLY.price.toLocaleString("en-IN")}</p>
+            <p className="text-xs text-gray-400">per {PRICING_PLANS.YEARLY.period}</p>
+            <Link
+              href="/settings/subscription?billing=YEARLY"
               className="mt-4 block w-full rounded-lg bg-[#1E40AF] py-2 text-sm font-medium text-white"
             >
               Subscribe Yearly
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -59,10 +56,10 @@ export default function SubscriptionRequiredPage() {
         </div>
 
         <p className="text-xs text-gray-400">
-          Need help? Contact us at{" "}
-          <a href="mailto:connect@droletechnologies.com" className="text-blue-600 underline">
-            connect@droletechnologies.com
-          </a>
+          Need a multi-branch / franchise plan instead?{" "}
+          <Link href="/contact" className="text-blue-600 underline">
+            Contact us
+          </Link>
         </p>
       </div>
     </div>

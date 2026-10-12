@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { buildPostBillingMessage, buildPublicInvoiceUrl } from "@/lib/whatsappMessages";
+
 type InvoicePrintProps = {
   invoice: {
     id: string;
@@ -15,6 +17,11 @@ type InvoicePrintProps = {
     total: number;
     paymentMethod: string;
     paymentStatus: "PENDING" | "PAID" | "CANCELLED" | "REFUNDED";
+    publicToken?: string | null;
+    appointment?: {
+      appointmentDate: string;
+      appointmentTime: string;
+    } | null;
     customer: {
       name: string;
       mobile: string;
@@ -40,7 +47,10 @@ type InvoicePrintProps = {
     phone: string | null;
     email: string | null;
     gstNumber: string | null;
+    instagramUrl?: string | null;
+    googleReviewUrl?: string | null;
   };
+  variant?: "dashboard" | "public";
 };
 
 const paymentStatusStyles: Record<string, string> = {
@@ -66,7 +76,7 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
-export function InvoicePrint({ invoice, tenant }: InvoicePrintProps) {
+export function InvoicePrint({ invoice, tenant, variant = "dashboard" }: InvoicePrintProps) {
   const cgst = invoice.taxAmount / 2;
   const sgst = invoice.taxAmount / 2;
   const locationLine = [[tenant.city, tenant.state].filter(Boolean).join(", "), tenant.pincode]
@@ -76,16 +86,36 @@ export function InvoicePrint({ invoice, tenant }: InvoicePrintProps) {
 
   const handleWhatsApp = () => {
     const phone = invoice.customer?.mobile?.replace(/[^0-9]/g, "");
-    const loyaltyPoints = Math.floor(invoice.total / 10);
-    const salonName = tenant?.name || "Our Salon";
 
-    const message =
-      `Hello ${invoice.customer?.name}! 👋\n\nThank you for choosing *${salonName}*! 💫\n\n` +
-      `🧾 *Invoice:* ${invoice.invoiceNumber}\n` +
-      `💰 *Amount:* ₹${invoice.total}\n` +
-      `💳 *Payment:* ${invoice.paymentMethod}\n\n` +
-      `⭐ *Loyalty Points Earned:* ${loyaltyPoints} points\n\n` +
-      `We look forward to seeing you again!\nThank you for your visit! 🙏`;
+    if (!phone) {
+      return;
+    }
+
+    const salonName = tenant?.name || "Our Salon";
+    const publicInvoiceUrl = invoice.publicToken
+      ? buildPublicInvoiceUrl(invoice.publicToken)
+      : typeof window !== "undefined"
+        ? window.location.href
+        : "";
+
+    const message = invoice.appointment
+      ? buildPostBillingMessage({
+          customerName: invoice.customer?.name ?? "",
+          salonName,
+          googleReviewUrl: tenant.googleReviewUrl,
+          publicInvoiceUrl,
+          isWalkIn: false,
+          appointmentDate: invoice.appointment.appointmentDate,
+          appointmentTime: invoice.appointment.appointmentTime,
+        })
+      : buildPostBillingMessage({
+          customerName: invoice.customer?.name ?? "",
+          salonName,
+          googleReviewUrl: tenant.googleReviewUrl,
+          publicInvoiceUrl,
+          isWalkIn: true,
+          invoiceDate: invoice.invoiceDate,
+        });
 
     const url = `https://wa.me/91${phone}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
@@ -108,19 +138,23 @@ export function InvoicePrint({ invoice, tenant }: InvoicePrintProps) {
         >
           Download PDF
         </button>
-        <button
-          type="button"
-          onClick={handleWhatsApp}
-          className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
-        >
-          Send WhatsApp
-        </button>
-        <Link
-          href="/billing/invoices"
-          className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
-        >
-          Back
-        </Link>
+        {variant === "dashboard" ? (
+          <button
+            type="button"
+            onClick={handleWhatsApp}
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
+          >
+            Send WhatsApp
+          </button>
+        ) : null}
+        {variant === "dashboard" ? (
+          <Link
+            href="/billing/invoices"
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
+          >
+            Back
+          </Link>
+        ) : null}
       </div>
 
       <article className="print-area mx-auto max-w-3xl rounded-xl border border-[var(--border)] bg-white p-6">
@@ -131,7 +165,7 @@ export function InvoicePrint({ invoice, tenant }: InvoicePrintProps) {
               <img
                 src={tenant.logo}
                 alt={tenant.name}
-                className="h-16 w-16 rounded-xl object-contain"
+                className="max-h-16 w-auto rounded-xl object-contain"
               />
             ) : null}
             <div>
@@ -218,6 +252,36 @@ export function InvoicePrint({ invoice, tenant }: InvoicePrintProps) {
 
         <p className="text-sm text-[var(--foreground)]">Points earned: {invoice.pointsEarned}</p>
         <p className="text-sm text-[var(--foreground)]">Total balance: {invoice.customer.totalPoints} points</p>
+
+        {tenant.googleReviewUrl || tenant.instagramUrl ? (
+          <div className="mt-4 space-y-1 border-t border-dashed border-[var(--border)] pt-4 text-center text-sm">
+            {tenant.googleReviewUrl ? (
+              <p>
+                Hey, enjoyed our service? Take a minute of your time to review, it means the world to us.{" "}
+                <a
+                  href={tenant.googleReviewUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-amber-500 underline"
+                >
+                  ★★★★★
+                </a>
+              </p>
+            ) : null}
+            {tenant.instagramUrl ? (
+              <p>
+                <a
+                  href={tenant.instagramUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-[var(--accent)] underline"
+                >
+                  Follow us on Instagram
+                </a>
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         <div className="mt-5 flex flex-col items-center gap-2 text-center text-xs text-[var(--muted)]">
           <p>Thank you for visiting.</p>

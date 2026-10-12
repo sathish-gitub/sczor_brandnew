@@ -2,6 +2,9 @@
 
 import { useMemo, useState } from "react";
 
+import { ExportButtons } from "@/components/reports/ExportButtons";
+import type { ExportConfig } from "@/lib/exportReport";
+
 type DataTableColumn<T> = {
   key: string;
   label: string;
@@ -15,10 +18,10 @@ type DataTableProps<T> = {
   rows: T[];
   pageSize?: number;
   emptyText?: string;
-  csvFileName?: string;
+  exportConfig?: Omit<ExportConfig, "rows">;
 };
 
-export function DataTable<T>({ columns, rows, pageSize = 10, emptyText = "No data", csvFileName = "table.csv" }: DataTableProps<T>) {
+export function DataTable<T>({ columns, rows, pageSize = 10, emptyText = "No data", exportConfig }: DataTableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
@@ -66,37 +69,17 @@ export function DataTable<T>({ columns, rows, pageSize = 10, emptyText = "No dat
     setSortOrder("asc");
   }
 
-  function exportCsv() {
-    const header = columns.map((column) => column.label);
-    const content = sortedRows.map((row) =>
-      columns.map((column) => {
-        const value = column.render(row);
-        return typeof value === "string" || typeof value === "number" ? String(value) : "";
-      }),
-    );
-
-    const csvText = [header, ...content]
-      .map((line) => line.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(","))
-      .join("\n");
-
-    const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
-    const href = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = href;
-    anchor.download = csvFileName;
-    anchor.click();
-    URL.revokeObjectURL(href);
-  }
-
   if (rows.length === 0) {
     return <div className="rounded-xl border border-dashed border-[var(--border)] bg-white px-6 py-16 text-center text-sm text-[var(--muted)]">{emptyText}</div>;
   }
 
   return (
     <div className="space-y-3 rounded-xl border border-[var(--border)] bg-white p-4">
-      <div className="flex justify-end">
-        <button type="button" onClick={exportCsv} className="h-9 rounded-lg border border-[var(--border)] px-3 text-xs font-semibold text-slate-700">Export CSV</button>
-      </div>
+      {exportConfig ? (
+        <div className="flex justify-end">
+          <ExportButtons getConfig={() => ({ ...exportConfig, rows: sortedRows as unknown as Array<Record<string, unknown>> })} />
+        </div>
+      ) : null}
 
       <div className="overflow-x-auto">
         <table className="min-w-[720px] w-full text-left text-sm">
