@@ -42,6 +42,7 @@ type POSCartProps = {
   onDecrease: (key: string) => void;
   onRemove: (key: string) => void;
   onStaffChange: (key: string, staffId: string) => void;
+  missingStaffKeys?: Set<string>;
 };
 
 function formatCurrency(value: number) {
@@ -59,6 +60,7 @@ export function POSCart({
   onDecrease,
   onRemove,
   onStaffChange,
+  missingStaffKeys,
 }: POSCartProps) {
   return (
     <section className="rounded-xl border border-[var(--border)] bg-white p-4">
@@ -70,9 +72,13 @@ export function POSCart({
         <div className="mt-3 space-y-2">
           {items.map((item) => {
             const key = cartItemKey(item);
+            const isMissingStaff = item.type === "SERVICE" && (missingStaffKeys?.has(key) ?? false);
 
             return (
-              <div key={key} className="rounded-lg border border-[var(--border)] p-3">
+              <div
+                key={key}
+                className={`rounded-lg border p-3 ${isMissingStaff ? "border-red-300 bg-red-50" : "border-[var(--border)]"}`}
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="text-sm font-semibold text-[var(--foreground)]">{item.name}</p>
@@ -99,7 +105,7 @@ export function POSCart({
                     <select
                       value={item.staffId}
                       onChange={(event) => onStaffChange(key, event.target.value)}
-                      className="mt-1 h-9 w-full rounded-md border border-[var(--border)] bg-white px-2 text-sm"
+                      className={`mt-1 h-9 w-full rounded-md border bg-white px-2 text-sm ${isMissingStaff ? "border-red-400" : "border-[var(--border)]"}`}
                     >
                       <option value="">Select staff</option>
                       {staffOptions.map((option) => (
@@ -108,6 +114,9 @@ export function POSCart({
                         </option>
                       ))}
                     </select>
+                    {isMissingStaff ? (
+                      <p className="mt-1 text-xs font-medium text-red-600">Staff member required for this line.</p>
+                    ) : null}
                   </div>
                 ) : null}
 

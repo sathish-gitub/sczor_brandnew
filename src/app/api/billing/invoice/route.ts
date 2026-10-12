@@ -9,6 +9,7 @@ import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
 import { calculateLoyaltyTier } from "@/lib/utils";
 import { buildPublicInvoiceUrl } from "@/lib/whatsappMessages";
+import { todayISTDateString } from "@/lib/time";
 
 const itemSchema = z
   .object({
@@ -52,7 +53,7 @@ function generatePublicToken() {
 }
 
 async function nextInvoiceNumber(tenantId: string, prefix: string) {
-  const year = new Date().getFullYear();
+  const year = todayISTDateString().slice(0, 4);
   const basePrefix = `${prefix}-${year}-`;
 
   const latest = await prisma.invoice.findFirst({
@@ -243,6 +244,18 @@ export async function POST(request: Request) {
       };
     });
 
+    // Every service line - from an appointment or a walk-in sale - needs a
+    // staff member before checkout. Product lines don't need one.
+    const missingStaffItems = normalizedItems.filter((item) => item.type === "SERVICE" && !item.staffId);
+    if (missingStaffItems.length > 0) {
+      return NextResponse.json(
+        {
+          error: `Select a staff member for: ${missingStaffItems.map((item) => item.name).join(", ")}.`,
+        },
+        { status: 400 },
+      );
+    }
+
     const requestedProductQuantities = new Map<string, number>();
     for (const item of normalizedItems) {
       if (item.type === "PRODUCT") {
@@ -313,7 +326,8 @@ export async function POST(request: Request) {
           paymentMethod: payload.paymentMethod,
           paymentStatus: "PAID",
           appointmentId: linkedAppointment?.id ?? null,
-          staffId: normalizedItems.find((item) => item.staffId)?.staffId ?? null,
+          // Mirror of the first service line's staff, for backward compatibility.
+          staffId: normalizedItems.find((item) => item.type === "SERVICE")?.staffId ?? null,
           items: {
             create: normalizedItems.map((item) => ({
               name: item.name,

@@ -3,26 +3,24 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { istMonthBounds, istWallTimeToInstant, todayISTDateString } from "@/lib/time";
 
-function parseDate(value: string | null, endOfDay = false) {
+/** "YYYY-MM-DD" -> the start of the NEXT IST day, i.e. an exclusive upper bound. */
+function parseISTDateExclusiveEnd(value: string | null): Date | null {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return null;
   }
 
-  const date = new Date(`${value}T00:00:00`);
-  if (endOfDay) {
-    date.setHours(23, 59, 59, 999);
-  }
-  return date;
+  const start = istWallTimeToInstant(value, "00:00");
+  return new Date(start.getTime() + 24 * 60 * 60 * 1000);
 }
 
-function monthBounds() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), 1);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  end.setHours(23, 59, 59, 999);
-  return { start, end };
+function parseISTDateStart(value: string | null): Date | null {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return null;
+  }
+
+  return istWallTimeToInstant(value, "00:00");
 }
 
 export async function GET(request: Request) {
@@ -32,40 +30,60 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const startDate = parseDate(url.searchParams.get("startDate"));
-  const endDate = parseDate(url.searchParams.get("endDate"), true);
+  const startDate = parseISTDateStart(url.searchParams.get("startDate"));
+  const endDate = parseISTDateExclusiveEnd(url.searchParams.get("endDate"));
 
-  const fallback = monthBounds();
+  const fallback = istMonthBounds(todayISTDateString());
   const from = startDate ?? fallback.start;
   const to = endDate ?? fallback.end;
 
   try {
-    const items = await prisma.invoiceItem.findMany({
-      where: {
-        invoice: {
-          tenantId: session.user.tenantId,
-          paymentStatus: "PAID",
-          invoiceDate: {
-            gte: from,
-            lte: to,
+    const [items, serviceLines] = await Promise.all([
+      prisma.invoiceItem.findMany({
+        where: {
+          invoice: {
+            tenantId: session.user.tenantId,
+            paymentStatus: "PAID",
+            invoiceDate: {
+              gte: from,
+              lt: to,
+            },
           },
         },
-      },
-      select: {
-        name: true,
-        quantity: true,
-        amount: true,
-      },
-    });
+        select: {
+          name: true,
+          quantity: true,
+          amount: true,
+        },
+      }),
+      // Service popularity COUNT is AppointmentService lines (a service
+      // chosen on 2 lines of one appointment counts twice; walk-in-only
+      // sales have no lines and are naturally excluded from the count),
+      // matching the dashboard chart's servicePopularity. Revenue stays the
+      // actual billed amount from invoice items above.
+      prisma.appointmentService.findMany({
+        where: {
+          tenantId: session.user.tenantId,
+          appointment: { appointmentDate: { gte: from, lt: to } },
+        },
+        select: { service: { select: { name: true } } },
+      }),
+    ]);
 
     const totalRevenue = items.reduce((sum, item) => sum + Number(item.amount), 0);
     const grouped = new Map<string, { count: number; revenue: number }>();
 
     for (const item of items) {
       const bucket = grouped.get(item.name) ?? { count: 0, revenue: 0 };
-      bucket.count += item.quantity;
       bucket.revenue += Number(item.amount);
       grouped.set(item.name, bucket);
+    }
+
+    for (const line of serviceLines) {
+      const name = line.service.name;
+      const bucket = grouped.get(name) ?? { count: 0, revenue: 0 };
+      bucket.count += 1;
+      grouped.set(name, bucket);
     }
 
     const rows = [...grouped.entries()]

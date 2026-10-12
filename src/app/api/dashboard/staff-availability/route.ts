@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { istDayBounds, todayISTDateString } from "@/lib/time";
 
 export async function GET() {
   try {
@@ -12,10 +13,7 @@ export async function GET() {
     }
 
     const tenantId = session.user.tenantId;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const { start, end } = istDayBounds(todayISTDateString());
 
     const staff = await prisma.staff.findMany({
       where: {
@@ -24,19 +22,21 @@ export async function GET() {
       include: {
         attendances: {
           where: {
-            date: { gte: today, lt: tomorrow },
+            date: { gte: start, lt: end },
           },
           take: 1,
         },
-        appointments: {
+        appointmentServices: {
           where: {
-            appointmentDate: { gte: today, lt: tomorrow },
-            status: { notIn: ["CANCELLED"] },
+            appointment: {
+              appointmentDate: { gte: start, lt: end },
+              status: { notIn: ["CANCELLED"] },
+            },
           },
         },
         _count: {
           select: {
-            appointments: true,
+            appointmentServices: true,
           },
         },
       },
@@ -61,8 +61,8 @@ export async function GET() {
         availabilityStatus,
         displayStatus: isInactive ? "INACTIVE" : availabilityStatus,
         todayAttendance: attendanceStatus,
-        todayAppointments: s.appointments.length,
-        totalAppointments: s._count.appointments,
+        todayAppointments: s.appointmentServices.length,
+        totalAppointments: s._count.appointmentServices,
       };
     });
 

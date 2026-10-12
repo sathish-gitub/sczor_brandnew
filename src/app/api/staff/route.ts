@@ -5,6 +5,7 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
+import { istDayBounds, todayISTDateString } from "@/lib/time";
 
 const createStaffSchema = z.object({
   name: z.string().trim().min(2, "Name is required."),
@@ -30,15 +31,6 @@ async function tenantIdOrNull() {
   return session?.user.tenantId ?? null;
 }
 
-function dayBounds(date = new Date()) {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(date);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
-}
-
 export async function GET(request: Request) {
   const tenantId = await tenantIdOrNull();
 
@@ -48,10 +40,10 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const statusFilter = url.searchParams.get("status");
-  const { start, end } = dayBounds();
+  const { start, end } = istDayBounds(todayISTDateString());
 
   try {
-    const [staff] = await Promise.all([
+    const [staff, todayLineCounts, totalLineCounts] = await Promise.all([
       prisma.staff.findMany({
         where: {
           tenantId,
@@ -59,30 +51,11 @@ export async function GET(request: Request) {
         },
         orderBy: { name: "asc" },
         include: {
-          appointments: {
-            where: {
-              appointmentDate: {
-                gte: start,
-                lte: end,
-              },
-              status: {
-                not: "CANCELLED",
-              },
-            },
-            select: {
-              id: true,
-            },
-          },
-          _count: {
-            select: {
-              appointments: true,
-            },
-          },
           attendances: {
             where: {
               date: {
                 gte: start,
-                lte: end,
+                lt: end,
               },
             },
             take: 1,
@@ -92,8 +65,27 @@ export async function GET(request: Request) {
           },
         },
       }),
-
+      // "Today's Services" counts AppointmentService lines for today (not
+      // cancelled), not appointments - the same person on two lines counts 2.
+      prisma.appointmentService.groupBy({
+        by: ["staffId"],
+        where: {
+          tenantId,
+          staffId: { not: null },
+          appointment: { appointmentDate: { gte: start, lt: end }, status: { not: "CANCELLED" } },
+        },
+        _count: { _all: true },
+      }),
+      // "Total Services" - all-time, all statuses (same scope as before).
+      prisma.appointmentService.groupBy({
+        by: ["staffId"],
+        where: { tenantId, staffId: { not: null } },
+        _count: { _all: true },
+      }),
     ]);
+
+    const todayCountByStaff = new Map(todayLineCounts.map((row) => [row.staffId as string, row._count._all]));
+    const totalCountByStaff = new Map(totalLineCounts.map((row) => [row.staffId as string, row._count._all]));
 
     const avgByStaff = new Map();
 
@@ -104,8 +96,8 @@ export async function GET(request: Request) {
         isInactive || attendanceStatus === "ABSENT" || attendanceStatus === "LEAVE"
           ? "OFF_DUTY"
           : member.availabilityStatus;
-      const todayCount = member.appointments.length;
-      const totalCount = member._count?.appointments ?? 0;
+      const todayCount = todayCountByStaff.get(member.id) ?? 0;
+      const totalCount = totalCountByStaff.get(member.id) ?? 0;
 
       return {
         id: member.id,
@@ -116,8 +108,8 @@ export async function GET(request: Request) {
         status: member.status,
         availabilityStatus: effectiveAvailability ?? "AVAILABLE",
         displayStatus: isInactive ? "INACTIVE" : (effectiveAvailability ?? "AVAILABLE"),
-        todayAppointments: todayCount,
-        totalAppointments: totalCount,
+        todayServicesDone: todayCount,
+        totalServicesDone: totalCount,
         workingDays: member.workingDays,
         attendanceStatusToday: attendanceStatus ?? null,
         avgRating: avgByStaff.get(member.id) ?? 0,

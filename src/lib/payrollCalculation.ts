@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { getStaffRevenue } from "@/lib/staffRevenue";
+import { istMonthBounds } from "@/lib/time";
 
 export class PayrollCalculationError extends Error {}
 
@@ -23,14 +25,9 @@ export type PayrollCalculationResult = {
   netPay: number;
 };
 
+/** [start, end) instants spanning the IST calendar month `year-month`. */
 function monthBounds(year: number, month: number) {
-  const start = new Date(year, month - 1, 1);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(year, month, 0);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
+  return istMonthBounds(`${year}-${String(month).padStart(2, "0")}-01`);
 }
 
 function roundMoney(value: number) {
@@ -77,7 +74,7 @@ export async function calculatePayroll(
 
   // Salary as-of that month, not necessarily the staff's current configured salary.
   const applicableHistory = staff.salaryHistory
-    .filter((entry) => entry.effectiveFrom <= end && (entry.effectiveTo === null || entry.effectiveTo >= start))
+    .filter((entry) => entry.effectiveFrom < end && (entry.effectiveTo === null || entry.effectiveTo >= start))
     .sort((a, b) => b.effectiveFrom.getTime() - a.effectiveFrom.getTime())[0];
 
   const baseSalary = applicableHistory
@@ -102,7 +99,7 @@ export async function calculatePayroll(
   }
 
   const attendance = await prisma.attendance.findMany({
-    where: { tenantId, staffId, date: { gte: start, lte: end } },
+    where: { tenantId, staffId, date: { gte: start, lt: end } },
     select: { status: true },
   });
 
@@ -126,18 +123,10 @@ export async function calculatePayroll(
   const dailyRate = baseSalary / totalWorkingDays;
   const leaveDeduction = roundMoney((counts.ABSENT + lopDays + counts.HALF_DAY * 0.5) * dailyRate);
 
-  // Reuses the same revenue query as the Staff Performance report (src/app/api/reports/staff/route.ts).
-  const invoices = await prisma.invoice.findMany({
-    where: {
-      tenantId,
-      staffId,
-      paymentStatus: "PAID",
-      invoiceDate: { gte: start, lte: end },
-    },
-    select: { total: true },
-  });
-
-  const revenueGenerated = roundMoney(invoices.reduce((sum, invoice) => sum + Number(invoice.total), 0));
+  // Reuses the same revenue attribution as the Staff Performance report
+  // (src/app/api/reports/staff/route.ts): per invoice LINE (InvoiceItem.staffId),
+  // falling back to Invoice.staffId for lines without per-line attribution.
+  const { revenue: revenueGenerated } = await getStaffRevenue(tenantId, staffId, { gte: start, lt: end });
   const commissionAmount = roundMoney(revenueGenerated * (commissionRate / 100));
 
   const grossPay = roundMoney(baseSalary + commissionAmount);

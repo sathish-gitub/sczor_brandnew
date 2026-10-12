@@ -5,13 +5,7 @@ import { getServerSession } from "next-auth";
 import { AppointmentForm } from "@/components/appointments/AppointmentForm";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-function todayDateString() {
-  const now = new Date();
-  const month = `${now.getMonth() + 1}`.padStart(2, "0");
-  const day = `${now.getDate()}`.padStart(2, "0");
-  return `${now.getFullYear()}-${month}-${day}`;
-}
+import { todayISTDateString } from "@/lib/time";
 
 export default async function NewAppointmentPage({
   searchParams,
@@ -92,11 +86,9 @@ export default async function NewAppointmentPage({
                 mobile: selectedCustomer.mobile,
                 email: selectedCustomer.email ?? "",
                 notes: "",
-                appointmentDate: todayDateString(),
+                appointmentDate: todayISTDateString(),
                 appointmentTime: "09:00",
-                serviceId: services[0]?.id ?? "",
-                staffId: "",
-                duration: services[0]?.duration ?? 30,
+                lines: [],
                 status: "BOOKED",
               }
             : undefined

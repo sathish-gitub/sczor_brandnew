@@ -940,12 +940,26 @@ async function main() {
           appointmentDate,
           appointmentTime,
           duration: service.duration,
+          totalAmount: service.price,
           status,
           customerId: customer.id,
           serviceId: service.id,
           staffId: staff.id,
           tenantId: tenant.id,
           createdAt: appointmentDate,
+          // One line per appointment - price/duration are booking-time snapshots.
+          services: {
+            create: [
+              {
+                serviceId: service.id,
+                staffId: staff.id,
+                price: service.price,
+                duration: service.duration,
+                sortOrder: 0,
+                tenantId: tenant.id,
+              },
+            ],
+          },
         },
       });
 

@@ -3,49 +3,46 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getStaffRevenueByInvoiceLine } from "@/lib/staffRevenue";
+import { istDayBounds, istMonthBounds, istWallTimeToInstant, toISTDateString, todayISTDateString } from "@/lib/time";
 
 type ChartRange = "today" | "7d" | "30d" | "month";
 
+/** [start, end) instants in IST for the requested chart range. */
 function rangeBounds(range: string | null) {
-  const now = new Date();
-  const start = new Date(now);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
+  const todayStart = istDayBounds(todayISTDateString()).start;
+  const end = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
 
   if (range === "7d") {
-    start.setDate(start.getDate() - 6);
+    const start = new Date(todayStart.getTime() - 6 * 24 * 60 * 60 * 1000);
     return { start, end };
   }
 
   if (range === "month") {
-    start.setDate(1);
+    const start = istMonthBounds(todayISTDateString()).start;
     return { start, end };
   }
 
   if (range === "today") {
-    return { start, end };
+    return { start: todayStart, end };
   }
 
   // default: 30d
-  start.setDate(start.getDate() - 29);
+  const start = new Date(todayStart.getTime() - 29 * 24 * 60 * 60 * 1000);
   return { start, end };
 }
 
 function toDateKey(date: Date) {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getDate()}`.padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return toISTDateString(date);
 }
 
 function dayKeys(start: Date, end: Date) {
   const keys: string[] = [];
-  const cursor = new Date(start);
+  let cursor = start.getTime();
 
-  while (cursor < end) {
-    keys.push(toDateKey(cursor));
-    cursor.setDate(cursor.getDate() + 1);
+  while (cursor < end.getTime()) {
+    keys.push(toDateKey(new Date(cursor)));
+    cursor += 24 * 60 * 60 * 1000;
   }
 
   return keys;
@@ -73,7 +70,7 @@ export async function GET(request: Request) {
     const { start, end } = rangeBounds(range);
     const days = dayKeys(start, end);
 
-    const [invoices, appointments, invoiceItems, customers, staffList, loyaltyCards] = await Promise.all([
+    const [invoices, appointments, appointmentServiceLines, invoiceItems, customers, staffList, loyaltyCards] = await Promise.all([
       prisma.invoice.findMany({
         where: { tenantId, invoiceDate: { gte: start, lt: end } },
         select: {
@@ -89,11 +86,16 @@ export async function GET(request: Request) {
         select: {
           appointmentDate: true,
           status: true,
-          serviceId: true,
           customer: {
             select: { id: true, createdAt: true },
           },
         },
+      }),
+      // Service popularity counts AppointmentService lines (a service chosen
+      // on two lines of one appointment counts twice), not appointments.
+      prisma.appointmentService.findMany({
+        where: { tenantId, appointment: { appointmentDate: { gte: start, lt: end } } },
+        select: { serviceId: true },
       }),
       prisma.invoiceItem.findMany({
         where: {
@@ -136,8 +138,15 @@ export async function GET(request: Request) {
       count: breakdownCounts.get(status) ?? 0,
     }));
 
-    // Service popularity: appointment count per service, revenue from invoice items.
-    const serviceIds = Array.from(new Set(appointments.map((appointment) => appointment.serviceId)));
+    // Service popularity: AppointmentService LINE count per service (a
+    // service chosen on 2 lines of one appointment counts twice), revenue
+    // stays the actual billed amount from invoice items.
+    const serviceIds = Array.from(
+      new Set([
+        ...appointmentServiceLines.map((line) => line.serviceId),
+        ...invoiceItems.flatMap((item) => (item.serviceId ? [item.serviceId] : [])),
+      ]),
+    );
     const services = serviceIds.length
       ? await prisma.service.findMany({
           where: { id: { in: serviceIds } },
@@ -147,8 +156,8 @@ export async function GET(request: Request) {
     const serviceNameById = new Map(services.map((service) => [service.id, service.name]));
 
     const serviceCounts = new Map<string, number>();
-    for (const appointment of appointments) {
-      serviceCounts.set(appointment.serviceId, (serviceCounts.get(appointment.serviceId) ?? 0) + 1);
+    for (const line of appointmentServiceLines) {
+      serviceCounts.set(line.serviceId, (serviceCounts.get(line.serviceId) ?? 0) + 1);
     }
 
     const serviceRevenue = new Map<string, number>();
@@ -183,7 +192,7 @@ export async function GET(request: Request) {
     const returningByDay = new Map<string, Set<string>>(days.map((day) => [day, new Set<string>()]));
     for (const appointment of appointments) {
       const key = toDateKey(appointment.appointmentDate);
-      const dayStart = new Date(`${key}T00:00:00`);
+      const dayStart = istWallTimeToInstant(key, "00:00");
       if (appointment.customer.createdAt < dayStart) {
         returningByDay.get(key)?.add(appointment.customer.id);
       }
@@ -195,12 +204,17 @@ export async function GET(request: Request) {
       returningCustomers: returningByDay.get(date)?.size ?? 0,
     }));
 
-    // Staff performance: revenue per staff member, top 6.
+    // Staff performance: revenue per staff member (per invoice LINE, same
+    // basis as the staff report and payroll), top 6.
     const staffNameById = new Map(staffList.map((staff) => [staff.id, staff.name]));
+    const staffRevenueByLine = await getStaffRevenueByInvoiceLine(
+      tenantId,
+      staffList.map((staff) => staff.id),
+      { gte: start, lt: end },
+    );
     const staffRevenue = new Map<string, number>();
-    for (const invoice of invoices) {
-      if (!invoice.staffId || invoice.paymentStatus !== "PAID") continue;
-      staffRevenue.set(invoice.staffId, (staffRevenue.get(invoice.staffId) ?? 0) + Number(invoice.total));
+    for (const [staffId, entry] of staffRevenueByLine) {
+      staffRevenue.set(staffId, entry.revenue);
     }
     const staffPerformance = Array.from(staffRevenue.entries())
       .sort((a, b) => b[1] - a[1])

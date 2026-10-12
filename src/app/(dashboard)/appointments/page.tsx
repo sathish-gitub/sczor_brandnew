@@ -5,11 +5,21 @@ import Link from "next/link";
 import { useAccess } from "@/contexts/AccessContext";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Edit, Eye, LoaderCircle, Plus, Trash } from "lucide-react";
+import { Edit, Eye, LoaderCircle, Plus, Search, Trash } from "lucide-react";
 
 import { StatusBadge } from "@/components/appointments/StatusBadge";
 import { WhatsAppConfirmationButton } from "@/components/appointments/WhatsAppConfirmationButton";
+import { combinedServiceNames, distinctStaffLabel } from "@/lib/appointmentDisplay";
 import { maskId } from "@/lib/formatId";
+import { istMonthBounds, istWallTimeToInstant, istWeekBounds, todayISTDateString, toISTDateString } from "@/lib/time";
+
+type AppointmentServiceLineRow = {
+  id: string;
+  duration: number;
+  price: number;
+  service: { id: string; name: string };
+  staff: { id: string; name: string } | null;
+};
 
 type AppointmentRow = {
   id: string;
@@ -22,12 +32,7 @@ type AppointmentRow = {
     name: string;
     mobile: string;
   };
-  service: {
-    name: string;
-  };
-  staff: {
-    name: string;
-  };
+  services: AppointmentServiceLineRow[];
 };
 
 type Stats = {
@@ -50,6 +55,7 @@ function formatDate(value: string) {
   const date = new Date(value);
 
   return new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -92,31 +98,32 @@ function TableSkeleton() {
 }
 
 function periodContaining(dateValue: string): "today" | "this_week" | "this_month" {
-  const target = new Date(`${dateValue}T00:00:00`);
-
-  if (Number.isNaN(target.getTime())) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
     return "today";
   }
 
-  const now = new Date();
-  const startOfToday = new Date(now);
-  startOfToday.setHours(0, 0, 0, 0);
+  const todayStr = todayISTDateString();
 
-  if (target.getTime() === startOfToday.getTime()) {
+  if (dateValue === todayStr) {
     return "today";
   }
 
-  const startOfWeek = new Date(startOfToday);
-  startOfWeek.setDate(startOfToday.getDate() - ((startOfToday.getDay() + 6) % 7));
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6);
+  const target = istWallTimeToInstant(dateValue, "00:00");
+  const week = istWeekBounds(todayStr);
 
-  if (target >= startOfWeek && target <= endOfWeek) {
+  if (target >= week.start && target < week.end) {
     return "this_week";
+  }
+
+  const month = istMonthBounds(todayStr);
+
+  if (target >= month.start && target < month.end) {
+    return "this_month";
   }
 
   return "this_month";
 }
+
 
 export default function AppointmentsPage() {
   const access = useAccess();
@@ -132,12 +139,24 @@ export default function AppointmentsPage() {
   const [status, setStatus] = useState<(typeof statusOptions)[number]>("ALL");
   const [page, setPage] = useState(1);
   const [reloadKey, setReloadKey] = useState(0);
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<AppointmentRow[]>([]);
   const [stats, setStats] = useState<Stats>({ total: 0, booked: 0, completed: 0, cancelled: 0 });
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 10, total: 0, totalPages: 1 });
+
+  // Debounce the search box (~300ms) before it drives the API query.
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+      setPage(1);
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
 
   useEffect(() => {
     let active = true;
@@ -155,6 +174,10 @@ export default function AppointmentsPage() {
 
         if (status !== "ALL") {
           query.set("status", status);
+        }
+
+        if (debouncedSearch) {
+          query.set("q", debouncedSearch);
         }
 
         const response = await fetch(`/api/appointments?${query.toString()}`, {
@@ -198,7 +221,7 @@ export default function AppointmentsPage() {
     return () => {
       active = false;
     };
-  }, [period, status, page, navigationToken, reloadKey]);
+  }, [period, status, page, navigationToken, reloadKey, debouncedSearch]);
 
   useEffect(() => {
     function handleFocus() {
@@ -351,6 +374,16 @@ export default function AppointmentsPage() {
           </div>
         </div>
 
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-400" />
+          <input
+            value={searchInput}
+            onChange={(event) => setSearchInput(event.target.value)}
+            placeholder="Search by customer name, mobile, appointment ID, or service..."
+            className="h-11 w-full rounded-xl border border-[var(--border)] bg-white pl-9 pr-3 text-sm outline-none focus:border-[var(--accent)]"
+          />
+        </div>
+
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatsCard label="Total" value={stats.total} />
           <StatsCard label="Booked" value={stats.booked} />
@@ -365,7 +398,7 @@ export default function AppointmentsPage() {
         <div className="rounded-xl border border-dashed border-[var(--border)] bg-white px-6 py-14 text-center">
           <p className="text-base font-semibold text-[var(--foreground)]">No appointments found.</p>
           <p className="mt-2 text-sm text-[var(--muted)]">
-            Try another date or status filter, or create your first appointment.
+            Try another date, status, or search term, or create your first appointment.
           </p>
           <Link
             href="/appointments/new"
@@ -391,10 +424,14 @@ export default function AppointmentsPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
+              {rows.map((row) => {
+                const serviceNames = combinedServiceNames(row.services);
+                const staffLabel = distinctStaffLabel(row.services);
+
+                return (
                 <tr key={row.id} className="border-t border-[var(--border)]">
                   <td className="px-4 py-3 font-medium text-[var(--foreground)]">
-                    {row.appointmentNumber ?? `SCZO-${new Date(row.appointmentDate).getFullYear()}-${maskId(row.id)}`}
+                    {row.appointmentNumber ?? `SCZO-${toISTDateString(new Date(row.appointmentDate)).slice(0, 4)}-${maskId(row.id)}`}
                   </td>
                   <td className="px-4 py-3 text-[var(--foreground)]">
                     <div>{formatDate(row.appointmentDate)}</div>
@@ -402,8 +439,10 @@ export default function AppointmentsPage() {
                   </td>
                   <td className="px-4 py-3 text-[var(--foreground)]">{row.customer.name}</td>
                   <td className="px-4 py-3 text-[var(--foreground)]">{row.customer.mobile}</td>
-                  <td className="px-4 py-3 text-[var(--foreground)]">{row.service.name}</td>
-                  <td className="px-4 py-3 text-[var(--foreground)]">{row.staff.name}</td>
+                  <td className="max-w-[220px] truncate px-4 py-3 text-[var(--foreground)]" title={serviceNames}>
+                    {serviceNames}
+                  </td>
+                  <td className="px-4 py-3 text-[var(--foreground)]">{staffLabel}</td>
                   <td className="px-4 py-3 text-[var(--foreground)]">{row.duration} min</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={row.status} />
@@ -442,7 +481,8 @@ export default function AppointmentsPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>

@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { combinedServiceNames, distinctStaffLabel } from "@/lib/appointmentDisplay";
+import { istDayBounds, todayISTDateString } from "@/lib/time";
 
 export async function GET() {
   try {
@@ -12,15 +14,12 @@ export async function GET() {
     }
 
     const tenantId = session.user.tenantId;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const { start, end } = istDayBounds(todayISTDateString());
 
     const appointments = await prisma.appointment.findMany({
       where: {
         tenantId,
-        appointmentDate: { gte: today, lt: tomorrow },
+        appointmentDate: { gte: start, lt: end },
       },
       include: {
         customer: {
@@ -29,23 +28,27 @@ export async function GET() {
             mobile: true,
           },
         },
-        service: {
+        services: {
+          orderBy: { sortOrder: "asc" },
           select: {
-            name: true,
-            price: true,
-          },
-        },
-        staff: {
-          select: {
-            name: true,
-            designation: true,
+            service: { select: { name: true } },
+            staff: { select: { name: true } },
           },
         },
       },
       orderBy: { appointmentTime: "asc" },
     });
 
-    return NextResponse.json(appointments);
+    const response = appointments.map((appointment) => ({
+      id: appointment.id,
+      appointmentTime: appointment.appointmentTime,
+      status: appointment.status,
+      customer: appointment.customer,
+      serviceName: combinedServiceNames(appointment.services),
+      staffName: distinctStaffLabel(appointment.services),
+    }));
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error("Appointments error:", error);
     return NextResponse.json({ error: "Failed" }, { status: 500 });

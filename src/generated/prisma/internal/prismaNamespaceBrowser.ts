@@ -59,6 +59,7 @@ export const ModelName = {
   SalaryHistory: 'SalaryHistory',
   Payroll: 'Payroll',
   Appointment: 'Appointment',
+  AppointmentService: 'AppointmentService',
   Invoice: 'Invoice',
   InvoiceItem: 'InvoiceItem',
   StaffRating: 'StaffRating',
@@ -259,6 +260,7 @@ export const AppointmentScalarFieldEnum = {
   appointmentDate: 'appointmentDate',
   appointmentTime: 'appointmentTime',
   duration: 'duration',
+  totalAmount: 'totalAmount',
   status: 'status',
   notes: 'notes',
   customerId: 'customerId',
@@ -270,6 +272,22 @@ export const AppointmentScalarFieldEnum = {
 } as const
 
 export type AppointmentScalarFieldEnum = (typeof AppointmentScalarFieldEnum)[keyof typeof AppointmentScalarFieldEnum]
+
+
+export const AppointmentServiceScalarFieldEnum = {
+  id: 'id',
+  appointmentId: 'appointmentId',
+  serviceId: 'serviceId',
+  staffId: 'staffId',
+  price: 'price',
+  duration: 'duration',
+  sortOrder: 'sortOrder',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AppointmentServiceScalarFieldEnum = (typeof AppointmentServiceScalarFieldEnum)[keyof typeof AppointmentServiceScalarFieldEnum]
 
 
 export const InvoiceScalarFieldEnum = {

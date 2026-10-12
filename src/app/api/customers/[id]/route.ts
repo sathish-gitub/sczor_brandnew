@@ -63,14 +63,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       },
       appointments: {
         include: {
-          service: {
-            select: {
-              name: true,
-            },
-          },
-          staff: {
-            select: {
-              name: true,
+          services: {
+            orderBy: { sortOrder: "asc" },
+            include: {
+              service: { select: { name: true } },
+              staff: { select: { name: true } },
             },
           },
           invoice: {

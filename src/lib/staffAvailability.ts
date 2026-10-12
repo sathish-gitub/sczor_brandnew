@@ -1,9 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import { istWallTimeToInstant, todayISTDateString } from "@/lib/time";
 
 export function startOfToday() {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return today;
+  return istWallTimeToInstant(todayISTDateString(), "00:00");
 }
 
 /**
@@ -24,12 +23,16 @@ export async function syncStaffAvailability(tenantId: string, staffId: string) {
     return "OFF_DUTY" as const;
   }
 
-  const inProgressCount = await prisma.appointment.count({
+  // A staff member can be assigned to any line of an appointment, not just the first
+  // (mirrored) one, so busy-ness is derived from AppointmentService lines.
+  const inProgressCount = await prisma.appointmentService.count({
     where: {
       tenantId,
       staffId,
-      status: "IN_PROGRESS",
-      appointmentDate: startOfToday(),
+      appointment: {
+        status: "IN_PROGRESS",
+        appointmentDate: startOfToday(),
+      },
     },
   });
 

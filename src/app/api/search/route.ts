@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { combinedServiceNames } from "@/lib/appointmentDisplay";
+import { toISTDateString } from "@/lib/time";
 
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
@@ -50,7 +52,10 @@ export async function GET(request: Request) {
           appointmentTime: true,
           status: true,
           customer: { select: { name: true } },
-          service: { select: { name: true } },
+          services: {
+            orderBy: { sortOrder: "asc" },
+            select: { service: { select: { name: true } } },
+          },
         },
       }),
       prisma.invoice.findMany({
@@ -82,8 +87,8 @@ export async function GET(request: Request) {
       })),
       appointments: appointments.map((appointment) => ({
         id: appointment.id,
-        title: `${appointment.customer.name} - ${appointment.service.name}`,
-        subtitle: `${appointment.appointmentDate.toISOString().slice(0, 10)} ${appointment.appointmentTime} · ${appointment.status}`,
+        title: `${appointment.customer.name} - ${combinedServiceNames(appointment.services)}`,
+        subtitle: `${toISTDateString(appointment.appointmentDate)} ${appointment.appointmentTime} · ${appointment.status}`,
         href: `/appointments/${appointment.id}`,
       })),
       invoices: invoices.map((invoice) => ({

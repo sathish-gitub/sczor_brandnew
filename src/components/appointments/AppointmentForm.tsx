@@ -1,13 +1,15 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircle, LoaderCircle, Search } from "lucide-react";
+import { AlertCircle, LoaderCircle, Plus, Search, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useEffect, useMemo, useState } from "react";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { StatusBadge } from "@/components/appointments/StatusBadge";
+import { SearchableCombobox, type SearchableComboboxOption } from "@/components/ui/SearchableCombobox";
+import { formatDurationLabel, instantForOffset, istWallTimeToInstant, todayISTDateString, toISTWeekday } from "@/lib/time";
 
 type SalonDayEntry = {
   day: string;
@@ -31,6 +33,11 @@ export type AppointmentServiceOption = {
   duration: number;
 };
 
+export type AppointmentLineInitialData = {
+  serviceId: string;
+  staffId: string | null;
+};
+
 export type AppointmentFormInitialData = {
   id?: string;
   customerId?: string;
@@ -40,9 +47,7 @@ export type AppointmentFormInitialData = {
   notes: string;
   appointmentDate: string;
   appointmentTime: string;
-  serviceId: string;
-  staffId: string;
-  duration: number;
+  lines: AppointmentLineInitialData[];
   status: AppointmentStatus;
 };
 
@@ -52,12 +57,23 @@ type AppointmentFormProps = {
   initialData?: AppointmentFormInitialData;
 };
 
-type StaffAvailability = {
+type BusyWindow = {
+  start: string;
+  end: string;
+  label: string;
+};
+
+type StaffAvailabilityEntry = {
   id: string;
   name: string;
   designation: string;
-  status: "AVAILABLE" | "BUSY" | "OFF_DUTY";
-  bookedTimes: string[];
+  offDuty: boolean;
+  busyWindows: BusyWindow[];
+};
+
+type ServiceLineValue = {
+  serviceId: string;
+  staffId: string;
 };
 
 type FormValues = {
@@ -68,39 +84,49 @@ type FormValues = {
   notes: string;
   appointmentDate: string;
   appointmentTime: string;
-  serviceId: string;
-  staffId: string;
-  duration: number;
   status: AppointmentStatus;
+  lines: ServiceLineValue[];
 };
 
-const formSchema = z.object({
-  customerId: z.string().cuid().optional(),
-  mobile: z.string().trim().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
-  customerName: z.string().trim().min(2, "Customer name is required."),
-  email: z.string().trim().email("Enter a valid email.").or(z.literal("")),
-  notes: z.string(),
-  appointmentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  appointmentTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
-  serviceId: z.string().cuid("Select a service."),
-  staffId: z.string().cuid("Select a staff member."),
-  duration: z.number().int().positive("Duration must be positive."),
-  status: z.enum(["BOOKED", "IN_PROGRESS", "COMPLETED", "BILLED", "CANCELLED"]),
+const lineSchema = z.object({
+  serviceId: z.string().min(1, "Select a service."),
+  staffId: z.string(),
 });
 
-function todayDateString() {
-  const now = new Date();
-  const month = `${now.getMonth() + 1}`.padStart(2, "0");
-  const day = `${now.getDate()}`.padStart(2, "0");
-  return `${now.getFullYear()}-${month}-${day}`;
-}
+const formSchema = z
+  .object({
+    customerId: z.string().cuid().optional(),
+    mobile: z.string().trim().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
+    customerName: z.string().trim().min(2, "Customer name is required."),
+    email: z.string().trim().email("Enter a valid email.").or(z.literal("")),
+    notes: z.string(),
+    appointmentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    appointmentTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+    status: z.enum(["BOOKED", "IN_PROGRESS", "COMPLETED", "BILLED", "CANCELLED"]),
+    lines: z.array(lineSchema).min(1, "Add at least one service."),
+  })
+  .superRefine((values, ctx) => {
+    const seen = new Set<string>();
 
-function toTitleCase(value: string) {
-  return value
-    .split("_")
-    .join(" ")
-    .toLowerCase()
-    .replace(/(^|\s)\w/g, (char) => char.toUpperCase());
+    values.lines.forEach((line, index) => {
+      if (!line.serviceId) {
+        return;
+      }
+
+      if (seen.has(line.serviceId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "This service is already added in another row.",
+          path: ["lines", index, "serviceId"],
+        });
+      }
+
+      seen.add(line.serviceId);
+    });
+  });
+
+function emptyLine(): ServiceLineValue {
+  return { serviceId: "", staffId: "" };
 }
 
 export function AppointmentForm({ mode, services, initialData }: AppointmentFormProps) {
@@ -110,7 +136,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
   const [timeError, setTimeError] = useState<string | null>(null);
   const [salonDays, setSalonDays] = useState<SalonDayEntry[]>([]);
   const [customerState, setCustomerState] = useState<"idle" | "loading" | "found" | "new">("idle");
-  const [staffAvailability, setStaffAvailability] = useState<StaffAvailability[]>([]);
+  const [staffAvailability, setStaffAvailability] = useState<StaffAvailabilityEntry[]>([]);
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
   const [slotsLoading, setSlotsLoading] = useState(false);
 
@@ -129,23 +155,28 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
       customerName: initialData?.customerName ?? "",
       email: initialData?.email ?? "",
       notes: initialData?.notes ?? "",
-      appointmentDate: initialData?.appointmentDate ?? todayDateString(),
+      appointmentDate: initialData?.appointmentDate ?? todayISTDateString(),
       appointmentTime: initialData?.appointmentTime ?? "09:00",
-      serviceId: initialData?.serviceId ?? services[0]?.id ?? "",
-      staffId: initialData?.staffId ?? "",
-      duration: initialData?.duration ?? services[0]?.duration ?? 30,
       status: initialData?.status ?? "BOOKED",
+      lines:
+        initialData?.lines && initialData.lines.length > 0
+          ? initialData.lines.map((line) => ({ serviceId: line.serviceId, staffId: line.staffId ?? "" }))
+          : [emptyLine()],
     },
   });
+
+  const { fields, append, remove } = useFieldArray({ control, name: "lines" });
 
   const mobile = useWatch({ control, name: "mobile" });
   const selectedDate = useWatch({ control, name: "appointmentDate" });
   const selectedTime = useWatch({ control, name: "appointmentTime" });
+  const selectedStatus = useWatch({ control, name: "status" });
+  const lineValues = useWatch({ control, name: "lines" });
 
   // Fetch salon working hours once on mount.
   useEffect(() => {
     fetch("/api/settings", { cache: "no-store" })
-      .then((res) => res.ok ? res.json() : null)
+      .then((res) => (res.ok ? res.json() : null))
       .then((data: { businessHours?: { days: SalonDayEntry[] } } | null) => {
         if (data?.businessHours?.days) {
           setSalonDays(data.businessHours.days);
@@ -154,7 +185,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
       .catch(() => null);
   }, []);
 
-  // Validate selected date/time against salon working hours.
+  // Validate selected date/time against salon working hours (IST wall-clock).
   useEffect(() => {
     if (!selectedDate || salonDays.length === 0) {
       setDateError(null);
@@ -162,8 +193,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
       return;
     }
 
-    const dayName = new Date(`${selectedDate}T00:00:00`)
-      .toLocaleDateString("en-US", { weekday: "short" });
+    const dayName = toISTWeekday(istWallTimeToInstant(selectedDate, "00:00"));
     const dayEntry = salonDays.find((d) => d.day === dayName);
 
     if (!dayEntry || !dayEntry.enabled) {
@@ -191,26 +221,6 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
       setTimeError(null);
     }
   }, [selectedDate, selectedTime, salonDays]);
-  const selectedServiceId = useWatch({ control, name: "serviceId" });
-  const selectedStaffId = useWatch({ control, name: "staffId" });
-  const selectedStatus = useWatch({ control, name: "status" });
-
-  const selectedService = useMemo(
-    () => services.find((service) => service.id === selectedServiceId) ?? null,
-    [services, selectedServiceId],
-  );
-
-  const lastServiceIdRef = useRef(initialData?.serviceId ?? services[0]?.id ?? "");
-
-  // Only reset duration when the user actually switches service, never on initial prefill.
-  useEffect(() => {
-    if (!selectedService || lastServiceIdRef.current === selectedService.id) {
-      return;
-    }
-
-    lastServiceIdRef.current = selectedService.id;
-    setValue("duration", selectedService.duration, { shouldValidate: true });
-  }, [selectedService, setValue]);
 
   useEffect(() => {
     if (!mobile || mobile.length < 10) {
@@ -249,6 +259,9 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
     return () => clearTimeout(timeout);
   }, [mobile, setValue]);
 
+  // Busy windows are date-scoped (not time-scoped), so this only needs to
+  // refetch when the date changes; row/time changes just shift which window
+  // each row is compared against, computed client-side below.
   useEffect(() => {
     if (!selectedDate) {
       return;
@@ -260,9 +273,6 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
       setSlotsLoading(true);
       try {
         const params = new URLSearchParams({ date: selectedDate });
-        if (selectedTime) {
-          params.set("time", selectedTime);
-        }
         if (mode === "edit" && initialData?.id) {
           params.set("excludeAppointmentId", initialData.id);
         }
@@ -278,7 +288,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
         const payload = (await response.json()) as {
           slots: string[];
           allSlots: string[];
-          staffAvailability: StaffAvailability[];
+          staff: StaffAvailabilityEntry[];
         };
 
         if (!active) {
@@ -286,7 +296,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
         }
 
         setTimeSlots(payload.allSlots);
-        setStaffAvailability(payload.staffAvailability);
+        setStaffAvailability(payload.staff);
       } catch (error) {
         console.error(error);
         if (active) {
@@ -305,15 +315,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
     return () => {
       active = false;
     };
-  }, [selectedDate, selectedTime, mode, initialData?.id]);
-
-  const visibleStaff = useMemo(
-    () =>
-      staffAvailability.filter(
-        (staff) => staff.status === "AVAILABLE" || staff.id === selectedStaffId,
-      ),
-    [staffAvailability, selectedStaffId],
-  );
+  }, [selectedDate, mode, initialData?.id]);
 
   // Keep the saved slot selectable even when it falls outside the returned availability.
   const timeOptions = useMemo(() => {
@@ -335,13 +337,107 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
     }
   }, [timeOptions, getValues, setValue]);
 
-  useEffect(() => {
-    const savedStaffId = getValues("staffId");
+  // Each row's start offset = sum of the durations of the rows before it.
+  const rowOffsets = useMemo(() => {
+    const offsets: number[] = [];
+    let running = 0;
 
-    if (savedStaffId && visibleStaff.some((staff) => staff.id === savedStaffId)) {
-      setValue("staffId", savedStaffId);
+    for (const line of lineValues ?? []) {
+      offsets.push(running);
+      const lineService = services.find((service) => service.id === line.serviceId);
+      running += lineService?.duration ?? 0;
     }
-  }, [visibleStaff, getValues, setValue]);
+
+    return offsets;
+  }, [lineValues, services]);
+
+  const totalDuration = useMemo(
+    () =>
+      (lineValues ?? []).reduce((sum, line) => {
+        const lineService = services.find((service) => service.id === line.serviceId);
+        return sum + (lineService?.duration ?? 0);
+      }, 0),
+    [lineValues, services],
+  );
+
+  const totalPrice = useMemo(
+    () =>
+      (lineValues ?? []).reduce((sum, line) => {
+        const lineService = services.find((service) => service.id === line.serviceId);
+        return sum + (lineService?.price ?? 0);
+      }, 0),
+    [lineValues, services],
+  );
+
+  const dateInstant = useMemo(() => istWallTimeToInstant(selectedDate || todayISTDateString(), "00:00"), [selectedDate]);
+
+  function staffOptionsForRow(rowIndex: number): { options: SearchableComboboxOption[]; unavailableReason: string | null } {
+    const line = lineValues?.[rowIndex];
+    const rowService = services.find((service) => service.id === line?.serviceId);
+    const rowDuration = rowService?.duration ?? 0;
+    const offset = rowOffsets[rowIndex] ?? 0;
+
+    const rowStart = selectedTime ? instantForOffset(dateInstant, selectedTime, offset) : null;
+    const rowEnd = selectedTime ? instantForOffset(dateInstant, selectedTime, offset + rowDuration) : null;
+
+    const options: SearchableComboboxOption[] = staffAvailability.map((staff) => {
+      if (staff.offDuty) {
+        return {
+          value: staff.id,
+          label: staff.name,
+          description: staff.designation,
+          disabled: true,
+          disabledReason: "Off duty today",
+        };
+      }
+
+      if (rowStart && rowEnd) {
+        const conflict = staff.busyWindows.find(
+          (window) => new Date(window.start) < rowEnd && rowStart < new Date(window.end),
+        );
+
+        if (conflict) {
+          return {
+            value: staff.id,
+            label: staff.name,
+            description: staff.designation,
+            disabled: true,
+            disabledReason: conflict.label,
+          };
+        }
+      }
+
+      return {
+        value: staff.id,
+        label: staff.name,
+        description: staff.designation,
+      };
+    });
+
+    const currentStaffId = line?.staffId;
+    const currentOption = currentStaffId ? options.find((option) => option.value === currentStaffId) : null;
+    const unavailableReason = currentOption?.disabled ? currentOption.disabledReason ?? "No longer available" : null;
+
+    return { options, unavailableReason };
+  }
+
+  function serviceOptionsForRow(rowIndex: number): SearchableComboboxOption[] {
+    const usedElsewhere = new Set(
+      (lineValues ?? [])
+        .filter((_, index) => index !== rowIndex)
+        .map((line) => line.serviceId)
+        .filter(Boolean),
+    );
+
+    return services.map((service) => ({
+      value: service.id,
+      label: service.name,
+      description: `\u20b9${service.price.toFixed(0)} \u00b7 ${service.duration} min`,
+      group: service.category,
+      disabled: usedElsewhere.has(service.id),
+      disabledReason: usedElsewhere.has(service.id) ? "Already added" : undefined,
+    }));
+  }
 
   const onSubmit = handleSubmit(async (values) => {
     setSubmitError(null);
@@ -349,12 +445,27 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
     const endpoint = mode === "create" ? "/api/appointments" : `/api/appointments/${initialData?.id}`;
     const method = mode === "create" ? "POST" : "PUT";
 
+    const body = {
+      customerId: values.customerId,
+      mobile: values.mobile,
+      customerName: values.customerName,
+      email: values.email,
+      notes: values.notes,
+      appointmentDate: values.appointmentDate,
+      appointmentTime: values.appointmentTime,
+      status: values.status,
+      services: values.lines.map((line) => ({
+        serviceId: line.serviceId,
+        staffId: line.staffId || null,
+      })),
+    };
+
     const response = await fetch(endpoint, {
       method,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(values),
+      body: JSON.stringify(body),
     });
 
     const payload = (await response.json().catch(() => null)) as
@@ -374,6 +485,8 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
         (createdId ? `&appointmentId=${createdId}` : ""),
     );
   });
+
+  const linesError = errors.lines?.message;
 
   return (
     <div className="rounded-2xl border border-[var(--border)] bg-white p-4 sm:p-6 lg:p-7">
@@ -486,60 +599,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-[var(--foreground)]">Service *</label>
-              <select
-                className="h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm outline-none focus:border-[var(--accent)]"
-                {...register("serviceId")}
-              >
-                {services.map((service) => (
-                  <option key={service.id} value={service.id}>
-                    {service.name} ({service.category})
-                  </option>
-                ))}
-              </select>
-              {errors.serviceId ? <p className="text-xs text-red-600">{errors.serviceId.message}</p> : null}
-
-              {selectedService ? (
-                <div className="rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-blue-800">
-                  Price: Rs. {selectedService.price.toFixed(0)} | Duration: {selectedService.duration} min
-                </div>
-              ) : null}
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-[var(--foreground)]">Staff *</label>
-              <select
-                className="h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm outline-none focus:border-[var(--accent)]"
-                {...register("staffId")}
-              >
-                <option value="">Select staff</option>
-                {visibleStaff.map((staff) => (
-                  <option key={staff.id} value={staff.id}>
-                    {staff.name} - {staff.designation}
-                  </option>
-                ))}
-              </select>
-              {errors.staffId ? <p className="text-xs text-red-600">{errors.staffId.message}</p> : null}
-
-              <p className="text-xs text-[var(--muted)]">
-                Showing staff available for selected date{selectedTime ? ` and time ${selectedTime}` : ""}.
-              </p>
-            </div>
-
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[var(--foreground)]">Duration (minutes)</label>
-                <input
-                  type="number"
-                  min={5}
-                  step={5}
-                  className="h-11 w-full rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
-                  {...register("duration", { valueAsNumber: true })}
-                />
-                {errors.duration ? <p className="text-xs text-red-600">{errors.duration.message}</p> : null}
-              </div>
-
               <div className="space-y-2">
                 <label className="text-sm font-medium text-[var(--foreground)]">Status</label>
                 <select
@@ -553,49 +613,106 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
                   <option value="BILLED">Billed</option>
                 </select>
               </div>
-            </div>
 
-            <div className="rounded-xl border border-[var(--border)] bg-slate-50 p-3">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">
-                Staff availability for {selectedDate || "selected date"}
-              </p>
-
-              {slotsLoading ? (
-                <p className="text-xs text-[var(--muted)]">Loading availability...</p>
-              ) : staffAvailability.length === 0 ? (
-                <p className="text-xs text-[var(--muted)]">No staff records available.</p>
-              ) : (
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {staffAvailability.map((staff) => {
-                    const dotClass =
-                      staff.status === "AVAILABLE"
-                        ? "bg-emerald-500"
-                        : staff.status === "BUSY"
-                          ? "bg-amber-500"
-                          : "bg-red-500";
-
-                    return (
-                      <div key={staff.id} className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-white px-3 py-2 text-xs">
-                        <div>
-                          <p className="font-semibold text-[var(--foreground)]">{staff.name}</p>
-                          <p className="text-[var(--muted)]">{staff.designation}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className={`h-2.5 w-2.5 rounded-full ${dotClass}`} />
-                          <span className="font-medium text-[var(--foreground)]">{toTitleCase(staff.status)}</span>
-                        </div>
-                      </div>
-                    );
-                  })}
+              <div className="flex items-end">
+                <div className="rounded-xl border border-[var(--border)] bg-slate-50 px-4 py-2.5 text-sm text-[var(--muted)]">
+                  Current status: <StatusBadge status={selectedStatus} />
                 </div>
-              )}
+              </div>
             </div>
           </section>
         </div>
 
-        <div className="rounded-xl border border-[var(--border)] bg-slate-50 px-4 py-3 text-sm text-[var(--muted)]">
-          Current status: <StatusBadge status={selectedStatus} />
-        </div>
+        <section className="space-y-4 border-t border-[var(--border)] pt-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold text-[var(--foreground)]">Services *</h2>
+            {slotsLoading ? <p className="text-xs text-[var(--muted)]">Checking staff availability...</p> : null}
+          </div>
+
+          {linesError ? <p className="text-xs text-red-600">{linesError}</p> : null}
+
+          <div className="space-y-3">
+            {fields.map((field, index) => {
+              const line = lineValues?.[index];
+              const lineService = services.find((service) => service.id === line?.serviceId);
+              const { options: staffOptions, unavailableReason } = staffOptionsForRow(index);
+              const serviceOptions = serviceOptionsForRow(index);
+              const serviceErrorMessage = errors.lines?.[index]?.serviceId?.message;
+
+              return (
+                <div key={field.id} className="rounded-xl border border-[var(--border)] bg-slate-50 p-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+                    <div className="flex-1 space-y-1.5">
+                      <label className="text-xs font-medium text-[var(--foreground)]">Service</label>
+                      <SearchableCombobox
+                        value={line?.serviceId ?? ""}
+                        onChange={(value) => setValue(`lines.${index}.serviceId`, value, { shouldValidate: true })}
+                        options={serviceOptions}
+                        placeholder="Select a service"
+                        searchPlaceholder="Search by name or category..."
+                        hasError={Boolean(serviceErrorMessage)}
+                        aria-label={`Service for row ${index + 1}`}
+                      />
+                      {serviceErrorMessage ? <p className="text-xs text-red-600">{serviceErrorMessage}</p> : null}
+                      {lineService ? (
+                        <p className="text-xs text-[var(--muted)]">
+                          {`\u20b9${lineService.price.toFixed(0)}`} &middot; {formatDurationLabel(lineService.duration)}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div className="flex-1 space-y-1.5">
+                      <label className="text-xs font-medium text-[var(--foreground)]">Staff (optional)</label>
+                      <SearchableCombobox
+                        value={line?.staffId ?? ""}
+                        onChange={(value) => setValue(`lines.${index}.staffId`, value, { shouldValidate: true })}
+                        options={staffOptions}
+                        placeholder="Unassigned"
+                        clearLabel="Unassigned"
+                        searchPlaceholder="Search by name or designation..."
+                        aria-label={`Staff for row ${index + 1}`}
+                      />
+                      {unavailableReason ? (
+                        <p className="text-xs text-amber-600">
+                          This staff member may no longer be available ({unavailableReason}).
+                        </p>
+                      ) : null}
+                    </div>
+
+                    {fields.length > 1 ? (
+                      <button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-red-200 px-3 text-xs font-semibold text-red-600 hover:bg-red-50 sm:mt-6"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Remove
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => append(emptyLine())}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-dashed border-[var(--border)] px-4 text-sm font-semibold text-[var(--foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          >
+            <Plus className="h-4 w-4" />
+            Add More Service
+          </button>
+
+          <div className="flex flex-col gap-2 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-900 sm:flex-row sm:items-center sm:justify-between">
+            <span>
+              Total Price: <strong>{`\u20b9${totalPrice.toFixed(0)}`}</strong>
+            </span>
+            <span>
+              Total Duration: <strong>{formatDurationLabel(totalDuration)}</strong>
+            </span>
+          </div>
+        </section>
 
         <div className="flex flex-col gap-3 border-t border-[var(--border)] pt-4 sm:flex-row sm:justify-end">
           <button

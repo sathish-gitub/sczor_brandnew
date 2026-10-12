@@ -8,56 +8,57 @@ datasource db {
 }
 
 model Tenant {
-  id           String          @id @default(cuid())
-  name         String
-  tagline      String?
-  slug         String          @unique
-  logo         String?
-  website      String?
-  address      String?
-  city         String?
-  state        String?
-  pincode      String?
-  phone        String?
-  email        String?
-  gstNumber    String?
-  instagramUrl      String?
-  googleReviewUrl   String?
-  openTime     String          @default("09:00")
-  closeTime    String          @default("21:00")
-  workingDays  String[]        @default(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
-  plan         Plan            @default(FREE)
-  trialEndsAt        DateTime?
-  subscriptionPlan   String    @default("FREE_TRIAL")
-  subscriptionEndsAt DateTime?
-  isSubscribed       Boolean   @default(false)
-  subscriptionStart  DateTime?
-  subscriptionEnd    DateTime?
-  razorpayCustomerId String?
-  razorpaySubId      String?
-  isActive     Boolean         @default(true)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-  users        User[]
-  customers    Customer[]
-  services     Service[]
-  staff        Staff[]
-  appointments Appointment[]
-  invoices     Invoice[]
-  attendances  Attendance[]
-  holidays     Holiday[]
-  settings     SalonSettings?
-  loyaltyCards LoyaltyCard[]
-  waitlist     WaitlistInterest[]
-  serviceCategories ServiceCategory[]
-  payments     Payment[]
-  suppliers         Supplier[]
-  productCategories ProductCategory[]
-  products          Product[]
-  stockMovements    StockMovement[]
-  purchaseOrders    PurchaseOrder[]
-  salaryHistory     SalaryHistory[]
-  payrolls          Payroll[]
+  id                  String               @id @default(cuid())
+  name                String
+  tagline             String?
+  slug                String               @unique
+  logo                String?
+  website             String?
+  address             String?
+  city                String?
+  state               String?
+  pincode             String?
+  phone               String?
+  email               String?
+  gstNumber           String?
+  instagramUrl        String?
+  googleReviewUrl     String?
+  openTime            String               @default("09:00")
+  closeTime           String               @default("21:00")
+  workingDays         String[]             @default(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
+  plan                Plan                 @default(FREE)
+  trialEndsAt         DateTime?
+  subscriptionPlan    String               @default("FREE_TRIAL")
+  subscriptionEndsAt  DateTime?
+  isSubscribed        Boolean              @default(false)
+  subscriptionStart   DateTime?
+  subscriptionEnd     DateTime?
+  razorpayCustomerId  String?
+  razorpaySubId       String?
+  isActive            Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  users               User[]
+  customers           Customer[]
+  services            Service[]
+  staff               Staff[]
+  appointments        Appointment[]
+  appointmentServices AppointmentService[]
+  invoices            Invoice[]
+  attendances         Attendance[]
+  holidays            Holiday[]
+  settings            SalonSettings?
+  loyaltyCards        LoyaltyCard[]
+  waitlist            WaitlistInterest[]
+  serviceCategories   ServiceCategory[]
+  payments            Payment[]
+  suppliers           Supplier[]
+  productCategories   ProductCategory[]
+  products            Product[]
+  stockMovements      StockMovement[]
+  purchaseOrders      PurchaseOrder[]
+  salaryHistory       SalaryHistory[]
+  payrolls            Payroll[]
 
   @@index([isActive])
   @@index([plan])
@@ -78,10 +79,10 @@ model User {
   emailOtpExpiry DateTime?
   resetOtp       String?
   resetOtpExpiry DateTime?
-  tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  tenantId       String
+  tenant         Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@unique([email, tenantId])
   @@index([tenantId])
@@ -110,19 +111,20 @@ model Customer {
 }
 
 model Service {
-  id           String        @id @default(cuid())
-  name         String
-  category     String
-  price        Decimal       @db.Decimal(10, 2)
-  duration     Int
-  description  String?
-  status       Status        @default(ACTIVE)
-  tenantId     String
-  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  appointments Appointment[]
-  invoiceItems InvoiceItem[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  id                  String               @id @default(cuid())
+  name                String
+  category            String
+  price               Decimal              @db.Decimal(10, 2)
+  duration            Int
+  description         String?
+  status              Status               @default(ACTIVE)
+  tenantId            String
+  tenant              Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  appointments        Appointment[]
+  appointmentServices AppointmentService[]
+  invoiceItems        InvoiceItem[]
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 
   @@index([tenantId])
   @@index([tenantId, category])
@@ -130,29 +132,30 @@ model Service {
 }
 
 model Staff {
-  id                  String          @id @default(cuid())
+  id                  String               @id @default(cuid())
   name                String
   designation         String
   mobile              String?
   email               String?
-  workingDays         String[]        @default(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
-  status              Status          @default(ACTIVE)
-  availabilityStatus  Availability    @default(AVAILABLE)
-  baseSalary          Decimal?        @db.Decimal(10, 2)
-  commissionRate      Decimal?        @db.Decimal(5, 2)
+  workingDays         String[]             @default(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
+  status              Status               @default(ACTIVE)
+  availabilityStatus  Availability         @default(AVAILABLE)
+  baseSalary          Decimal?             @db.Decimal(10, 2)
+  commissionRate      Decimal?             @db.Decimal(5, 2)
   paidLeavesPerMonth  Int?
   salaryEffectiveFrom DateTime?
   tenantId            String
-  tenant              Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant              Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   appointments        Appointment[]
+  appointmentServices AppointmentService[]
   attendances         Attendance[]
   invoices            Invoice[]
   invoiceItems        InvoiceItem[]
   ratings             StaffRating[]
   salaryHistory       SalaryHistory[]
   payrolls            Payroll[]
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 
   @@index([tenantId])
   @@index([tenantId, status])
@@ -160,48 +163,48 @@ model Staff {
 }
 
 model SalaryHistory {
-  id             String    @id @default(cuid())
-  staffId        String
-  staff          Staff     @relation(fields: [staffId], references: [id])
-  baseSalary     Decimal   @db.Decimal(10, 2)
-  commissionRate Decimal   @db.Decimal(5, 2)
+  id                 String    @id @default(cuid())
+  staffId            String
+  staff              Staff     @relation(fields: [staffId], references: [id])
+  baseSalary         Decimal   @db.Decimal(10, 2)
+  commissionRate     Decimal   @db.Decimal(5, 2)
   paidLeavesPerMonth Int?
-  effectiveFrom  DateTime
-  effectiveTo    DateTime? // null = currently active
-  tenantId       String
-  tenant         Tenant    @relation(fields: [tenantId], references: [id])
-  createdAt      DateTime  @default(now())
+  effectiveFrom      DateTime
+  effectiveTo        DateTime? // null = currently active
+  tenantId           String
+  tenant             Tenant    @relation(fields: [tenantId], references: [id])
+  createdAt          DateTime  @default(now())
 
   @@index([tenantId])
   @@index([staffId])
 }
 
 model Payroll {
-  id               String   @id @default(cuid())
+  id               String    @id @default(cuid())
   staffId          String
-  staff            Staff    @relation(fields: [staffId], references: [id])
+  staff            Staff     @relation(fields: [staffId], references: [id])
   month            Int // 1-12
   year             Int
-  baseSalary       Decimal  @db.Decimal(10, 2)
-  commissionRate   Decimal  @db.Decimal(5, 2)
-  commissionAmount Decimal  @db.Decimal(10, 2) // calculated: revenue * rate
-  revenueGenerated Decimal  @db.Decimal(10, 2) // total service revenue credited to staff this month
+  baseSalary       Decimal   @db.Decimal(10, 2)
+  commissionRate   Decimal   @db.Decimal(5, 2)
+  commissionAmount Decimal   @db.Decimal(10, 2) // calculated: revenue * rate
+  revenueGenerated Decimal   @db.Decimal(10, 2) // total service revenue credited to staff this month
   presentDays      Int
   absentDays       Int
   leaveDays        Int
   halfDays         Int
-  paidLeaveDays    Int      @default(0) // leave days within allowance, unpaid deduction
-  lopDays          Decimal  @db.Decimal(5, 2) @default(0) // excess leave treated as LOP (can include half-day fractions)
+  paidLeaveDays    Int       @default(0) // leave days within allowance, unpaid deduction
+  lopDays          Decimal   @default(0) @db.Decimal(5, 2) // excess leave treated as LOP (can include half-day fractions)
   totalWorkingDays Int // present + absent + leave + half
-  leaveDeduction   Decimal  @db.Decimal(10, 2) // proportional salary deduction for unpaid leave/absent days
-  grossPay         Decimal  @db.Decimal(10, 2) // baseSalary + commissionAmount
-  netPay           Decimal  @db.Decimal(10, 2) // grossPay - leaveDeduction
+  leaveDeduction   Decimal   @db.Decimal(10, 2) // proportional salary deduction for unpaid leave/absent days
+  grossPay         Decimal   @db.Decimal(10, 2) // baseSalary + commissionAmount
+  netPay           Decimal   @db.Decimal(10, 2) // grossPay - leaveDeduction
   payslipNumber    String // e.g. PAY-2026-09-0001
-  status           String   @default("GENERATED") // GENERATED | PAID
-  generatedAt      DateTime @default(now())
+  status           String    @default("GENERATED") // GENERATED | PAID
+  generatedAt      DateTime  @default(now())
   paidAt           DateTime?
   tenantId         String
-  tenant           Tenant   @relation(fields: [tenantId], references: [id])
+  tenant           Tenant    @relation(fields: [tenantId], references: [id])
 
   @@unique([staffId, month, year])
   @@unique([payslipNumber, tenantId])
@@ -209,25 +212,31 @@ model Payroll {
 }
 
 model Appointment {
-  id              String            @id @default(cuid())
+  id                String               @id @default(cuid())
   appointmentNumber String?
-  appointmentDate DateTime
-  appointmentTime String
-  duration        Int               @default(30)
-  status          AppointmentStatus @default(BOOKED)
-  notes           String?
-  customerId      String
-  customer        Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  serviceId       String
-  service         Service           @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  staffId         String
-  staff           Staff             @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  tenantId        String
-  tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  invoice         Invoice?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  appointmentDate   DateTime
+  appointmentTime   String
+  duration          Int                  @default(30)
+  totalAmount       Decimal              @default(0) @db.Decimal(10, 2)
+  status            AppointmentStatus    @default(BOOKED)
+  notes             String?
+  customerId        String
+  customer          Customer             @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  // Mirrors the FIRST AppointmentService line (serviceId/staffId kept in sync on create/edit).
+  // AppointmentService is the source of truth for multi-service bookings; these mirrors exist
+  // so unchanged readers (billing, payroll, reports) keep working against a single service/staff.
+  serviceId         String
+  service           Service              @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  staffId           String?
+  staff             Staff?               @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  services          AppointmentService[]
+  tenantId          String
+  tenant            Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invoice           Invoice?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
 
+  @@unique([tenantId, appointmentNumber])
   @@index([tenantId])
   @@index([appointmentDate])
   @@index([tenantId, appointmentDate])
@@ -235,32 +244,53 @@ model Appointment {
   @@index([customerId, appointmentDate])
   @@index([serviceId])
   @@index([status])
-  @@unique([tenantId, appointmentNumber])
+}
+
+model AppointmentService {
+  id            String      @id @default(cuid())
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  serviceId     String
+  service       Service     @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  staffId       String?
+  staff         Staff?      @relation(fields: [staffId], references: [id], onDelete: SetNull)
+  // Snapshots taken at booking time - independent of later Service price/duration edits.
+  price         Decimal     @db.Decimal(10, 2)
+  duration      Int
+  sortOrder     Int         @default(0)
+  tenantId      String
+  tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([appointmentId])
+  @@index([staffId])
+  @@index([tenantId])
 }
 
 model Invoice {
-  id            String              @id @default(cuid())
+  id            String               @id @default(cuid())
   invoiceNumber String
-  invoiceDate   DateTime            @default(now())
-  publicToken   String?             @unique
-  subtotal      Decimal             @db.Decimal(10, 2)
-  taxRate       Decimal             @default(18) @db.Decimal(5, 2)
-  taxAmount     Decimal             @db.Decimal(10, 2)
-  discount      Decimal             @default(0) @db.Decimal(10, 2)
-  total         Decimal             @db.Decimal(10, 2)
-  paymentMethod PaymentMethod       @default(CASH)
-  paymentStatus PaymentStatus       @default(PAID)
+  invoiceDate   DateTime             @default(now())
+  publicToken   String?              @unique
+  subtotal      Decimal              @db.Decimal(10, 2)
+  taxRate       Decimal              @default(18) @db.Decimal(5, 2)
+  taxAmount     Decimal              @db.Decimal(10, 2)
+  discount      Decimal              @default(0) @db.Decimal(10, 2)
+  total         Decimal              @db.Decimal(10, 2)
+  paymentMethod PaymentMethod        @default(CASH)
+  paymentStatus PaymentStatus        @default(PAID)
   customerId    String
-  customer      Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  appointmentId String?             @unique
-  appointment   Appointment?        @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  customer      Customer             @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  appointmentId String?              @unique
+  appointment   Appointment?         @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
   staffId       String?
-  staff         Staff?              @relation(fields: [staffId], references: [id], onDelete: SetNull)
+  staff         Staff?               @relation(fields: [staffId], references: [id], onDelete: SetNull)
   tenantId      String
-  tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenant        Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   items         InvoiceItem[]
   loyaltyTxns   LoyaltyTransaction[]
-  createdAt     DateTime            @default(now())
+  createdAt     DateTime             @default(now())
 
   @@unique([invoiceNumber, tenantId])
   @@index([tenantId])
@@ -335,15 +365,15 @@ model LoyaltyCard {
 }
 
 model LoyaltyTransaction {
-  id            String       @id @default(cuid())
+  id            String      @id @default(cuid())
   points        Int
   type          LoyaltyType
   description   String?
   invoiceId     String?
-  invoice       Invoice?     @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  invoice       Invoice?    @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
   loyaltyCardId String
-  loyaltyCard   LoyaltyCard  @relation(fields: [loyaltyCardId], references: [id], onDelete: Cascade)
-  createdAt     DateTime     @default(now())
+  loyaltyCard   LoyaltyCard @relation(fields: [loyaltyCardId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
 
   @@index([loyaltyCardId])
   @@index([invoiceId])
@@ -366,67 +396,67 @@ model Attendance {
 }
 
 model SalonSettings {
-  id                    String   @id @default(cuid())
-  tenantId              String   @unique
-  tenant                Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  onboardingStep1Done   Boolean  @default(false)
-  loyaltyPointsPerRupee Decimal  @default(0.1) @db.Decimal(5, 2)
-  rupeePerPoint         Decimal  @default(1) @db.Decimal(5, 2)
-  minPointsToRedeem     Int      @default(100)
-  maxRedeemPercent      Decimal  @default(50) @db.Decimal(5, 2)
-  pointsExpiryEnabled   Boolean  @default(false)
-  pointsExpiryMonths    Int      @default(12)
-  silverThreshold       Int      @default(500)
-  goldThreshold         Int      @default(2000)
-  platinumThreshold     Int      @default(5000)
-  slotDurationMinutes   Int      @default(30)
-  defaultPaidLeavesPerMonth Int  @default(1)
-  mondayEnabled         Boolean  @default(true)
-  mondayOpen            String   @default("09:00")
-  mondayClose           String   @default("21:00")
-  mondayBreak           String?
-  tuesdayEnabled        Boolean  @default(true)
-  tuesdayOpen           String   @default("09:00")
-  tuesdayClose          String   @default("21:00")
-  tuesdayBreak          String?
-  wednesdayEnabled      Boolean  @default(true)
-  wednesdayOpen         String   @default("09:00")
-  wednesdayClose        String   @default("21:00")
-  wednesdayBreak        String?
-  thursdayEnabled       Boolean  @default(true)
-  thursdayOpen          String   @default("09:00")
-  thursdayClose         String   @default("21:00")
-  thursdayBreak         String?
-  fridayEnabled         Boolean  @default(true)
-  fridayOpen            String   @default("09:00")
-  fridayClose           String   @default("21:00")
-  fridayBreak           String?
-  saturdayEnabled       Boolean  @default(true)
-  saturdayOpen          String   @default("09:00")
-  saturdayClose         String   @default("21:00")
-  saturdayBreak         String?
-  sundayEnabled         Boolean  @default(false)
-  sundayOpen            String   @default("09:00")
-  sundayClose           String   @default("21:00")
-  sundayBreak           String?
-  gstEnabled            Boolean  @default(true)
-  gstRate               Decimal  @default(18) @db.Decimal(5, 2)
-  taxLabel              String   @default("GST")
-  currency              String   @default("INR")
-  currencySymbol        String   @default("₹")
-  invoicePrefix         String   @default("INV")
-  invoiceNumberFormat   String   @default("INV-YYYY-XXXX")
-  invoiceStartNumber    Int      @default(1)
-  invoiceFooter         String?
-  invoiceTerms          String?
-  cashEnabled           Boolean  @default(true)
-  upiEnabled            Boolean  @default(true)
-  cardEnabled           Boolean  @default(true)
-  walletEnabled         Boolean  @default(true)
-  upiId                 String?
-  smsEnabled            Boolean  @default(false)
-  whatsappEnabled       Boolean  @default(false)
-  emailEnabled          Boolean  @default(false)
+  id                        String  @id @default(cuid())
+  tenantId                  String  @unique
+  tenant                    Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  onboardingStep1Done       Boolean @default(false)
+  loyaltyPointsPerRupee     Decimal @default(0.1) @db.Decimal(5, 2)
+  rupeePerPoint             Decimal @default(1) @db.Decimal(5, 2)
+  minPointsToRedeem         Int     @default(100)
+  maxRedeemPercent          Decimal @default(50) @db.Decimal(5, 2)
+  pointsExpiryEnabled       Boolean @default(false)
+  pointsExpiryMonths        Int     @default(12)
+  silverThreshold           Int     @default(500)
+  goldThreshold             Int     @default(2000)
+  platinumThreshold         Int     @default(5000)
+  slotDurationMinutes       Int     @default(30)
+  defaultPaidLeavesPerMonth Int     @default(1)
+  mondayEnabled             Boolean @default(true)
+  mondayOpen                String  @default("09:00")
+  mondayClose               String  @default("21:00")
+  mondayBreak               String?
+  tuesdayEnabled            Boolean @default(true)
+  tuesdayOpen               String  @default("09:00")
+  tuesdayClose              String  @default("21:00")
+  tuesdayBreak              String?
+  wednesdayEnabled          Boolean @default(true)
+  wednesdayOpen             String  @default("09:00")
+  wednesdayClose            String  @default("21:00")
+  wednesdayBreak            String?
+  thursdayEnabled           Boolean @default(true)
+  thursdayOpen              String  @default("09:00")
+  thursdayClose             String  @default("21:00")
+  thursdayBreak             String?
+  fridayEnabled             Boolean @default(true)
+  fridayOpen                String  @default("09:00")
+  fridayClose               String  @default("21:00")
+  fridayBreak               String?
+  saturdayEnabled           Boolean @default(true)
+  saturdayOpen              String  @default("09:00")
+  saturdayClose             String  @default("21:00")
+  saturdayBreak             String?
+  sundayEnabled             Boolean @default(false)
+  sundayOpen                String  @default("09:00")
+  sundayClose               String  @default("21:00")
+  sundayBreak               String?
+  gstEnabled                Boolean @default(true)
+  gstRate                   Decimal @default(18) @db.Decimal(5, 2)
+  taxLabel                  String  @default("GST")
+  currency                  String  @default("INR")
+  currencySymbol            String  @default("₹")
+  invoicePrefix             String  @default("INV")
+  invoiceNumberFormat       String  @default("INV-YYYY-XXXX")
+  invoiceStartNumber        Int     @default(1)
+  invoiceFooter             String?
+  invoiceTerms              String?
+  cashEnabled               Boolean @default(true)
+  upiEnabled                Boolean @default(true)
+  cardEnabled               Boolean @default(true)
+  walletEnabled             Boolean @default(true)
+  upiId                     String?
+  smsEnabled                Boolean @default(false)
+  whatsappEnabled           Boolean @default(false)
+  emailEnabled              Boolean @default(false)
 }
 
 model Holiday {
@@ -437,9 +467,9 @@ model Holiday {
   name      String
   createdAt DateTime @default(now())
 
+  @@unique([tenantId, date])
   @@index([tenantId])
   @@index([tenantId, date])
-  @@unique([tenantId, date])
 }
 
 model WaitlistInterest {
@@ -450,9 +480,9 @@ model WaitlistInterest {
   plan      Plan
   createdAt DateTime @default(now())
 
+  @@unique([tenantId, email, plan])
   @@index([tenantId])
   @@index([plan])
-  @@unique([tenantId, email, plan])
 }
 
 model SuperAdmin {
@@ -464,22 +494,22 @@ model SuperAdmin {
 }
 
 model Payment {
-  id                String    @id @default(cuid())
-  tenantId          String
-  tenant            Tenant    @relation(fields: [tenantId], references: [id])
-  plan              String
-  amount            Int
-  razorpayOrderId   String?
-  razorpayPaymentId String?
-  status            String    @default("PENDING")
-  periodStart       DateTime?
-  periodEnd         DateTime?
+  id                 String    @id @default(cuid())
+  tenantId           String
+  tenant             Tenant    @relation(fields: [tenantId], references: [id])
+  plan               String
+  amount             Int
+  razorpayOrderId    String?
+  razorpayPaymentId  String?
+  status             String    @default("PENDING")
+  periodStart        DateTime?
+  periodEnd          DateTime?
   invoiceNumber      String?   @unique
   baseAmount         Decimal?  @db.Decimal(10, 2)
   gstAmount          Decimal?  @db.Decimal(10, 2)
-  gstRate            Decimal?  @db.Decimal(5, 2) @default(18)
+  gstRate            Decimal?  @default(18) @db.Decimal(5, 2)
   invoiceEmailSentAt DateTime?
-  createdAt         DateTime  @default(now())
+  createdAt          DateTime  @default(now())
 
   @@index([tenantId])
   @@index([razorpayOrderId])
@@ -526,29 +556,29 @@ model ProductCategory {
 }
 
 model Product {
-  id             String           @id @default(cuid())
-  name           String
-  sku            String?
-  categoryId     String?
-  category       ProductCategory? @relation(fields: [categoryId], references: [id])
-  brand          String?
-  unit           String           @default("pcs")
-  packSize       Decimal?         @db.Decimal(10, 2)
-  costPrice      Decimal          @db.Decimal(10, 2)
-  sellingPrice   Decimal          @db.Decimal(10, 2)
-  currentStock   Decimal          @default(0) @db.Decimal(10, 2)
-  reorderLevel   Decimal          @default(0) @db.Decimal(10, 2)
-  isRetailItem   Boolean          @default(true)
-  status         Status           @default(ACTIVE)
-  supplierId     String?
-  supplier       Supplier?        @relation(fields: [supplierId], references: [id])
-  tenantId       String
-  tenant         Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  stockMovements StockMovement[]
-  invoiceItems   InvoiceItem[]
+  id                 String              @id @default(cuid())
+  name               String
+  sku                String?
+  categoryId         String?
+  category           ProductCategory?    @relation(fields: [categoryId], references: [id])
+  brand              String?
+  unit               String              @default("pcs")
+  packSize           Decimal?            @db.Decimal(10, 2)
+  costPrice          Decimal             @db.Decimal(10, 2)
+  sellingPrice       Decimal             @db.Decimal(10, 2)
+  currentStock       Decimal             @default(0) @db.Decimal(10, 2)
+  reorderLevel       Decimal             @default(0) @db.Decimal(10, 2)
+  isRetailItem       Boolean             @default(true)
+  status             Status              @default(ACTIVE)
+  supplierId         String?
+  supplier           Supplier?           @relation(fields: [supplierId], references: [id])
+  tenantId           String
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  stockMovements     StockMovement[]
+  invoiceItems       InvoiceItem[]
   purchaseOrderItems PurchaseOrderItem[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 
   @@index([tenantId])
   @@index([categoryId])

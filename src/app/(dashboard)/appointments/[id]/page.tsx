@@ -8,6 +8,7 @@ import { WhatsAppConfirmationButton } from "@/components/appointments/WhatsAppCo
 import { authOptions } from "@/lib/auth";
 import { maskId } from "@/lib/formatId";
 import { prisma } from "@/lib/prisma";
+import { addMinutesToClock, formatClockTime12Hour, formatDurationLabel, formatISTInstantTime12Hour, toISTDateString } from "@/lib/time";
 
 const timeline = ["BOOKED", "IN_PROGRESS", "COMPLETED", "BILLED"] as const;
 
@@ -15,23 +16,24 @@ export const dynamic = "force-dynamic";
 
 function formatDateTime(date: Date, time: string) {
   const formattedDate = new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
     day: "2-digit",
     month: "short",
     year: "numeric",
   }).format(date);
 
-  return `${formattedDate} at ${time}`;
+  return `${formattedDate} at ${formatClockTime12Hour(time)}`;
 }
 
 function formatDate(value: Date) {
-  return new Intl.DateTimeFormat("en-IN", {
+  return `${new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
     day: "2-digit",
     month: "short",
     year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(value);
+  }).format(value)} at ${formatISTInstantTime12Hour(value)}`;
 }
+
 
 export default async function AppointmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -50,8 +52,10 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
       },
       include: {
         customer: true,
-        service: true,
-        staff: true,
+        services: {
+          orderBy: { sortOrder: "asc" },
+          include: { service: true, staff: true },
+        },
         invoice: {
           select: {
             id: true,
@@ -73,7 +77,22 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
   const currentTimelineIndex = timeline.indexOf(appointment.status as (typeof timeline)[number]);
   const appointmentLabel =
     appointment.appointmentNumber ??
-    `SCZO-${appointment.appointmentDate.getFullYear()}-${maskId(appointment.id)}`;
+    `SCZO-${toISTDateString(appointment.appointmentDate).slice(0, 4)}-${maskId(appointment.id)}`;
+
+  const lineRows = appointment.services.map((line, index) => {
+    const offset = appointment.services
+      .slice(0, index)
+      .reduce((sum, previousLine) => sum + previousLine.duration, 0);
+
+    return {
+      id: line.id,
+      serviceName: line.service.name,
+      staffLabel: line.staff?.name ?? "Unassigned",
+      startClock: addMinutesToClock(appointment.appointmentTime, offset),
+      duration: line.duration,
+      price: Number(line.price),
+    };
+  });
 
   return (
     <div className="space-y-5">
@@ -102,26 +121,49 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
           <StatusBadge status={appointment.status} />
         </div>
 
-        <div className="mt-5 grid gap-4 lg:grid-cols-3">
+        <div className="mt-5 grid gap-4 lg:grid-cols-1">
           <div className="rounded-xl border border-[var(--border)] bg-slate-50 p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Customer</p>
             <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">{appointment.customer.name}</p>
             <p className="mt-1 text-sm text-[var(--muted)]">{appointment.customer.mobile}</p>
             <p className="mt-1 text-sm text-[var(--muted)]">{appointment.customer.email || "No email"}</p>
           </div>
+        </div>
 
-          <div className="rounded-xl border border-[var(--border)] bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Service</p>
-            <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">{appointment.service.name}</p>
-            <p className="mt-1 text-sm text-[var(--muted)]">{appointment.service.category}</p>
-            <p className="mt-1 text-sm text-[var(--muted)]">Duration: {appointment.duration} min</p>
-          </div>
-
-          <div className="rounded-xl border border-[var(--border)] bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Staff</p>
-            <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">{appointment.staff.name}</p>
-            <p className="mt-1 text-sm text-[var(--muted)]">{appointment.staff.designation}</p>
-            <p className="mt-1 text-sm text-[var(--muted)]">{appointment.staff.mobile || "No mobile"}</p>
+        <div className="mt-5 space-y-3">
+          <p className="text-sm font-semibold text-[var(--foreground)]">Services</p>
+          <div className="overflow-x-auto rounded-xl border border-[var(--border)]">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-[0.06em] text-[var(--muted)]">
+                <tr>
+                  <th className="px-4 py-2.5">Service</th>
+                  <th className="px-4 py-2.5">Staff</th>
+                  <th className="px-4 py-2.5">Start Time</th>
+                  <th className="px-4 py-2.5">Duration</th>
+                  <th className="px-4 py-2.5">Price</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[var(--border)]">
+                {lineRows.map((row) => (
+                  <tr key={row.id}>
+                    <td className="px-4 py-2.5 font-medium text-[var(--foreground)]">{row.serviceName}</td>
+                    <td className="px-4 py-2.5 text-[var(--muted)]">{row.staffLabel}</td>
+                    <td className="px-4 py-2.5 text-[var(--muted)]">{formatClockTime12Hour(row.startClock)}</td>
+                    <td className="px-4 py-2.5 text-[var(--muted)]">{formatDurationLabel(row.duration)}</td>
+                    <td className="px-4 py-2.5 text-[var(--muted)]">{`\u20b9${row.price.toFixed(0)}`}</td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot className="bg-slate-50 text-sm font-semibold text-[var(--foreground)]">
+                <tr>
+                  <td className="px-4 py-2.5" colSpan={3}>
+                    Total
+                  </td>
+                  <td className="px-4 py-2.5">{formatDurationLabel(appointment.duration)}</td>
+                  <td className="px-4 py-2.5">{`\u20b9${Number(appointment.totalAmount).toFixed(0)}`}</td>
+                </tr>
+              </tfoot>
+            </table>
           </div>
         </div>
 

@@ -5,6 +5,8 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
+import { getServicesDoneByStaff, getStaffRevenue } from "@/lib/staffRevenue";
+import { istMonthBounds, istWeekBounds, todayISTDateString } from "@/lib/time";
 
 const updateStaffSchema = z.object({
   name: z.string().trim().min(2).optional(),
@@ -34,29 +36,6 @@ async function tenantIdOrNull() {
   return session?.user.tenantId ?? null;
 }
 
-function monthBounds(baseDate = new Date()) {
-  const start = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 0);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
-}
-
-function weekBounds(baseDate = new Date()) {
-  const day = baseDate.getDay();
-  const offsetToMonday = (day + 6) % 7;
-  const start = new Date(baseDate);
-  start.setDate(baseDate.getDate() - offsetToMonday);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(start);
-  end.setDate(start.getDate() + 6);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
-}
-
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const tenantId = await tenantIdOrNull();
 
@@ -65,12 +44,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   }
 
   const { id } = await params;
-  const month = monthBounds();
-  const week = weekBounds();
+  const today = todayISTDateString();
+  const month = istMonthBounds(today);
+  const week = istWeekBounds(today);
 
   try {
 
-    const [staff, ratingAgg] = await Promise.all([
+    const [staff, ratingAgg, allServicesDoneMap, monthServicesDoneMap, revenueAllTime, categoryLines] = await Promise.all([
       prisma.staff.findFirst({
         where: { id, tenantId },
         include: {
@@ -82,7 +62,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
             },
           },
           attendances: {
-            where: { date: { gte: month.start, lte: month.end } },
+            where: { date: { gte: month.start, lt: month.end } },
             orderBy: { date: "asc" },
           },
           salaryHistory: {
@@ -95,6 +75,18 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         _avg: { rating: true },
         _count: { rating: true },
       }),
+      // "Services done" counts AppointmentService lines, not appointments
+      // (the same person on two lines of one appointment counts twice).
+      // All-time, all statuses - matches the previous mirror-based scope.
+      getServicesDoneByStaff(tenantId, [id]),
+      getServicesDoneByStaff(tenantId, [id], { gte: month.start, lt: month.end }),
+      // Revenue is attributed per invoice LINE (InvoiceItem.staffId), the
+      // same basis as the staff report, payroll and dashboard chart.
+      getStaffRevenue(tenantId, id),
+      prisma.appointmentService.findMany({
+        where: { tenantId, staffId: id },
+        select: { service: { select: { category: true } } },
+      }),
     ]);
 
     if (!staff) {
@@ -102,18 +94,19 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     }
 
     const allAppointments = staff.appointments;
-    const monthAppointments = allAppointments.filter((item) => item.appointmentDate >= month.start && item.appointmentDate <= month.end);
-    const weekAppointments = allAppointments.filter((item) => item.appointmentDate >= week.start && item.appointmentDate <= week.end);
+    const weekAppointments = allAppointments.filter((item) => item.appointmentDate >= week.start && item.appointmentDate < week.end);
 
     const attendancePresentCount = staff.attendances.filter((entry) => entry.status === "PRESENT" || entry.status === "HALF_DAY").length;
     const attendancePercentage = staff.attendances.length
       ? Math.round((attendancePresentCount / staff.attendances.length) * 100)
       : 0;
 
-    const revenueGenerated = allAppointments.reduce((sum, item) => sum + Number(item.service.price), 0);
+    const revenueGenerated = revenueAllTime.revenue;
+    const servicesDone = allServicesDoneMap.get(id)?.count ?? 0;
+    const servicesDoneThisMonth = monthServicesDoneMap.get(id)?.count ?? 0;
 
-    const byCategory = allAppointments.reduce<Record<string, number>>((acc, item) => {
-      const key = item.service.category;
+    const byCategory = categoryLines.reduce<Record<string, number>>((acc, line) => {
+      const key = line.service.category;
       acc[key] = (acc[key] ?? 0) + 1;
       return acc;
     }, {});
@@ -142,8 +135,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
           effectiveTo: entry.effectiveTo,
         })),
         stats: {
-          totalAppointments: allAppointments.length,
-          monthAppointments: monthAppointments.length,
+          servicesDone,
+          servicesDoneThisMonth,
           attendancePercentage,
           avgRating: Math.round((ratingAgg._avg.rating ?? 0) * 10) / 10,
           totalRatings: ratingAgg._count.rating,
@@ -304,14 +297,24 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
   const { id } = await params;
 
-  const appointmentCount = await prisma.appointment.count({
-    where: {
-      tenantId,
-      staffId: id,
-    },
-  });
+  // Check both the mirror field (first line) and AppointmentService lines, since a
+  // staff member can now have history on a non-first line only.
+  const [appointmentCount, appointmentServiceCount] = await Promise.all([
+    prisma.appointment.count({
+      where: {
+        tenantId,
+        staffId: id,
+      },
+    }),
+    prisma.appointmentService.count({
+      where: {
+        tenantId,
+        staffId: id,
+      },
+    }),
+  ]);
 
-  if (appointmentCount > 0) {
+  if (appointmentCount > 0 || appointmentServiceCount > 0) {
     return NextResponse.json(
       {
         error: "Cannot delete staff with appointment history.",

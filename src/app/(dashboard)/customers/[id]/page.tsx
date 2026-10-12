@@ -8,6 +8,7 @@ import { Calendar, Download, Pencil } from "lucide-react";
 import { CustomerCard } from "@/components/customers/CustomerCard";
 import { LoyaltyCard } from "@/components/customers/LoyaltyCard";
 import { StatusBadge } from "@/components/appointments/StatusBadge";
+import { combinedServiceNames, distinctStaffLabel } from "@/lib/appointmentDisplay";
 
 type CustomerProfilePayload = {
   customer: {
@@ -36,8 +37,7 @@ type CustomerProfilePayload = {
       appointmentDate: string;
       appointmentTime: string;
       status: "BOOKED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED" | "BILLED";
-      service: { name: string };
-      staff: { name: string };
+      services: Array<{ service: { name: string }; staff: { name: string } | null }>;
       invoice?: { total: number } | null;
     }>;
     invoices: Array<{
@@ -337,8 +337,8 @@ export default function CustomerProfilePage() {
                       <td className="px-3 py-2 text-[var(--foreground)]">
                         {formatDate(appointment.appointmentDate)} {appointment.appointmentTime}
                       </td>
-                      <td className="px-3 py-2 text-[var(--foreground)]">{appointment.service.name}</td>
-                      <td className="px-3 py-2 text-[var(--foreground)]">{appointment.staff.name}</td>
+                      <td className="px-3 py-2 text-[var(--foreground)]">{combinedServiceNames(appointment.services)}</td>
+                      <td className="px-3 py-2 text-[var(--foreground)]">{distinctStaffLabel(appointment.services)}</td>
                       <td className="px-3 py-2">
                         <StatusBadge status={appointment.status} />
                       </td>

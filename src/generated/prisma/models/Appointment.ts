@@ -28,10 +28,12 @@ export type AggregateAppointment = {
 
 export type AppointmentAvgAggregateOutputType = {
   duration: number | null
+  totalAmount: runtime.Decimal | null
 }
 
 export type AppointmentSumAggregateOutputType = {
   duration: number | null
+  totalAmount: runtime.Decimal | null
 }
 
 export type AppointmentMinAggregateOutputType = {
@@ -40,6 +42,7 @@ export type AppointmentMinAggregateOutputType = {
   appointmentDate: Date | null
   appointmentTime: string | null
   duration: number | null
+  totalAmount: runtime.Decimal | null
   status: $Enums.AppointmentStatus | null
   notes: string | null
   customerId: string | null
@@ -56,6 +59,7 @@ export type AppointmentMaxAggregateOutputType = {
   appointmentDate: Date | null
   appointmentTime: string | null
   duration: number | null
+  totalAmount: runtime.Decimal | null
   status: $Enums.AppointmentStatus | null
   notes: string | null
   customerId: string | null
@@ -72,6 +76,7 @@ export type AppointmentCountAggregateOutputType = {
   appointmentDate: number
   appointmentTime: number
   duration: number
+  totalAmount: number
   status: number
   notes: number
   customerId: number
@@ -86,10 +91,12 @@ export type AppointmentCountAggregateOutputType = {
 
 export type AppointmentAvgAggregateInputType = {
   duration?: true
+  totalAmount?: true
 }
 
 export type AppointmentSumAggregateInputType = {
   duration?: true
+  totalAmount?: true
 }
 
 export type AppointmentMinAggregateInputType = {
@@ -98,6 +105,7 @@ export type AppointmentMinAggregateInputType = {
   appointmentDate?: true
   appointmentTime?: true
   duration?: true
+  totalAmount?: true
   status?: true
   notes?: true
   customerId?: true
@@ -114,6 +122,7 @@ export type AppointmentMaxAggregateInputType = {
   appointmentDate?: true
   appointmentTime?: true
   duration?: true
+  totalAmount?: true
   status?: true
   notes?: true
   customerId?: true
@@ -130,6 +139,7 @@ export type AppointmentCountAggregateInputType = {
   appointmentDate?: true
   appointmentTime?: true
   duration?: true
+  totalAmount?: true
   status?: true
   notes?: true
   customerId?: true
@@ -233,11 +243,12 @@ export type AppointmentGroupByOutputType = {
   appointmentDate: Date
   appointmentTime: string
   duration: number
+  totalAmount: runtime.Decimal
   status: $Enums.AppointmentStatus
   notes: string | null
   customerId: string
   serviceId: string
-  staffId: string
+  staffId: string | null
   tenantId: string
   createdAt: Date
   updatedAt: Date
@@ -272,17 +283,19 @@ export type AppointmentWhereInput = {
   appointmentDate?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   appointmentTime?: Prisma.StringFilter<"Appointment"> | string
   duration?: Prisma.IntFilter<"Appointment"> | number
+  totalAmount?: Prisma.DecimalFilter<"Appointment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFilter<"Appointment"> | $Enums.AppointmentStatus
   notes?: Prisma.StringNullableFilter<"Appointment"> | string | null
   customerId?: Prisma.StringFilter<"Appointment"> | string
   serviceId?: Prisma.StringFilter<"Appointment"> | string
-  staffId?: Prisma.StringFilter<"Appointment"> | string
+  staffId?: Prisma.StringNullableFilter<"Appointment"> | string | null
   tenantId?: Prisma.StringFilter<"Appointment"> | string
   createdAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
   service?: Prisma.XOR<Prisma.ServiceScalarRelationFilter, Prisma.ServiceWhereInput>
-  staff?: Prisma.XOR<Prisma.StaffScalarRelationFilter, Prisma.StaffWhereInput>
+  staff?: Prisma.XOR<Prisma.StaffNullableScalarRelationFilter, Prisma.StaffWhereInput> | null
+  services?: Prisma.AppointmentServiceListRelationFilter
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
 }
@@ -293,17 +306,19 @@ export type AppointmentOrderByWithRelationInput = {
   appointmentDate?: Prisma.SortOrder
   appointmentTime?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   customerId?: Prisma.SortOrder
   serviceId?: Prisma.SortOrder
-  staffId?: Prisma.SortOrder
+  staffId?: Prisma.SortOrderInput | Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   customer?: Prisma.CustomerOrderByWithRelationInput
   service?: Prisma.ServiceOrderByWithRelationInput
   staff?: Prisma.StaffOrderByWithRelationInput
+  services?: Prisma.AppointmentServiceOrderByRelationAggregateInput
   tenant?: Prisma.TenantOrderByWithRelationInput
   invoice?: Prisma.InvoiceOrderByWithRelationInput
 }
@@ -318,17 +333,19 @@ export type AppointmentWhereUniqueInput = Prisma.AtLeast<{
   appointmentDate?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   appointmentTime?: Prisma.StringFilter<"Appointment"> | string
   duration?: Prisma.IntFilter<"Appointment"> | number
+  totalAmount?: Prisma.DecimalFilter<"Appointment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFilter<"Appointment"> | $Enums.AppointmentStatus
   notes?: Prisma.StringNullableFilter<"Appointment"> | string | null
   customerId?: Prisma.StringFilter<"Appointment"> | string
   serviceId?: Prisma.StringFilter<"Appointment"> | string
-  staffId?: Prisma.StringFilter<"Appointment"> | string
+  staffId?: Prisma.StringNullableFilter<"Appointment"> | string | null
   tenantId?: Prisma.StringFilter<"Appointment"> | string
   createdAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   customer?: Prisma.XOR<Prisma.CustomerScalarRelationFilter, Prisma.CustomerWhereInput>
   service?: Prisma.XOR<Prisma.ServiceScalarRelationFilter, Prisma.ServiceWhereInput>
-  staff?: Prisma.XOR<Prisma.StaffScalarRelationFilter, Prisma.StaffWhereInput>
+  staff?: Prisma.XOR<Prisma.StaffNullableScalarRelationFilter, Prisma.StaffWhereInput> | null
+  services?: Prisma.AppointmentServiceListRelationFilter
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
 }, "id" | "tenantId_appointmentNumber">
@@ -339,11 +356,12 @@ export type AppointmentOrderByWithAggregationInput = {
   appointmentDate?: Prisma.SortOrder
   appointmentTime?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   customerId?: Prisma.SortOrder
   serviceId?: Prisma.SortOrder
-  staffId?: Prisma.SortOrder
+  staffId?: Prisma.SortOrderInput | Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -363,11 +381,12 @@ export type AppointmentScalarWhereWithAggregatesInput = {
   appointmentDate?: Prisma.DateTimeWithAggregatesFilter<"Appointment"> | Date | string
   appointmentTime?: Prisma.StringWithAggregatesFilter<"Appointment"> | string
   duration?: Prisma.IntWithAggregatesFilter<"Appointment"> | number
+  totalAmount?: Prisma.DecimalWithAggregatesFilter<"Appointment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusWithAggregatesFilter<"Appointment"> | $Enums.AppointmentStatus
   notes?: Prisma.StringNullableWithAggregatesFilter<"Appointment"> | string | null
   customerId?: Prisma.StringWithAggregatesFilter<"Appointment"> | string
   serviceId?: Prisma.StringWithAggregatesFilter<"Appointment"> | string
-  staffId?: Prisma.StringWithAggregatesFilter<"Appointment"> | string
+  staffId?: Prisma.StringNullableWithAggregatesFilter<"Appointment"> | string | null
   tenantId?: Prisma.StringWithAggregatesFilter<"Appointment"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Appointment"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Appointment"> | Date | string
@@ -379,13 +398,15 @@ export type AppointmentCreateInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutAppointmentsInput
   service: Prisma.ServiceCreateNestedOneWithoutAppointmentsInput
-  staff: Prisma.StaffCreateNestedOneWithoutAppointmentsInput
+  staff?: Prisma.StaffCreateNestedOneWithoutAppointmentsInput
+  services?: Prisma.AppointmentServiceCreateNestedManyWithoutAppointmentInput
   tenant: Prisma.TenantCreateNestedOneWithoutAppointmentsInput
   invoice?: Prisma.InvoiceCreateNestedOneWithoutAppointmentInput
 }
@@ -396,14 +417,16 @@ export type AppointmentUncheckedCreateInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   customerId: string
   serviceId: string
-  staffId: string
+  staffId?: string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  services?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutAppointmentInput
   invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutAppointmentInput
 }
 
@@ -413,13 +436,15 @@ export type AppointmentUpdateInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutAppointmentsNestedInput
   service?: Prisma.ServiceUpdateOneRequiredWithoutAppointmentsNestedInput
-  staff?: Prisma.StaffUpdateOneRequiredWithoutAppointmentsNestedInput
+  staff?: Prisma.StaffUpdateOneWithoutAppointmentsNestedInput
+  services?: Prisma.AppointmentServiceUpdateManyWithoutAppointmentNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutAppointmentsNestedInput
   invoice?: Prisma.InvoiceUpdateOneWithoutAppointmentNestedInput
 }
@@ -430,14 +455,16 @@ export type AppointmentUncheckedUpdateInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   serviceId?: Prisma.StringFieldUpdateOperationsInput | string
-  staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutAppointmentNestedInput
   invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutAppointmentNestedInput
 }
 
@@ -447,11 +474,12 @@ export type AppointmentCreateManyInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   customerId: string
   serviceId: string
-  staffId: string
+  staffId?: string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -463,6 +491,7 @@ export type AppointmentUpdateManyMutationInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -475,11 +504,12 @@ export type AppointmentUncheckedUpdateManyInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   serviceId?: Prisma.StringFieldUpdateOperationsInput | string
-  staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -506,6 +536,7 @@ export type AppointmentCountOrderByAggregateInput = {
   appointmentDate?: Prisma.SortOrder
   appointmentTime?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
@@ -518,6 +549,7 @@ export type AppointmentCountOrderByAggregateInput = {
 
 export type AppointmentAvgOrderByAggregateInput = {
   duration?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
 }
 
 export type AppointmentMaxOrderByAggregateInput = {
@@ -526,6 +558,7 @@ export type AppointmentMaxOrderByAggregateInput = {
   appointmentDate?: Prisma.SortOrder
   appointmentTime?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
@@ -542,6 +575,7 @@ export type AppointmentMinOrderByAggregateInput = {
   appointmentDate?: Prisma.SortOrder
   appointmentTime?: Prisma.SortOrder
   duration?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
   status?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   customerId?: Prisma.SortOrder
@@ -554,6 +588,12 @@ export type AppointmentMinOrderByAggregateInput = {
 
 export type AppointmentSumOrderByAggregateInput = {
   duration?: Prisma.SortOrder
+  totalAmount?: Prisma.SortOrder
+}
+
+export type AppointmentScalarRelationFilter = {
+  is?: Prisma.AppointmentWhereInput
+  isNot?: Prisma.AppointmentWhereInput
 }
 
 export type AppointmentNullableScalarRelationFilter = {
@@ -733,6 +773,20 @@ export type EnumAppointmentStatusFieldUpdateOperationsInput = {
   set?: $Enums.AppointmentStatus
 }
 
+export type AppointmentCreateNestedOneWithoutServicesInput = {
+  create?: Prisma.XOR<Prisma.AppointmentCreateWithoutServicesInput, Prisma.AppointmentUncheckedCreateWithoutServicesInput>
+  connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutServicesInput
+  connect?: Prisma.AppointmentWhereUniqueInput
+}
+
+export type AppointmentUpdateOneRequiredWithoutServicesNestedInput = {
+  create?: Prisma.XOR<Prisma.AppointmentCreateWithoutServicesInput, Prisma.AppointmentUncheckedCreateWithoutServicesInput>
+  connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutServicesInput
+  upsert?: Prisma.AppointmentUpsertWithoutServicesInput
+  connect?: Prisma.AppointmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AppointmentUpdateToOneWithWhereWithoutServicesInput, Prisma.AppointmentUpdateWithoutServicesInput>, Prisma.AppointmentUncheckedUpdateWithoutServicesInput>
+}
+
 export type AppointmentCreateNestedOneWithoutInvoiceInput = {
   create?: Prisma.XOR<Prisma.AppointmentCreateWithoutInvoiceInput, Prisma.AppointmentUncheckedCreateWithoutInvoiceInput>
   connectOrCreate?: Prisma.AppointmentCreateOrConnectWithoutInvoiceInput
@@ -755,13 +809,15 @@ export type AppointmentCreateWithoutTenantInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutAppointmentsInput
   service: Prisma.ServiceCreateNestedOneWithoutAppointmentsInput
-  staff: Prisma.StaffCreateNestedOneWithoutAppointmentsInput
+  staff?: Prisma.StaffCreateNestedOneWithoutAppointmentsInput
+  services?: Prisma.AppointmentServiceCreateNestedManyWithoutAppointmentInput
   invoice?: Prisma.InvoiceCreateNestedOneWithoutAppointmentInput
 }
 
@@ -771,13 +827,15 @@ export type AppointmentUncheckedCreateWithoutTenantInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   customerId: string
   serviceId: string
-  staffId: string
+  staffId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  services?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutAppointmentInput
   invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutAppointmentInput
 }
 
@@ -816,11 +874,12 @@ export type AppointmentScalarWhereInput = {
   appointmentDate?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   appointmentTime?: Prisma.StringFilter<"Appointment"> | string
   duration?: Prisma.IntFilter<"Appointment"> | number
+  totalAmount?: Prisma.DecimalFilter<"Appointment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFilter<"Appointment"> | $Enums.AppointmentStatus
   notes?: Prisma.StringNullableFilter<"Appointment"> | string | null
   customerId?: Prisma.StringFilter<"Appointment"> | string
   serviceId?: Prisma.StringFilter<"Appointment"> | string
-  staffId?: Prisma.StringFilter<"Appointment"> | string
+  staffId?: Prisma.StringNullableFilter<"Appointment"> | string | null
   tenantId?: Prisma.StringFilter<"Appointment"> | string
   createdAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Appointment"> | Date | string
@@ -832,12 +891,14 @@ export type AppointmentCreateWithoutCustomerInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   service: Prisma.ServiceCreateNestedOneWithoutAppointmentsInput
-  staff: Prisma.StaffCreateNestedOneWithoutAppointmentsInput
+  staff?: Prisma.StaffCreateNestedOneWithoutAppointmentsInput
+  services?: Prisma.AppointmentServiceCreateNestedManyWithoutAppointmentInput
   tenant: Prisma.TenantCreateNestedOneWithoutAppointmentsInput
   invoice?: Prisma.InvoiceCreateNestedOneWithoutAppointmentInput
 }
@@ -848,13 +909,15 @@ export type AppointmentUncheckedCreateWithoutCustomerInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   serviceId: string
-  staffId: string
+  staffId?: string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  services?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutAppointmentInput
   invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutAppointmentInput
 }
 
@@ -890,12 +953,14 @@ export type AppointmentCreateWithoutServiceInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutAppointmentsInput
-  staff: Prisma.StaffCreateNestedOneWithoutAppointmentsInput
+  staff?: Prisma.StaffCreateNestedOneWithoutAppointmentsInput
+  services?: Prisma.AppointmentServiceCreateNestedManyWithoutAppointmentInput
   tenant: Prisma.TenantCreateNestedOneWithoutAppointmentsInput
   invoice?: Prisma.InvoiceCreateNestedOneWithoutAppointmentInput
 }
@@ -906,13 +971,15 @@ export type AppointmentUncheckedCreateWithoutServiceInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   customerId: string
-  staffId: string
+  staffId?: string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  services?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutAppointmentInput
   invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutAppointmentInput
 }
 
@@ -948,12 +1015,14 @@ export type AppointmentCreateWithoutStaffInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutAppointmentsInput
   service: Prisma.ServiceCreateNestedOneWithoutAppointmentsInput
+  services?: Prisma.AppointmentServiceCreateNestedManyWithoutAppointmentInput
   tenant: Prisma.TenantCreateNestedOneWithoutAppointmentsInput
   invoice?: Prisma.InvoiceCreateNestedOneWithoutAppointmentInput
 }
@@ -964,6 +1033,7 @@ export type AppointmentUncheckedCreateWithoutStaffInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   customerId: string
@@ -971,6 +1041,7 @@ export type AppointmentUncheckedCreateWithoutStaffInput = {
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  services?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutAppointmentInput
   invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutAppointmentInput
 }
 
@@ -1000,19 +1071,109 @@ export type AppointmentUpdateManyWithWhereWithoutStaffInput = {
   data: Prisma.XOR<Prisma.AppointmentUpdateManyMutationInput, Prisma.AppointmentUncheckedUpdateManyWithoutStaffInput>
 }
 
-export type AppointmentCreateWithoutInvoiceInput = {
+export type AppointmentCreateWithoutServicesInput = {
   id?: string
   appointmentNumber?: string | null
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   customer: Prisma.CustomerCreateNestedOneWithoutAppointmentsInput
   service: Prisma.ServiceCreateNestedOneWithoutAppointmentsInput
-  staff: Prisma.StaffCreateNestedOneWithoutAppointmentsInput
+  staff?: Prisma.StaffCreateNestedOneWithoutAppointmentsInput
+  tenant: Prisma.TenantCreateNestedOneWithoutAppointmentsInput
+  invoice?: Prisma.InvoiceCreateNestedOneWithoutAppointmentInput
+}
+
+export type AppointmentUncheckedCreateWithoutServicesInput = {
+  id?: string
+  appointmentNumber?: string | null
+  appointmentDate: Date | string
+  appointmentTime: string
+  duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.AppointmentStatus
+  notes?: string | null
+  customerId: string
+  serviceId: string
+  staffId?: string | null
+  tenantId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  invoice?: Prisma.InvoiceUncheckedCreateNestedOneWithoutAppointmentInput
+}
+
+export type AppointmentCreateOrConnectWithoutServicesInput = {
+  where: Prisma.AppointmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.AppointmentCreateWithoutServicesInput, Prisma.AppointmentUncheckedCreateWithoutServicesInput>
+}
+
+export type AppointmentUpsertWithoutServicesInput = {
+  update: Prisma.XOR<Prisma.AppointmentUpdateWithoutServicesInput, Prisma.AppointmentUncheckedUpdateWithoutServicesInput>
+  create: Prisma.XOR<Prisma.AppointmentCreateWithoutServicesInput, Prisma.AppointmentUncheckedCreateWithoutServicesInput>
+  where?: Prisma.AppointmentWhereInput
+}
+
+export type AppointmentUpdateToOneWithWhereWithoutServicesInput = {
+  where?: Prisma.AppointmentWhereInput
+  data: Prisma.XOR<Prisma.AppointmentUpdateWithoutServicesInput, Prisma.AppointmentUncheckedUpdateWithoutServicesInput>
+}
+
+export type AppointmentUpdateWithoutServicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  appointmentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  customer?: Prisma.CustomerUpdateOneRequiredWithoutAppointmentsNestedInput
+  service?: Prisma.ServiceUpdateOneRequiredWithoutAppointmentsNestedInput
+  staff?: Prisma.StaffUpdateOneWithoutAppointmentsNestedInput
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutAppointmentsNestedInput
+  invoice?: Prisma.InvoiceUpdateOneWithoutAppointmentNestedInput
+}
+
+export type AppointmentUncheckedUpdateWithoutServicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  appointmentNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  customerId?: Prisma.StringFieldUpdateOperationsInput | string
+  serviceId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutAppointmentNestedInput
+}
+
+export type AppointmentCreateWithoutInvoiceInput = {
+  id?: string
+  appointmentNumber?: string | null
+  appointmentDate: Date | string
+  appointmentTime: string
+  duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.AppointmentStatus
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  customer: Prisma.CustomerCreateNestedOneWithoutAppointmentsInput
+  service: Prisma.ServiceCreateNestedOneWithoutAppointmentsInput
+  staff?: Prisma.StaffCreateNestedOneWithoutAppointmentsInput
+  services?: Prisma.AppointmentServiceCreateNestedManyWithoutAppointmentInput
   tenant: Prisma.TenantCreateNestedOneWithoutAppointmentsInput
 }
 
@@ -1022,14 +1183,16 @@ export type AppointmentUncheckedCreateWithoutInvoiceInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   customerId: string
   serviceId: string
-  staffId: string
+  staffId?: string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  services?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutAppointmentInput
 }
 
 export type AppointmentCreateOrConnectWithoutInvoiceInput = {
@@ -1054,13 +1217,15 @@ export type AppointmentUpdateWithoutInvoiceInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutAppointmentsNestedInput
   service?: Prisma.ServiceUpdateOneRequiredWithoutAppointmentsNestedInput
-  staff?: Prisma.StaffUpdateOneRequiredWithoutAppointmentsNestedInput
+  staff?: Prisma.StaffUpdateOneWithoutAppointmentsNestedInput
+  services?: Prisma.AppointmentServiceUpdateManyWithoutAppointmentNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutAppointmentsNestedInput
 }
 
@@ -1070,14 +1235,16 @@ export type AppointmentUncheckedUpdateWithoutInvoiceInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   serviceId?: Prisma.StringFieldUpdateOperationsInput | string
-  staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutAppointmentNestedInput
 }
 
 export type AppointmentCreateManyTenantInput = {
@@ -1086,11 +1253,12 @@ export type AppointmentCreateManyTenantInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   customerId: string
   serviceId: string
-  staffId: string
+  staffId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1101,13 +1269,15 @@ export type AppointmentUpdateWithoutTenantInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutAppointmentsNestedInput
   service?: Prisma.ServiceUpdateOneRequiredWithoutAppointmentsNestedInput
-  staff?: Prisma.StaffUpdateOneRequiredWithoutAppointmentsNestedInput
+  staff?: Prisma.StaffUpdateOneWithoutAppointmentsNestedInput
+  services?: Prisma.AppointmentServiceUpdateManyWithoutAppointmentNestedInput
   invoice?: Prisma.InvoiceUpdateOneWithoutAppointmentNestedInput
 }
 
@@ -1117,13 +1287,15 @@ export type AppointmentUncheckedUpdateWithoutTenantInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   serviceId?: Prisma.StringFieldUpdateOperationsInput | string
-  staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutAppointmentNestedInput
   invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutAppointmentNestedInput
 }
 
@@ -1133,11 +1305,12 @@ export type AppointmentUncheckedUpdateManyWithoutTenantInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
   serviceId?: Prisma.StringFieldUpdateOperationsInput | string
-  staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1148,10 +1321,11 @@ export type AppointmentCreateManyCustomerInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   serviceId: string
-  staffId: string
+  staffId?: string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1163,12 +1337,14 @@ export type AppointmentUpdateWithoutCustomerInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   service?: Prisma.ServiceUpdateOneRequiredWithoutAppointmentsNestedInput
-  staff?: Prisma.StaffUpdateOneRequiredWithoutAppointmentsNestedInput
+  staff?: Prisma.StaffUpdateOneWithoutAppointmentsNestedInput
+  services?: Prisma.AppointmentServiceUpdateManyWithoutAppointmentNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutAppointmentsNestedInput
   invoice?: Prisma.InvoiceUpdateOneWithoutAppointmentNestedInput
 }
@@ -1179,13 +1355,15 @@ export type AppointmentUncheckedUpdateWithoutCustomerInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceId?: Prisma.StringFieldUpdateOperationsInput | string
-  staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutAppointmentNestedInput
   invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutAppointmentNestedInput
 }
 
@@ -1195,10 +1373,11 @@ export type AppointmentUncheckedUpdateManyWithoutCustomerInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceId?: Prisma.StringFieldUpdateOperationsInput | string
-  staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1210,10 +1389,11 @@ export type AppointmentCreateManyServiceInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   customerId: string
-  staffId: string
+  staffId?: string | null
   tenantId: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1225,12 +1405,14 @@ export type AppointmentUpdateWithoutServiceInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutAppointmentsNestedInput
-  staff?: Prisma.StaffUpdateOneRequiredWithoutAppointmentsNestedInput
+  staff?: Prisma.StaffUpdateOneWithoutAppointmentsNestedInput
+  services?: Prisma.AppointmentServiceUpdateManyWithoutAppointmentNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutAppointmentsNestedInput
   invoice?: Prisma.InvoiceUpdateOneWithoutAppointmentNestedInput
 }
@@ -1241,13 +1423,15 @@ export type AppointmentUncheckedUpdateWithoutServiceInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
-  staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutAppointmentNestedInput
   invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutAppointmentNestedInput
 }
 
@@ -1257,10 +1441,11 @@ export type AppointmentUncheckedUpdateManyWithoutServiceInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
-  staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1272,6 +1457,7 @@ export type AppointmentCreateManyStaffInput = {
   appointmentDate: Date | string
   appointmentTime: string
   duration?: number
+  totalAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.AppointmentStatus
   notes?: string | null
   customerId: string
@@ -1287,12 +1473,14 @@ export type AppointmentUpdateWithoutStaffInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   customer?: Prisma.CustomerUpdateOneRequiredWithoutAppointmentsNestedInput
   service?: Prisma.ServiceUpdateOneRequiredWithoutAppointmentsNestedInput
+  services?: Prisma.AppointmentServiceUpdateManyWithoutAppointmentNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutAppointmentsNestedInput
   invoice?: Prisma.InvoiceUpdateOneWithoutAppointmentNestedInput
 }
@@ -1303,6 +1491,7 @@ export type AppointmentUncheckedUpdateWithoutStaffInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1310,6 +1499,7 @@ export type AppointmentUncheckedUpdateWithoutStaffInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  services?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutAppointmentNestedInput
   invoice?: Prisma.InvoiceUncheckedUpdateOneWithoutAppointmentNestedInput
 }
 
@@ -1319,6 +1509,7 @@ export type AppointmentUncheckedUpdateManyWithoutStaffInput = {
   appointmentDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   appointmentTime?: Prisma.StringFieldUpdateOperationsInput | string
   duration?: Prisma.IntFieldUpdateOperationsInput | number
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   customerId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1329,6 +1520,35 @@ export type AppointmentUncheckedUpdateManyWithoutStaffInput = {
 }
 
 
+/**
+ * Count Type AppointmentCountOutputType
+ */
+
+export type AppointmentCountOutputType = {
+  services: number
+}
+
+export type AppointmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  services?: boolean | AppointmentCountOutputTypeCountServicesArgs
+}
+
+/**
+ * AppointmentCountOutputType without action
+ */
+export type AppointmentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AppointmentCountOutputType
+   */
+  select?: Prisma.AppointmentCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AppointmentCountOutputType without action
+ */
+export type AppointmentCountOutputTypeCountServicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AppointmentServiceWhereInput
+}
+
 
 export type AppointmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1336,6 +1556,7 @@ export type AppointmentSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   appointmentDate?: boolean
   appointmentTime?: boolean
   duration?: boolean
+  totalAmount?: boolean
   status?: boolean
   notes?: boolean
   customerId?: boolean
@@ -1346,9 +1567,11 @@ export type AppointmentSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   updatedAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>
-  staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
+  staff?: boolean | Prisma.Appointment$staffArgs<ExtArgs>
+  services?: boolean | Prisma.Appointment$servicesArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   invoice?: boolean | Prisma.Appointment$invoiceArgs<ExtArgs>
+  _count?: boolean | Prisma.AppointmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["appointment"]>
 
 export type AppointmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1357,6 +1580,7 @@ export type AppointmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   appointmentDate?: boolean
   appointmentTime?: boolean
   duration?: boolean
+  totalAmount?: boolean
   status?: boolean
   notes?: boolean
   customerId?: boolean
@@ -1367,7 +1591,7 @@ export type AppointmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   updatedAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>
-  staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
+  staff?: boolean | Prisma.Appointment$staffArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["appointment"]>
 
@@ -1377,6 +1601,7 @@ export type AppointmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   appointmentDate?: boolean
   appointmentTime?: boolean
   duration?: boolean
+  totalAmount?: boolean
   status?: boolean
   notes?: boolean
   customerId?: boolean
@@ -1387,7 +1612,7 @@ export type AppointmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   updatedAt?: boolean
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>
-  staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
+  staff?: boolean | Prisma.Appointment$staffArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["appointment"]>
 
@@ -1397,6 +1622,7 @@ export type AppointmentSelectScalar = {
   appointmentDate?: boolean
   appointmentTime?: boolean
   duration?: boolean
+  totalAmount?: boolean
   status?: boolean
   notes?: boolean
   customerId?: boolean
@@ -1407,24 +1633,26 @@ export type AppointmentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type AppointmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "appointmentNumber" | "appointmentDate" | "appointmentTime" | "duration" | "status" | "notes" | "customerId" | "serviceId" | "staffId" | "tenantId" | "createdAt" | "updatedAt", ExtArgs["result"]["appointment"]>
+export type AppointmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "appointmentNumber" | "appointmentDate" | "appointmentTime" | "duration" | "totalAmount" | "status" | "notes" | "customerId" | "serviceId" | "staffId" | "tenantId" | "createdAt" | "updatedAt", ExtArgs["result"]["appointment"]>
 export type AppointmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>
-  staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
+  staff?: boolean | Prisma.Appointment$staffArgs<ExtArgs>
+  services?: boolean | Prisma.Appointment$servicesArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   invoice?: boolean | Prisma.Appointment$invoiceArgs<ExtArgs>
+  _count?: boolean | Prisma.AppointmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AppointmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>
-  staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
+  staff?: boolean | Prisma.Appointment$staffArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
 export type AppointmentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.CustomerDefaultArgs<ExtArgs>
   service?: boolean | Prisma.ServiceDefaultArgs<ExtArgs>
-  staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
+  staff?: boolean | Prisma.Appointment$staffArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
 
@@ -1433,7 +1661,8 @@ export type $AppointmentPayload<ExtArgs extends runtime.Types.Extensions.Interna
   objects: {
     customer: Prisma.$CustomerPayload<ExtArgs>
     service: Prisma.$ServicePayload<ExtArgs>
-    staff: Prisma.$StaffPayload<ExtArgs>
+    staff: Prisma.$StaffPayload<ExtArgs> | null
+    services: Prisma.$AppointmentServicePayload<ExtArgs>[]
     tenant: Prisma.$TenantPayload<ExtArgs>
     invoice: Prisma.$InvoicePayload<ExtArgs> | null
   }
@@ -1443,11 +1672,12 @@ export type $AppointmentPayload<ExtArgs extends runtime.Types.Extensions.Interna
     appointmentDate: Date
     appointmentTime: string
     duration: number
+    totalAmount: runtime.Decimal
     status: $Enums.AppointmentStatus
     notes: string | null
     customerId: string
     serviceId: string
-    staffId: string
+    staffId: string | null
     tenantId: string
     createdAt: Date
     updatedAt: Date
@@ -1847,7 +2077,8 @@ export interface Prisma__AppointmentClient<T, Null = never, ExtArgs extends runt
   readonly [Symbol.toStringTag]: "PrismaPromise"
   customer<T extends Prisma.CustomerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CustomerDefaultArgs<ExtArgs>>): Prisma.Prisma__CustomerClient<runtime.Types.Result.GetResult<Prisma.$CustomerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   service<T extends Prisma.ServiceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ServiceDefaultArgs<ExtArgs>>): Prisma.Prisma__ServiceClient<runtime.Types.Result.GetResult<Prisma.$ServicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  staff<T extends Prisma.StaffDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StaffDefaultArgs<ExtArgs>>): Prisma.Prisma__StaffClient<runtime.Types.Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  staff<T extends Prisma.Appointment$staffArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Appointment$staffArgs<ExtArgs>>): Prisma.Prisma__StaffClient<runtime.Types.Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  services<T extends Prisma.Appointment$servicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Appointment$servicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppointmentServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   invoice<T extends Prisma.Appointment$invoiceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Appointment$invoiceArgs<ExtArgs>>): Prisma.Prisma__InvoiceClient<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1884,6 +2115,7 @@ export interface AppointmentFieldRefs {
   readonly appointmentDate: Prisma.FieldRef<"Appointment", 'DateTime'>
   readonly appointmentTime: Prisma.FieldRef<"Appointment", 'String'>
   readonly duration: Prisma.FieldRef<"Appointment", 'Int'>
+  readonly totalAmount: Prisma.FieldRef<"Appointment", 'Decimal'>
   readonly status: Prisma.FieldRef<"Appointment", 'AppointmentStatus'>
   readonly notes: Prisma.FieldRef<"Appointment", 'String'>
   readonly customerId: Prisma.FieldRef<"Appointment", 'String'>
@@ -2290,6 +2522,49 @@ export type AppointmentDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Limit how many Appointments to delete.
    */
   limit?: number
+}
+
+/**
+ * Appointment.staff
+ */
+export type Appointment$staffArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Staff
+   */
+  select?: Prisma.StaffSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Staff
+   */
+  omit?: Prisma.StaffOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StaffInclude<ExtArgs> | null
+  where?: Prisma.StaffWhereInput
+}
+
+/**
+ * Appointment.services
+ */
+export type Appointment$servicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AppointmentService
+   */
+  select?: Prisma.AppointmentServiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AppointmentService
+   */
+  omit?: Prisma.AppointmentServiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppointmentServiceInclude<ExtArgs> | null
+  where?: Prisma.AppointmentServiceWhereInput
+  orderBy?: Prisma.AppointmentServiceOrderByWithRelationInput | Prisma.AppointmentServiceOrderByWithRelationInput[]
+  cursor?: Prisma.AppointmentServiceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AppointmentServiceScalarFieldEnum | Prisma.AppointmentServiceScalarFieldEnum[]
 }
 
 /**

@@ -82,6 +82,11 @@ export type Payroll = Prisma.PayrollModel
  */
 export type Appointment = Prisma.AppointmentModel
 /**
+ * Model AppointmentService
+ * 
+ */
+export type AppointmentService = Prisma.AppointmentServiceModel
+/**
  * Model Invoice
  * 
  */

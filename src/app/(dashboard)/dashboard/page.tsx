@@ -40,12 +40,8 @@ type DashboardAppointment = {
   customer: {
     name: string;
   };
-  service: {
-    name: string;
-  };
-  staff: {
-    name: string;
-  };
+  serviceName: string;
+  staffName: string;
 };
 
 type StaffAvailability = {
@@ -563,8 +559,8 @@ export default function DashboardPage() {
                       <tr key={appointment.id} className="border-b border-slate-100 last:border-b-0">
                         <td className="px-5 py-3 font-medium text-[var(--foreground)]">{appointment.appointmentTime}</td>
                         <td className="px-5 py-3 text-[var(--foreground)]">{appointment.customer.name}</td>
-                        <td className="px-5 py-3 text-[var(--foreground)]">{appointment.service.name}</td>
-                        <td className="px-5 py-3 text-[var(--foreground)]">{appointment.staff.name}</td>
+                        <td className="px-5 py-3 text-[var(--foreground)]">{appointment.serviceName}</td>
+                        <td className="px-5 py-3 text-[var(--foreground)]">{appointment.staffName}</td>
                         <td className="px-5 py-3">
                           <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${chip.className}`}>
                             {chip.label}
@@ -587,8 +583,8 @@ export default function DashboardPage() {
                           <tr key={appointment.id} className="border-b border-slate-100 last:border-b-0">
                             <td className="px-5 py-3 font-medium text-[var(--foreground)]">{appointment.appointmentTime}</td>
                             <td className="px-5 py-3 text-[var(--foreground)]">{appointment.customer.name}</td>
-                            <td className="px-5 py-3 text-[var(--foreground)]">{appointment.service.name}</td>
-                            <td className="px-5 py-3 text-[var(--foreground)]">{appointment.staff.name}</td>
+                            <td className="px-5 py-3 text-[var(--foreground)]">{appointment.serviceName}</td>
+                            <td className="px-5 py-3 text-[var(--foreground)]">{appointment.staffName}</td>
                             <td className="px-5 py-3">
                               <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-semibold ${chip.className}`}>
                                 {chip.label}

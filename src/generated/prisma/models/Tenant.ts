@@ -383,6 +383,7 @@ export type TenantWhereInput = {
   services?: Prisma.ServiceListRelationFilter
   staff?: Prisma.StaffListRelationFilter
   appointments?: Prisma.AppointmentListRelationFilter
+  appointmentServices?: Prisma.AppointmentServiceListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
   attendances?: Prisma.AttendanceListRelationFilter
   holidays?: Prisma.HolidayListRelationFilter
@@ -436,6 +437,7 @@ export type TenantOrderByWithRelationInput = {
   services?: Prisma.ServiceOrderByRelationAggregateInput
   staff?: Prisma.StaffOrderByRelationAggregateInput
   appointments?: Prisma.AppointmentOrderByRelationAggregateInput
+  appointmentServices?: Prisma.AppointmentServiceOrderByRelationAggregateInput
   invoices?: Prisma.InvoiceOrderByRelationAggregateInput
   attendances?: Prisma.AttendanceOrderByRelationAggregateInput
   holidays?: Prisma.HolidayOrderByRelationAggregateInput
@@ -492,6 +494,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   services?: Prisma.ServiceListRelationFilter
   staff?: Prisma.StaffListRelationFilter
   appointments?: Prisma.AppointmentListRelationFilter
+  appointmentServices?: Prisma.AppointmentServiceListRelationFilter
   invoices?: Prisma.InvoiceListRelationFilter
   attendances?: Prisma.AttendanceListRelationFilter
   holidays?: Prisma.HolidayListRelationFilter
@@ -617,6 +620,7 @@ export type TenantCreateInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -670,6 +674,7 @@ export type TenantUncheckedCreateInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -723,6 +728,7 @@ export type TenantUpdateInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -776,6 +782,7 @@ export type TenantUncheckedUpdateInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -1133,6 +1140,20 @@ export type TenantUpdateOneRequiredWithoutAppointmentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutAppointmentsInput, Prisma.TenantUpdateWithoutAppointmentsInput>, Prisma.TenantUncheckedUpdateWithoutAppointmentsInput>
 }
 
+export type TenantCreateNestedOneWithoutAppointmentServicesInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutAppointmentServicesInput, Prisma.TenantUncheckedCreateWithoutAppointmentServicesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutAppointmentServicesInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutAppointmentServicesNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutAppointmentServicesInput, Prisma.TenantUncheckedCreateWithoutAppointmentServicesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutAppointmentServicesInput
+  upsert?: Prisma.TenantUpsertWithoutAppointmentServicesInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutAppointmentServicesInput, Prisma.TenantUpdateWithoutAppointmentServicesInput>, Prisma.TenantUncheckedUpdateWithoutAppointmentServicesInput>
+}
+
 export type TenantCreateNestedOneWithoutInvoicesInput = {
   create?: Prisma.XOR<Prisma.TenantCreateWithoutInvoicesInput, Prisma.TenantUncheckedCreateWithoutInvoicesInput>
   connectOrCreate?: Prisma.TenantCreateOrConnectWithoutInvoicesInput
@@ -1350,6 +1371,7 @@ export type TenantCreateWithoutUsersInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -1402,6 +1424,7 @@ export type TenantUncheckedCreateWithoutUsersInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -1470,6 +1493,7 @@ export type TenantUpdateWithoutUsersInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -1522,6 +1546,7 @@ export type TenantUncheckedUpdateWithoutUsersInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -1574,6 +1599,7 @@ export type TenantCreateWithoutCustomersInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -1626,6 +1652,7 @@ export type TenantUncheckedCreateWithoutCustomersInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -1694,6 +1721,7 @@ export type TenantUpdateWithoutCustomersInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -1746,6 +1774,7 @@ export type TenantUncheckedUpdateWithoutCustomersInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -1798,6 +1827,7 @@ export type TenantCreateWithoutServicesInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -1850,6 +1880,7 @@ export type TenantUncheckedCreateWithoutServicesInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -1918,6 +1949,7 @@ export type TenantUpdateWithoutServicesInput = {
   customers?: Prisma.CustomerUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -1970,6 +2002,7 @@ export type TenantUncheckedUpdateWithoutServicesInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -2022,6 +2055,7 @@ export type TenantCreateWithoutStaffInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutTenantInput
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -2074,6 +2108,7 @@ export type TenantUncheckedCreateWithoutStaffInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutTenantInput
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -2142,6 +2177,7 @@ export type TenantUpdateWithoutStaffInput = {
   customers?: Prisma.CustomerUpdateManyWithoutTenantNestedInput
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -2194,6 +2230,7 @@ export type TenantUncheckedUpdateWithoutStaffInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutTenantNestedInput
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -2247,6 +2284,7 @@ export type TenantCreateWithoutSalaryHistoryInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -2299,6 +2337,7 @@ export type TenantUncheckedCreateWithoutSalaryHistoryInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -2367,6 +2406,7 @@ export type TenantUpdateWithoutSalaryHistoryInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -2419,6 +2459,7 @@ export type TenantUncheckedUpdateWithoutSalaryHistoryInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -2471,6 +2512,7 @@ export type TenantCreateWithoutPayrollsInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -2523,6 +2565,7 @@ export type TenantUncheckedCreateWithoutPayrollsInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -2591,6 +2634,7 @@ export type TenantUpdateWithoutPayrollsInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -2643,6 +2687,7 @@ export type TenantUncheckedUpdateWithoutPayrollsInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -2694,6 +2739,7 @@ export type TenantCreateWithoutAppointmentsInput = {
   customers?: Prisma.CustomerCreateNestedManyWithoutTenantInput
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -2746,6 +2792,7 @@ export type TenantUncheckedCreateWithoutAppointmentsInput = {
   customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutTenantInput
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -2814,6 +2861,7 @@ export type TenantUpdateWithoutAppointmentsInput = {
   customers?: Prisma.CustomerUpdateManyWithoutTenantNestedInput
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -2866,6 +2914,235 @@ export type TenantUncheckedUpdateWithoutAppointmentsInput = {
   customers?: Prisma.CustomerUncheckedUpdateManyWithoutTenantNestedInput
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
+  holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
+  settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
+  loyaltyCards?: Prisma.LoyaltyCardUncheckedUpdateManyWithoutTenantNestedInput
+  waitlist?: Prisma.WaitlistInterestUncheckedUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUncheckedUpdateManyWithoutTenantNestedInput
+  suppliers?: Prisma.SupplierUncheckedUpdateManyWithoutTenantNestedInput
+  productCategories?: Prisma.ProductCategoryUncheckedUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUncheckedUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUncheckedUpdateManyWithoutTenantNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutAppointmentServicesInput = {
+  id?: string
+  name: string
+  tagline?: string | null
+  slug: string
+  logo?: string | null
+  website?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  pincode?: string | null
+  phone?: string | null
+  email?: string | null
+  gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
+  openTime?: string
+  closeTime?: string
+  workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
+  plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerCreateNestedManyWithoutTenantInput
+  services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
+  staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
+  holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
+  settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
+  loyaltyCards?: Prisma.LoyaltyCardCreateNestedManyWithoutTenantInput
+  waitlist?: Prisma.WaitlistInterestCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentCreateNestedManyWithoutTenantInput
+  suppliers?: Prisma.SupplierCreateNestedManyWithoutTenantInput
+  productCategories?: Prisma.ProductCategoryCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementCreateNestedManyWithoutTenantInput
+  purchaseOrders?: Prisma.PurchaseOrderCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutAppointmentServicesInput = {
+  id?: string
+  name: string
+  tagline?: string | null
+  slug: string
+  logo?: string | null
+  website?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  pincode?: string | null
+  phone?: string | null
+  email?: string | null
+  gstNumber?: string | null
+  instagramUrl?: string | null
+  googleReviewUrl?: string | null
+  openTime?: string
+  closeTime?: string
+  workingDays?: Prisma.TenantCreateworkingDaysInput | string[]
+  plan?: $Enums.Plan
+  trialEndsAt?: Date | string | null
+  subscriptionPlan?: string
+  subscriptionEndsAt?: Date | string | null
+  isSubscribed?: boolean
+  subscriptionStart?: Date | string | null
+  subscriptionEnd?: Date | string | null
+  razorpayCustomerId?: string | null
+  razorpaySubId?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutTenantInput
+  customers?: Prisma.CustomerUncheckedCreateNestedManyWithoutTenantInput
+  services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
+  staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
+  holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
+  settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
+  loyaltyCards?: Prisma.LoyaltyCardUncheckedCreateNestedManyWithoutTenantInput
+  waitlist?: Prisma.WaitlistInterestUncheckedCreateNestedManyWithoutTenantInput
+  serviceCategories?: Prisma.ServiceCategoryUncheckedCreateNestedManyWithoutTenantInput
+  payments?: Prisma.PaymentUncheckedCreateNestedManyWithoutTenantInput
+  suppliers?: Prisma.SupplierUncheckedCreateNestedManyWithoutTenantInput
+  productCategories?: Prisma.ProductCategoryUncheckedCreateNestedManyWithoutTenantInput
+  products?: Prisma.ProductUncheckedCreateNestedManyWithoutTenantInput
+  stockMovements?: Prisma.StockMovementUncheckedCreateNestedManyWithoutTenantInput
+  purchaseOrders?: Prisma.PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutTenantInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutAppointmentServicesInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutAppointmentServicesInput, Prisma.TenantUncheckedCreateWithoutAppointmentServicesInput>
+}
+
+export type TenantUpsertWithoutAppointmentServicesInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutAppointmentServicesInput, Prisma.TenantUncheckedUpdateWithoutAppointmentServicesInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutAppointmentServicesInput, Prisma.TenantUncheckedCreateWithoutAppointmentServicesInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutAppointmentServicesInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutAppointmentServicesInput, Prisma.TenantUncheckedUpdateWithoutAppointmentServicesInput>
+}
+
+export type TenantUpdateWithoutAppointmentServicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openTime?: Prisma.StringFieldUpdateOperationsInput | string
+  closeTime?: Prisma.StringFieldUpdateOperationsInput | string
+  workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerUpdateManyWithoutTenantNestedInput
+  services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
+  staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
+  holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
+  settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
+  loyaltyCards?: Prisma.LoyaltyCardUpdateManyWithoutTenantNestedInput
+  waitlist?: Prisma.WaitlistInterestUpdateManyWithoutTenantNestedInput
+  serviceCategories?: Prisma.ServiceCategoryUpdateManyWithoutTenantNestedInput
+  payments?: Prisma.PaymentUpdateManyWithoutTenantNestedInput
+  suppliers?: Prisma.SupplierUpdateManyWithoutTenantNestedInput
+  productCategories?: Prisma.ProductCategoryUpdateManyWithoutTenantNestedInput
+  products?: Prisma.ProductUpdateManyWithoutTenantNestedInput
+  stockMovements?: Prisma.StockMovementUpdateManyWithoutTenantNestedInput
+  purchaseOrders?: Prisma.PurchaseOrderUpdateManyWithoutTenantNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutTenantNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutAppointmentServicesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  tagline?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  logo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  website?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pincode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gstNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  instagramUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleReviewUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openTime?: Prisma.StringFieldUpdateOperationsInput | string
+  closeTime?: Prisma.StringFieldUpdateOperationsInput | string
+  workingDays?: Prisma.TenantUpdateworkingDaysInput | string[]
+  plan?: Prisma.EnumPlanFieldUpdateOperationsInput | $Enums.Plan
+  trialEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionPlan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionEndsAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isSubscribed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  subscriptionStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  subscriptionEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  razorpayCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  razorpaySubId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutTenantNestedInput
+  customers?: Prisma.CustomerUncheckedUpdateManyWithoutTenantNestedInput
+  services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
+  staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -2919,6 +3196,7 @@ export type TenantCreateWithoutInvoicesInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
@@ -2971,6 +3249,7 @@ export type TenantUncheckedCreateWithoutInvoicesInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
@@ -3039,6 +3318,7 @@ export type TenantUpdateWithoutInvoicesInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
@@ -3091,6 +3371,7 @@ export type TenantUncheckedUpdateWithoutInvoicesInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
@@ -3143,6 +3424,7 @@ export type TenantCreateWithoutServiceCategoriesInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -3195,6 +3477,7 @@ export type TenantUncheckedCreateWithoutServiceCategoriesInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -3263,6 +3546,7 @@ export type TenantUpdateWithoutServiceCategoriesInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -3315,6 +3599,7 @@ export type TenantUncheckedUpdateWithoutServiceCategoriesInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -3367,6 +3652,7 @@ export type TenantCreateWithoutLoyaltyCardsInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -3419,6 +3705,7 @@ export type TenantUncheckedCreateWithoutLoyaltyCardsInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -3487,6 +3774,7 @@ export type TenantUpdateWithoutLoyaltyCardsInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -3539,6 +3827,7 @@ export type TenantUncheckedUpdateWithoutLoyaltyCardsInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -3591,6 +3880,7 @@ export type TenantCreateWithoutAttendancesInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
@@ -3643,6 +3933,7 @@ export type TenantUncheckedCreateWithoutAttendancesInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
@@ -3711,6 +4002,7 @@ export type TenantUpdateWithoutAttendancesInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
@@ -3763,6 +4055,7 @@ export type TenantUncheckedUpdateWithoutAttendancesInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
@@ -3815,6 +4108,7 @@ export type TenantCreateWithoutSettingsInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -3867,6 +4161,7 @@ export type TenantUncheckedCreateWithoutSettingsInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -3935,6 +4230,7 @@ export type TenantUpdateWithoutSettingsInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -3987,6 +4283,7 @@ export type TenantUncheckedUpdateWithoutSettingsInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -4039,6 +4336,7 @@ export type TenantCreateWithoutHolidaysInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   settings?: Prisma.SalonSettingsCreateNestedOneWithoutTenantInput
@@ -4091,6 +4389,7 @@ export type TenantUncheckedCreateWithoutHolidaysInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   settings?: Prisma.SalonSettingsUncheckedCreateNestedOneWithoutTenantInput
@@ -4159,6 +4458,7 @@ export type TenantUpdateWithoutHolidaysInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   settings?: Prisma.SalonSettingsUpdateOneWithoutTenantNestedInput
@@ -4211,6 +4511,7 @@ export type TenantUncheckedUpdateWithoutHolidaysInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   settings?: Prisma.SalonSettingsUncheckedUpdateOneWithoutTenantNestedInput
@@ -4263,6 +4564,7 @@ export type TenantCreateWithoutWaitlistInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -4315,6 +4617,7 @@ export type TenantUncheckedCreateWithoutWaitlistInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -4383,6 +4686,7 @@ export type TenantUpdateWithoutWaitlistInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -4435,6 +4739,7 @@ export type TenantUncheckedUpdateWithoutWaitlistInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -4487,6 +4792,7 @@ export type TenantCreateWithoutPaymentsInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -4539,6 +4845,7 @@ export type TenantUncheckedCreateWithoutPaymentsInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -4607,6 +4914,7 @@ export type TenantUpdateWithoutPaymentsInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -4659,6 +4967,7 @@ export type TenantUncheckedUpdateWithoutPaymentsInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -4711,6 +5020,7 @@ export type TenantCreateWithoutSuppliersInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -4763,6 +5073,7 @@ export type TenantUncheckedCreateWithoutSuppliersInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -4831,6 +5142,7 @@ export type TenantUpdateWithoutSuppliersInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -4883,6 +5195,7 @@ export type TenantUncheckedUpdateWithoutSuppliersInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -4935,6 +5248,7 @@ export type TenantCreateWithoutProductCategoriesInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -4987,6 +5301,7 @@ export type TenantUncheckedCreateWithoutProductCategoriesInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -5055,6 +5370,7 @@ export type TenantUpdateWithoutProductCategoriesInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -5107,6 +5423,7 @@ export type TenantUncheckedUpdateWithoutProductCategoriesInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -5159,6 +5476,7 @@ export type TenantCreateWithoutProductsInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -5211,6 +5529,7 @@ export type TenantUncheckedCreateWithoutProductsInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -5279,6 +5598,7 @@ export type TenantUpdateWithoutProductsInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -5331,6 +5651,7 @@ export type TenantUncheckedUpdateWithoutProductsInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -5383,6 +5704,7 @@ export type TenantCreateWithoutStockMovementsInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -5435,6 +5757,7 @@ export type TenantUncheckedCreateWithoutStockMovementsInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -5503,6 +5826,7 @@ export type TenantUpdateWithoutStockMovementsInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -5555,6 +5879,7 @@ export type TenantUncheckedUpdateWithoutStockMovementsInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -5607,6 +5932,7 @@ export type TenantCreateWithoutPurchaseOrdersInput = {
   services?: Prisma.ServiceCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayCreateNestedManyWithoutTenantInput
@@ -5659,6 +5985,7 @@ export type TenantUncheckedCreateWithoutPurchaseOrdersInput = {
   services?: Prisma.ServiceUncheckedCreateNestedManyWithoutTenantInput
   staff?: Prisma.StaffUncheckedCreateNestedManyWithoutTenantInput
   appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutTenantInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutTenantInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutTenantInput
   attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutTenantInput
   holidays?: Prisma.HolidayUncheckedCreateNestedManyWithoutTenantInput
@@ -5727,6 +6054,7 @@ export type TenantUpdateWithoutPurchaseOrdersInput = {
   services?: Prisma.ServiceUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUpdateManyWithoutTenantNestedInput
@@ -5779,6 +6107,7 @@ export type TenantUncheckedUpdateWithoutPurchaseOrdersInput = {
   services?: Prisma.ServiceUncheckedUpdateManyWithoutTenantNestedInput
   staff?: Prisma.StaffUncheckedUpdateManyWithoutTenantNestedInput
   appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutTenantNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutTenantNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutTenantNestedInput
   attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutTenantNestedInput
   holidays?: Prisma.HolidayUncheckedUpdateManyWithoutTenantNestedInput
@@ -5806,6 +6135,7 @@ export type TenantCountOutputType = {
   services: number
   staff: number
   appointments: number
+  appointmentServices: number
   invoices: number
   attendances: number
   holidays: number
@@ -5828,6 +6158,7 @@ export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   services?: boolean | TenantCountOutputTypeCountServicesArgs
   staff?: boolean | TenantCountOutputTypeCountStaffArgs
   appointments?: boolean | TenantCountOutputTypeCountAppointmentsArgs
+  appointmentServices?: boolean | TenantCountOutputTypeCountAppointmentServicesArgs
   invoices?: boolean | TenantCountOutputTypeCountInvoicesArgs
   attendances?: boolean | TenantCountOutputTypeCountAttendancesArgs
   holidays?: boolean | TenantCountOutputTypeCountHolidaysArgs
@@ -5887,6 +6218,13 @@ export type TenantCountOutputTypeCountStaffArgs<ExtArgs extends runtime.Types.Ex
  */
 export type TenantCountOutputTypeCountAppointmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.AppointmentWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountAppointmentServicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AppointmentServiceWhereInput
 }
 
 /**
@@ -6024,6 +6362,7 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   services?: boolean | Prisma.Tenant$servicesArgs<ExtArgs>
   staff?: boolean | Prisma.Tenant$staffArgs<ExtArgs>
   appointments?: boolean | Prisma.Tenant$appointmentsArgs<ExtArgs>
+  appointmentServices?: boolean | Prisma.Tenant$appointmentServicesArgs<ExtArgs>
   invoices?: boolean | Prisma.Tenant$invoicesArgs<ExtArgs>
   attendances?: boolean | Prisma.Tenant$attendancesArgs<ExtArgs>
   holidays?: boolean | Prisma.Tenant$holidaysArgs<ExtArgs>
@@ -6148,6 +6487,7 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   services?: boolean | Prisma.Tenant$servicesArgs<ExtArgs>
   staff?: boolean | Prisma.Tenant$staffArgs<ExtArgs>
   appointments?: boolean | Prisma.Tenant$appointmentsArgs<ExtArgs>
+  appointmentServices?: boolean | Prisma.Tenant$appointmentServicesArgs<ExtArgs>
   invoices?: boolean | Prisma.Tenant$invoicesArgs<ExtArgs>
   attendances?: boolean | Prisma.Tenant$attendancesArgs<ExtArgs>
   holidays?: boolean | Prisma.Tenant$holidaysArgs<ExtArgs>
@@ -6176,6 +6516,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     services: Prisma.$ServicePayload<ExtArgs>[]
     staff: Prisma.$StaffPayload<ExtArgs>[]
     appointments: Prisma.$AppointmentPayload<ExtArgs>[]
+    appointmentServices: Prisma.$AppointmentServicePayload<ExtArgs>[]
     invoices: Prisma.$InvoicePayload<ExtArgs>[]
     attendances: Prisma.$AttendancePayload<ExtArgs>[]
     holidays: Prisma.$HolidayPayload<ExtArgs>[]
@@ -6622,6 +6963,7 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   services<T extends Prisma.Tenant$servicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$servicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   staff<T extends Prisma.Tenant$staffArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$staffArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StaffPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   appointments<T extends Prisma.Tenant$appointmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$appointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  appointmentServices<T extends Prisma.Tenant$appointmentServicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$appointmentServicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppointmentServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   invoices<T extends Prisma.Tenant$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   attendances<T extends Prisma.Tenant$attendancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$attendancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   holidays<T extends Prisma.Tenant$holidaysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$holidaysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$HolidayPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -7206,6 +7548,30 @@ export type Tenant$appointmentsArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.AppointmentScalarFieldEnum | Prisma.AppointmentScalarFieldEnum[]
+}
+
+/**
+ * Tenant.appointmentServices
+ */
+export type Tenant$appointmentServicesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AppointmentService
+   */
+  select?: Prisma.AppointmentServiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AppointmentService
+   */
+  omit?: Prisma.AppointmentServiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AppointmentServiceInclude<ExtArgs> | null
+  where?: Prisma.AppointmentServiceWhereInput
+  orderBy?: Prisma.AppointmentServiceOrderByWithRelationInput | Prisma.AppointmentServiceOrderByWithRelationInput[]
+  cursor?: Prisma.AppointmentServiceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AppointmentServiceScalarFieldEnum | Prisma.AppointmentServiceScalarFieldEnum[]
 }
 
 /**

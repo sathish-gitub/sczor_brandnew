@@ -5,15 +5,9 @@ import { getServerSession } from "next-auth";
 import { AppointmentForm } from "@/components/appointments/AppointmentForm";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { toISTDateString } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
-
-function dateInputValue(date: Date) {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getDate()}`.padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
 
 export default async function EditAppointmentPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -32,6 +26,10 @@ export default async function EditAppointmentPage({ params }: { params: Promise<
       },
       include: {
         customer: true,
+        services: {
+          orderBy: { sortOrder: "asc" },
+          select: { serviceId: true, staffId: true },
+        },
       },
     }),
     prisma.service.findMany({
@@ -90,11 +88,12 @@ export default async function EditAppointmentPage({ params }: { params: Promise<
           customerName: appointment.customer.name,
           email: appointment.customer.email ?? "",
           notes: appointment.notes ?? "",
-          appointmentDate: dateInputValue(appointment.appointmentDate),
+          appointmentDate: toISTDateString(appointment.appointmentDate),
           appointmentTime: appointment.appointmentTime,
-          serviceId: appointment.serviceId,
-          staffId: appointment.staffId,
-          duration: appointment.duration,
+          lines: appointment.services.map((line) => ({
+            serviceId: line.serviceId,
+            staffId: line.staffId,
+          })),
           status: appointment.status,
         }}
       />

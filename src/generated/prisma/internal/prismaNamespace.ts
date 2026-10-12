@@ -405,6 +405,7 @@ export const ModelName = {
   SalaryHistory: 'SalaryHistory',
   Payroll: 'Payroll',
   Appointment: 'Appointment',
+  AppointmentService: 'AppointmentService',
   Invoice: 'Invoice',
   InvoiceItem: 'InvoiceItem',
   StaffRating: 'StaffRating',
@@ -440,7 +441,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "customer" | "service" | "staff" | "salaryHistory" | "payroll" | "appointment" | "invoice" | "invoiceItem" | "staffRating" | "serviceCategory" | "loyaltyCard" | "loyaltyTransaction" | "attendance" | "salonSettings" | "holiday" | "waitlistInterest" | "superAdmin" | "payment" | "appSettings" | "supplier" | "productCategory" | "product" | "stockMovement" | "purchaseOrder" | "purchaseOrderItem" | "rateLimitAttempt"
+    modelProps: "tenant" | "user" | "customer" | "service" | "staff" | "salaryHistory" | "payroll" | "appointment" | "appointmentService" | "invoice" | "invoiceItem" | "staffRating" | "serviceCategory" | "loyaltyCard" | "loyaltyTransaction" | "attendance" | "salonSettings" | "holiday" | "waitlistInterest" | "superAdmin" | "payment" | "appSettings" | "supplier" | "productCategory" | "product" | "stockMovement" | "purchaseOrder" | "purchaseOrderItem" | "rateLimitAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1033,6 +1034,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AppointmentCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AppointmentCountAggregateOutputType> | number
+        }
+      }
+    }
+    AppointmentService: {
+      payload: Prisma.$AppointmentServicePayload<ExtArgs>
+      fields: Prisma.AppointmentServiceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AppointmentServiceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppointmentServicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AppointmentServiceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppointmentServicePayload>
+        }
+        findFirst: {
+          args: Prisma.AppointmentServiceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppointmentServicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AppointmentServiceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppointmentServicePayload>
+        }
+        findMany: {
+          args: Prisma.AppointmentServiceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppointmentServicePayload>[]
+        }
+        create: {
+          args: Prisma.AppointmentServiceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppointmentServicePayload>
+        }
+        createMany: {
+          args: Prisma.AppointmentServiceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AppointmentServiceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppointmentServicePayload>[]
+        }
+        delete: {
+          args: Prisma.AppointmentServiceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppointmentServicePayload>
+        }
+        update: {
+          args: Prisma.AppointmentServiceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppointmentServicePayload>
+        }
+        deleteMany: {
+          args: Prisma.AppointmentServiceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AppointmentServiceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AppointmentServiceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppointmentServicePayload>[]
+        }
+        upsert: {
+          args: Prisma.AppointmentServiceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AppointmentServicePayload>
+        }
+        aggregate: {
+          args: Prisma.AppointmentServiceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAppointmentService>
+        }
+        groupBy: {
+          args: Prisma.AppointmentServiceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AppointmentServiceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AppointmentServiceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AppointmentServiceCountAggregateOutputType> | number
         }
       }
     }
@@ -2717,6 +2792,7 @@ export const AppointmentScalarFieldEnum = {
   appointmentDate: 'appointmentDate',
   appointmentTime: 'appointmentTime',
   duration: 'duration',
+  totalAmount: 'totalAmount',
   status: 'status',
   notes: 'notes',
   customerId: 'customerId',
@@ -2728,6 +2804,22 @@ export const AppointmentScalarFieldEnum = {
 } as const
 
 export type AppointmentScalarFieldEnum = (typeof AppointmentScalarFieldEnum)[keyof typeof AppointmentScalarFieldEnum]
+
+
+export const AppointmentServiceScalarFieldEnum = {
+  id: 'id',
+  appointmentId: 'appointmentId',
+  serviceId: 'serviceId',
+  staffId: 'staffId',
+  price: 'price',
+  duration: 'duration',
+  sortOrder: 'sortOrder',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AppointmentServiceScalarFieldEnum = (typeof AppointmentServiceScalarFieldEnum)[keyof typeof AppointmentServiceScalarFieldEnum]
 
 
 export const InvoiceScalarFieldEnum = {
@@ -3479,6 +3571,7 @@ export type GlobalOmitConfig = {
   salaryHistory?: Prisma.SalaryHistoryOmit
   payroll?: Prisma.PayrollOmit
   appointment?: Prisma.AppointmentOmit
+  appointmentService?: Prisma.AppointmentServiceOmit
   invoice?: Prisma.InvoiceOmit
   invoiceItem?: Prisma.InvoiceItemOmit
   staffRating?: Prisma.StaffRatingOmit

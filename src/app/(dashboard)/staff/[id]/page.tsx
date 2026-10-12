@@ -27,8 +27,8 @@ type StaffDetail = {
     effectiveTo: string | null;
   }>;
   stats: {
-    totalAppointments: number;
-    monthAppointments: number;
+    servicesDone: number;
+    servicesDoneThisMonth: number;
     attendancePercentage: number;
     avgRating: number;
     totalRatings: number;
@@ -55,6 +55,7 @@ type StaffDetail = {
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("en-IN", {
+    timeZone: "Asia/Kolkata",
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -221,12 +222,12 @@ export default function StaffProfilePage() {
 
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-xl bg-slate-50 p-3">
-            <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">Total Appointments</p>
-            <p className="mt-1 text-xl font-bold text-[var(--foreground)]">{staff.stats.totalAppointments}</p>
+            <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">Services Done</p>
+            <p className="mt-1 text-xl font-bold text-[var(--foreground)]">{staff.stats.servicesDone}</p>
           </div>
           <div className="rounded-xl bg-slate-50 p-3">
-            <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">This Month</p>
-            <p className="mt-1 text-xl font-bold text-[var(--foreground)]">{staff.stats.monthAppointments}</p>
+            <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">Services This Month</p>
+            <p className="mt-1 text-xl font-bold text-[var(--foreground)]">{staff.stats.servicesDoneThisMonth}</p>
           </div>
           <div className="rounded-xl bg-slate-50 p-3">
             <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">Attendance</p>

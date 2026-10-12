@@ -3,27 +3,25 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getServicesDoneByStaff, getStaffRevenueByInvoiceLine } from "@/lib/staffRevenue";
+import { istMonthBounds, istWallTimeToInstant, todayISTDateString } from "@/lib/time";
 
-function parseDate(value: string | null, endOfDay = false) {
+/** "YYYY-MM-DD" -> the start of the NEXT IST day, i.e. an exclusive upper bound. */
+function parseISTDateExclusiveEnd(value: string | null): Date | null {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return null;
   }
 
-  const date = new Date(`${value}T00:00:00`);
-  if (endOfDay) {
-    date.setHours(23, 59, 59, 999);
-  }
-
-  return date;
+  const start = istWallTimeToInstant(value, "00:00");
+  return new Date(start.getTime() + 24 * 60 * 60 * 1000);
 }
 
-function monthBounds() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), 1);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  end.setHours(23, 59, 59, 999);
-  return { start, end };
+function parseISTDateStart(value: string | null): Date | null {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return null;
+  }
+
+  return istWallTimeToInstant(value, "00:00");
 }
 
 export async function GET(request: Request) {
@@ -33,11 +31,11 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const startDate = parseDate(url.searchParams.get("startDate"));
-  const endDate = parseDate(url.searchParams.get("endDate"), true);
+  const startDate = parseISTDateStart(url.searchParams.get("startDate"));
+  const endDate = parseISTDateExclusiveEnd(url.searchParams.get("endDate"));
   const staffId = url.searchParams.get("staffId")?.trim() || undefined;
 
-  const fallback = monthBounds();
+  const fallback = istMonthBounds(todayISTDateString());
   const from = startDate ?? fallback.start;
   const to = endDate ?? fallback.end;
 
@@ -59,34 +57,13 @@ export async function GET(request: Request) {
 
     const staffIds = staff.map((item) => item.id);
 
-    const [appointments, invoices, attendance] = await Promise.all([
-      prisma.appointment.findMany({
-        where: {
-          tenantId: session.user.tenantId,
-          staffId: { in: staffIds },
-          appointmentDate: { gte: from, lte: to },
-          status: "BILLED",
-        },
-        select: {
-          id: true,
-          staffId: true,
-          service: { select: { name: true } },
-        },
-      }),
-      // Revenue = all PAID invoices attributed to this staff (walk-in + appointment)
-      prisma.invoice.findMany({
-        where: {
-          tenantId: session.user.tenantId,
-          staffId: { in: staffIds },
-          paymentStatus: "PAID",
-          invoiceDate: { gte: from, lte: to },
-        },
-        select: {
-          id: true,
-          staffId: true,
-          total: true,
-        },
-      }),
+    const [servicesDoneByStaff, revenueByStaff, attendance] = await Promise.all([
+      // "Services done" counts AppointmentService lines (the same person on two
+      // lines of one appointment counts 2), restricted to BILLED appointments.
+      getServicesDoneByStaff(session.user.tenantId, staffIds, { gte: from, lt: to }, "BILLED"),
+      // Revenue is attributed per invoice line (InvoiceItem.staffId), falling
+      // back to Invoice.staffId for lines that predate per-line attribution.
+      getStaffRevenueByInvoiceLine(session.user.tenantId, staffIds, { gte: from, lt: to }),
       prisma.attendance.findMany({
         where: {
           tenantId: session.user.tenantId,
@@ -95,7 +72,7 @@ export async function GET(request: Request) {
           },
           date: {
             gte: from,
-            lte: to,
+            lt: to,
           },
         },
         select: {
@@ -104,26 +81,6 @@ export async function GET(request: Request) {
         },
       }),
     ]);
-
-    const appointmentByStaff = new Map<string, number>();
-    const serviceMixByStaff = new Map<string, Record<string, number>>();
-    for (const entry of appointments) {
-      appointmentByStaff.set(entry.staffId, (appointmentByStaff.get(entry.staffId) ?? 0) + 1);
-
-      const mix = serviceMixByStaff.get(entry.staffId) ?? {};
-      const name = entry.service.name;
-      mix[name] = (mix[name] ?? 0) + 1;
-      serviceMixByStaff.set(entry.staffId, mix);
-    }
-
-    const revenueByStaff = new Map<string, number>();
-    const invoicesByStaff = new Map<string, number>();
-    for (const inv of invoices) {
-      const key = inv.staffId;
-      if (!key) continue;
-      revenueByStaff.set(key, (revenueByStaff.get(key) ?? 0) + Number(inv.total));
-      invoicesByStaff.set(key, (invoicesByStaff.get(key) ?? 0) + 1);
-    }
 
     const attendanceByStaff = new Map<string, { present: number; absent: number; total: number }>();
     for (const row of attendance) {
@@ -139,24 +96,25 @@ export async function GET(request: Request) {
     }
 
     const items = staff.map((member) => {
-      const appointmentsCount = appointmentByStaff.get(member.id) ?? 0;
-      const revenue = Math.round((revenueByStaff.get(member.id) ?? 0) * 100) / 100;
+      const servicesDoneInfo = servicesDoneByStaff.get(member.id) ?? { count: 0, servicesByName: {} };
+      const revenueInfo = revenueByStaff.get(member.id) ?? { revenue: 0, invoiceIds: new Set<string>() };
+      const revenue = revenueInfo.revenue;
       const attendanceInfo = attendanceByStaff.get(member.id) ?? { present: 0, absent: 0, total: 0 };
       const attendancePercent =
         attendanceInfo.total > 0 ? Math.round((attendanceInfo.present / attendanceInfo.total) * 100) : 0;
 
-      const topServices = Object.entries(serviceMixByStaff.get(member.id) ?? {})
+      const topServices = Object.entries(servicesDoneInfo.servicesByName)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 3)
         .map(([name]) => name);
 
-      const invoiceCount = invoicesByStaff.get(member.id) ?? 0;
+      const invoiceCount = revenueInfo.invoiceIds.size;
 
       return {
         staffId: member.id,
         name: member.name,
         designation: member.designation,
-        appointments: appointmentsCount,
+        servicesDone: servicesDoneInfo.count,
         revenue,
         invoices: invoiceCount,
         avgInvoice: invoiceCount > 0 ? Math.round((revenue / invoiceCount) * 100) / 100 : 0,

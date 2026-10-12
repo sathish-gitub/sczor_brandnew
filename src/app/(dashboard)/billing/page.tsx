@@ -112,6 +112,7 @@ export default function BillingPage() {
   const [processingPayment, setProcessingPayment] = useState(false);
   const [success, setSuccess] = useState<CheckoutSuccess | null>(null);
   const [linkedAppointmentId, setLinkedAppointmentId] = useState<string | null>(null);
+  const [missingStaffKeys, setMissingStaffKeys] = useState<Set<string>>(new Set());
   const [taxRate, setTaxRate] = useState(18);
   const [gstEnabled, setGstEnabled] = useState(true);
   const [taxLabel, setTaxLabel] = useState("GST");
@@ -234,9 +235,15 @@ export default function BillingPage() {
             appointment?: {
               id: string;
               customer: { id: string; name: string; mobile: string };
-              service: { id: string; name: string; price: string | number; duration: number };
-              staff: { id: string; name: string };
               invoice?: { id: string } | null;
+              services: Array<{
+                serviceId: string;
+                price: string | number;
+                duration: number;
+                staffId: string | null;
+                service: { name: string };
+                staff: { name: string } | null;
+              }>;
             };
           }
         | null;
@@ -260,18 +267,20 @@ export default function BillingPage() {
         mobile: appointment.customer.mobile,
         loyalty: { totalPoints: 0 },
       });
-      setCart([
-        {
+      // One cart line per AppointmentService line, in sortOrder, using each
+      // line's snapshot price/duration (not the service's current price).
+      setCart(
+        appointment.services.map((line) => ({
           type: "SERVICE",
-          serviceId: appointment.service.id,
-          name: appointment.service.name,
-          duration: appointment.service.duration,
-          price: Number(appointment.service.price),
+          serviceId: line.serviceId,
+          name: line.service.name,
+          duration: line.duration,
+          price: Number(line.price),
           quantity: 1,
-          staffId: appointment.staff.id,
-          staffName: appointment.staff.name,
-        },
-      ]);
+          staffId: line.staffId ?? "",
+          staffName: line.staff?.name ?? "",
+        })),
+      );
     }
 
     loadAppointment();
@@ -449,6 +458,14 @@ export default function BillingPage() {
 
   function removeFromCart(key: string) {
     setCart((current) => current.filter((item) => cartItemKey(item) !== key));
+    setMissingStaffKeys((current) => {
+      if (!current.has(key)) {
+        return current;
+      }
+      const next = new Set(current);
+      next.delete(key);
+      return next;
+    });
   }
 
   function updateCartStaff(key: string, staffId: string) {
@@ -459,6 +476,17 @@ export default function BillingPage() {
         item.type === "SERVICE" && cartItemKey(item) === key ? { ...item, staffId, staffName } : item,
       ),
     );
+
+    if (staffId) {
+      setMissingStaffKeys((current) => {
+        if (!current.has(key)) {
+          return current;
+        }
+        const next = new Set(current);
+        next.delete(key);
+        return next;
+      });
+    }
   }
 
   async function quickAddCustomer() {
@@ -538,6 +566,17 @@ export default function BillingPage() {
       pushToast("error", "Add at least one item to cart.");
       return;
     }
+
+    const missingStaffLines = cart.filter((item): item is typeof item & { type: "SERVICE" } => item.type === "SERVICE" && !item.staffId);
+    if (missingStaffLines.length > 0) {
+      setMissingStaffKeys(new Set(missingStaffLines.map((item) => cartItemKey(item))));
+      pushToast(
+        "error",
+        `Select a staff member for: ${missingStaffLines.map((item) => item.name).join(", ")}.`,
+      );
+      return;
+    }
+    setMissingStaffKeys(new Set());
 
     if (!customer) {
       pushToast("error", "Select a customer before payment.");
@@ -928,6 +967,7 @@ export default function BillingPage() {
             onDecrease={(serviceId) => updateQuantity(serviceId, -1)}
             onRemove={removeFromCart}
             onStaffChange={updateCartStaff}
+            missingStaffKeys={missingStaffKeys}
           />
 
           <PaymentSummary

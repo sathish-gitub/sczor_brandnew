@@ -12,8 +12,8 @@ type StaffCardProps = {
     status: "ACTIVE" | "INACTIVE";
     availabilityStatus?: "AVAILABLE" | "BUSY" | "OFF_DUTY";
     displayStatus?: "AVAILABLE" | "BUSY" | "OFF_DUTY" | "INACTIVE";
-    todayAppointments: number;
-    totalAppointments: number;
+    todayServicesDone: number;
+    totalServicesDone: number;
     avgRating?: number;
   };
 };
@@ -60,7 +60,7 @@ export function StaffCard({ member }: StaffCardProps) {
         </p>
         <p className="inline-flex items-center gap-2">
           <Clock3 className="h-4 w-4" />
-          {member.todayAppointments} today · {member.totalAppointments} total
+          {member.todayServicesDone} today · {member.totalServicesDone} total
         </p>
         {member.avgRating ? (
           <p className="inline-flex items-center gap-1">

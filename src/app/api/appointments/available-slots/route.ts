@@ -3,21 +3,8 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-type StaffState = "AVAILABLE" | "BUSY" | "OFF_DUTY";
-
-function parseDateOnly(value: string) {
-  return new Date(`${value}T00:00:00`);
-}
-
-function dayBoundsFor(date: Date) {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(date);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
-}
+import { loadStaffLineWindowsForDate } from "@/lib/appointmentLines";
+import { formatClockTime12Hour, istDayBounds } from "@/lib/time";
 
 function generateSlots(openTime: string, closeTime: string) {
   const [openHour, openMinute] = openTime.split(":").map(Number);
@@ -39,34 +26,6 @@ function generateSlots(openTime: string, closeTime: string) {
   return slots;
 }
 
-function deriveStatus({
-  attendanceStatus,
-  baseAvailability,
-  hasSameTimeBooking,
-}: {
-  attendanceStatus: "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY" | null;
-  baseAvailability: "AVAILABLE" | "BUSY" | "OFF_DUTY";
-  hasSameTimeBooking: boolean;
-}): StaffState {
-  if (attendanceStatus === "ABSENT" || attendanceStatus === "LEAVE") {
-    return "OFF_DUTY";
-  }
-
-  if (baseAvailability === "OFF_DUTY") {
-    return "OFF_DUTY";
-  }
-
-  if (hasSameTimeBooking) {
-    return "BUSY";
-  }
-
-  if (baseAvailability === "BUSY") {
-    return "BUSY";
-  }
-
-  return "AVAILABLE";
-}
-
 export async function GET(request: Request) {
   const session = await getServerSession(authOptions);
 
@@ -74,10 +33,9 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const tenantId = session.user.tenantId;
   const url = new URL(request.url);
   const dateParam = url.searchParams.get("date");
-  const staffId = url.searchParams.get("staffId");
-  const selectedTime = url.searchParams.get("time") ?? undefined;
   const excludeAppointmentId = url.searchParams.get("excludeAppointmentId") ?? undefined;
 
   if (!dateParam || !/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
@@ -85,13 +43,12 @@ export async function GET(request: Request) {
   }
 
   try {
-    const targetDate = parseDateOnly(dateParam);
-    const { start, end } = dayBoundsFor(targetDate);
+    const { start, end } = istDayBounds(dateParam);
 
-    const [tenant, staffMembers] = await Promise.all([
+    const [tenant, staffMembers, windows] = await Promise.all([
       prisma.tenant.findUnique({
         where: {
-          id: session.user.tenantId,
+          id: tenantId,
         },
         select: {
           openTime: true,
@@ -100,7 +57,7 @@ export async function GET(request: Request) {
       }),
       prisma.staff.findMany({
         where: {
-          tenantId: session.user.tenantId,
+          tenantId,
           status: "ACTIVE",
         },
         orderBy: {
@@ -110,12 +67,11 @@ export async function GET(request: Request) {
           id: true,
           name: true,
           designation: true,
-          availabilityStatus: true,
           attendances: {
             where: {
               date: {
                 gte: start,
-                lte: end,
+                lt: end,
               },
             },
             select: {
@@ -123,28 +79,9 @@ export async function GET(request: Request) {
             },
             take: 1,
           },
-          appointments: {
-            where: {
-              appointmentDate: {
-                gte: start,
-                lte: end,
-              },
-              status: {
-                not: "CANCELLED",
-              },
-              id: excludeAppointmentId
-                ? {
-                    not: excludeAppointmentId,
-                  }
-                : undefined,
-            },
-            select: {
-              id: true,
-              appointmentTime: true,
-            },
-          },
         },
       }),
+      loadStaffLineWindowsForDate({ tenantId, dateStr: dateParam, excludeAppointmentId }),
     ]);
 
     if (!tenant) {
@@ -153,37 +90,42 @@ export async function GET(request: Request) {
 
     const slots = generateSlots(tenant.openTime, tenant.closeTime);
 
-    const staffAvailability = staffMembers.map((member) => {
+    const windowsByStaff = new Map<string, typeof windows>();
+    for (const window of windows) {
+      const list = windowsByStaff.get(window.staffId);
+      if (list) {
+        list.push(window);
+      } else {
+        windowsByStaff.set(window.staffId, [window]);
+      }
+    }
+
+    // Busy windows carry absolute instants (ISO strings) so the client can
+    // compare them against each row's computed start/end without redoing any
+    // timezone math, plus a ready-to-show "Busy h:mm AM to h:mm AM" label.
+    const staff = staffMembers.map((member) => {
       const attendanceStatus = member.attendances[0]?.status ?? null;
-      const hasSameTimeBooking = selectedTime
-        ? member.appointments.some((appointment) => appointment.appointmentTime === selectedTime)
-        : false;
+      const offDuty = attendanceStatus === "ABSENT" || attendanceStatus === "LEAVE";
+
+      const busyWindows = (windowsByStaff.get(member.id) ?? []).map((window) => ({
+        start: window.startInstant.toISOString(),
+        end: window.endInstant.toISOString(),
+        label: `Busy ${formatClockTime12Hour(window.startClock)} to ${formatClockTime12Hour(window.endClock)}`,
+      }));
 
       return {
         id: member.id,
         name: member.name,
         designation: member.designation,
-        status: deriveStatus({
-          attendanceStatus,
-          baseAvailability: member.availabilityStatus,
-          hasSameTimeBooking,
-        }),
-        bookedTimes: member.appointments.map((appointment) => appointment.appointmentTime),
+        offDuty,
+        busyWindows,
       };
     });
 
-    const selectedStaff = staffId
-      ? staffAvailability.find((member) => member.id === staffId)
-      : undefined;
-
-    const availableSlots = selectedStaff
-      ? slots.filter((slot) => !selectedStaff.bookedTimes.includes(slot))
-      : slots;
-
     return NextResponse.json({
-      slots: availableSlots,
+      slots,
       allSlots: slots,
-      staffAvailability,
+      staff,
     });
   } catch (error) {
     console.error("Failed to load availability", error);

@@ -6,6 +6,16 @@ import { authOptions } from "@/lib/auth";
 import { formatAppointmentId } from "@/lib/formatId";
 import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/generated/prisma/client";
+import {
+  AppointmentConflictError,
+  AppointmentValidationError,
+  normalizeServiceLines,
+  resolveServiceLineSnapshots,
+  serviceLineSchema,
+} from "@/lib/appointmentServicePayload";
+import { assertNoStaffConflicts, loadStaffLineWindowsForDate } from "@/lib/appointmentLines";
+import { istDayBounds, istMonthBounds, istWallTimeToInstant, istWeekBounds, todayISTDateString } from "@/lib/time";
 
 const appointmentStatusValues = [
   "BOOKED",
@@ -25,14 +35,15 @@ const appointmentPayloadSchema = z.object({
   notes: z.string().trim().optional().or(z.literal("")),
   appointmentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   appointmentTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
-  serviceId: z.string().cuid(),
-  staffId: z.string().cuid(),
-  duration: z.coerce.number().int().positive(),
+  services: z.array(serviceLineSchema).optional(),
+  // Legacy single-service shape, still accepted and converted to a one-line `services` array.
+  serviceId: z.string().cuid().optional(),
+  staffId: z.string().cuid().nullable().optional(),
   status: appointmentStatusSchema.default("BOOKED"),
 });
 
 function parseDateOnly(value: string) {
-  return new Date(`${value}T00:00:00`);
+  return istWallTimeToInstant(value, "00:00");
 }
 
 function noStore(payload: unknown, status = 200) {
@@ -42,39 +53,19 @@ function noStore(payload: unknown, status = 200) {
   });
 }
 
+// Bounds are [start, end) - callers should filter with `lt: bounds.end`, not `lte`.
 function periodBounds(period: string | null) {
-  const now = new Date();
+  const todayStr = todayISTDateString();
 
   if (period === "this_week") {
-    const day = now.getDay();
-    const diffToMonday = (day + 6) % 7;
-    const start = new Date(now);
-    start.setDate(now.getDate() - diffToMonday);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-    end.setHours(23, 59, 59, 999);
-
-    return { start, end };
+    return istWeekBounds(todayStr);
   }
 
   if (period === "this_month") {
-    const start = new Date(now.getFullYear(), now.getMonth(), 1);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    end.setHours(23, 59, 59, 999);
-
-    return { start, end };
+    return istMonthBounds(todayStr);
   }
 
-  const start = new Date(now);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(now);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
+  return istDayBounds(todayStr);
 }
 
 async function getSessionTenantId() {
@@ -87,9 +78,13 @@ async function getSessionTenantId() {
   return session.user.tenantId;
 }
 
-async function findOrCreateCustomer(tenantId: string, payload: z.infer<typeof appointmentPayloadSchema>) {
+async function findOrCreateCustomer(
+  tx: Prisma.TransactionClient,
+  tenantId: string,
+  payload: z.infer<typeof appointmentPayloadSchema>,
+) {
   if (payload.customerId) {
-    const existing = await prisma.customer.findFirst({
+    const existing = await tx.customer.findFirst({
       where: {
         id: payload.customerId,
         tenantId,
@@ -104,7 +99,7 @@ async function findOrCreateCustomer(tenantId: string, payload: z.infer<typeof ap
     }
   }
 
-  const customer = await prisma.customer.upsert({
+  const customer = await tx.customer.upsert({
     where: {
       mobile_tenantId: {
         mobile: payload.mobile,
@@ -129,44 +124,6 @@ async function findOrCreateCustomer(tenantId: string, payload: z.infer<typeof ap
   });
 
   return customer.id;
-}
-
-async function ensureStaffNotDoubleBooked({
-  tenantId,
-  staffId,
-  appointmentDate,
-  appointmentTime,
-  excludeAppointmentId,
-}: {
-  tenantId: string;
-  staffId: string;
-  appointmentDate: Date;
-  appointmentTime: string;
-  excludeAppointmentId?: string;
-}) {
-  const existing = await prisma.appointment.findFirst({
-    where: {
-      tenantId,
-      staffId,
-      appointmentDate,
-      appointmentTime,
-      status: {
-        not: "CANCELLED",
-      },
-      id: excludeAppointmentId
-        ? {
-            not: excludeAppointmentId,
-          }
-        : undefined,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  if (existing) {
-    throw new Error("This staff member is already booked at the selected time.");
-  }
 }
 
 export async function GET(request: Request) {
@@ -202,6 +159,7 @@ export async function GET(request: Request) {
 
   const period = url.searchParams.get("date");
   const status = url.searchParams.get("status");
+  const search = url.searchParams.get("q")?.trim();
   const page = Math.max(Number(url.searchParams.get("page") ?? "1"), 1);
   const limit = Math.min(Math.max(Number(url.searchParams.get("limit") ?? "10"), 1), 50);
 
@@ -211,14 +169,24 @@ export async function GET(request: Request) {
     : null;
 
   try {
-    const where = {
+    const where: Prisma.AppointmentWhereInput = {
       tenantId,
       appointmentDate: {
         gte: bounds.start,
-        lte: bounds.end,
+        lt: bounds.end,
       },
       status: statusFilter ?? undefined,
-    } as const;
+      ...(search
+        ? {
+            OR: [
+              { customer: { name: { contains: search, mode: "insensitive" } } },
+              { customer: { mobile: { contains: search } } },
+              { appointmentNumber: { contains: search, mode: "insensitive" } },
+              { services: { some: { service: { name: { contains: search, mode: "insensitive" } } } } },
+            ],
+          }
+        : {}),
+    };
 
     const [total, appointments, filteredStats] = await Promise.all([
       prisma.appointment.count({ where }),
@@ -233,17 +201,14 @@ export async function GET(request: Request) {
               email: true,
             },
           },
-          service: {
+          services: {
+            orderBy: { sortOrder: "asc" },
             select: {
               id: true,
-              name: true,
-            },
-          },
-          staff: {
-            select: {
-              id: true,
-              name: true,
-              designation: true,
+              duration: true,
+              price: true,
+              service: { select: { id: true, name: true } },
+              staff: { select: { id: true, name: true, designation: true } },
             },
           },
         },
@@ -338,49 +303,91 @@ export async function POST(request: Request) {
     const payload = parsed.data;
     const appointmentDate = parseDateOnly(payload.appointmentDate);
 
-    await ensureStaffNotDoubleBooked({
+    const rawLines = normalizeServiceLines(payload);
+    const { lines, totalDuration, totalAmount, staffNameById } = await resolveServiceLineSnapshots(
       tenantId,
-      staffId: payload.staffId,
+      rawLines,
+    );
+
+    const existingWindows = await loadStaffLineWindowsForDate({
+      tenantId,
+      dateStr: payload.appointmentDate,
+    });
+
+    assertNoStaffConflicts({
       appointmentDate,
       appointmentTime: payload.appointmentTime,
+      lines,
+      existingWindows,
+      staffNameById,
     });
 
-    const customerId = await findOrCreateCustomer(tenantId, payload);
+    const appointmentYear = Number(payload.appointmentDate.slice(0, 4));
+    const firstLine = lines[0];
 
-    const appointmentYear = appointmentDate.getFullYear();
-    const countForYear = await prisma.appointment.count({
-      where: {
-        tenantId,
-        appointmentNumber: {
-          startsWith: `SCZO-${appointmentYear}-`,
+    const appointment = await prisma.$transaction(async (tx) => {
+      const customerId = await findOrCreateCustomer(tx, tenantId, payload);
+
+      // Use max(existing)+1 rather than a row count, so historical gaps
+      // (e.g. from deleted records) can never collide with an already-used number.
+      const lastForYear = await tx.appointment.findFirst({
+        where: {
+          tenantId,
+          appointmentNumber: {
+            startsWith: `SCZO-${appointmentYear}-`,
+          },
         },
-      },
-    });
+        orderBy: { appointmentNumber: "desc" },
+        select: { appointmentNumber: true },
+      });
+      const lastSeq = lastForYear?.appointmentNumber
+        ? Number(lastForYear.appointmentNumber.split("-").pop())
+        : 0;
 
-    const appointment = await prisma.appointment.create({
-      data: {
-        tenantId,
-        customerId,
-        serviceId: payload.serviceId,
-        staffId: payload.staffId,
-        appointmentNumber: formatAppointmentId(countForYear + 1, appointmentYear),
-        appointmentDate,
-        appointmentTime: payload.appointmentTime,
-        duration: payload.duration,
-        status: payload.status,
-        notes: payload.notes || null,
-      },
-      include: {
-        customer: true,
-        service: true,
-        staff: true,
-      },
+      return tx.appointment.create({
+        data: {
+          tenantId,
+          customerId,
+          serviceId: firstLine.serviceId,
+          staffId: firstLine.staffId,
+          appointmentNumber: formatAppointmentId(lastSeq + 1, appointmentYear),
+          appointmentDate,
+          appointmentTime: payload.appointmentTime,
+          duration: totalDuration,
+          totalAmount,
+          status: payload.status,
+          notes: payload.notes || null,
+          services: {
+            create: lines.map((line) => ({
+              serviceId: line.serviceId,
+              staffId: line.staffId,
+              price: line.price,
+              duration: line.duration,
+              sortOrder: line.sortOrder,
+              tenantId,
+            })),
+          },
+        },
+        include: {
+          customer: true,
+          service: true,
+          staff: true,
+          services: {
+            orderBy: { sortOrder: "asc" },
+            include: { service: true, staff: true },
+          },
+        },
+      });
     });
 
     return NextResponse.json({ appointment }, { status: 201 });
   } catch (error) {
-    if (error instanceof Error && error.message.includes("already booked")) {
+    if (error instanceof AppointmentConflictError) {
       return NextResponse.json({ error: error.message }, { status: 409 });
+    }
+
+    if (error instanceof AppointmentValidationError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     console.error("Failed to create appointment", error);

@@ -6,19 +6,12 @@ import { DataTable } from "@/components/reports/DataTable";
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
 import { useAccess } from "@/contexts/AccessContext";
 import { formatPeriodLabel } from "@/lib/exportReport";
-
-function toDateString(date: Date) {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getDate()}`.padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
+import { istMonthBounds, toISTDateString, todayISTDateString } from "@/lib/time";
 
 function monthRange() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), 1);
-  start.setHours(0, 0, 0, 0);
-  return { startDate: toDateString(start), endDate: toDateString(now) };
+  const today = todayISTDateString();
+  const { start } = istMonthBounds(today);
+  return { startDate: toISTDateString(start), endDate: today };
 }
 
 function formatCurrency(value: number) {
@@ -29,7 +22,7 @@ type Row = {
   staffId: string;
   name: string;
   designation: string;
-  appointments: number;
+  servicesDone: number;
   revenue: number;
   invoices: number;
   avgInvoice: number;
@@ -127,7 +120,7 @@ export default function StaffReportPage() {
           <DataTable
             columns={[
               { key: "name", label: "Staff", sortable: true, render: (row) => row.name, sortValue: (row) => row.name },
-              { key: "appointments", label: "Appointments", sortable: true, render: (row) => row.appointments, sortValue: (row) => row.appointments },
+              { key: "servicesDone", label: "Services Done", sortable: true, render: (row) => row.servicesDone, sortValue: (row) => row.servicesDone },
               { key: "revenue", label: "Revenue", sortable: true, render: (row) => formatCurrency(row.revenue), sortValue: (row) => row.revenue },
               { key: "invoices", label: "Invoices", sortable: true, render: (row) => row.invoices, sortValue: (row) => row.invoices },
               { key: "avgInvoice", label: "Avg Invoice", sortable: true, render: (row) => formatCurrency(row.avgInvoice), sortValue: (row) => row.avgInvoice },
@@ -143,7 +136,7 @@ export default function StaffReportPage() {
               filtersLabel: staffFilter !== "ALL" ? `Staff: ${staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter}` : undefined,
               columns: [
                 { header: "Staff", key: "name", type: "text" },
-                { header: "Appointments", key: "appointments", type: "number" },
+                { header: "Services Done", key: "servicesDone", type: "number" },
                 { header: "Revenue", key: "revenue", type: "currency" },
                 { header: "Invoices", key: "invoices", type: "number" },
                 { header: "Avg Invoice", key: "avgInvoice", type: "currency" },
@@ -161,7 +154,7 @@ export default function StaffReportPage() {
               <article key={row.staffId} className="rounded-xl border border-[var(--border)] bg-white p-4">
                 <p className="text-sm font-semibold text-[var(--foreground)]">{row.name}</p>
                 <p className="text-xs text-[var(--muted)]">{row.designation}</p>
-                <p className="mt-2 text-sm">Appointments: <span className="font-semibold">{row.appointments}</span></p>
+                <p className="mt-2 text-sm">Services Done: <span className="font-semibold">{row.servicesDone}</span></p>
                 <p className="text-sm">Revenue: <span className="font-semibold">{formatCurrency(row.revenue)}</span></p>
                 <p className="text-sm">Top Services: <span className="font-semibold">{row.topServices.join(", ") || "-"}</span></p>
                 <div className="mt-2 h-2 rounded-full bg-slate-100">

@@ -18,8 +18,8 @@ type StaffRow = {
   status: "ACTIVE" | "INACTIVE";
   availabilityStatus: "AVAILABLE" | "BUSY" | "OFF_DUTY";
   displayStatus: "AVAILABLE" | "BUSY" | "OFF_DUTY" | "INACTIVE";
-  todayAppointments: number;
-  totalAppointments: number;
+  todayServicesDone: number;
+  totalServicesDone: number;
   avgRating: number;
   workingDays: string[];
   attendanceStatusToday: string | null;
@@ -122,8 +122,8 @@ export default function StaffPage() {
                   { header: "Mobile", key: "mobile", type: "text" },
                   { header: "Email", key: "email", type: "text" },
                   { header: "Status", key: "status", type: "text" },
-                  { header: "Today's Appointments", key: "todayAppointments", type: "number" },
-                  { header: "Total Appointments", key: "totalAppointments", type: "number" },
+                  { header: "Today's Services Done", key: "todayServicesDone", type: "number" },
+                  { header: "Total Services Done", key: "totalServicesDone", type: "number" },
                   { header: "Avg Rating", key: "avgRating", type: "number" },
                 ],
                 rows: filtered.map((member) => ({
@@ -132,8 +132,8 @@ export default function StaffPage() {
                   mobile: member.mobile ?? "—",
                   email: member.email ?? "—",
                   status: member.status,
-                  todayAppointments: member.todayAppointments,
-                  totalAppointments: member.totalAppointments,
+                  todayServicesDone: member.todayServicesDone,
+                  totalServicesDone: member.totalServicesDone,
                   avgRating: member.avgRating,
                 })),
                 filename: "sczor-staff-directory",
