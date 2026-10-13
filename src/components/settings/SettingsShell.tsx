@@ -9,15 +9,12 @@ const navItems = [
   { href: "/settings/tax-billing", label: "Tax & Billing" },
   { href: "/settings/payroll", label: "Payroll" },
   { href: "/settings/loyalty", label: "Loyalty Settings" },
-  { href: "/settings", label: "Notifications" },
   { href: "/settings/account", label: "Account & Security" },
   { href: "/settings/subscription", label: "Subscription" },
 ];
 
 function isActive(pathname: string, href: string) {
   if (pathname === href) return true;
-  // Only match startsWith if it's a more specific sub-path
-  if (href === "/settings") return false; // Notifications should only match exact /settings
   return pathname.startsWith(`${href}/`);
 }
 

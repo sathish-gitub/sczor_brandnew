@@ -19,7 +19,7 @@ export type CalendarColumn = {
   key: string;
   label: string;
   designation?: string;
-  /** Full-column unavailability label (Absent / On Leave / Inactive / Off today), or null when available. */
+  /** Full-column unavailability label (Absent / Leave / Inactive / Week Off), or null when available. */
   unavailableLabel: string | null;
   halfDay: boolean;
   /** Unassigned column and single-staff-not-selected contexts never offer click-to-book. */

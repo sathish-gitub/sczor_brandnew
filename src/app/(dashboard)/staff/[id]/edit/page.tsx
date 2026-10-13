@@ -4,15 +4,9 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const designations = [
-  "Beautician",
-  "Hair Stylist",
-  "Nail Artist",
-  "Makeup Artist",
-  "Spa Therapist",
-  "Receptionist",
-  "Manager",
-] as const;
+import { DesignationSelect } from "@/components/staff/DesignationSelect";
+import { SpecializationChips } from "@/components/staff/SpecializationChips";
+import { todayISTDateString, toISTDateString } from "@/lib/time";
 
 const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 
@@ -20,6 +14,7 @@ type StaffPayload = {
   id: string;
   name: string;
   designation: string;
+  designationId: string | null;
   mobile: string | null;
   email: string | null;
   status: "ACTIVE" | "INACTIVE";
@@ -28,6 +23,10 @@ type StaffPayload = {
   baseSalary: number | null;
   commissionRate: number | null;
   paidLeavesPerMonth: number | null;
+  dateOfBirth: string | null;
+  joiningDate: string | null;
+  experienceYears: number | null;
+  specializations: string[];
 };
 
 export default function EditStaffPage() {
@@ -48,7 +47,7 @@ export default function EditStaffPage() {
   }
 
   const [name, setName] = useState("");
-  const [designation, setDesignation] = useState<(typeof designations)[number]>("Beautician");
+  const [designationId, setDesignationId] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
@@ -58,6 +57,11 @@ export default function EditStaffPage() {
   const [commissionRate, setCommissionRate] = useState("");
   const [paidLeavesPerMonth, setPaidLeavesPerMonth] = useState("");
   const [defaultPaidLeavesPerMonth, setDefaultPaidLeavesPerMonth] = useState(1);
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [joiningDate, setJoiningDate] = useState("");
+  const [experienceYears, setExperienceYears] = useState("");
+  const [specializations, setSpecializations] = useState<string[]>([]);
+  const [suggestionPool, setSuggestionPool] = useState<string[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -66,14 +70,18 @@ export default function EditStaffPage() {
       setLoading(true);
       setError(null);
 
-      const [response, settingsResponse] = await Promise.all([
+      const [response, settingsResponse, categoriesResponse, staffResponse] = await Promise.all([
         fetch(`/api/staff/${params.id}`, { cache: "no-store" }),
         fetch("/api/settings", { cache: "no-store" }),
+        fetch("/api/services/categories", { cache: "no-store" }),
+        fetch("/api/staff", { cache: "no-store" }),
       ]);
       const payload = (await response.json()) as { error?: string; staff?: StaffPayload };
       const settingsPayload = (await settingsResponse.json().catch(() => null)) as {
         payroll?: { defaultPaidLeavesPerMonth: number };
       } | null;
+      const categoriesPayload = (await categoriesResponse.json().catch(() => null)) as { items?: { name: string }[] } | null;
+      const staffPayload = (await staffResponse.json().catch(() => null)) as { items?: { specializations?: string[] }[] } | null;
 
       if (!response.ok || !payload.staff) {
         if (active) {
@@ -91,8 +99,12 @@ export default function EditStaffPage() {
         setDefaultPaidLeavesPerMonth(settingsPayload.payroll.defaultPaidLeavesPerMonth);
       }
 
+      const categoryNames = (categoriesPayload?.items ?? []).map((item) => item.name);
+      const usedSpecializations = (staffPayload?.items ?? []).flatMap((item) => item.specializations ?? []);
+      setSuggestionPool([...new Set([...categoryNames, ...usedSpecializations])]);
+
       setName(payload.staff.name);
-      setDesignation(payload.staff.designation as (typeof designations)[number]);
+      setDesignationId(payload.staff.designationId ?? "");
       setMobile(payload.staff.mobile || "");
       setEmail(payload.staff.email || "");
       setStatus(payload.staff.status);
@@ -101,6 +113,10 @@ export default function EditStaffPage() {
       setBaseSalary(payload.staff.baseSalary === null ? "" : String(payload.staff.baseSalary));
       setCommissionRate(payload.staff.commissionRate === null ? "" : String(payload.staff.commissionRate));
       setPaidLeavesPerMonth(payload.staff.paidLeavesPerMonth === null ? "" : String(payload.staff.paidLeavesPerMonth));
+      setDateOfBirth(payload.staff.dateOfBirth ? toISTDateString(new Date(payload.staff.dateOfBirth)) : "");
+      setJoiningDate(payload.staff.joiningDate ? toISTDateString(new Date(payload.staff.joiningDate)) : "");
+      setExperienceYears(payload.staff.experienceYears === null ? "" : String(payload.staff.experienceYears));
+      setSpecializations(payload.staff.specializations ?? []);
       setLoading(false);
     }
 
@@ -140,7 +156,7 @@ export default function EditStaffPage() {
       },
       body: JSON.stringify({
         name,
-        designation,
+        designationId: designationId || undefined,
         mobile,
         email,
         status,
@@ -149,6 +165,10 @@ export default function EditStaffPage() {
         baseSalary: baseSalary.trim() === "" ? null : Number(baseSalary),
         commissionRate: commissionRate.trim() === "" ? null : Number(commissionRate),
         paidLeavesPerMonth: paidLeavesPerMonth.trim() === "" ? null : Number(paidLeavesPerMonth),
+        dateOfBirth: dateOfBirth || null,
+        joiningDate: joiningDate || null,
+        experienceYears: experienceYears.trim() === "" ? null : Number(experienceYears),
+        specializations,
       }),
     });
 
@@ -189,20 +209,10 @@ export default function EditStaffPage() {
             />
           </label>
 
-          <label className="space-y-1 text-sm">
+          <div className="space-y-1 text-sm">
             <span className="font-medium text-[var(--foreground)]">Designation</span>
-            <select
-              value={designation}
-              onChange={(event) => setDesignation(event.target.value as (typeof designations)[number])}
-              className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
-            >
-              {designations.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </label>
+            <DesignationSelect value={designationId} onChange={setDesignationId} />
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -249,11 +259,53 @@ export default function EditStaffPage() {
               onChange={(event) => setAvailabilityStatus(event.target.value as "AVAILABLE" | "BUSY" | "OFF_DUTY")}
               className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
             >
-              <option value="AVAILABLE">AVAILABLE</option>
-              <option value="BUSY">BUSY</option>
-              <option value="OFF_DUTY">OFF_DUTY</option>
+              <option value="AVAILABLE">Available</option>
+              <option value="BUSY">Busy</option>
+              <option value="OFF_DUTY">Week Off</option>
             </select>
           </label>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <label className="space-y-1 text-sm">
+            <span className="font-medium text-[var(--foreground)]">Date of Birth</span>
+            <input
+              value={dateOfBirth}
+              onChange={(event) => setDateOfBirth(event.target.value)}
+              type="date"
+              max={todayISTDateString()}
+              className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
+            />
+          </label>
+
+          <label className="space-y-1 text-sm">
+            <span className="font-medium text-[var(--foreground)]">Joining Date</span>
+            <input
+              value={joiningDate}
+              onChange={(event) => setJoiningDate(event.target.value)}
+              type="date"
+              className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
+            />
+          </label>
+
+          <label className="space-y-1 text-sm">
+            <span className="font-medium text-[var(--foreground)]">Experience (years)</span>
+            <input
+              value={experienceYears}
+              onChange={(event) => setExperienceYears(event.target.value)}
+              type="number"
+              min={0}
+              max={60}
+              step="0.1"
+              placeholder="e.g. 3.5"
+              className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
+            />
+          </label>
+        </div>
+
+        <div className="space-y-1 text-sm">
+          <span className="font-medium text-[var(--foreground)]">Specialization</span>
+          <SpecializationChips value={specializations} onChange={setSpecializations} suggestions={suggestionPool} />
         </div>
 
         <section>

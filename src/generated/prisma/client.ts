@@ -67,6 +67,11 @@ export type Service = Prisma.ServiceModel
  */
 export type Staff = Prisma.StaffModel
 /**
+ * Model StaffDesignation
+ * 
+ */
+export type StaffDesignation = Prisma.StaffDesignationModel
+/**
  * Model SalaryHistory
  * 
  */

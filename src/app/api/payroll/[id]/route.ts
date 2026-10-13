@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getStaffDesignationName, staffDesignationSelect } from "@/lib/staffDesignation";
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
@@ -17,7 +18,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const payroll = await prisma.payroll.findFirst({
       where: { id, tenantId: session.user.tenantId },
       include: {
-        staff: { select: { name: true, designation: true } },
+        staff: { select: { name: true, ...staffDesignationSelect } },
       },
     });
 
@@ -48,7 +49,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         status: payroll.status,
         generatedAt: payroll.generatedAt,
         staffName: payroll.staff.name,
-        designation: payroll.staff.designation,
+        designation: getStaffDesignationName(payroll.staff),
         baseSalary: Number(payroll.baseSalary),
         commissionRate: Number(payroll.commissionRate),
         commissionAmount: Number(payroll.commissionAmount),

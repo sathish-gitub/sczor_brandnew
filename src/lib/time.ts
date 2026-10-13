@@ -67,6 +67,14 @@ const IST_DAY_MONTH_FORMATTER = new Intl.DateTimeFormat("en-GB", {
   month: "long",
 });
 
+const IST_LONG_DATE_FORMATTER = new Intl.DateTimeFormat("en-IN", {
+  timeZone: IST_TIME_ZONE,
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+
 const SUN_FIRST_WEEKDAY_INDEX: Record<"Sun" | "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat", number> = {
   Sun: 0,
   Mon: 1,
@@ -293,6 +301,11 @@ export function formatISTDateDDMMYYYY(value: Date | string): string {
   return IST_DDMMYYYY_FORMATTER.format(date);
 }
 
+/** "Monday, 15 September 2025" style label in IST, for an "YYYY-MM-DD" IST calendar date string. */
+export function formatISTLongDate(dateStr: string): string {
+  return IST_LONG_DATE_FORMATTER.format(istWallTimeToInstant(dateStr, "00:00"));
+}
+
 /** "h:mm AM/PM" in IST, for an absolute instant (e.g. createdAt). */
 export function formatISTInstantTime12Hour(value: Date | string): string {
   const date = typeof value === "string" ? new Date(value) : value;
@@ -326,4 +339,66 @@ export function formatDurationLabel(totalMinutes: number): string {
   }
 
   return `${hours} hr ${minutes} min`;
+}
+
+/**
+ * Whole years of age between an IST calendar date of birth and an "as of"
+ * IST calendar date (defaults to today). Both are "YYYY-MM-DD" strings so
+ * the comparison is pure calendar-date math, with no timezone conversion.
+ */
+export function getISTAgeYears(dobDateStr: string, asOfDateStr: string = todayISTDateString()): number {
+  const [dobYear, dobMonth, dobDay] = dobDateStr.split("-").map(Number);
+  const [asOfYear, asOfMonth, asOfDay] = asOfDateStr.split("-").map(Number);
+
+  let age = asOfYear - dobYear;
+  if (asOfMonth < dobMonth || (asOfMonth === dobMonth && asOfDay < dobDay)) {
+    age -= 1;
+  }
+
+  return age;
+}
+
+/**
+ * "2 yrs 3 mo" style tenure label between an IST calendar joining date and
+ * an "as of" IST calendar date (defaults to today).
+ */
+export function formatISTTenureLabel(joiningDateStr: string, asOfDateStr: string = todayISTDateString()): string {
+  const [joinYear, joinMonth, joinDay] = joiningDateStr.split("-").map(Number);
+  const [asOfYear, asOfMonth, asOfDay] = asOfDateStr.split("-").map(Number);
+
+  let totalMonths = (asOfYear - joinYear) * 12 + (asOfMonth - joinMonth);
+  if (asOfDay < joinDay) {
+    totalMonths -= 1;
+  }
+  totalMonths = Math.max(0, totalMonths);
+
+  const years = Math.floor(totalMonths / 12);
+  const months = totalMonths % 12;
+
+  if (years === 0 && months === 0) {
+    return "Less than a month";
+  }
+
+  const parts: string[] = [];
+  if (years > 0) {
+    parts.push(`${years} yr${years === 1 ? "" : "s"}`);
+  }
+  if (months > 0) {
+    parts.push(`${months} mo`);
+  }
+
+  return parts.join(" ");
+}
+
+/**
+ * Shifts an IST calendar date string by `deltaDays` (may be negative), returning
+ * another "YYYY-MM-DD" string. Does plain calendar-day arithmetic on the date
+ * string's own components via UTC-noon instants, so it is immune to host
+ * process timezone and DST effects (Asia/Kolkata itself has no DST).
+ */
+export function addDaysToDateString(dateStr: string, deltaDays: number): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const utcNoon = Date.UTC(year, month - 1, day, 12, 0, 0);
+  const shifted = new Date(utcNoon + deltaDays * 24 * 60 * 60 * 1000);
+  return shifted.toISOString().slice(0, 10);
 }

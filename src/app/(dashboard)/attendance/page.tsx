@@ -1,26 +1,31 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AttendanceSummary } from "@/components/attendance/AttendanceSummary";
 import { AttendanceTable } from "@/components/attendance/AttendanceTable";
-
-type AttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY";
+import { emptyAttendanceStatusCounts, type AttendanceStatusValue } from "@/lib/attendanceStatus";
+import { addDaysToDateString, formatISTLongDate, todayISTDateString } from "@/lib/time";
 
 type AttendanceRow = {
   staffId: string;
   name: string;
   designation: string;
   attendanceId: string | null;
-  status: AttendanceStatus | null;
+  status: AttendanceStatusValue | null;
+  displayStatus: AttendanceStatusValue | "NOT_MARKED";
 };
 
 type AttendanceResponse = {
   date: string;
+  isBusinessWorkingDay: boolean;
   items: AttendanceRow[];
 };
+
+type StaffOption = { id: string; name: string };
 
 type ToastMessage = {
   id: string;
@@ -28,62 +33,26 @@ type ToastMessage = {
   text: string;
 };
 
-function formatDateInput(value: Date) {
-  const year = value.getFullYear();
-  const month = `${value.getMonth() + 1}`.padStart(2, "0");
-  const day = `${value.getDate()}`.padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function parseDateOnly(value: string) {
-  return new Date(`${value}T00:00:00`);
-}
-
-function addDays(value: string, amount: number) {
-  const date = parseDateOnly(value);
-  date.setDate(date.getDate() + amount);
-  return formatDateInput(date);
-}
-
-function longDate(value: string) {
-  return new Intl.DateTimeFormat("en-IN", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(parseDateOnly(value));
-}
-
 function createToastId() {
   return Math.random().toString(36).slice(2);
 }
 
-function statusLabel(value: AttendanceStatus) {
-  if (value === "PRESENT") {
-    return "Present";
-  }
-
-  if (value === "ABSENT") {
-    return "Absent";
-  }
-
-  if (value === "LEAVE") {
-    return "Leave";
-  }
-
-  return "Half Day";
-}
-
 export default function AttendancePage() {
-  const today = useMemo(() => formatDateInput(new Date()), []);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
-  const [selectedDate, setSelectedDate] = useState(today);
+  const today = todayISTDateString();
+  const dateParam = searchParams.get("date");
+  const selectedDate = dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam) ? dateParam : today;
+  const staffFilter = searchParams.get("staffId") ?? "ALL";
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [rows, setRows] = useState<AttendanceRow[]>([]);
-  const [pendingStatuses, setPendingStatuses] = useState<Record<string, AttendanceStatus>>({});
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [savingIds, setSavingIds] = useState<Set<string>>(new Set());
+  const [isBusinessWorkingDay, setIsBusinessWorkingDay] = useState(true);
+  const [staffOptions, setStaffOptions] = useState<StaffOption[]>([]);
+  const [pendingStatuses, setPendingStatuses] = useState<Record<string, AttendanceStatusValue>>({});
   const [savingAll, setSavingAll] = useState(false);
-  const [autoSave, setAutoSave] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +68,46 @@ export default function AttendancePage() {
 
   const hasUnsavedChanges = Object.keys(pendingStatuses).length > 0;
 
+  const updateQuery = useCallback(
+    (updates: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      for (const [key, value] of Object.entries(updates)) {
+        if (value === null) {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      }
+
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadStaffOptions() {
+      const response = await fetch("/api/staff?status=ACTIVE", { cache: "no-store" });
+      const payload = (await response.json().catch(() => null)) as
+        | { items?: Array<{ id: string; name: string }> }
+        | null;
+
+      if (!active) {
+        return;
+      }
+
+      setStaffOptions(payload?.items?.map((item) => ({ id: item.id, name: item.name })) ?? []);
+    }
+
+    loadStaffOptions();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   useEffect(() => {
     let active = true;
 
@@ -107,7 +116,12 @@ export default function AttendancePage() {
       setError(null);
 
       try {
-        const response = await fetch(`/api/attendance?date=${selectedDate}`, { cache: "no-store" });
+        const params = new URLSearchParams({ date: selectedDate });
+        if (staffFilter !== "ALL") {
+          params.set("staffId", staffFilter);
+        }
+
+        const response = await fetch(`/api/attendance?${params.toString()}`, { cache: "no-store" });
         const payload = (await response.json()) as AttendanceResponse & { error?: string };
 
         if (!response.ok) {
@@ -119,8 +133,8 @@ export default function AttendancePage() {
         }
 
         setRows(payload.items ?? []);
+        setIsBusinessWorkingDay(payload.isBusinessWorkingDay ?? true);
         setPendingStatuses({});
-        setSelectedIds(new Set());
       } catch (loadError) {
         if (!active) {
           return;
@@ -139,7 +153,7 @@ export default function AttendancePage() {
     return () => {
       active = false;
     };
-  }, [selectedDate]);
+  }, [selectedDate, staffFilter]);
 
   useEffect(() => {
     const handler = (event: BeforeUnloadEvent) => {
@@ -183,70 +197,18 @@ export default function AttendancePage() {
     return () => document.removeEventListener("click", clickHandler);
   }, [hasUnsavedChanges]);
 
-  async function saveSingle(staffId: string, statusArg?: AttendanceStatus) {
-    const status = statusArg ?? pendingStatuses[staffId] ?? rows.find((row) => row.staffId === staffId)?.status;
-
-    if (!status) {
-      return;
+  function defaultStatusFor(row: AttendanceRow): AttendanceStatusValue {
+    if (row.status) {
+      return row.status;
     }
 
-    setSavingIds((current) => new Set(current).add(staffId));
-
-    const response = await fetch("/api/attendance/single", {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        staffId,
-        date: selectedDate,
-        status,
-      }),
-    });
-
-    const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-
-    if (!response.ok) {
-      enqueueToast("error", payload?.error ?? "Unable to save attendance.");
-      setSavingIds((current) => {
-        const next = new Set(current);
-        next.delete(staffId);
-        return next;
-      });
-      return;
-    }
-
-    setRows((current) =>
-      current.map((row) =>
-        row.staffId === staffId
-          ? {
-              ...row,
-              status,
-            }
-          : row,
-      ),
-    );
-
-    setPendingStatuses((current) => {
-      const next = { ...current };
-      delete next[staffId];
-      return next;
-    });
-
-    setSavingIds((current) => {
-      const next = new Set(current);
-      next.delete(staffId);
-      return next;
-    });
-
-    const member = rows.find((item) => item.staffId === staffId);
-    enqueueToast("success", `${member?.name || "Staff"} marked ${statusLabel(status)}.`);
+    return row.displayStatus === "WEEK_OFF" ? "WEEK_OFF" : "PRESENT";
   }
 
   async function saveAll() {
     const updates = rows.map((row) => ({
       staffId: row.staffId,
-      status: pendingStatuses[row.staffId] ?? row.status ?? ("PRESENT" as AttendanceStatus),
+      status: pendingStatuses[row.staffId] ?? defaultStatusFor(row),
     }));
 
     if (updates.length === 0) {
@@ -288,6 +250,7 @@ export default function AttendancePage() {
         return {
           ...row,
           status: nextStatus,
+          displayStatus: nextStatus,
         };
       }),
     );
@@ -297,54 +260,38 @@ export default function AttendancePage() {
     enqueueToast("success", `Attendance saved (${payload?.successCount ?? updates.length} entries).`);
   }
 
-  async function onStatusChange(staffId: string, status: AttendanceStatus) {
+  function onStatusChange(staffId: string, status: AttendanceStatusValue) {
     setPendingStatuses((current) => ({
       ...current,
       [staffId]: status,
     }));
+  }
 
-    if (autoSave) {
-      await saveSingle(staffId, status);
+  const canGoNext = selectedDate < today;
+
+  const filteredRows = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) {
+      return rows;
     }
-  }
 
-  function onToggleSelect(staffId: string) {
-    setSelectedIds((current) => {
-      const next = new Set(current);
+    return rows.filter(
+      (row) => row.name.toLowerCase().includes(query) || row.designation.toLowerCase().includes(query),
+    );
+  }, [rows, searchQuery]);
 
-      if (next.has(staffId)) {
-        next.delete(staffId);
-      } else {
-        next.add(staffId);
-      }
-
-      return next;
-    });
-  }
-
-  function onSelectAll() {
-    setSelectedIds((current) => {
-      if (current.size === rows.length) {
-        return new Set();
-      }
-
-      return new Set(rows.map((row) => row.staffId));
-    });
-  }
-
-  function onMarkAll(status: AttendanceStatus) {
-    const targetIds = selectedIds.size > 0 ? [...selectedIds] : rows.map((row) => row.staffId);
-
+  function onMarkAll(status: AttendanceStatusValue) {
+    // Applies to the currently filtered (staff dropdown + search) rows only.
     setPendingStatuses((current) => {
       const next = { ...current };
-      for (const staffId of targetIds) {
+      for (const staffId of filteredRows.map((row) => row.staffId)) {
         next[staffId] = status;
       }
       return next;
     });
   }
 
-  function guardedDateChange(nextDate: string) {
+  function guardedChange(updates: Record<string, string | null>) {
     if (hasUnsavedChanges) {
       const allow = window.confirm("You have unsaved attendance changes. Continue without saving?");
       if (!allow) {
@@ -352,21 +299,25 @@ export default function AttendancePage() {
       }
     }
 
-    setSelectedDate(nextDate);
+    updateQuery(updates);
   }
 
-  const canGoNext = selectedDate < today;
-
   const counts = useMemo(() => {
-    const initial = { PRESENT: 0, ABSENT: 0, LEAVE: 0, HALF_DAY: 0 };
+    const initial = emptyAttendanceStatusCounts();
+    let notMarked = 0;
 
     for (const row of rows) {
-      // Mirrors the table's fallback so the summary always matches the visible dropdowns.
-      const status = pendingStatuses[row.staffId] ?? row.status ?? "PRESENT";
+      const status = pendingStatuses[row.staffId] ?? defaultStatusFor(row);
       initial[status] += 1;
     }
 
-    return initial;
+    for (const row of rows) {
+      if (!row.status && row.displayStatus === "NOT_MARKED" && !pendingStatuses[row.staffId]) {
+        notMarked += 1;
+      }
+    }
+
+    return { counts: initial, notMarked };
   }, [rows, pendingStatuses]);
 
   return (
@@ -401,19 +352,9 @@ export default function AttendancePage() {
               type="date"
               max={today}
               value={selectedDate}
-              onChange={(event) => guardedDateChange(event.target.value)}
+              onChange={(event) => guardedChange({ date: event.target.value })}
               className="h-10 rounded-xl border border-[var(--border)] px-3 text-sm"
             />
-
-            <label className="inline-flex h-10 items-center gap-2 rounded-xl border border-[var(--border)] px-3 text-sm text-slate-700">
-              <input
-                type="checkbox"
-                checked={autoSave}
-                onChange={(event) => setAutoSave(event.target.checked)}
-                className="h-4 w-4"
-              />
-              Auto-save
-            </label>
 
             <Link
               href="/attendance/reports"
@@ -428,7 +369,7 @@ export default function AttendancePage() {
           <div className="inline-flex items-center gap-2">
             <button
               type="button"
-              onClick={() => guardedDateChange(addDays(selectedDate, -1))}
+              onClick={() => guardedChange({ date: addDaysToDateString(selectedDate, -1) })}
               className="inline-flex h-9 items-center gap-1 rounded-lg border border-[var(--border)] bg-white px-3 text-sm font-medium text-slate-700"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -437,7 +378,7 @@ export default function AttendancePage() {
 
             <button
               type="button"
-              onClick={() => guardedDateChange(today)}
+              onClick={() => guardedChange({ date: today })}
               className="inline-flex h-9 items-center rounded-lg border border-[var(--border)] bg-white px-3 text-sm font-medium text-slate-700"
             >
               Today
@@ -445,7 +386,7 @@ export default function AttendancePage() {
 
             <button
               type="button"
-              onClick={() => guardedDateChange(addDays(selectedDate, 1))}
+              onClick={() => guardedChange({ date: addDaysToDateString(selectedDate, 1) })}
               disabled={!canGoNext}
               className="inline-flex h-9 items-center gap-1 rounded-lg border border-[var(--border)] bg-white px-3 text-sm font-medium text-slate-700 disabled:opacity-50"
             >
@@ -454,7 +395,36 @@ export default function AttendancePage() {
             </button>
           </div>
 
-          <p className="text-sm font-semibold text-[var(--foreground)]">{longDate(selectedDate)}</p>
+          <p className="text-sm font-semibold text-[var(--foreground)]">{formatISTLongDate(selectedDate)}</p>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <select
+            value={staffFilter}
+            onChange={(event) => guardedChange({ staffId: event.target.value === "ALL" ? null : event.target.value })}
+            className="h-10 rounded-xl border border-[var(--border)] px-3 text-sm"
+          >
+            <option value="ALL">All Staff</option>
+            {staffOptions.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.name}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Search by name or designation..."
+            className="h-10 flex-1 rounded-xl border border-[var(--border)] px-3 text-sm"
+          />
+
+          {!isBusinessWorkingDay ? (
+            <span className="inline-flex h-10 items-center rounded-xl border border-indigo-200 bg-indigo-50 px-3 text-xs font-semibold text-indigo-700">
+              Salon closed this day — staff default to Week Off
+            </span>
+          ) : null}
         </div>
       </header>
 
@@ -473,23 +443,23 @@ export default function AttendancePage() {
             Add Staff
           </Link>
         </div>
+      ) : filteredRows.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-[var(--border)] bg-white px-6 py-16 text-center">
+          <p className="text-base font-semibold text-[var(--foreground)]">No staff match &quot;{searchQuery}&quot;.</p>
+        </div>
       ) : (
         <div className="grid gap-5 xl:grid-cols-[1fr_280px]">
           <AttendanceTable
-            rows={rows}
-            selectedIds={selectedIds}
+            rows={filteredRows}
             pendingStatuses={pendingStatuses}
-            savingIds={savingIds}
             savingAll={savingAll}
-            onToggleSelect={onToggleSelect}
-            onSelectAll={onSelectAll}
+            hasUnsavedChanges={hasUnsavedChanges}
             onMarkAll={onMarkAll}
             onStatusChange={onStatusChange}
-            onSaveSingle={saveSingle}
             onSaveAll={saveAll}
           />
 
-          <AttendanceSummary counts={counts} title="Today's Summary" totalOverride={rows.length} />
+          <AttendanceSummary counts={counts.counts} notMarked={counts.notMarked} title="Today's Summary" totalOverride={rows.length} />
         </div>
       )}
     </div>

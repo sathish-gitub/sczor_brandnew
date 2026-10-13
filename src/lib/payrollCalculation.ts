@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getStaffRevenue } from "@/lib/staffRevenue";
 import { istMonthBounds } from "@/lib/time";
+import { getStaffDesignationName, staffDesignationSelect } from "@/lib/staffDesignation";
 
 export class PayrollCalculationError extends Error {}
 
@@ -16,6 +17,7 @@ export type PayrollCalculationResult = {
   absentDays: number;
   leaveDays: number;
   halfDays: number;
+  weekOffDays: number;
   paidLeaveDays: number;
   lopDays: number;
   usedDefaultLeaveAllowance: boolean;
@@ -45,7 +47,7 @@ export async function calculatePayroll(
       where: { id: staffId, tenantId },
       select: {
         name: true,
-        designation: true,
+        ...staffDesignationSelect,
         baseSalary: true,
         commissionRate: true,
         paidLeavesPerMonth: true,
@@ -109,12 +111,14 @@ export async function calculatePayroll(
     );
   }
 
-  const counts = { PRESENT: 0, ABSENT: 0, LEAVE: 0, HALF_DAY: 0 };
+  const counts = { PRESENT: 0, ABSENT: 0, LEAVE: 0, HALF_DAY: 0, WEEK_OFF: 0 };
   for (const entry of attendance) {
     counts[entry.status] += 1;
   }
 
-  const totalWorkingDays = counts.PRESENT + counts.ABSENT + counts.LEAVE + counts.HALF_DAY;
+  // Week Off (stored or automatic) is a fully paid day: included in the
+  // working-days denominator, never deducted below.
+  const totalWorkingDays = counts.PRESENT + counts.ABSENT + counts.LEAVE + counts.HALF_DAY + counts.WEEK_OFF;
 
   // Leave within the staff's monthly allowance stays fully paid; excess leave becomes LOP, deducted like ABSENT.
   const paidLeaveDays = Math.min(counts.LEAVE, paidLeavesPerMonth);
@@ -135,7 +139,7 @@ export async function calculatePayroll(
   return {
     staffId,
     staffName: staff.name,
-    designation: staff.designation,
+    designation: getStaffDesignationName(staff),
     baseSalary: roundMoney(baseSalary),
     commissionRate,
     commissionAmount,
@@ -144,6 +148,7 @@ export async function calculatePayroll(
     absentDays: counts.ABSENT,
     leaveDays: counts.LEAVE,
     halfDays: counts.HALF_DAY,
+    weekOffDays: counts.WEEK_OFF,
     paidLeaveDays,
     lopDays,
     usedDefaultLeaveAllowance,

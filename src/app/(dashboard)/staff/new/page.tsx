@@ -2,17 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const designations = [
-  "Beautician",
-  "Hair Stylist",
-  "Nail Artist",
-  "Makeup Artist",
-  "Spa Therapist",
-  "Receptionist",
-  "Manager",
-] as const;
+import { DesignationSelect } from "@/components/staff/DesignationSelect";
+import { SpecializationChips } from "@/components/staff/SpecializationChips";
+import { todayISTDateString } from "@/lib/time";
 
 const weekDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
 
@@ -20,15 +14,51 @@ export default function NewStaffPage() {
   const router = useRouter();
 
   const [name, setName] = useState("");
-  const [designation, setDesignation] = useState<(typeof designations)[number]>("Beautician");
+  const [designationId, setDesignationId] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"ACTIVE" | "INACTIVE">("ACTIVE");
   const [availabilityStatus, setAvailabilityStatus] = useState<"AVAILABLE" | "BUSY" | "OFF_DUTY">("AVAILABLE");
   const [workingDays, setWorkingDays] = useState<string[]>(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]);
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [joiningDate, setJoiningDate] = useState("");
+  const [experienceYears, setExperienceYears] = useState("");
+  const [specializations, setSpecializations] = useState<string[]>([]);
+  const [suggestionPool, setSuggestionPool] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mobileError, setMobileError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadSuggestions() {
+      try {
+        const [categoriesRes, staffRes] = await Promise.all([
+          fetch("/api/services/categories", { cache: "no-store" }),
+          fetch("/api/staff", { cache: "no-store" }),
+        ]);
+        const categoriesPayload = (await categoriesRes.json().catch(() => null)) as { items?: { name: string }[] } | null;
+        const staffPayload = (await staffRes.json().catch(() => null)) as { items?: { specializations?: string[] }[] } | null;
+
+        if (!active) {
+          return;
+        }
+
+        const categoryNames = (categoriesPayload?.items ?? []).map((item) => item.name);
+        const usedSpecializations = (staffPayload?.items ?? []).flatMap((item) => item.specializations ?? []);
+        setSuggestionPool([...new Set([...categoryNames, ...usedSpecializations])]);
+      } catch {
+        // Suggestions are a nice-to-have; ignore failures silently.
+      }
+    }
+
+    loadSuggestions();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   function validateMobile(value: string) {
     const cleaned = value.replace(/[^0-9]/g, "");
@@ -60,6 +90,12 @@ export default function NewStaffPage() {
       return;
     }
 
+    if (!designationId) {
+      setError("Select a designation.");
+      setSubmitting(false);
+      return;
+    }
+
     const response = await fetch("/api/staff", {
       method: "POST",
       headers: {
@@ -67,12 +103,16 @@ export default function NewStaffPage() {
       },
       body: JSON.stringify({
         name,
-        designation,
+        designationId,
         mobile,
         email,
         status,
         availabilityStatus,
         workingDays,
+        dateOfBirth: dateOfBirth || null,
+        joiningDate: joiningDate || null,
+        experienceYears: experienceYears.trim() === "" ? null : Number(experienceYears),
+        specializations,
       }),
     });
 
@@ -109,20 +149,10 @@ export default function NewStaffPage() {
             />
           </label>
 
-          <label className="space-y-1 text-sm">
+          <div className="space-y-1 text-sm">
             <span className="font-medium text-[var(--foreground)]">Designation</span>
-            <select
-              value={designation}
-              onChange={(event) => setDesignation(event.target.value as (typeof designations)[number])}
-              className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
-            >
-              {designations.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </label>
+            <DesignationSelect value={designationId} onChange={setDesignationId} />
+          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -169,11 +199,53 @@ export default function NewStaffPage() {
               onChange={(event) => setAvailabilityStatus(event.target.value as "AVAILABLE" | "BUSY" | "OFF_DUTY")}
               className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
             >
-              <option value="AVAILABLE">AVAILABLE</option>
-              <option value="BUSY">BUSY</option>
-              <option value="OFF_DUTY">OFF_DUTY</option>
+              <option value="AVAILABLE">Available</option>
+              <option value="BUSY">Busy</option>
+              <option value="OFF_DUTY">Week Off</option>
             </select>
           </label>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <label className="space-y-1 text-sm">
+            <span className="font-medium text-[var(--foreground)]">Date of Birth</span>
+            <input
+              value={dateOfBirth}
+              onChange={(event) => setDateOfBirth(event.target.value)}
+              type="date"
+              max={todayISTDateString()}
+              className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
+            />
+          </label>
+
+          <label className="space-y-1 text-sm">
+            <span className="font-medium text-[var(--foreground)]">Joining Date</span>
+            <input
+              value={joiningDate}
+              onChange={(event) => setJoiningDate(event.target.value)}
+              type="date"
+              className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
+            />
+          </label>
+
+          <label className="space-y-1 text-sm">
+            <span className="font-medium text-[var(--foreground)]">Experience (years)</span>
+            <input
+              value={experienceYears}
+              onChange={(event) => setExperienceYears(event.target.value)}
+              type="number"
+              min={0}
+              max={60}
+              step="0.1"
+              placeholder="e.g. 3.5"
+              className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
+            />
+          </label>
+        </div>
+
+        <div className="space-y-1 text-sm">
+          <span className="font-medium text-[var(--foreground)]">Specialization</span>
+          <SpecializationChips value={specializations} onChange={setSpecializations} suggestions={suggestionPool} />
         </div>
 
         <section>

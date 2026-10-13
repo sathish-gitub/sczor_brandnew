@@ -62,6 +62,17 @@ export const DEFAULT_PRODUCT_CATEGORIES = [
   "Other",
 ] as const;
 
+export const DEFAULT_STAFF_DESIGNATIONS = [
+  "Senior Stylist",
+  "Junior Stylist",
+  "Beautician",
+  "Nail Artist",
+  "Massage Therapist",
+  "Makeup Artist",
+  "Receptionist",
+  "Manager",
+] as const;
+
 export type LoyaltyThresholds = {
   silverThreshold: number;
   goldThreshold: number;

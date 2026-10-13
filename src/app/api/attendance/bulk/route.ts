@@ -9,7 +9,7 @@ import { attendanceDateInstant, findAttendanceIdsForDay } from "@/lib/attendance
 import { todayISTDateString } from "@/lib/time";
 import type { Prisma } from "@/generated/prisma/client";
 
-type AttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY";
+type AttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY" | "WEEK_OFF";
 
 const bulkSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -17,14 +17,14 @@ const bulkSchema = z.object({
     .array(
       z.object({
         staffId: z.string().cuid(),
-        status: z.enum(["PRESENT", "ABSENT", "LEAVE", "HALF_DAY"]),
+        status: z.enum(["PRESENT", "ABSENT", "LEAVE", "HALF_DAY", "WEEK_OFF"]),
       }),
     )
     .min(1),
 });
 
 function availabilityFromStatus(status: AttendanceStatus) {
-  if (status === "ABSENT" || status === "LEAVE") {
+  if (status === "ABSENT" || status === "LEAVE" || status === "WEEK_OFF") {
     return "OFF_DUTY" as const;
   }
 

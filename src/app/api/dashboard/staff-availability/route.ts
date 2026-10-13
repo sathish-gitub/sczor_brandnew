@@ -3,7 +3,10 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getBusinessHoursForDate } from "@/lib/businessHours";
+import { resolveAttendanceDisplayStatus, type AttendanceStatusValue } from "@/lib/attendanceStatus";
 import { istDayBounds, todayISTDateString } from "@/lib/time";
+import { getStaffDesignationName } from "@/lib/staffDesignation";
 
 export async function GET() {
   try {
@@ -13,13 +16,18 @@ export async function GET() {
     }
 
     const tenantId = session.user.tenantId;
-    const { start, end } = istDayBounds(todayISTDateString());
+    const today = todayISTDateString();
+    const { start, end } = istDayBounds(today);
+
+    const businessHours = await getBusinessHoursForDate({ tenantId, dateStr: today });
+    const isBusinessWorkingDay = !businessHours.closed;
 
     const staff = await prisma.staff.findMany({
       where: {
         tenantId,
       },
       include: {
+        staffDesignation: { select: { name: true } },
         attendances: {
           where: {
             date: { gte: start, lt: end },
@@ -46,21 +54,23 @@ export async function GET() {
     });
 
     const staffWithStatus = staff.map((s) => {
-      const attendanceStatus = s.attendances[0]?.status || null;
+      const storedStatus = (s.attendances[0]?.status as AttendanceStatusValue | undefined) ?? null;
       const isInactive = s.status === "INACTIVE";
-      const availabilityStatus =
-        isInactive || attendanceStatus === "ABSENT" || attendanceStatus === "LEAVE"
-          ? "OFF_DUTY"
-          : s.availabilityStatus;
+
+      // Inactive staff show their own "Inactive" status (a staff-account
+      // state, not an attendance status); active staff show one of the
+      // five attendance statuses or "Not Marked" via the shared rule.
+      const displayStatus = isInactive
+        ? "INACTIVE"
+        : resolveAttendanceDisplayStatus({ storedStatus, isBusinessWorkingDay });
 
       return {
         id: s.id,
         name: s.name,
-        designation: s.designation,
+        designation: getStaffDesignationName(s),
         status: s.status,
-        availabilityStatus,
-        displayStatus: isInactive ? "INACTIVE" : availabilityStatus,
-        todayAttendance: attendanceStatus,
+        displayStatus,
+        todayAttendance: storedStatus,
         todayAppointments: s.appointmentServices.length,
         totalAppointments: s._count.appointmentServices,
       };

@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { loadStaffLineWindowsForDate } from "@/lib/appointmentLines";
 import { formatClockTime12Hour, istDayBounds } from "@/lib/time";
+import { getStaffDesignationName, staffDesignationSelect } from "@/lib/staffDesignation";
 
 function generateSlots(openTime: string, closeTime: string) {
   const [openHour, openMinute] = openTime.split(":").map(Number);
@@ -66,7 +67,7 @@ export async function GET(request: Request) {
         select: {
           id: true,
           name: true,
-          designation: true,
+          ...staffDesignationSelect,
           attendances: {
             where: {
               date: {
@@ -116,7 +117,7 @@ export async function GET(request: Request) {
       return {
         id: member.id,
         name: member.name,
-        designation: member.designation,
+        designation: getStaffDesignationName(member),
         offDuty,
         busyWindows,
       };

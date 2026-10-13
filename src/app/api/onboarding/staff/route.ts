@@ -7,14 +7,7 @@ import { prisma } from "@/lib/prisma";
 
 const staffSchema = z.object({
   name: z.string().trim().min(2, "Staff name is required."),
-  designation: z.enum([
-    "Beautician",
-    "Hair Stylist",
-    "Nail Artist",
-    "Makeup Artist",
-    "Receptionist",
-    "Manager",
-  ]),
+  designationId: z.string().min(1, "Designation is required."),
   mobile: z.string().trim().regex(/^\d{10}$/, "Mobile number must be 10 digits."),
 });
 
@@ -69,10 +62,26 @@ export async function POST(request: Request) {
       }
 
       try {
+        const designation = await prisma.staffDesignation.findFirst({
+          where: { id: parsed.data.designationId, tenantId },
+          select: { id: true, name: true },
+        });
+
+        if (!designation) {
+          results.push({
+            index,
+            name: parsed.data.name,
+            success: false,
+            error: "Select a valid designation.",
+          });
+          continue;
+        }
+
         await prisma.staff.create({
           data: {
             name: parsed.data.name,
-            designation: parsed.data.designation,
+            designation: designation.name,
+            designationId: designation.id,
             mobile: parsed.data.mobile,
             tenantId,
           },

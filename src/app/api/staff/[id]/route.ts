@@ -5,20 +5,15 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
+import { getStaffDesignationName } from "@/lib/staffDesignation";
 import { getServicesDoneByStaff, getStaffRevenue } from "@/lib/staffRevenue";
-import { istMonthBounds, istWeekBounds, todayISTDateString } from "@/lib/time";
+import { getISTAgeYears, istMonthBounds, istWeekBounds, istWallTimeToInstant, todayISTDateString, toISTDateString } from "@/lib/time";
+
+const dateOnlyString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date.");
 
 const updateStaffSchema = z.object({
   name: z.string().trim().min(2).optional(),
-  designation: z.enum([
-    "Beautician",
-    "Hair Stylist",
-    "Nail Artist",
-    "Makeup Artist",
-    "Spa Therapist",
-    "Receptionist",
-    "Manager",
-  ]).optional(),
+  designationId: z.string().min(1).optional(),
   mobile: z.string().trim().regex(/^\d{10}$/).optional().or(z.literal("")),
   email: z.string().trim().email().optional().or(z.literal("")),
   workingDays: z.array(z.enum(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]))
@@ -29,7 +24,35 @@ const updateStaffSchema = z.object({
   baseSalary: z.number().nonnegative().nullable().optional(),
   commissionRate: z.number().min(0).max(100).nullable().optional(),
   paidLeavesPerMonth: z.number().int().min(0).nullable().optional(),
+  dateOfBirth: dateOnlyString.nullable().optional(),
+  joiningDate: dateOnlyString.nullable().optional(),
+  experienceYears: z.number().min(0).max(60).nullable().optional(),
+  specializations: z.array(z.string().trim().min(1).max(30)).max(10).optional(),
 });
+
+function validateDobAndJoining(dateOfBirth?: string | null, joiningDate?: string | null) {
+  const today = todayISTDateString();
+
+  if (dateOfBirth) {
+    if (dateOfBirth >= today) {
+      return "Date of birth must be in the past.";
+    }
+    if (getISTAgeYears(dateOfBirth, today) < 14) {
+      return "Staff member must be at least 14 years old.";
+    }
+  }
+
+  if (joiningDate) {
+    const oneYearFromToday = toISTDateString(
+      new Date(istWallTimeToInstant(today, "00:00").getTime() + 366 * 24 * 60 * 60 * 1000),
+    );
+    if (joiningDate > oneYearFromToday) {
+      return "Joining date cannot be more than 1 year in the future.";
+    }
+  }
+
+  return null;
+}
 
 async function tenantIdOrNull() {
   const session = await getServerSession(authOptions);
@@ -54,6 +77,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       prisma.staff.findFirst({
         where: { id, tenantId },
         include: {
+          staffDesignation: { select: { id: true, name: true } },
           appointments: {
             orderBy: [{ appointmentDate: "desc" }, { appointmentTime: "asc" }],
             include: {
@@ -115,13 +139,18 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       staff: {
         id: staff.id,
         name: staff.name,
-        designation: staff.designation,
+        designation: getStaffDesignationName(staff),
+        designationId: staff.designationId,
         mobile: staff.mobile,
         email: staff.email,
         status: staff.status,
         availabilityStatus: staff.availabilityStatus,
         workingDays: staff.workingDays,
         createdAt: staff.createdAt,
+        dateOfBirth: staff.dateOfBirth,
+        joiningDate: staff.joiningDate,
+        experienceYears: staff.experienceYears === null ? null : Number(staff.experienceYears),
+        specializations: staff.specializations,
         baseSalary: staff.baseSalary === null ? null : Number(staff.baseSalary),
         commissionRate: staff.commissionRate === null ? null : Number(staff.commissionRate),
         paidLeavesPerMonth: staff.paidLeavesPerMonth,
@@ -206,6 +235,25 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Staff not found." }, { status: 404 });
     }
 
+    const dobOrJoiningError = validateDobAndJoining(payload.dateOfBirth, payload.joiningDate);
+    if (dobOrJoiningError) {
+      return NextResponse.json({ error: dobOrJoiningError }, { status: 400 });
+    }
+
+    let designationUpdate: { designation: string; designationId: string } | undefined;
+    if (payload.designationId !== undefined) {
+      const designation = await prisma.staffDesignation.findFirst({
+        where: { id: payload.designationId, tenantId },
+        select: { id: true, name: true },
+      });
+
+      if (!designation) {
+        return NextResponse.json({ error: "Select a valid designation." }, { status: 400 });
+      }
+
+      designationUpdate = { designation: designation.name, designationId: designation.id };
+    }
+
     const currentBaseSalary = existing.baseSalary === null ? null : Number(existing.baseSalary);
     const currentCommissionRate = existing.commissionRate === null ? null : Number(existing.commissionRate);
     const currentPaidLeavesPerMonth = existing.paidLeavesPerMonth;
@@ -235,7 +283,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         },
         data: {
           name: payload.name,
-          designation: payload.designation,
+          ...designationUpdate,
           mobile: payload.mobile === "" ? null : payload.mobile,
           email: payload.email === "" ? null : payload.email,
           workingDays: payload.workingDays,
@@ -245,6 +293,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           commissionRate: payload.commissionRate,
           paidLeavesPerMonth: payload.paidLeavesPerMonth,
           salaryEffectiveFrom: salaryChanged ? today : undefined,
+          dateOfBirth: payload.dateOfBirth === undefined ? undefined : (payload.dateOfBirth ? istWallTimeToInstant(payload.dateOfBirth, "00:00") : null),
+          joiningDate: payload.joiningDate === undefined ? undefined : (payload.joiningDate ? istWallTimeToInstant(payload.joiningDate, "00:00") : null),
+          experienceYears: payload.experienceYears,
+          specializations: payload.specializations,
         },
       });
 

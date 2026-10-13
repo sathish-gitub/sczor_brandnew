@@ -402,6 +402,7 @@ export const ModelName = {
   Customer: 'Customer',
   Service: 'Service',
   Staff: 'Staff',
+  StaffDesignation: 'StaffDesignation',
   SalaryHistory: 'SalaryHistory',
   Payroll: 'Payroll',
   Appointment: 'Appointment',
@@ -441,7 +442,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "customer" | "service" | "staff" | "salaryHistory" | "payroll" | "appointment" | "appointmentService" | "invoice" | "invoiceItem" | "staffRating" | "serviceCategory" | "loyaltyCard" | "loyaltyTransaction" | "attendance" | "salonSettings" | "holiday" | "waitlistInterest" | "superAdmin" | "payment" | "appSettings" | "supplier" | "productCategory" | "product" | "stockMovement" | "purchaseOrder" | "purchaseOrderItem" | "rateLimitAttempt"
+    modelProps: "tenant" | "user" | "customer" | "service" | "staff" | "staffDesignation" | "salaryHistory" | "payroll" | "appointment" | "appointmentService" | "invoice" | "invoiceItem" | "staffRating" | "serviceCategory" | "loyaltyCard" | "loyaltyTransaction" | "attendance" | "salonSettings" | "holiday" | "waitlistInterest" | "superAdmin" | "payment" | "appSettings" | "supplier" | "productCategory" | "product" | "stockMovement" | "purchaseOrder" | "purchaseOrderItem" | "rateLimitAttempt"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -812,6 +813,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.StaffCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.StaffCountAggregateOutputType> | number
+        }
+      }
+    }
+    StaffDesignation: {
+      payload: Prisma.$StaffDesignationPayload<ExtArgs>
+      fields: Prisma.StaffDesignationFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.StaffDesignationFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffDesignationPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.StaffDesignationFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffDesignationPayload>
+        }
+        findFirst: {
+          args: Prisma.StaffDesignationFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffDesignationPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.StaffDesignationFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffDesignationPayload>
+        }
+        findMany: {
+          args: Prisma.StaffDesignationFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffDesignationPayload>[]
+        }
+        create: {
+          args: Prisma.StaffDesignationCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffDesignationPayload>
+        }
+        createMany: {
+          args: Prisma.StaffDesignationCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.StaffDesignationCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffDesignationPayload>[]
+        }
+        delete: {
+          args: Prisma.StaffDesignationDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffDesignationPayload>
+        }
+        update: {
+          args: Prisma.StaffDesignationUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffDesignationPayload>
+        }
+        deleteMany: {
+          args: Prisma.StaffDesignationDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.StaffDesignationUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.StaffDesignationUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffDesignationPayload>[]
+        }
+        upsert: {
+          args: Prisma.StaffDesignationUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$StaffDesignationPayload>
+        }
+        aggregate: {
+          args: Prisma.StaffDesignationAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateStaffDesignation>
+        }
+        groupBy: {
+          args: Prisma.StaffDesignationGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StaffDesignationGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.StaffDesignationCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.StaffDesignationCountAggregateOutputType> | number
         }
       }
     }
@@ -2725,8 +2800,13 @@ export const StaffScalarFieldEnum = {
   id: 'id',
   name: 'name',
   designation: 'designation',
+  designationId: 'designationId',
   mobile: 'mobile',
   email: 'email',
+  dateOfBirth: 'dateOfBirth',
+  joiningDate: 'joiningDate',
+  experienceYears: 'experienceYears',
+  specializations: 'specializations',
   workingDays: 'workingDays',
   status: 'status',
   availabilityStatus: 'availabilityStatus',
@@ -2740,6 +2820,16 @@ export const StaffScalarFieldEnum = {
 } as const
 
 export type StaffScalarFieldEnum = (typeof StaffScalarFieldEnum)[keyof typeof StaffScalarFieldEnum]
+
+
+export const StaffDesignationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt'
+} as const
+
+export type StaffDesignationScalarFieldEnum = (typeof StaffDesignationScalarFieldEnum)[keyof typeof StaffDesignationScalarFieldEnum]
 
 
 export const SalaryHistoryScalarFieldEnum = {
@@ -3568,6 +3658,7 @@ export type GlobalOmitConfig = {
   customer?: Prisma.CustomerOmit
   service?: Prisma.ServiceOmit
   staff?: Prisma.StaffOmit
+  staffDesignation?: Prisma.StaffDesignationOmit
   salaryHistory?: Prisma.SalaryHistoryOmit
   payroll?: Prisma.PayrollOmit
   appointment?: Prisma.AppointmentOmit

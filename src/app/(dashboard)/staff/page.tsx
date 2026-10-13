@@ -17,13 +17,16 @@ type StaffRow = {
   email: string | null;
   status: "ACTIVE" | "INACTIVE";
   availabilityStatus: "AVAILABLE" | "BUSY" | "OFF_DUTY";
-  displayStatus: "AVAILABLE" | "BUSY" | "OFF_DUTY" | "INACTIVE";
+  displayStatus: "PRESENT" | "ABSENT" | "LEAVE" | "WEEK_OFF" | "HALF_DAY" | "NOT_MARKED" | "INACTIVE";
   todayServicesDone: number;
   totalServicesDone: number;
   avgRating: number;
   workingDays: string[];
   attendanceStatusToday: string | null;
   createdAt: string;
+  joiningDate: string | null;
+  experienceYears: number | null;
+  specializations: string[];
 };
 
 type StatusFilter = "ALL" | "ACTIVE" | "INACTIVE";
@@ -93,7 +96,8 @@ export default function StaffPage() {
       return (
         item.name.toLowerCase().includes(input) ||
         item.designation.toLowerCase().includes(input) ||
-        (item.mobile || "").includes(input)
+        (item.mobile || "").includes(input) ||
+        item.specializations.some((specialization) => specialization.toLowerCase().includes(input))
       );
     });
   }, [items, query]);

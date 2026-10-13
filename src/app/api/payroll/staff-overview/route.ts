@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { currentISTMonthYear, endOfMonthIST, startOfMonthIST } from "@/lib/time";
+import { getStaffDesignationName, staffDesignationSelect } from "@/lib/staffDesignation";
 
 function monthBounds(year: number, month: number) {
   return { start: startOfMonthIST(year, month), end: endOfMonthIST(year, month) };
@@ -37,7 +38,7 @@ export async function GET(request: Request) {
       select: {
         id: true,
         name: true,
-        designation: true,
+        ...staffDesignationSelect,
         baseSalary: true,
         commissionRate: true,
         salaryHistory: {
@@ -58,10 +59,10 @@ export async function GET(request: Request) {
       select: { staffId: true, status: true },
     });
 
-    const attendanceByStaff = new Map<string, { PRESENT: number; ABSENT: number; LEAVE: number; HALF_DAY: number }>();
+    const attendanceByStaff = new Map<string, { PRESENT: number; ABSENT: number; LEAVE: number; HALF_DAY: number; WEEK_OFF: number }>();
 
     for (const entry of attendance) {
-      const counts = attendanceByStaff.get(entry.staffId) ?? { PRESENT: 0, ABSENT: 0, LEAVE: 0, HALF_DAY: 0 };
+      const counts = attendanceByStaff.get(entry.staffId) ?? { PRESENT: 0, ABSENT: 0, LEAVE: 0, HALF_DAY: 0, WEEK_OFF: 0 };
       counts[entry.status] += 1;
       attendanceByStaff.set(entry.staffId, counts);
     }
@@ -95,13 +96,13 @@ export async function GET(request: Request) {
           ? null
           : Number(staff.commissionRate);
 
-      const attendanceCounts = attendanceByStaff.get(staff.id) ?? { PRESENT: 0, ABSENT: 0, LEAVE: 0, HALF_DAY: 0 };
+      const attendanceCounts = attendanceByStaff.get(staff.id) ?? { PRESENT: 0, ABSENT: 0, LEAVE: 0, HALF_DAY: 0, WEEK_OFF: 0 };
       const payroll = payrollByStaff.get(staff.id) ?? null;
 
       return {
         id: staff.id,
         name: staff.name,
-        designation: staff.designation,
+        designation: getStaffDesignationName(staff),
         baseSalary,
         commissionRate,
         salaryConfigured: baseSalary !== null && commissionRate !== null,

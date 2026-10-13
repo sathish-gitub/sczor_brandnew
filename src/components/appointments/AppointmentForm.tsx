@@ -387,7 +387,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
           label: staff.name,
           description: staff.designation,
           disabled: true,
-          disabledReason: "Off duty today",
+          disabledReason: "Not available",
         };
       }
 

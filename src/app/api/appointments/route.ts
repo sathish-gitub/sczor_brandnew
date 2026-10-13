@@ -16,6 +16,7 @@ import {
 } from "@/lib/appointmentServicePayload";
 import { assertNoStaffConflicts, loadStaffLineWindowsForDate } from "@/lib/appointmentLines";
 import { istDayBounds, istMonthBounds, istWallTimeToInstant, istWeekBounds, todayISTDateString } from "@/lib/time";
+import { getStaffDesignationName } from "@/lib/staffDesignation";
 
 const appointmentStatusValues = [
   "BOOKED",
@@ -208,7 +209,7 @@ export async function GET(request: Request) {
               duration: true,
               price: true,
               service: { select: { id: true, name: true } },
-              staff: { select: { id: true, name: true, designation: true } },
+              staff: { select: { id: true, name: true, designation: true, designationId: true, staffDesignation: { select: { name: true } } } },
             },
           },
         },
@@ -250,8 +251,22 @@ export async function GET(request: Request) {
       })(),
     ]);
 
+    const items = appointments.map((appointment) => ({
+      ...appointment,
+      services: appointment.services.map((line) => ({
+        ...line,
+        staff: line.staff
+          ? {
+              id: line.staff.id,
+              name: line.staff.name,
+              designation: getStaffDesignationName(line.staff),
+            }
+          : null,
+      })),
+    }));
+
     return noStore({
-      items: appointments,
+      items,
       pagination: {
         page,
         limit,

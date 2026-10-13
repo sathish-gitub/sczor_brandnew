@@ -5,7 +5,7 @@
  */
 import type { AppointmentStatusValue } from "@/lib/appointmentStatusStyles";
 
-export type CalendarAttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY" | null;
+export type CalendarAttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY" | "WEEK_OFF" | null;
 
 export type CalendarStaffMember = {
   id: string;
@@ -19,7 +19,7 @@ export type CalendarStaffMember = {
   /**
    * Derived "why is this column unavailable" label, or null when the staff
    * member is available (subject to business hours / per-slot bookings).
-   * One of "Absent", "On Leave", "Inactive", "Off today".
+   * One of "Absent", "Leave", "Inactive", "Week Off" (see `src/lib/attendanceStatus.ts`).
    */
   unavailableLabel: string | null;
   /** True when attendance is HALF_DAY — column is half (not fully) shaded. */

@@ -59,6 +59,7 @@ model Tenant {
   purchaseOrders      PurchaseOrder[]
   salaryHistory       SalaryHistory[]
   payrolls            Payroll[]
+  staffDesignations   StaffDesignation[]
 
   @@index([isActive])
   @@index([plan])
@@ -134,9 +135,15 @@ model Service {
 model Staff {
   id                  String               @id @default(cuid())
   name                String
-  designation         String
+  designation         String // legacy free-text value, kept for old data; prefer designationId/staffDesignation when set
+  designationId       String?
+  staffDesignation    StaffDesignation?    @relation(fields: [designationId], references: [id], onDelete: SetNull)
   mobile              String?
   email               String?
+  dateOfBirth         DateTime?
+  joiningDate         DateTime?
+  experienceYears     Decimal?             @db.Decimal(4, 1)
+  specializations     String[]             @default([])
   workingDays         String[]             @default(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
   status              Status               @default(ACTIVE)
   availabilityStatus  Availability         @default(AVAILABLE)
@@ -160,6 +167,19 @@ model Staff {
   @@index([tenantId])
   @@index([tenantId, status])
   @@index([tenantId, availabilityStatus])
+  @@index([tenantId, designationId])
+}
+
+model StaffDesignation {
+  id        String   @id @default(cuid())
+  name      String
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  staff     Staff[]
+  createdAt DateTime @default(now())
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
 }
 
 model SalaryHistory {
@@ -712,4 +732,5 @@ enum AttendanceStatus {
   ABSENT
   LEAVE
   HALF_DAY
+  WEEK_OFF
 }

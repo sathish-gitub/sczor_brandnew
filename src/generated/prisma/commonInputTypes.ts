@@ -270,13 +270,6 @@ export type EnumStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumStatusFilter<$PrismaModel>
 }
 
-export type EnumAvailabilityFilter<$PrismaModel = never> = {
-  equals?: $Enums.Availability | Prisma.EnumAvailabilityFieldRefInput<$PrismaModel>
-  in?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
-  notIn?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumAvailabilityFilter<$PrismaModel> | $Enums.Availability
-}
-
 export type DecimalNullableFilter<$PrismaModel = never> = {
   equals?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel> | null
   in?: runtime.Decimal[] | runtime.DecimalJsLike[] | number[] | string[] | Prisma.ListDecimalFieldRefInput<$PrismaModel> | null
@@ -288,6 +281,13 @@ export type DecimalNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedDecimalNullableFilter<$PrismaModel> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
+export type EnumAvailabilityFilter<$PrismaModel = never> = {
+  equals?: $Enums.Availability | Prisma.EnumAvailabilityFieldRefInput<$PrismaModel>
+  in?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAvailabilityFilter<$PrismaModel> | $Enums.Availability
+}
+
 export type IntNullableFilter<$PrismaModel = never> = {
   equals?: number | Prisma.IntFieldRefInput<$PrismaModel> | null
   in?: number[] | Prisma.ListIntFieldRefInput<$PrismaModel> | null
@@ -297,16 +297,6 @@ export type IntNullableFilter<$PrismaModel = never> = {
   gt?: number | Prisma.IntFieldRefInput<$PrismaModel>
   gte?: number | Prisma.IntFieldRefInput<$PrismaModel>
   not?: Prisma.NestedIntNullableFilter<$PrismaModel> | number | null
-}
-
-export type EnumAvailabilityWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.Availability | Prisma.EnumAvailabilityFieldRefInput<$PrismaModel>
-  in?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
-  notIn?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumAvailabilityWithAggregatesFilter<$PrismaModel> | $Enums.Availability
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumAvailabilityFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumAvailabilityFilter<$PrismaModel>
 }
 
 export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -323,6 +313,16 @@ export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
+}
+
+export type EnumAvailabilityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Availability | Prisma.EnumAvailabilityFieldRefInput<$PrismaModel>
+  in?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAvailabilityWithAggregatesFilter<$PrismaModel> | $Enums.Availability
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAvailabilityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAvailabilityFilter<$PrismaModel>
 }
 
 export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -712,13 +712,6 @@ export type NestedEnumStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumStatusFilter<$PrismaModel>
 }
 
-export type NestedEnumAvailabilityFilter<$PrismaModel = never> = {
-  equals?: $Enums.Availability | Prisma.EnumAvailabilityFieldRefInput<$PrismaModel>
-  in?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
-  notIn?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumAvailabilityFilter<$PrismaModel> | $Enums.Availability
-}
-
 export type NestedDecimalNullableFilter<$PrismaModel = never> = {
   equals?: runtime.Decimal | runtime.DecimalJsLike | number | string | Prisma.DecimalFieldRefInput<$PrismaModel> | null
   in?: runtime.Decimal[] | runtime.DecimalJsLike[] | number[] | string[] | Prisma.ListDecimalFieldRefInput<$PrismaModel> | null
@@ -730,14 +723,11 @@ export type NestedDecimalNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedDecimalNullableFilter<$PrismaModel> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
 }
 
-export type NestedEnumAvailabilityWithAggregatesFilter<$PrismaModel = never> = {
+export type NestedEnumAvailabilityFilter<$PrismaModel = never> = {
   equals?: $Enums.Availability | Prisma.EnumAvailabilityFieldRefInput<$PrismaModel>
   in?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
   notIn?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumAvailabilityWithAggregatesFilter<$PrismaModel> | $Enums.Availability
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumAvailabilityFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumAvailabilityFilter<$PrismaModel>
+  not?: Prisma.NestedEnumAvailabilityFilter<$PrismaModel> | $Enums.Availability
 }
 
 export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -754,6 +744,16 @@ export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
   _sum?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDecimalNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumAvailabilityWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.Availability | Prisma.EnumAvailabilityFieldRefInput<$PrismaModel>
+  in?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
+  notIn?: $Enums.Availability[] | Prisma.ListEnumAvailabilityFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumAvailabilityWithAggregatesFilter<$PrismaModel> | $Enums.Availability
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumAvailabilityFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumAvailabilityFilter<$PrismaModel>
 }
 
 export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {

@@ -17,17 +17,10 @@ import {
 } from "lucide-react";
 
 import { OnboardingLayout } from "@/components/onboarding/OnboardingLayout";
+import { DesignationSelect } from "@/components/staff/DesignationSelect";
 
 const stepLabels = ["Salon Profile", "Add Services", "Add Staff", "All Done"];
 const workingDays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
-const staffDesignations = [
-  "Beautician",
-  "Hair Stylist",
-  "Nail Artist",
-  "Makeup Artist",
-  "Receptionist",
-  "Manager",
-] as const;
 
 type InitialProfile = {
   salonName: string;
@@ -59,7 +52,7 @@ type ServiceCategoryOption = {
 type StaffRow = {
   id: string;
   name: string;
-  designation: (typeof staffDesignations)[number];
+  designationId: string;
   mobile: string;
 };
 
@@ -85,7 +78,7 @@ function createRowId() {
 const emptyStaffRow = (): StaffRow => ({
   id: createRowId(),
   name: "",
-  designation: "Beautician",
+  designationId: "",
   mobile: "",
 });
 
@@ -254,7 +247,7 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
   function buildStaffPayload() {
     return staff
       .filter((member) => member.name.trim() || member.mobile.trim())
-      .map(({ name, designation, mobile }) => ({ name, designation, mobile }));
+      .map(({ name, designationId, mobile }) => ({ name, designationId, mobile }));
   }
 
   function validateStaff() {
@@ -265,11 +258,11 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
     }
 
     const hasInvalidRow = payload.some(
-      (member) => member.name.trim().length < 2 || !/^\d{10}$/.test(member.mobile),
+      (member) => member.name.trim().length < 2 || !/^\d{10}$/.test(member.mobile) || !member.designationId,
     );
 
     return {
-      error: hasInvalidRow ? "Please enter a valid 10-digit mobile number for all staff members." : null,
+      error: hasInvalidRow ? "Please enter a valid name, designation and 10-digit mobile number for all staff members." : null,
       payload,
     };
   }
@@ -825,28 +818,17 @@ export function OnboardingWizard({ initialProfile }: OnboardingWizardProps) {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-[var(--foreground)]">Designation</label>
-                  <select
-                    value={member.designation}
-                    onChange={(event) => {
+                  <DesignationSelect
+                    value={member.designationId}
+                    onChange={(designationId) => {
                       setStaff((existing) =>
                         existing.map((item) =>
-                          item.id === member.id
-                            ? {
-                                ...item,
-                                designation: event.target.value as StaffRow["designation"],
-                              }
-                            : item,
+                          item.id === member.id ? { ...item, designationId } : item,
                         ),
                       );
                     }}
-                    className="h-11 w-full rounded-2xl border border-[var(--border)] bg-white px-4 text-sm outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_4px_rgba(37,99,235,0.12)]"
-                  >
-                    {staffDesignations.map((designation) => (
-                      <option key={designation} value={designation}>
-                        {designation}
-                      </option>
-                    ))}
-                  </select>
+                    showManageLink={false}
+                  />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-[var(--foreground)]">Mobile</label>

@@ -4,7 +4,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getBusinessHoursForDate } from "@/lib/businessHours";
+import { resolveAttendanceDisplayStatus } from "@/lib/attendanceStatus";
 import { addMinutesToClock, instantForOffset, istDayBounds, istWallTimeToInstant, toISTWeekday } from "@/lib/time";
+import { getStaffDesignationName, staffDesignationSelect } from "@/lib/staffDesignation";
 import type { CalendarAttendanceStatus, CalendarLine, CalendarResponse, CalendarStaffMember } from "@/lib/calendarTypes";
 
 export async function GET(request: Request) {
@@ -67,7 +69,7 @@ export async function GET(request: Request) {
             select: {
               id: true,
               name: true,
-              designation: true,
+              ...staffDesignationSelect,
               status: true,
               workingDays: true,
               attendances: {
@@ -82,27 +84,36 @@ export async function GET(request: Request) {
       const attendanceStatus = (member.attendances[0]?.status ?? null) as CalendarAttendanceStatus;
       const isWorkingDay = member.workingDays.includes(weekday);
       const halfDay = attendanceStatus === "HALF_DAY";
+      // Automatic Week Off is driven by the salon's business hours (a closed
+      // day), not `Staff.workingDays` (a separate per-staff roster concept);
+      // an explicit stored attendance row always takes precedence (manual
+      // override — including a rotating Week Off or a Present/Absent mark on
+      // an otherwise-closed day).
+      const displayStatus = resolveAttendanceDisplayStatus({
+        storedStatus: attendanceStatus,
+        isBusinessWorkingDay: !businessHours.closed,
+      });
 
       let unavailableLabel: string | null = null;
       if (member.status !== "ACTIVE") {
         unavailableLabel = "Inactive";
-      } else if (attendanceStatus === "ABSENT") {
+      } else if (displayStatus === "ABSENT") {
         unavailableLabel = "Absent";
-      } else if (attendanceStatus === "LEAVE") {
-        unavailableLabel = "On Leave";
+      } else if (displayStatus === "LEAVE") {
+        unavailableLabel = "Leave";
+      } else if (displayStatus === "WEEK_OFF") {
+        unavailableLabel = "Week Off";
       } else if (halfDay) {
         // Half-day attendance has no AM/PM granularity in the schema, so the
         // whole column is marked with a lighter "Half Day" overlay (see
         // `column.halfDay` in CalendarGrid) rather than a full block-out.
         unavailableLabel = "Half Day";
-      } else if (!isWorkingDay) {
-        unavailableLabel = "Off today";
       }
 
       return {
         id: member.id,
         name: member.name,
-        designation: member.designation,
+        designation: getStaffDesignationName(member),
         status: member.status,
         attendanceStatus,
         isWorkingDay,

@@ -8,16 +8,16 @@ import { prisma } from "@/lib/prisma";
 import { attendanceDateInstant, findAttendanceIdsForDay } from "@/lib/attendanceDate";
 import { todayISTDateString } from "@/lib/time";
 
-type AttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY";
+type AttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY" | "WEEK_OFF";
 
 const singleSchema = z.object({
   staffId: z.string().cuid(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  status: z.enum(["PRESENT", "ABSENT", "LEAVE", "HALF_DAY"]),
+  status: z.enum(["PRESENT", "ABSENT", "LEAVE", "HALF_DAY", "WEEK_OFF"]),
 });
 
 function availabilityFromStatus(status: AttendanceStatus) {
-  if (status === "ABSENT" || status === "LEAVE") {
+  if (status === "ABSENT" || status === "LEAVE" || status === "WEEK_OFF") {
     return "OFF_DUTY" as const;
   }
 

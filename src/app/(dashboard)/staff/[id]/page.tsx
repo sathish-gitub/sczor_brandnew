@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, Mail, Phone, Star } from "lucide-react";
 
 import { StaffAvatar } from "@/components/staff/StaffAvatar";
+import { getAvailabilityStatusLabel } from "@/lib/attendanceStatus";
+import { formatISTTenureLabel, toISTDateString } from "@/lib/time";
 
 type StaffDetail = {
   id: string;
@@ -17,6 +19,10 @@ type StaffDetail = {
   availabilityStatus: "AVAILABLE" | "BUSY" | "OFF_DUTY";
   workingDays: string[];
   createdAt: string;
+  dateOfBirth: string | null;
+  joiningDate: string | null;
+  experienceYears: number | null;
+  specializations: string[];
   baseSalary: number | null;
   commissionRate: number | null;
   salaryHistory: Array<{
@@ -190,7 +196,7 @@ export default function StaffProfilePage() {
               <p className="text-sm text-[var(--muted)]">{staff.designation}</p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">{staff.status}</span>
-                <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">{staff.availabilityStatus}</span>
+                <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">{getAvailabilityStatusLabel(staff.availabilityStatus)}</span>
               </div>
             </div>
           </div>
@@ -216,9 +222,27 @@ export default function StaffProfilePage() {
           </p>
           <p className="inline-flex items-center gap-2 text-[var(--muted)]">
             <CalendarDays className="h-4 w-4" />
-            Joined {formatDate(staff.createdAt)}
+            {staff.joiningDate
+              ? `Joined ${formatDate(staff.joiningDate)} (${formatISTTenureLabel(toISTDateString(new Date(staff.joiningDate)))})`
+              : `Joined ${formatDate(staff.createdAt)}`}
           </p>
+          {staff.experienceYears !== null ? (
+            <p className="inline-flex items-center gap-2 text-[var(--muted)]">
+              <Star className="h-4 w-4" />
+              {staff.experienceYears} yrs experience
+            </p>
+          ) : null}
         </div>
+
+        {staff.specializations.length > 0 ? (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {staff.specializations.map((item) => (
+              <span key={item} className="rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700">
+                {item}
+              </span>
+            ))}
+          </div>
+        ) : null}
 
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-xl bg-slate-50 p-3">

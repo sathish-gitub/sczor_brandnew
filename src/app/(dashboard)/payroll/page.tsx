@@ -13,7 +13,7 @@ type StaffOverviewItem = {
   baseSalary: number | null;
   commissionRate: number | null;
   salaryConfigured: boolean;
-  attendance: { PRESENT: number; ABSENT: number; LEAVE: number; HALF_DAY: number };
+  attendance: { PRESENT: number; ABSENT: number; LEAVE: number; HALF_DAY: number; WEEK_OFF: number };
   payrollId: string | null;
   payrollStatus: string | null;
 };
@@ -22,6 +22,7 @@ type PayrollPreviewResult = {
   presentDays: number;
   absentDays: number;
   leaveDays: number;
+  weekOffDays: number;
   paidLeaveDays: number;
   lopDays: number;
   halfDays: number;
@@ -366,6 +367,7 @@ export default function PayrollPage() {
                     <td className="px-4 py-3 text-[var(--muted)]">
                       {item.attendance.PRESENT} Present / {item.attendance.LEAVE} Leave / {item.attendance.ABSENT} Absent
                       {item.attendance.HALF_DAY > 0 ? ` / ${item.attendance.HALF_DAY} Half-day` : ""}
+                      {item.attendance.WEEK_OFF > 0 ? ` / ${item.attendance.WEEK_OFF} Week Off` : ""}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-1.5">
@@ -454,6 +456,10 @@ export default function PayrollPage() {
                 <div className="flex items-center justify-between">
                   <span className="text-[var(--muted)]">Half Days</span>
                   <span className="font-medium text-[var(--foreground)]">{singlePreview.halfDays} days</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[var(--muted)]">Week Off (paid)</span>
+                  <span className="font-medium text-[var(--foreground)]">{singlePreview.weekOffDays} days</span>
                 </div>
                 <div className="mt-2 flex items-center justify-between border-t border-[var(--border)] pt-2 font-semibold text-[var(--foreground)]">
                   <span>Estimated Net Pay</span>

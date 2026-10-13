@@ -2,8 +2,10 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
+import { getAvailabilityStatusLabel } from "@/lib/attendanceStatus";
 import { prisma } from "@/lib/prisma";
 import { istDayBounds } from "@/lib/time";
+import { getStaffDesignationName } from "@/lib/staffDesignation";
 
 async function tenantIdOrNull() {
   const session = await getServerSession(authOptions);
@@ -36,6 +38,7 @@ export async function GET(request: Request) {
       name: "asc",
     },
     include: {
+      staffDesignation: { select: { name: true } },
       attendances: {
         where: {
           date: {
@@ -75,14 +78,14 @@ export async function GET(request: Request) {
       return {
         id: member.id,
         name: member.name,
-        designation: member.designation,
+        designation: getStaffDesignationName(member),
         available,
         reason: unavailableByAttendance
-          ? "Off duty"
+          ? "Not available"
           : unavailableByBooking
             ? "Already booked"
             : unavailableByStatus
-              ? member.availabilityStatus
+              ? getAvailabilityStatusLabel(member.availabilityStatus)
               : null,
       };
     })

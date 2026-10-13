@@ -22,6 +22,7 @@ import { ServicePopularityDonut, type ServicePopularityPoint } from "@/component
 import { StaffPerformanceBarChart, type StaffPerformancePoint } from "@/components/charts/StaffPerformanceBarChart";
 import { LowStockWidget } from "@/components/inventory/LowStockWidget";
 import { PayrollStatusWidget } from "@/components/payroll/PayrollStatusWidget";
+import { getAttendanceStatusStyle } from "@/lib/attendanceStatus";
 
 type DashboardStats = {
   todayAppointments: number;
@@ -49,9 +50,8 @@ type StaffAvailability = {
   name: string;
   designation: string;
   status: "ACTIVE" | "INACTIVE";
-  availabilityStatus: "AVAILABLE" | "BUSY" | "OFF_DUTY";
-  displayStatus: "AVAILABLE" | "BUSY" | "OFF_DUTY" | "INACTIVE";
-  todayAttendance: "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY" | null;
+  displayStatus: "PRESENT" | "ABSENT" | "LEAVE" | "WEEK_OFF" | "HALF_DAY" | "NOT_MARKED" | "INACTIVE";
+  todayAttendance: "PRESENT" | "ABSENT" | "LEAVE" | "WEEK_OFF" | "HALF_DAY" | null;
   todayAppointments: number;
   totalAppointments: number;
 };
@@ -148,7 +148,7 @@ function statusChip(status: DashboardAppointment["status"]) {
   };
 }
 
-function staffStatus(status: "AVAILABLE" | "BUSY" | "OFF_DUTY" | "INACTIVE") {
+function staffStatus(status: StaffAvailability["displayStatus"]) {
   if (status === "INACTIVE") {
     return {
       label: "Inactive",
@@ -156,36 +156,8 @@ function staffStatus(status: "AVAILABLE" | "BUSY" | "OFF_DUTY" | "INACTIVE") {
     };
   }
 
-  if (status === "BUSY") {
-    return {
-      label: "Busy",
-      dot: "bg-amber-500",
-    };
-  }
-
-  if (status === "OFF_DUTY") {
-    return {
-      label: "Off Duty",
-      dot: "bg-red-500",
-    };
-  }
-
-  return {
-    label: "Available",
-    dot: "bg-emerald-500",
-  };
-}
-
-function resolveStaffStatus(member: StaffAvailability): "AVAILABLE" | "BUSY" | "OFF_DUTY" | "INACTIVE" {
-  if (member.status === "INACTIVE") {
-    return "INACTIVE";
-  }
-
-  if (member.todayAttendance === "ABSENT" || member.todayAttendance === "LEAVE") {
-    return "OFF_DUTY";
-  }
-
-  return member.availabilityStatus;
+  const style = getAttendanceStatusStyle(status === "NOT_MARKED" ? "NOT_MARKED" : status);
+  return { label: style.label, dot: style.dotClassName };
 }
 
 function SectionCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
@@ -418,6 +390,24 @@ export default function DashboardPage() {
     [selectedRange, customFrom, customTo],
   );
 
+  const staffStatusCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      PRESENT: 0,
+      ABSENT: 0,
+      LEAVE: 0,
+      WEEK_OFF: 0,
+      HALF_DAY: 0,
+      NOT_MARKED: 0,
+      INACTIVE: 0,
+    };
+
+    for (const member of staff) {
+      counts[member.displayStatus] = (counts[member.displayStatus] ?? 0) + 1;
+    }
+
+    return counts;
+  }, [staff]);
+
   const statCards = useMemo(
     () => [
       {
@@ -626,9 +616,29 @@ export default function DashboardPage() {
               </div>
             ) : (
               <>
+                <div className="mb-3 flex flex-wrap gap-2">
+                  {(["PRESENT", "ABSENT", "LEAVE", "WEEK_OFF", "HALF_DAY", "NOT_MARKED"] as const).map((key) => {
+                    const style = staffStatus(key);
+                    const count = staffStatusCounts[key] ?? 0;
+
+                    if (count === 0) {
+                      return null;
+                    }
+
+                    return (
+                      <span
+                        key={key}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border)] bg-slate-50 px-2.5 py-1 text-xs font-medium text-[var(--foreground)]"
+                      >
+                        <span className={`h-2 w-2 rounded-full ${style.dot}`} />
+                        {style.label}: {count}
+                      </span>
+                    );
+                  })}
+                </div>
                 <div className="staff-scroll staff-scroll-container max-h-[320px] space-y-3 overflow-y-auto bg-transparent pr-1">
                   {staff.map((member) => {
-                    const status = staffStatus(resolveStaffStatus(member));
+                    const status = staffStatus(member.displayStatus);
 
                     return (
                       <div key={member.id} className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-transparent px-3 py-3">

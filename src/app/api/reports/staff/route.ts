@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getServicesDoneByStaff, getStaffRevenueByInvoiceLine } from "@/lib/staffRevenue";
 import { istMonthBounds, istWallTimeToInstant, todayISTDateString } from "@/lib/time";
+import { getStaffDesignationName, staffDesignationSelect } from "@/lib/staffDesignation";
 
 /** "YYYY-MM-DD" -> the start of the NEXT IST day, i.e. an exclusive upper bound. */
 function parseISTDateExclusiveEnd(value: string | null): Date | null {
@@ -48,7 +49,7 @@ export async function GET(request: Request) {
       select: {
         id: true,
         name: true,
-        designation: true,
+        ...staffDesignationSelect,
       },
       orderBy: {
         name: "asc",
@@ -113,7 +114,7 @@ export async function GET(request: Request) {
       return {
         staffId: member.id,
         name: member.name,
-        designation: member.designation,
+        designation: getStaffDesignationName(member),
         servicesDone: servicesDoneInfo.count,
         revenue,
         invoices: invoiceCount,

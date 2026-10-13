@@ -1,14 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ExportButtons } from "@/components/reports/ExportButtons";
 import { MonthCalendar } from "@/components/attendance/MonthCalendar";
 import { StaffAvatar } from "@/components/staff/StaffAvatar";
 import { useAccess } from "@/contexts/AccessContext";
 import type { ExportColumn } from "@/lib/exportReport";
+import { getAttendanceStatusStyle, type DisplayAttendanceStatus } from "@/lib/attendanceStatus";
+import { currentISTMonthYear } from "@/lib/time";
 
-type CellStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY" | "OFF";
+type CellStatus = DisplayAttendanceStatus;
 
 type ReportRow = {
   staffId: string;
@@ -24,6 +27,7 @@ type ReportRow = {
     absent: number;
     leave: number;
     halfDay: number;
+    weekOff: number;
     attendancePercent: number;
   };
 };
@@ -31,7 +35,7 @@ type ReportRow = {
 type AttendanceReportResponse = {
   month: number;
   year: number;
-  days: Array<{ day: number; weekday: string }>;
+  days: Array<{ day: number; weekday: string; isBusinessWorkingDay: boolean }>;
   overview: {
     workingDays: number;
     avgAttendancePercent: number;
@@ -45,58 +49,42 @@ function formatMonthInput(year: number, month: number) {
   return `${year}-${`${month}`.padStart(2, "0")}`;
 }
 
-function statusCellClass(status: CellStatus) {
-  if (status === "PRESENT") {
-    return "bg-emerald-100 text-emerald-700";
-  }
-
-  if (status === "ABSENT") {
-    return "bg-red-100 text-red-700";
-  }
-
-  if (status === "LEAVE") {
-    return "bg-yellow-100 text-yellow-700";
-  }
-
-  if (status === "HALF_DAY") {
-    return "bg-orange-100 text-orange-700";
-  }
-
-  return "bg-slate-100 text-slate-500";
-}
-
-function statusCellLabel(status: CellStatus) {
-  if (status === "PRESENT") {
-    return "P";
-  }
-
-  if (status === "ABSENT") {
-    return "A";
-  }
-
-  if (status === "LEAVE") {
-    return "L";
-  }
-
-  if (status === "HALF_DAY") {
-    return "H";
-  }
-
-  return "-";
-}
-
 export default function AttendanceReportsPage() {
   const { tenantName } = useAccess();
-  const now = useMemo(() => new Date(), []);
-  const [monthInput, setMonthInput] = useState(formatMonthInput(now.getFullYear(), now.getMonth() + 1));
-  const [staffFilter, setStaffFilter] = useState("ALL");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const istDefaults = useMemo(() => currentISTMonthYear(), []);
+  const monthParam = searchParams.get("month");
+  const monthInput =
+    monthParam && /^\d{4}-\d{2}$/.test(monthParam) ? monthParam : formatMonthInput(istDefaults.year, istDefaults.month);
+  const staffFilter = searchParams.get("staffId") ?? "ALL";
+  const [searchQuery, setSearchQuery] = useState("");
   const [focusDay, setFocusDay] = useState<number | undefined>(undefined);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<AttendanceReportResponse | null>(null);
 
-  const [staffOptions, setStaffOptions] = useState<Array<{ id: string; name: string }>>([]);
+  const [staffOptions, setStaffOptions] = useState<Array<{ id: string; name: string; designation: string }>>([]);
+
+  const updateQuery = useCallback(
+    (updates: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString());
+
+      for (const [key, value] of Object.entries(updates)) {
+        if (value === null) {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      }
+
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   useEffect(() => {
     let active = true;
@@ -104,14 +92,16 @@ export default function AttendanceReportsPage() {
     async function loadStaffOptions() {
       const response = await fetch("/api/staff", { cache: "no-store" });
       const payload = (await response.json().catch(() => null)) as
-        | { items?: Array<{ id: string; name: string }> }
+        | { items?: Array<{ id: string; name: string; designation: string }> }
         | null;
 
       if (!active) {
         return;
       }
 
-      setStaffOptions(payload?.items?.map((item) => ({ id: item.id, name: item.name })) ?? []);
+      setStaffOptions(
+        payload?.items?.map((item) => ({ id: item.id, name: item.name, designation: item.designation ?? "" })) ?? [],
+      );
     }
 
     loadStaffOptions();
@@ -164,6 +154,21 @@ export default function AttendanceReportsPage() {
     };
   }, [monthInput, staffFilter]);
 
+  const visibleItems = useMemo(() => {
+    if (!report) {
+      return [];
+    }
+
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) {
+      return report.items;
+    }
+
+    return report.items.filter(
+      (item) => item.name.toLowerCase().includes(query) || item.designation.toLowerCase().includes(query),
+    );
+  }, [report, searchQuery]);
+
   function getAttendanceExportConfig() {
     if (!report) {
       return {
@@ -189,23 +194,25 @@ export default function AttendanceReportsPage() {
       { header: "Present", key: "present", type: "number" },
       { header: "Absent", key: "absent", type: "number" },
       { header: "Leave", key: "leave", type: "number" },
+      { header: "Week Off", key: "weekOff", type: "number" },
       { header: "Half Day", key: "halfDay", type: "number" },
       { header: "Attendance %", key: "attendancePercent", type: "percent" },
     ];
 
-    const rows = report.items.map((item) => {
+    const rows = visibleItems.map((item) => {
       const row: Record<string, unknown> = {
         name: item.name,
         designation: item.designation,
         present: item.summary.present,
         absent: item.summary.absent,
         leave: item.summary.leave,
+        weekOff: item.summary.weekOff,
         halfDay: item.summary.halfDay,
         attendancePercent: item.summary.attendancePercent,
       };
 
       item.cells.forEach((cell) => {
-        row[`day${cell.day}`] = statusCellLabel(cell.status);
+        row[`day${cell.day}`] = getAttendanceStatusStyle(cell.status).shortLabel;
       });
 
       return row;
@@ -222,7 +229,7 @@ export default function AttendanceReportsPage() {
     };
   }
 
-  const calendarTarget = report?.items[0] ?? null;
+  const calendarTarget = visibleItems[0] ?? null;
   const calendarStatuses = useMemo(() => {
     if (!calendarTarget) {
       return {} as Record<number, CellStatus>;
@@ -236,16 +243,16 @@ export default function AttendanceReportsPage() {
       return [];
     }
 
-    return report.items.map((item) => {
+    return visibleItems.map((item) => {
       const cell = item.cells.find((entry) => entry.day === focusDay);
       return {
         staffId: item.staffId,
         name: item.name,
         designation: item.designation,
-        status: cell?.status ?? "OFF",
+        status: (cell?.status ?? "NOT_MARKED") as CellStatus,
       };
     });
-  }, [report, focusDay]);
+  }, [report, focusDay, visibleItems]);
 
   return (
     <div className="space-y-5">
@@ -265,13 +272,13 @@ export default function AttendanceReportsPage() {
           <input
             type="month"
             value={monthInput}
-            onChange={(event) => setMonthInput(event.target.value)}
+            onChange={(event) => updateQuery({ month: event.target.value })}
             className="h-10 rounded-xl border border-[var(--border)] px-3 text-sm"
           />
 
           <select
             value={staffFilter}
-            onChange={(event) => setStaffFilter(event.target.value)}
+            onChange={(event) => updateQuery({ staffId: event.target.value === "ALL" ? null : event.target.value })}
             className="h-10 rounded-xl border border-[var(--border)] px-3 text-sm"
           >
             <option value="ALL">All Staff</option>
@@ -281,6 +288,14 @@ export default function AttendanceReportsPage() {
               </option>
             ))}
           </select>
+
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Search by name or designation..."
+            className="h-10 flex-1 rounded-xl border border-[var(--border)] px-3 text-sm"
+          />
         </div>
       </header>
 
@@ -296,6 +311,10 @@ export default function AttendanceReportsPage() {
       ) : !report || report.items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[var(--border)] bg-white px-6 py-16 text-center">
           <p className="text-base font-semibold text-[var(--foreground)]">No staff found. Add staff first.</p>
+        </div>
+      ) : visibleItems.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-[var(--border)] bg-white px-6 py-16 text-center">
+          <p className="text-base font-semibold text-[var(--foreground)]">No staff match &quot;{searchQuery}&quot;.</p>
         </div>
       ) : (
         <>
@@ -333,19 +352,22 @@ export default function AttendanceReportsPage() {
                 </tr>
               </thead>
               <tbody>
-                {report.items.map((row) => (
+                {visibleItems.map((row) => (
                   <tr key={row.staffId} className="border-t border-[var(--border)]">
                     <td className="px-3 py-2">
                       <p className="text-sm font-semibold text-[var(--foreground)]">{row.name}</p>
                       <p className="text-[11px] text-[var(--muted)]">{row.designation}</p>
                     </td>
-                    {row.cells.map((cell) => (
-                      <td key={`${row.staffId}-${cell.day}`} className="px-1 py-1 text-center">
-                        <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full font-semibold ${statusCellClass(cell.status)}`}>
-                          {statusCellLabel(cell.status)}
-                        </span>
-                      </td>
-                    ))}
+                    {row.cells.map((cell) => {
+                      const style = getAttendanceStatusStyle(cell.status);
+                      return (
+                        <td key={`${row.staffId}-${cell.day}`} className="px-1 py-1 text-center">
+                          <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full font-semibold ${style.cellClassName}`}>
+                            {style.shortLabel}
+                          </span>
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
               </tbody>
@@ -367,15 +389,18 @@ export default function AttendanceReportsPage() {
                 <div className="rounded-xl border border-[var(--border)] bg-white p-4">
                   <h3 className="text-sm font-semibold text-[var(--foreground)]">Day {focusDay} Snapshot</h3>
                   <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {focusDayRows.map((row) => (
-                      <div key={`focus-${row.staffId}`} className="rounded-lg border border-[var(--border)] p-3">
-                        <p className="text-sm font-semibold text-[var(--foreground)]">{row.name}</p>
-                        <p className="text-xs text-[var(--muted)]">{row.designation}</p>
-                        <span className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${statusCellClass(row.status)}`}>
-                          {statusCellLabel(row.status)} {row.status === "OFF" ? "Off" : row.status.replaceAll("_", " ")}
-                        </span>
-                      </div>
-                    ))}
+                    {focusDayRows.map((row) => {
+                      const style = getAttendanceStatusStyle(row.status);
+                      return (
+                        <div key={`focus-${row.staffId}`} className="rounded-lg border border-[var(--border)] p-3">
+                          <p className="text-sm font-semibold text-[var(--foreground)]">{row.name}</p>
+                          <p className="text-xs text-[var(--muted)]">{row.designation}</p>
+                          <span className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${style.badgeClassName}`}>
+                            {style.shortLabel} {style.label}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ) : null}
@@ -385,7 +410,7 @@ export default function AttendanceReportsPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-[var(--foreground)]">Individual Staff Summary</h2>
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {report.items.map((row) => (
+              {visibleItems.map((row) => (
                 <article key={`summary-${row.staffId}`} className="rounded-xl border border-[var(--border)] bg-white p-4">
                   <div className="flex items-center gap-3">
                     <StaffAvatar name={row.name} />
@@ -399,6 +424,7 @@ export default function AttendanceReportsPage() {
                     <p className="flex justify-between"><span className="text-[var(--muted)]">Present days</span><span className="font-semibold">{row.summary.present}</span></p>
                     <p className="flex justify-between"><span className="text-[var(--muted)]">Absent days</span><span className="font-semibold">{row.summary.absent}</span></p>
                     <p className="flex justify-between"><span className="text-[var(--muted)]">Leave days</span><span className="font-semibold">{row.summary.leave}</span></p>
+                    <p className="flex justify-between"><span className="text-[var(--muted)]">Week Off days</span><span className="font-semibold">{row.summary.weekOff}</span></p>
                     <p className="flex justify-between"><span className="text-[var(--muted)]">Attendance %</span><span className="font-semibold">{row.summary.attendancePercent}%</span></p>
                   </div>
 

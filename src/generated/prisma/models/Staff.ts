@@ -27,12 +27,14 @@ export type AggregateStaff = {
 }
 
 export type StaffAvgAggregateOutputType = {
+  experienceYears: runtime.Decimal | null
   baseSalary: runtime.Decimal | null
   commissionRate: runtime.Decimal | null
   paidLeavesPerMonth: number | null
 }
 
 export type StaffSumAggregateOutputType = {
+  experienceYears: runtime.Decimal | null
   baseSalary: runtime.Decimal | null
   commissionRate: runtime.Decimal | null
   paidLeavesPerMonth: number | null
@@ -42,8 +44,12 @@ export type StaffMinAggregateOutputType = {
   id: string | null
   name: string | null
   designation: string | null
+  designationId: string | null
   mobile: string | null
   email: string | null
+  dateOfBirth: Date | null
+  joiningDate: Date | null
+  experienceYears: runtime.Decimal | null
   status: $Enums.Status | null
   availabilityStatus: $Enums.Availability | null
   baseSalary: runtime.Decimal | null
@@ -59,8 +65,12 @@ export type StaffMaxAggregateOutputType = {
   id: string | null
   name: string | null
   designation: string | null
+  designationId: string | null
   mobile: string | null
   email: string | null
+  dateOfBirth: Date | null
+  joiningDate: Date | null
+  experienceYears: runtime.Decimal | null
   status: $Enums.Status | null
   availabilityStatus: $Enums.Availability | null
   baseSalary: runtime.Decimal | null
@@ -76,8 +86,13 @@ export type StaffCountAggregateOutputType = {
   id: number
   name: number
   designation: number
+  designationId: number
   mobile: number
   email: number
+  dateOfBirth: number
+  joiningDate: number
+  experienceYears: number
+  specializations: number
   workingDays: number
   status: number
   availabilityStatus: number
@@ -93,12 +108,14 @@ export type StaffCountAggregateOutputType = {
 
 
 export type StaffAvgAggregateInputType = {
+  experienceYears?: true
   baseSalary?: true
   commissionRate?: true
   paidLeavesPerMonth?: true
 }
 
 export type StaffSumAggregateInputType = {
+  experienceYears?: true
   baseSalary?: true
   commissionRate?: true
   paidLeavesPerMonth?: true
@@ -108,8 +125,12 @@ export type StaffMinAggregateInputType = {
   id?: true
   name?: true
   designation?: true
+  designationId?: true
   mobile?: true
   email?: true
+  dateOfBirth?: true
+  joiningDate?: true
+  experienceYears?: true
   status?: true
   availabilityStatus?: true
   baseSalary?: true
@@ -125,8 +146,12 @@ export type StaffMaxAggregateInputType = {
   id?: true
   name?: true
   designation?: true
+  designationId?: true
   mobile?: true
   email?: true
+  dateOfBirth?: true
+  joiningDate?: true
+  experienceYears?: true
   status?: true
   availabilityStatus?: true
   baseSalary?: true
@@ -142,8 +167,13 @@ export type StaffCountAggregateInputType = {
   id?: true
   name?: true
   designation?: true
+  designationId?: true
   mobile?: true
   email?: true
+  dateOfBirth?: true
+  joiningDate?: true
+  experienceYears?: true
+  specializations?: true
   workingDays?: true
   status?: true
   availabilityStatus?: true
@@ -247,8 +277,13 @@ export type StaffGroupByOutputType = {
   id: string
   name: string
   designation: string
+  designationId: string | null
   mobile: string | null
   email: string | null
+  dateOfBirth: Date | null
+  joiningDate: Date | null
+  experienceYears: runtime.Decimal | null
+  specializations: string[]
   workingDays: string[]
   status: $Enums.Status
   availabilityStatus: $Enums.Availability
@@ -288,8 +323,13 @@ export type StaffWhereInput = {
   id?: Prisma.StringFilter<"Staff"> | string
   name?: Prisma.StringFilter<"Staff"> | string
   designation?: Prisma.StringFilter<"Staff"> | string
+  designationId?: Prisma.StringNullableFilter<"Staff"> | string | null
   mobile?: Prisma.StringNullableFilter<"Staff"> | string | null
   email?: Prisma.StringNullableFilter<"Staff"> | string | null
+  dateOfBirth?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  joiningDate?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  experienceYears?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StringNullableListFilter<"Staff">
   workingDays?: Prisma.StringNullableListFilter<"Staff">
   status?: Prisma.EnumStatusFilter<"Staff"> | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFilter<"Staff"> | $Enums.Availability
@@ -300,6 +340,7 @@ export type StaffWhereInput = {
   tenantId?: Prisma.StringFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
+  staffDesignation?: Prisma.XOR<Prisma.StaffDesignationNullableScalarRelationFilter, Prisma.StaffDesignationWhereInput> | null
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   appointments?: Prisma.AppointmentListRelationFilter
   appointmentServices?: Prisma.AppointmentServiceListRelationFilter
@@ -315,8 +356,13 @@ export type StaffOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   designation?: Prisma.SortOrder
+  designationId?: Prisma.SortOrderInput | Prisma.SortOrder
   mobile?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
+  joiningDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  experienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
+  specializations?: Prisma.SortOrder
   workingDays?: Prisma.SortOrder
   status?: Prisma.SortOrder
   availabilityStatus?: Prisma.SortOrder
@@ -327,6 +373,7 @@ export type StaffOrderByWithRelationInput = {
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  staffDesignation?: Prisma.StaffDesignationOrderByWithRelationInput
   tenant?: Prisma.TenantOrderByWithRelationInput
   appointments?: Prisma.AppointmentOrderByRelationAggregateInput
   appointmentServices?: Prisma.AppointmentServiceOrderByRelationAggregateInput
@@ -345,8 +392,13 @@ export type StaffWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.StaffWhereInput | Prisma.StaffWhereInput[]
   name?: Prisma.StringFilter<"Staff"> | string
   designation?: Prisma.StringFilter<"Staff"> | string
+  designationId?: Prisma.StringNullableFilter<"Staff"> | string | null
   mobile?: Prisma.StringNullableFilter<"Staff"> | string | null
   email?: Prisma.StringNullableFilter<"Staff"> | string | null
+  dateOfBirth?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  joiningDate?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  experienceYears?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StringNullableListFilter<"Staff">
   workingDays?: Prisma.StringNullableListFilter<"Staff">
   status?: Prisma.EnumStatusFilter<"Staff"> | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFilter<"Staff"> | $Enums.Availability
@@ -357,6 +409,7 @@ export type StaffWhereUniqueInput = Prisma.AtLeast<{
   tenantId?: Prisma.StringFilter<"Staff"> | string
   createdAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
+  staffDesignation?: Prisma.XOR<Prisma.StaffDesignationNullableScalarRelationFilter, Prisma.StaffDesignationWhereInput> | null
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   appointments?: Prisma.AppointmentListRelationFilter
   appointmentServices?: Prisma.AppointmentServiceListRelationFilter
@@ -372,8 +425,13 @@ export type StaffOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   designation?: Prisma.SortOrder
+  designationId?: Prisma.SortOrderInput | Prisma.SortOrder
   mobile?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
+  joiningDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  experienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
+  specializations?: Prisma.SortOrder
   workingDays?: Prisma.SortOrder
   status?: Prisma.SortOrder
   availabilityStatus?: Prisma.SortOrder
@@ -398,8 +456,13 @@ export type StaffScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Staff"> | string
   name?: Prisma.StringWithAggregatesFilter<"Staff"> | string
   designation?: Prisma.StringWithAggregatesFilter<"Staff"> | string
+  designationId?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
   mobile?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
+  dateOfBirth?: Prisma.DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+  joiningDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+  experienceYears?: Prisma.DecimalNullableWithAggregatesFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StringNullableListFilter<"Staff">
   workingDays?: Prisma.StringNullableListFilter<"Staff">
   status?: Prisma.EnumStatusWithAggregatesFilter<"Staff"> | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityWithAggregatesFilter<"Staff"> | $Enums.Availability
@@ -418,6 +481,10 @@ export type StaffCreateInput = {
   designation: string
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -427,6 +494,7 @@ export type StaffCreateInput = {
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  staffDesignation?: Prisma.StaffDesignationCreateNestedOneWithoutStaffInput
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
   appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutStaffInput
@@ -442,8 +510,13 @@ export type StaffUncheckedCreateInput = {
   id?: string
   name: string
   designation: string
+  designationId?: string | null
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -470,6 +543,10 @@ export type StaffUpdateInput = {
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -479,6 +556,7 @@ export type StaffUpdateInput = {
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staffDesignation?: Prisma.StaffDesignationUpdateOneWithoutStaffNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
   appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutStaffNestedInput
@@ -494,8 +572,13 @@ export type StaffUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  designationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -520,8 +603,13 @@ export type StaffCreateManyInput = {
   id?: string
   name: string
   designation: string
+  designationId?: string | null
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -540,6 +628,10 @@ export type StaffUpdateManyMutationInput = {
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -555,8 +647,13 @@ export type StaffUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  designationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -583,8 +680,13 @@ export type StaffCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   designation?: Prisma.SortOrder
+  designationId?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrder
+  joiningDate?: Prisma.SortOrder
+  experienceYears?: Prisma.SortOrder
+  specializations?: Prisma.SortOrder
   workingDays?: Prisma.SortOrder
   status?: Prisma.SortOrder
   availabilityStatus?: Prisma.SortOrder
@@ -598,6 +700,7 @@ export type StaffCountOrderByAggregateInput = {
 }
 
 export type StaffAvgOrderByAggregateInput = {
+  experienceYears?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
   paidLeavesPerMonth?: Prisma.SortOrder
@@ -607,8 +710,12 @@ export type StaffMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   designation?: Prisma.SortOrder
+  designationId?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrder
+  joiningDate?: Prisma.SortOrder
+  experienceYears?: Prisma.SortOrder
   status?: Prisma.SortOrder
   availabilityStatus?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrder
@@ -624,8 +731,12 @@ export type StaffMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   designation?: Prisma.SortOrder
+  designationId?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrder
+  joiningDate?: Prisma.SortOrder
+  experienceYears?: Prisma.SortOrder
   status?: Prisma.SortOrder
   availabilityStatus?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrder
@@ -638,6 +749,7 @@ export type StaffMinOrderByAggregateInput = {
 }
 
 export type StaffSumOrderByAggregateInput = {
+  experienceYears?: Prisma.SortOrder
   baseSalary?: Prisma.SortOrder
   commissionRate?: Prisma.SortOrder
   paidLeavesPerMonth?: Prisma.SortOrder
@@ -695,8 +807,25 @@ export type StaffUncheckedUpdateManyWithoutTenantNestedInput = {
   deleteMany?: Prisma.StaffScalarWhereInput | Prisma.StaffScalarWhereInput[]
 }
 
+export type StaffCreatespecializationsInput = {
+  set: string[]
+}
+
 export type StaffCreateworkingDaysInput = {
   set: string[]
+}
+
+export type NullableDecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type StaffUpdatespecializationsInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type StaffUpdateworkingDaysInput = {
@@ -708,20 +837,54 @@ export type EnumAvailabilityFieldUpdateOperationsInput = {
   set?: $Enums.Availability
 }
 
-export type NullableDecimalFieldUpdateOperationsInput = {
-  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
-}
-
 export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type StaffCreateNestedManyWithoutStaffDesignationInput = {
+  create?: Prisma.XOR<Prisma.StaffCreateWithoutStaffDesignationInput, Prisma.StaffUncheckedCreateWithoutStaffDesignationInput> | Prisma.StaffCreateWithoutStaffDesignationInput[] | Prisma.StaffUncheckedCreateWithoutStaffDesignationInput[]
+  connectOrCreate?: Prisma.StaffCreateOrConnectWithoutStaffDesignationInput | Prisma.StaffCreateOrConnectWithoutStaffDesignationInput[]
+  createMany?: Prisma.StaffCreateManyStaffDesignationInputEnvelope
+  connect?: Prisma.StaffWhereUniqueInput | Prisma.StaffWhereUniqueInput[]
+}
+
+export type StaffUncheckedCreateNestedManyWithoutStaffDesignationInput = {
+  create?: Prisma.XOR<Prisma.StaffCreateWithoutStaffDesignationInput, Prisma.StaffUncheckedCreateWithoutStaffDesignationInput> | Prisma.StaffCreateWithoutStaffDesignationInput[] | Prisma.StaffUncheckedCreateWithoutStaffDesignationInput[]
+  connectOrCreate?: Prisma.StaffCreateOrConnectWithoutStaffDesignationInput | Prisma.StaffCreateOrConnectWithoutStaffDesignationInput[]
+  createMany?: Prisma.StaffCreateManyStaffDesignationInputEnvelope
+  connect?: Prisma.StaffWhereUniqueInput | Prisma.StaffWhereUniqueInput[]
+}
+
+export type StaffUpdateManyWithoutStaffDesignationNestedInput = {
+  create?: Prisma.XOR<Prisma.StaffCreateWithoutStaffDesignationInput, Prisma.StaffUncheckedCreateWithoutStaffDesignationInput> | Prisma.StaffCreateWithoutStaffDesignationInput[] | Prisma.StaffUncheckedCreateWithoutStaffDesignationInput[]
+  connectOrCreate?: Prisma.StaffCreateOrConnectWithoutStaffDesignationInput | Prisma.StaffCreateOrConnectWithoutStaffDesignationInput[]
+  upsert?: Prisma.StaffUpsertWithWhereUniqueWithoutStaffDesignationInput | Prisma.StaffUpsertWithWhereUniqueWithoutStaffDesignationInput[]
+  createMany?: Prisma.StaffCreateManyStaffDesignationInputEnvelope
+  set?: Prisma.StaffWhereUniqueInput | Prisma.StaffWhereUniqueInput[]
+  disconnect?: Prisma.StaffWhereUniqueInput | Prisma.StaffWhereUniqueInput[]
+  delete?: Prisma.StaffWhereUniqueInput | Prisma.StaffWhereUniqueInput[]
+  connect?: Prisma.StaffWhereUniqueInput | Prisma.StaffWhereUniqueInput[]
+  update?: Prisma.StaffUpdateWithWhereUniqueWithoutStaffDesignationInput | Prisma.StaffUpdateWithWhereUniqueWithoutStaffDesignationInput[]
+  updateMany?: Prisma.StaffUpdateManyWithWhereWithoutStaffDesignationInput | Prisma.StaffUpdateManyWithWhereWithoutStaffDesignationInput[]
+  deleteMany?: Prisma.StaffScalarWhereInput | Prisma.StaffScalarWhereInput[]
+}
+
+export type StaffUncheckedUpdateManyWithoutStaffDesignationNestedInput = {
+  create?: Prisma.XOR<Prisma.StaffCreateWithoutStaffDesignationInput, Prisma.StaffUncheckedCreateWithoutStaffDesignationInput> | Prisma.StaffCreateWithoutStaffDesignationInput[] | Prisma.StaffUncheckedCreateWithoutStaffDesignationInput[]
+  connectOrCreate?: Prisma.StaffCreateOrConnectWithoutStaffDesignationInput | Prisma.StaffCreateOrConnectWithoutStaffDesignationInput[]
+  upsert?: Prisma.StaffUpsertWithWhereUniqueWithoutStaffDesignationInput | Prisma.StaffUpsertWithWhereUniqueWithoutStaffDesignationInput[]
+  createMany?: Prisma.StaffCreateManyStaffDesignationInputEnvelope
+  set?: Prisma.StaffWhereUniqueInput | Prisma.StaffWhereUniqueInput[]
+  disconnect?: Prisma.StaffWhereUniqueInput | Prisma.StaffWhereUniqueInput[]
+  delete?: Prisma.StaffWhereUniqueInput | Prisma.StaffWhereUniqueInput[]
+  connect?: Prisma.StaffWhereUniqueInput | Prisma.StaffWhereUniqueInput[]
+  update?: Prisma.StaffUpdateWithWhereUniqueWithoutStaffDesignationInput | Prisma.StaffUpdateWithWhereUniqueWithoutStaffDesignationInput[]
+  updateMany?: Prisma.StaffUpdateManyWithWhereWithoutStaffDesignationInput | Prisma.StaffUpdateManyWithWhereWithoutStaffDesignationInput[]
+  deleteMany?: Prisma.StaffScalarWhereInput | Prisma.StaffScalarWhereInput[]
 }
 
 export type StaffCreateNestedOneWithoutSalaryHistoryInput = {
@@ -850,6 +1013,10 @@ export type StaffCreateWithoutTenantInput = {
   designation: string
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -859,6 +1026,7 @@ export type StaffCreateWithoutTenantInput = {
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  staffDesignation?: Prisma.StaffDesignationCreateNestedOneWithoutStaffInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
   appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutStaffInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
@@ -873,8 +1041,13 @@ export type StaffUncheckedCreateWithoutTenantInput = {
   id?: string
   name: string
   designation: string
+  designationId?: string | null
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -927,8 +1100,13 @@ export type StaffScalarWhereInput = {
   id?: Prisma.StringFilter<"Staff"> | string
   name?: Prisma.StringFilter<"Staff"> | string
   designation?: Prisma.StringFilter<"Staff"> | string
+  designationId?: Prisma.StringNullableFilter<"Staff"> | string | null
   mobile?: Prisma.StringNullableFilter<"Staff"> | string | null
   email?: Prisma.StringNullableFilter<"Staff"> | string | null
+  dateOfBirth?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  joiningDate?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  experienceYears?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StringNullableListFilter<"Staff">
   workingDays?: Prisma.StringNullableListFilter<"Staff">
   status?: Prisma.EnumStatusFilter<"Staff"> | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFilter<"Staff"> | $Enums.Availability
@@ -941,12 +1119,16 @@ export type StaffScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Staff"> | Date | string
 }
 
-export type StaffCreateWithoutSalaryHistoryInput = {
+export type StaffCreateWithoutStaffDesignationInput = {
   id?: string
   name: string
   designation: string
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -963,6 +1145,93 @@ export type StaffCreateWithoutSalaryHistoryInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
   invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
   ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollCreateNestedManyWithoutStaffInput
+}
+
+export type StaffUncheckedCreateWithoutStaffDesignationInput = {
+  id?: string
+  name: string
+  designation: string
+  mobile?: string | null
+  email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
+  workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
+  status?: $Enums.Status
+  availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
+  salaryEffectiveFrom?: Date | string | null
+  tenantId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  appointments?: Prisma.AppointmentUncheckedCreateNestedManyWithoutStaffInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedCreateNestedManyWithoutStaffInput
+  attendances?: Prisma.AttendanceUncheckedCreateNestedManyWithoutStaffInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutStaffInput
+  invoiceItems?: Prisma.InvoiceItemUncheckedCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingUncheckedCreateNestedManyWithoutStaffInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedCreateNestedManyWithoutStaffInput
+  payrolls?: Prisma.PayrollUncheckedCreateNestedManyWithoutStaffInput
+}
+
+export type StaffCreateOrConnectWithoutStaffDesignationInput = {
+  where: Prisma.StaffWhereUniqueInput
+  create: Prisma.XOR<Prisma.StaffCreateWithoutStaffDesignationInput, Prisma.StaffUncheckedCreateWithoutStaffDesignationInput>
+}
+
+export type StaffCreateManyStaffDesignationInputEnvelope = {
+  data: Prisma.StaffCreateManyStaffDesignationInput | Prisma.StaffCreateManyStaffDesignationInput[]
+  skipDuplicates?: boolean
+}
+
+export type StaffUpsertWithWhereUniqueWithoutStaffDesignationInput = {
+  where: Prisma.StaffWhereUniqueInput
+  update: Prisma.XOR<Prisma.StaffUpdateWithoutStaffDesignationInput, Prisma.StaffUncheckedUpdateWithoutStaffDesignationInput>
+  create: Prisma.XOR<Prisma.StaffCreateWithoutStaffDesignationInput, Prisma.StaffUncheckedCreateWithoutStaffDesignationInput>
+}
+
+export type StaffUpdateWithWhereUniqueWithoutStaffDesignationInput = {
+  where: Prisma.StaffWhereUniqueInput
+  data: Prisma.XOR<Prisma.StaffUpdateWithoutStaffDesignationInput, Prisma.StaffUncheckedUpdateWithoutStaffDesignationInput>
+}
+
+export type StaffUpdateManyWithWhereWithoutStaffDesignationInput = {
+  where: Prisma.StaffScalarWhereInput
+  data: Prisma.XOR<Prisma.StaffUpdateManyMutationInput, Prisma.StaffUncheckedUpdateManyWithoutStaffDesignationInput>
+}
+
+export type StaffCreateWithoutSalaryHistoryInput = {
+  id?: string
+  name: string
+  designation: string
+  mobile?: string | null
+  email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
+  workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
+  status?: $Enums.Status
+  availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
+  salaryEffectiveFrom?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  staffDesignation?: Prisma.StaffDesignationCreateNestedOneWithoutStaffInput
+  tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
+  appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
+  appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutStaffInput
+  attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutStaffInput
+  invoiceItems?: Prisma.InvoiceItemCreateNestedManyWithoutStaffInput
+  ratings?: Prisma.StaffRatingCreateNestedManyWithoutStaffInput
   payrolls?: Prisma.PayrollCreateNestedManyWithoutStaffInput
 }
 
@@ -970,8 +1239,13 @@ export type StaffUncheckedCreateWithoutSalaryHistoryInput = {
   id?: string
   name: string
   designation: string
+  designationId?: string | null
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1013,6 +1287,10 @@ export type StaffUpdateWithoutSalaryHistoryInput = {
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1022,6 +1300,7 @@ export type StaffUpdateWithoutSalaryHistoryInput = {
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staffDesignation?: Prisma.StaffDesignationUpdateOneWithoutStaffNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
   appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutStaffNestedInput
@@ -1036,8 +1315,13 @@ export type StaffUncheckedUpdateWithoutSalaryHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  designationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1063,6 +1347,10 @@ export type StaffCreateWithoutPayrollsInput = {
   designation: string
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1072,6 +1360,7 @@ export type StaffCreateWithoutPayrollsInput = {
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  staffDesignation?: Prisma.StaffDesignationCreateNestedOneWithoutStaffInput
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
   appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutStaffInput
@@ -1086,8 +1375,13 @@ export type StaffUncheckedCreateWithoutPayrollsInput = {
   id?: string
   name: string
   designation: string
+  designationId?: string | null
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1129,6 +1423,10 @@ export type StaffUpdateWithoutPayrollsInput = {
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1138,6 +1436,7 @@ export type StaffUpdateWithoutPayrollsInput = {
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staffDesignation?: Prisma.StaffDesignationUpdateOneWithoutStaffNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
   appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutStaffNestedInput
@@ -1152,8 +1451,13 @@ export type StaffUncheckedUpdateWithoutPayrollsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  designationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1179,6 +1483,10 @@ export type StaffCreateWithoutAppointmentsInput = {
   designation: string
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1188,6 +1496,7 @@ export type StaffCreateWithoutAppointmentsInput = {
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  staffDesignation?: Prisma.StaffDesignationCreateNestedOneWithoutStaffInput
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
   appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutStaffInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
@@ -1202,8 +1511,13 @@ export type StaffUncheckedCreateWithoutAppointmentsInput = {
   id?: string
   name: string
   designation: string
+  designationId?: string | null
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1245,6 +1559,10 @@ export type StaffUpdateWithoutAppointmentsInput = {
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1254,6 +1572,7 @@ export type StaffUpdateWithoutAppointmentsInput = {
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staffDesignation?: Prisma.StaffDesignationUpdateOneWithoutStaffNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
   appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutStaffNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
@@ -1268,8 +1587,13 @@ export type StaffUncheckedUpdateWithoutAppointmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  designationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1295,6 +1619,10 @@ export type StaffCreateWithoutAppointmentServicesInput = {
   designation: string
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1304,6 +1632,7 @@ export type StaffCreateWithoutAppointmentServicesInput = {
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  staffDesignation?: Prisma.StaffDesignationCreateNestedOneWithoutStaffInput
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
   attendances?: Prisma.AttendanceCreateNestedManyWithoutStaffInput
@@ -1318,8 +1647,13 @@ export type StaffUncheckedCreateWithoutAppointmentServicesInput = {
   id?: string
   name: string
   designation: string
+  designationId?: string | null
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1361,6 +1695,10 @@ export type StaffUpdateWithoutAppointmentServicesInput = {
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1370,6 +1708,7 @@ export type StaffUpdateWithoutAppointmentServicesInput = {
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staffDesignation?: Prisma.StaffDesignationUpdateOneWithoutStaffNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
@@ -1384,8 +1723,13 @@ export type StaffUncheckedUpdateWithoutAppointmentServicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  designationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1411,6 +1755,10 @@ export type StaffCreateWithoutInvoicesInput = {
   designation: string
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1420,6 +1768,7 @@ export type StaffCreateWithoutInvoicesInput = {
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  staffDesignation?: Prisma.StaffDesignationCreateNestedOneWithoutStaffInput
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
   appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutStaffInput
@@ -1434,8 +1783,13 @@ export type StaffUncheckedCreateWithoutInvoicesInput = {
   id?: string
   name: string
   designation: string
+  designationId?: string | null
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1477,6 +1831,10 @@ export type StaffUpdateWithoutInvoicesInput = {
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1486,6 +1844,7 @@ export type StaffUpdateWithoutInvoicesInput = {
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staffDesignation?: Prisma.StaffDesignationUpdateOneWithoutStaffNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
   appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutStaffNestedInput
@@ -1500,8 +1859,13 @@ export type StaffUncheckedUpdateWithoutInvoicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  designationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1527,6 +1891,10 @@ export type StaffCreateWithoutInvoiceItemsInput = {
   designation: string
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1536,6 +1904,7 @@ export type StaffCreateWithoutInvoiceItemsInput = {
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  staffDesignation?: Prisma.StaffDesignationCreateNestedOneWithoutStaffInput
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
   appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutStaffInput
@@ -1550,8 +1919,13 @@ export type StaffUncheckedCreateWithoutInvoiceItemsInput = {
   id?: string
   name: string
   designation: string
+  designationId?: string | null
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1593,6 +1967,10 @@ export type StaffUpdateWithoutInvoiceItemsInput = {
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1602,6 +1980,7 @@ export type StaffUpdateWithoutInvoiceItemsInput = {
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staffDesignation?: Prisma.StaffDesignationUpdateOneWithoutStaffNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
   appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutStaffNestedInput
@@ -1616,8 +1995,13 @@ export type StaffUncheckedUpdateWithoutInvoiceItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  designationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1643,6 +2027,10 @@ export type StaffCreateWithoutRatingsInput = {
   designation: string
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1652,6 +2040,7 @@ export type StaffCreateWithoutRatingsInput = {
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  staffDesignation?: Prisma.StaffDesignationCreateNestedOneWithoutStaffInput
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
   appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutStaffInput
@@ -1666,8 +2055,13 @@ export type StaffUncheckedCreateWithoutRatingsInput = {
   id?: string
   name: string
   designation: string
+  designationId?: string | null
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1709,6 +2103,10 @@ export type StaffUpdateWithoutRatingsInput = {
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1718,6 +2116,7 @@ export type StaffUpdateWithoutRatingsInput = {
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staffDesignation?: Prisma.StaffDesignationUpdateOneWithoutStaffNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
   appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutStaffNestedInput
@@ -1732,8 +2131,13 @@ export type StaffUncheckedUpdateWithoutRatingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  designationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1759,6 +2163,10 @@ export type StaffCreateWithoutAttendancesInput = {
   designation: string
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1768,6 +2176,7 @@ export type StaffCreateWithoutAttendancesInput = {
   salaryEffectiveFrom?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  staffDesignation?: Prisma.StaffDesignationCreateNestedOneWithoutStaffInput
   tenant: Prisma.TenantCreateNestedOneWithoutStaffInput
   appointments?: Prisma.AppointmentCreateNestedManyWithoutStaffInput
   appointmentServices?: Prisma.AppointmentServiceCreateNestedManyWithoutStaffInput
@@ -1782,8 +2191,13 @@ export type StaffUncheckedCreateWithoutAttendancesInput = {
   id?: string
   name: string
   designation: string
+  designationId?: string | null
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1825,6 +2239,10 @@ export type StaffUpdateWithoutAttendancesInput = {
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1834,6 +2252,7 @@ export type StaffUpdateWithoutAttendancesInput = {
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staffDesignation?: Prisma.StaffDesignationUpdateOneWithoutStaffNestedInput
   tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
   appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutStaffNestedInput
@@ -1848,8 +2267,13 @@ export type StaffUncheckedUpdateWithoutAttendancesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  designationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1873,8 +2297,13 @@ export type StaffCreateManyTenantInput = {
   id?: string
   name: string
   designation: string
+  designationId?: string | null
   mobile?: string | null
   email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
   status?: $Enums.Status
   availabilityStatus?: $Enums.Availability
@@ -1892,6 +2321,10 @@ export type StaffUpdateWithoutTenantInput = {
   designation?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1901,6 +2334,7 @@ export type StaffUpdateWithoutTenantInput = {
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  staffDesignation?: Prisma.StaffDesignationUpdateOneWithoutStaffNestedInput
   appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
   appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutStaffNestedInput
   attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
@@ -1915,8 +2349,13 @@ export type StaffUncheckedUpdateWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  designationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1940,8 +2379,13 @@ export type StaffUncheckedUpdateManyWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   designation?: Prisma.StringFieldUpdateOperationsInput | string
+  designationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
   status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
   availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
@@ -1949,6 +2393,110 @@ export type StaffUncheckedUpdateManyWithoutTenantInput = {
   commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StaffCreateManyStaffDesignationInput = {
+  id?: string
+  name: string
+  designation: string
+  mobile?: string | null
+  email?: string | null
+  dateOfBirth?: Date | string | null
+  joiningDate?: Date | string | null
+  experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffCreatespecializationsInput | string[]
+  workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
+  status?: $Enums.Status
+  availabilityStatus?: $Enums.Availability
+  baseSalary?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: number | null
+  salaryEffectiveFrom?: Date | string | null
+  tenantId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type StaffUpdateWithoutStaffDesignationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  designation?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
+  workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
+  status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
+  availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutStaffNestedInput
+  appointments?: Prisma.AppointmentUpdateManyWithoutStaffNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUpdateManyWithoutStaffNestedInput
+  attendances?: Prisma.AttendanceUpdateManyWithoutStaffNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutStaffNestedInput
+  invoiceItems?: Prisma.InvoiceItemUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUpdateManyWithoutStaffNestedInput
+}
+
+export type StaffUncheckedUpdateWithoutStaffDesignationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  designation?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
+  workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
+  status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
+  availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  appointments?: Prisma.AppointmentUncheckedUpdateManyWithoutStaffNestedInput
+  appointmentServices?: Prisma.AppointmentServiceUncheckedUpdateManyWithoutStaffNestedInput
+  attendances?: Prisma.AttendanceUncheckedUpdateManyWithoutStaffNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutStaffNestedInput
+  invoiceItems?: Prisma.InvoiceItemUncheckedUpdateManyWithoutStaffNestedInput
+  ratings?: Prisma.StaffRatingUncheckedUpdateManyWithoutStaffNestedInput
+  salaryHistory?: Prisma.SalaryHistoryUncheckedUpdateManyWithoutStaffNestedInput
+  payrolls?: Prisma.PayrollUncheckedUpdateManyWithoutStaffNestedInput
+}
+
+export type StaffUncheckedUpdateManyWithoutStaffDesignationInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  designation?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  specializations?: Prisma.StaffUpdatespecializationsInput | string[]
+  workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
+  status?: Prisma.EnumStatusFieldUpdateOperationsInput | $Enums.Status
+  availabilityStatus?: Prisma.EnumAvailabilityFieldUpdateOperationsInput | $Enums.Availability
+  baseSalary?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  commissionRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  paidLeavesPerMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  salaryEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2051,8 +2599,13 @@ export type StaffSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   id?: boolean
   name?: boolean
   designation?: boolean
+  designationId?: boolean
   mobile?: boolean
   email?: boolean
+  dateOfBirth?: boolean
+  joiningDate?: boolean
+  experienceYears?: boolean
+  specializations?: boolean
   workingDays?: boolean
   status?: boolean
   availabilityStatus?: boolean
@@ -2063,6 +2616,7 @@ export type StaffSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   tenantId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  staffDesignation?: boolean | Prisma.Staff$staffDesignationArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   appointments?: boolean | Prisma.Staff$appointmentsArgs<ExtArgs>
   appointmentServices?: boolean | Prisma.Staff$appointmentServicesArgs<ExtArgs>
@@ -2079,8 +2633,13 @@ export type StaffSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   name?: boolean
   designation?: boolean
+  designationId?: boolean
   mobile?: boolean
   email?: boolean
+  dateOfBirth?: boolean
+  joiningDate?: boolean
+  experienceYears?: boolean
+  specializations?: boolean
   workingDays?: boolean
   status?: boolean
   availabilityStatus?: boolean
@@ -2091,6 +2650,7 @@ export type StaffSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   tenantId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  staffDesignation?: boolean | Prisma.Staff$staffDesignationArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["staff"]>
 
@@ -2098,8 +2658,13 @@ export type StaffSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   name?: boolean
   designation?: boolean
+  designationId?: boolean
   mobile?: boolean
   email?: boolean
+  dateOfBirth?: boolean
+  joiningDate?: boolean
+  experienceYears?: boolean
+  specializations?: boolean
   workingDays?: boolean
   status?: boolean
   availabilityStatus?: boolean
@@ -2110,6 +2675,7 @@ export type StaffSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   tenantId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  staffDesignation?: boolean | Prisma.Staff$staffDesignationArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["staff"]>
 
@@ -2117,8 +2683,13 @@ export type StaffSelectScalar = {
   id?: boolean
   name?: boolean
   designation?: boolean
+  designationId?: boolean
   mobile?: boolean
   email?: boolean
+  dateOfBirth?: boolean
+  joiningDate?: boolean
+  experienceYears?: boolean
+  specializations?: boolean
   workingDays?: boolean
   status?: boolean
   availabilityStatus?: boolean
@@ -2131,8 +2702,9 @@ export type StaffSelectScalar = {
   updatedAt?: boolean
 }
 
-export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "designation" | "mobile" | "email" | "workingDays" | "status" | "availabilityStatus" | "baseSalary" | "commissionRate" | "paidLeavesPerMonth" | "salaryEffectiveFrom" | "tenantId" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
+export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "designation" | "designationId" | "mobile" | "email" | "dateOfBirth" | "joiningDate" | "experienceYears" | "specializations" | "workingDays" | "status" | "availabilityStatus" | "baseSalary" | "commissionRate" | "paidLeavesPerMonth" | "salaryEffectiveFrom" | "tenantId" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
 export type StaffInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  staffDesignation?: boolean | Prisma.Staff$staffDesignationArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   appointments?: boolean | Prisma.Staff$appointmentsArgs<ExtArgs>
   appointmentServices?: boolean | Prisma.Staff$appointmentServicesArgs<ExtArgs>
@@ -2145,15 +2717,18 @@ export type StaffInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   _count?: boolean | Prisma.StaffCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type StaffIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  staffDesignation?: boolean | Prisma.Staff$staffDesignationArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
 export type StaffIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  staffDesignation?: boolean | Prisma.Staff$staffDesignationArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
 
 export type $StaffPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Staff"
   objects: {
+    staffDesignation: Prisma.$StaffDesignationPayload<ExtArgs> | null
     tenant: Prisma.$TenantPayload<ExtArgs>
     appointments: Prisma.$AppointmentPayload<ExtArgs>[]
     appointmentServices: Prisma.$AppointmentServicePayload<ExtArgs>[]
@@ -2168,8 +2743,13 @@ export type $StaffPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     id: string
     name: string
     designation: string
+    designationId: string | null
     mobile: string | null
     email: string | null
+    dateOfBirth: Date | null
+    joiningDate: Date | null
+    experienceYears: runtime.Decimal | null
+    specializations: string[]
     workingDays: string[]
     status: $Enums.Status
     availabilityStatus: $Enums.Availability
@@ -2574,6 +3154,7 @@ readonly fields: StaffFieldRefs;
  */
 export interface Prisma__StaffClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  staffDesignation<T extends Prisma.Staff$staffDesignationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Staff$staffDesignationArgs<ExtArgs>>): Prisma.Prisma__StaffDesignationClient<runtime.Types.Result.GetResult<Prisma.$StaffDesignationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   appointments<T extends Prisma.Staff$appointmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Staff$appointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   appointmentServices<T extends Prisma.Staff$appointmentServicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Staff$appointmentServicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AppointmentServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2615,8 +3196,13 @@ export interface StaffFieldRefs {
   readonly id: Prisma.FieldRef<"Staff", 'String'>
   readonly name: Prisma.FieldRef<"Staff", 'String'>
   readonly designation: Prisma.FieldRef<"Staff", 'String'>
+  readonly designationId: Prisma.FieldRef<"Staff", 'String'>
   readonly mobile: Prisma.FieldRef<"Staff", 'String'>
   readonly email: Prisma.FieldRef<"Staff", 'String'>
+  readonly dateOfBirth: Prisma.FieldRef<"Staff", 'DateTime'>
+  readonly joiningDate: Prisma.FieldRef<"Staff", 'DateTime'>
+  readonly experienceYears: Prisma.FieldRef<"Staff", 'Decimal'>
+  readonly specializations: Prisma.FieldRef<"Staff", 'String[]'>
   readonly workingDays: Prisma.FieldRef<"Staff", 'String[]'>
   readonly status: Prisma.FieldRef<"Staff", 'Status'>
   readonly availabilityStatus: Prisma.FieldRef<"Staff", 'Availability'>
@@ -3025,6 +3611,25 @@ export type StaffDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Limit how many Staff to delete.
    */
   limit?: number
+}
+
+/**
+ * Staff.staffDesignation
+ */
+export type Staff$staffDesignationArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StaffDesignation
+   */
+  select?: Prisma.StaffDesignationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StaffDesignation
+   */
+  omit?: Prisma.StaffDesignationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StaffDesignationInclude<ExtArgs> | null
+  where?: Prisma.StaffDesignationWhereInput
 }
 
 /**

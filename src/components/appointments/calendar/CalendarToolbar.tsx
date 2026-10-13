@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { CalendarColorMode } from "@/components/appointments/calendar/AppointmentBlock";
-import { todayISTDateString } from "@/lib/time";
+import { addDaysToDateString, todayISTDateString } from "@/lib/time";
 
 export type StaffFilterOption = {
   id: string;
@@ -42,15 +42,6 @@ const COLOR_MODE_OPTIONS: Array<{ value: CalendarColorMode; label: string }> = [
   { value: "service", label: "Service category" },
 ];
 
-function shiftDate(dateStr: string, deltaDays: number): string {
-  // Plain calendar-day arithmetic on the "YYYY-MM-DD" string's components;
-  // avoids host-timezone-sensitive Date math entirely.
-  const [year, month, day] = dateStr.split("-").map(Number);
-  const utcNoon = Date.UTC(year, month - 1, day, 12, 0, 0);
-  const shifted = new Date(utcNoon + deltaDays * 24 * 60 * 60 * 1000);
-  return shifted.toISOString().slice(0, 10);
-}
-
 export function CalendarToolbar({
   date,
   onDateChange,
@@ -73,7 +64,7 @@ export function CalendarToolbar({
         <div className="flex flex-wrap items-center gap-1.5">
           <button
             type="button"
-            onClick={() => onDateChange(shiftDate(date, -1))}
+            onClick={() => onDateChange(addDaysToDateString(date, -1))}
             aria-label="Previous day"
             className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-[var(--foreground)] hover:border-[var(--accent)]"
           >
@@ -89,7 +80,7 @@ export function CalendarToolbar({
 
           <button
             type="button"
-            onClick={() => onDateChange(shiftDate(date, 1))}
+            onClick={() => onDateChange(addDaysToDateString(date, 1))}
             aria-label="Next day"
             className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 text-[var(--foreground)] hover:border-[var(--accent)]"
           >

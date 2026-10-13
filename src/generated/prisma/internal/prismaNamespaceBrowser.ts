@@ -56,6 +56,7 @@ export const ModelName = {
   Customer: 'Customer',
   Service: 'Service',
   Staff: 'Staff',
+  StaffDesignation: 'StaffDesignation',
   SalaryHistory: 'SalaryHistory',
   Payroll: 'Payroll',
   Appointment: 'Appointment',
@@ -193,8 +194,13 @@ export const StaffScalarFieldEnum = {
   id: 'id',
   name: 'name',
   designation: 'designation',
+  designationId: 'designationId',
   mobile: 'mobile',
   email: 'email',
+  dateOfBirth: 'dateOfBirth',
+  joiningDate: 'joiningDate',
+  experienceYears: 'experienceYears',
+  specializations: 'specializations',
   workingDays: 'workingDays',
   status: 'status',
   availabilityStatus: 'availabilityStatus',
@@ -208,6 +214,16 @@ export const StaffScalarFieldEnum = {
 } as const
 
 export type StaffScalarFieldEnum = (typeof StaffScalarFieldEnum)[keyof typeof StaffScalarFieldEnum]
+
+
+export const StaffDesignationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  tenantId: 'tenantId',
+  createdAt: 'createdAt'
+} as const
+
+export type StaffDesignationScalarFieldEnum = (typeof StaffDesignationScalarFieldEnum)[keyof typeof StaffDesignationScalarFieldEnum]
 
 
 export const SalaryHistoryScalarFieldEnum = {
