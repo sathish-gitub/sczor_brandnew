@@ -10,7 +10,7 @@ import { todayISTDateString } from "@/lib/time";
 export default async function NewAppointmentPage({
   searchParams,
 }: {
-  searchParams: Promise<{ customerId?: string }>;
+  searchParams: Promise<{ customerId?: string; date?: string; time?: string; staffId?: string }>;
 }) {
   const session = await getServerSession(authOptions);
 
@@ -18,7 +18,10 @@ export default async function NewAppointmentPage({
     redirect("/login");
   }
 
-  const { customerId } = await searchParams;
+  const { customerId, date, time, staffId } = await searchParams;
+
+  const prefillDate = date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : todayISTDateString();
+  const prefillTime = time && /^([01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : "09:00";
 
   const [services, selectedCustomer] = await Promise.all([
     prisma.service.findMany({
@@ -51,6 +54,34 @@ export default async function NewAppointmentPage({
       : null,
   ]);
 
+  // Prefilled from the Day View calendar's "book a free slot" click: date, time,
+  // and the clicked column's staff member on the first (otherwise empty) line.
+  const initialData = selectedCustomer
+    ? {
+        customerId: selectedCustomer.id,
+        customerName: selectedCustomer.name,
+        mobile: selectedCustomer.mobile,
+        email: selectedCustomer.email ?? "",
+        notes: "",
+        appointmentDate: prefillDate,
+        appointmentTime: prefillTime,
+        lines: staffId ? [{ serviceId: "", staffId }] : [],
+        status: "BOOKED" as const,
+      }
+    : date || time || staffId
+      ? {
+          customerId: undefined,
+          customerName: "",
+          mobile: "",
+          email: "",
+          notes: "",
+          appointmentDate: prefillDate,
+          appointmentTime: prefillTime,
+          lines: staffId ? [{ serviceId: "", staffId }] : [],
+          status: "BOOKED" as const,
+        }
+      : undefined;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -78,21 +109,7 @@ export default async function NewAppointmentPage({
           price: Number(service.price),
           duration: service.duration,
         }))}
-        initialData={
-          selectedCustomer
-            ? {
-                customerId: selectedCustomer.id,
-                customerName: selectedCustomer.name,
-                mobile: selectedCustomer.mobile,
-                email: selectedCustomer.email ?? "",
-                notes: "",
-                appointmentDate: todayISTDateString(),
-                appointmentTime: "09:00",
-                lines: [],
-                status: "BOOKED",
-              }
-            : undefined
-        }
+        initialData={initialData}
       />
     </div>
   );

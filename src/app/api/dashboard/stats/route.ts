@@ -3,69 +3,28 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-// Counts days between [start, end) whose weekday is in the tenant's workingDays (closed days aren't counted).
-function countWorkingDays(start: Date, end: Date, workingDays: string[]) {
-  let count = 0;
-  const cursor = new Date(start);
-  cursor.setHours(0, 0, 0, 0);
-
-  while (cursor < end) {
-    if (workingDays.includes(weekdayLabels[cursor.getDay()])) {
-      count += 1;
-    }
-    cursor.setDate(cursor.getDate() + 1);
-  }
-
-  return count;
-}
+import { countISTWorkingDaysInRange, istDayBounds, istMonthBounds, istWeekBounds, istYearBounds, todayISTDateString } from "@/lib/time";
 
 function rangeBounds(range: string | null, from: string | null, to: string | null) {
-  const now = new Date();
-  const start = new Date(now);
-  const end = new Date(now);
+  const todayStr = todayISTDateString();
 
   if (range === "week") {
-    const day = (now.getDay() + 6) % 7;
-    start.setDate(now.getDate() - day);
-    start.setHours(0, 0, 0, 0);
-    end.setDate(start.getDate() + 7);
-    end.setHours(0, 0, 0, 0);
-    return { start, end };
+    return istWeekBounds(todayStr);
   }
 
   if (range === "month") {
-    start.setDate(1);
-    start.setHours(0, 0, 0, 0);
-    end.setMonth(start.getMonth() + 1, 1);
-    end.setHours(0, 0, 0, 0);
-    return { start, end };
+    return istMonthBounds(todayStr);
   }
 
   if (range === "year") {
-    start.setMonth(0, 1);
-    start.setHours(0, 0, 0, 0);
-    end.setFullYear(start.getFullYear() + 1, 0, 1);
-    end.setHours(0, 0, 0, 0);
-    return { start, end };
+    return istYearBounds(todayStr);
   }
 
-  if (range === "custom" && from && to) {
-    const customStart = new Date(`${from}T00:00:00`);
-    const customEnd = new Date(`${to}T00:00:00`);
-
-    if (!Number.isNaN(customStart.getTime()) && !Number.isNaN(customEnd.getTime())) {
-      customEnd.setDate(customEnd.getDate() + 1);
-      return { start: customStart, end: customEnd };
-    }
+  if (range === "custom" && from && to && /^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to)) {
+    return { start: istDayBounds(from).start, end: istDayBounds(to).end };
   }
 
-  start.setHours(0, 0, 0, 0);
-  end.setDate(start.getDate() + 1);
-  end.setHours(0, 0, 0, 0);
-  return { start, end };
+  return istDayBounds(todayStr);
 }
 
 export async function GET(request: Request) {
@@ -129,7 +88,7 @@ export async function GET(request: Request) {
     const staffPresentIsAverage = !isSingleDayRange;
 
     if (staffPresentIsAverage) {
-      const workingDays = countWorkingDays(start, end, tenant?.workingDays ?? []);
+      const workingDays = countISTWorkingDaysInRange(start, end, tenant?.workingDays ?? []);
       staffPresent = workingDays > 0 ? Math.round(presentAttendanceCount / workingDays) : 0;
     }
 

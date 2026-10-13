@@ -5,44 +5,7 @@
  * copy here means both buttons stay in sync and never drift from each other.
  */
 
-const APP_TIMEZONE = "Asia/Kolkata";
-
-export function formatDateDDMMYYYY(value: Date | string): string {
-  const date = typeof value === "string" ? new Date(value) : value;
-
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: APP_TIMEZONE,
-  }).format(date);
-}
-
-export function formatTime12Hour(value: Date | string): string {
-  const date = typeof value === "string" ? new Date(value) : value;
-
-  return new Intl.DateTimeFormat("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-    timeZone: APP_TIMEZONE,
-  }).format(date);
-}
-
-/**
- * Appointment times are stored as plain "HH:MM" (24-hour) wall-clock strings,
- * not timestamps, so they're already in local (Asia/Kolkata) salon time and
- * can be reformatted directly without any timezone conversion.
- */
-export function formatClockTime12Hour(time: string): string {
-  const [hoursPart, minutesPart] = time.split(":");
-  const hours = Number(hoursPart);
-  const minutes = Number(minutesPart ?? "0");
-  const period = hours >= 12 ? "PM" : "AM";
-  const twelveHour = hours % 12 === 0 ? 12 : hours % 12;
-
-  return `${twelveHour}:${String(minutes).padStart(2, "0")} ${period}`;
-}
+import { formatClockTime12Hour, formatISTDateDDMMYYYY, formatISTInstantTime12Hour } from "@/lib/time";
 
 export function buildPublicInvoiceUrl(token: string): string {
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://sczor.com";
@@ -58,7 +21,7 @@ export type BookingConfirmationInput = {
 };
 
 export function buildBookingConfirmationMessage(input: BookingConfirmationInput): string {
-  const dateLabel = formatDateDDMMYYYY(input.appointmentDate);
+  const dateLabel = formatISTDateDDMMYYYY(input.appointmentDate);
   const timeLabel = formatClockTime12Hour(input.appointmentTime);
 
   const contactSentence = input.salonPhone
@@ -93,8 +56,8 @@ export type PostBillingInput =
     });
 
 export function buildPostBillingMessage(input: PostBillingInput): string {
-  const dateLabel = input.isWalkIn ? formatDateDDMMYYYY(input.invoiceDate) : formatDateDDMMYYYY(input.appointmentDate);
-  const timeLabel = input.isWalkIn ? formatTime12Hour(input.invoiceDate) : formatClockTime12Hour(input.appointmentTime);
+  const dateLabel = input.isWalkIn ? formatISTDateDDMMYYYY(input.invoiceDate) : formatISTDateDDMMYYYY(input.appointmentDate);
+  const timeLabel = input.isWalkIn ? formatISTInstantTime12Hour(input.invoiceDate) : formatClockTime12Hour(input.appointmentTime);
   const noun = input.isWalkIn ? "visit" : "appointment";
 
   const reviewLine = input.googleReviewUrl ? `\n\nPlease rate us on Google: ${input.googleReviewUrl}` : "";

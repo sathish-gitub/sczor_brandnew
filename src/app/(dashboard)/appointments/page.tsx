@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Edit, Eye, LoaderCircle, Plus, Search, Trash } from "lucide-react";
 
 import { StatusBadge } from "@/components/appointments/StatusBadge";
+import { AppointmentViewTabs } from "@/components/appointments/calendar/AppointmentViewTabs";
 import { WhatsAppConfirmationButton } from "@/components/appointments/WhatsAppConfirmationButton";
 import { combinedServiceNames, distinctStaffLabel } from "@/lib/appointmentDisplay";
 import { maskId } from "@/lib/formatId";
@@ -321,10 +322,13 @@ export default function AppointmentsPage() {
         </div>
       ) : null}
 
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Appointments</h1>
+        <AppointmentViewTabs active="list" />
+      </div>
+
       <header className="flex flex-col gap-4 rounded-xl border border-[var(--border)] bg-white p-4 sm:p-5">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Appointments</h1>
-
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <select
               value={period}

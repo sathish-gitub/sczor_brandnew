@@ -5,6 +5,8 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
+import { attendanceDateInstant, findAttendanceIdsForDay } from "@/lib/attendanceDate";
+import { todayISTDateString } from "@/lib/time";
 import type { Prisma } from "@/generated/prisma/client";
 
 type AttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY";
@@ -20,10 +22,6 @@ const bulkSchema = z.object({
     )
     .min(1),
 });
-
-function parseDateOnly(value: string) {
-  return new Date(`${value}T00:00:00`);
-}
 
 function availabilityFromStatus(status: AttendanceStatus) {
   if (status === "ABSENT" || status === "LEAVE") {
@@ -57,11 +55,8 @@ export async function POST(request: Request) {
     }
 
     const payload = parsed.data;
-    const date = parseDateOnly(payload.date);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (date > today) {
+    const todayStr = todayISTDateString();
+    if (payload.date > todayStr) {
       return NextResponse.json({ error: "Future date is not allowed." }, { status: 400 });
     }
 
@@ -82,29 +77,30 @@ export async function POST(request: Request) {
     const validSet = new Set(validStaff.map((item) => item.id));
     const filtered = payload.attendances.filter((item) => validSet.has(item.staffId));
 
+    const existingIds = await findAttendanceIdsForDay(session.user.tenantId, staffIds, payload.date);
+    const dateInstant = attendanceDateInstant(payload.date);
+    const isToday = payload.date === todayStr;
+
     await prisma.$transaction(
       filtered.flatMap((item) => {
+        const existingId = existingIds.get(item.staffId);
         const operations: Prisma.PrismaPromise<unknown>[] = [
-          prisma.attendance.upsert({
-            where: {
-              staffId_date: {
-                staffId: item.staffId,
-                date,
-              },
-            },
-            update: {
-              status: item.status,
-            },
-            create: {
-              tenantId: session.user.tenantId,
-              staffId: item.staffId,
-              date,
-              status: item.status,
-            },
-          }),
+          existingId
+            ? prisma.attendance.update({
+                where: { id: existingId },
+                data: { status: item.status },
+              })
+            : prisma.attendance.create({
+                data: {
+                  tenantId: session.user.tenantId,
+                  staffId: item.staffId,
+                  date: dateInstant,
+                  status: item.status,
+                },
+              }),
         ];
 
-        if (date.getTime() === today.getTime()) {
+        if (isToday) {
           operations.push(
             prisma.staff.update({
               where: {

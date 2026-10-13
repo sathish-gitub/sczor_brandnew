@@ -4,13 +4,19 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getTenantSalonStatus } from "@/lib/tenantStatus";
+import { currentISTMonthYear, getISTMonth, getISTYear, startOfMonthIST } from "@/lib/time";
 
-function monthLabel(date: Date) {
-  return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+const monthLabels = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+function monthKey(year: number, month: number) {
+  return `${year}-${month}`;
 }
 
-function monthKey(date: Date) {
-  return `${date.getFullYear()}-${date.getMonth()}`;
+function monthKeyFromInstant(date: Date) {
+  return monthKey(getISTYear(date), getISTMonth(date));
 }
 
 const PLAN_GROUP: Record<string, string> = {
@@ -41,7 +47,13 @@ export async function GET(request: Request) {
   const months = Math.min(24, Math.max(1, Number(url.searchParams.get("months")) || 6));
 
   const now = new Date();
-  const rangeStart = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1);
+  const istNow = currentISTMonthYear();
+  // Pure (year, month) index arithmetic seeded from the IST "current" month;
+  // this stays correct regardless of host timezone (no instant conversion here).
+  const rangeStartMonthIndex = (istNow.month - 1) - (months - 1);
+  const rangeStartYear = istNow.year + Math.floor(rangeStartMonthIndex / 12);
+  const rangeStartMonth = (((rangeStartMonthIndex % 12) + 12) % 12) + 1;
+  const rangeStart = startOfMonthIST(rangeStartYear, rangeStartMonth);
 
   const [tenants, payments, invoices, appointmentCounts] = await Promise.all([
     prisma.tenant.findMany({
@@ -78,14 +90,16 @@ export async function GET(request: Request) {
   // Salon growth: new tenant signups per month.
   const monthBuckets: Array<{ key: string; label: string }> = [];
   for (let i = months - 1; i >= 0; i -= 1) {
-    const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    monthBuckets.push({ key: monthKey(monthDate), label: monthLabel(monthDate) });
+    const totalMonthIndex = (istNow.month - 1) - i;
+    const year = istNow.year + Math.floor(totalMonthIndex / 12);
+    const month = (((totalMonthIndex % 12) + 12) % 12) + 1;
+    monthBuckets.push({ key: monthKey(year, month), label: `${monthLabels[month - 1]} ${year}` });
   }
 
   const signupsByMonth = new Map<string, number>();
   for (const tenant of tenants) {
     if (tenant.createdAt < rangeStart) continue;
-    const key = monthKey(tenant.createdAt);
+    const key = monthKeyFromInstant(tenant.createdAt);
     signupsByMonth.set(key, (signupsByMonth.get(key) ?? 0) + 1);
   }
   const salonGrowth = monthBuckets.map(({ key, label }) => ({ month: label, count: signupsByMonth.get(key) ?? 0 }));
@@ -94,7 +108,7 @@ export async function GET(request: Request) {
   const revenueByMonth = new Map<string, number>();
   for (const payment of payments) {
     if (payment.createdAt < rangeStart) continue;
-    const key = monthKey(payment.createdAt);
+    const key = monthKeyFromInstant(payment.createdAt);
     revenueByMonth.set(key, (revenueByMonth.get(key) ?? 0) + payment.amount);
   }
   const revenueOverview = monthBuckets.map(({ key, label }) => ({ month: label, revenue: revenueByMonth.get(key) ?? 0 }));

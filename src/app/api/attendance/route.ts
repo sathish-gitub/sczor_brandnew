@@ -3,20 +3,9 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { istDayBounds, todayISTDateString } from "@/lib/time";
 
 type AttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY";
-
-function parseDateOnly(value: string) {
-  return new Date(`${value}T00:00:00`);
-}
-
-function dayBounds(date: Date) {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(date);
-  end.setHours(23, 59, 59, 999);
-  return { start, end };
-}
 
 function zeroSummary() {
   return {
@@ -64,14 +53,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Valid date is required." }, { status: 400 });
   }
 
-  const parsedDate = parseDateOnly(date);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  if (parsedDate > today) {
+  if (date > todayISTDateString()) {
     return NextResponse.json({ error: "Future date is not allowed." }, { status: 400 });
   }
 
-  const { start, end } = dayBounds(parsedDate);
+  const { start, end } = istDayBounds(date);
 
   try {
     const [staffList, attendance] = await Promise.all([
@@ -94,7 +80,7 @@ export async function GET(request: Request) {
           tenantId: session.user.tenantId,
           date: {
             gte: start,
-            lte: end,
+            lt: end,
           },
         },
         select: {

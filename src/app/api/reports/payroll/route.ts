@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { currentISTMonthYear } from "@/lib/time";
 
 const monthLabels = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -27,9 +28,9 @@ export async function GET(request: Request) {
 
   const tenantId = session.user.tenantId;
   const url = new URL(request.url);
-  const now = new Date();
-  const month = Number(url.searchParams.get("month") ?? now.getMonth() + 1);
-  const year = Number(url.searchParams.get("year") ?? now.getFullYear());
+  const istDefaults = currentISTMonthYear();
+  const month = Number(url.searchParams.get("month") ?? istDefaults.month);
+  const year = Number(url.searchParams.get("year") ?? istDefaults.year);
 
   if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < 2000 || year > 3000) {
     return NextResponse.json({ error: "Invalid month or year." }, { status: 400 });

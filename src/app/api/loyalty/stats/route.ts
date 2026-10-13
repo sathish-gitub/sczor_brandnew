@@ -3,16 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-function monthBounds(date = new Date()) {
-  const start = new Date(date.getFullYear(), date.getMonth(), 1);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
-}
+import { istMonthBounds, todayISTDateString } from "@/lib/time";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -22,6 +13,8 @@ export async function GET() {
   }
 
   try {
+    const { start, end } = istMonthBounds(todayISTDateString());
+
     const [totalMembers, tierCounts, earnedAggregate, redeemedAggregate, activeMembers] = await Promise.all([
       prisma.loyaltyCard.count({
         where: {
@@ -65,8 +58,8 @@ export async function GET() {
             tenantId: session.user.tenantId,
           },
           createdAt: {
-            gte: monthBounds().start,
-            lte: monthBounds().end,
+            gte: start,
+            lt: end,
           },
         },
         select: {

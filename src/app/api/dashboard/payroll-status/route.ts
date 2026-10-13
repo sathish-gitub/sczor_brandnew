@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { currentISTMonthYear, getISTDayOfMonth } from "@/lib/time";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -12,9 +13,7 @@ export async function GET() {
   }
 
   const tenantId = session.user.tenantId;
-  const now = new Date();
-  const month = now.getMonth() + 1;
-  const year = now.getFullYear();
+  const { year, month } = currentISTMonthYear();
 
   try {
     const [configuredStaff, payrolls] = await Promise.all([
@@ -46,7 +45,7 @@ export async function GET() {
       totalProcessed,
       unprocessedCount,
       totalNetPay: Math.round(totalNetPay * 100) / 100,
-      dayOfMonth: now.getDate(),
+      dayOfMonth: getISTDayOfMonth(new Date()),
     });
   } catch (error) {
     console.error("Failed to load payroll status", error);

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { currentISTMonthYear, daysInMonthIST, endOfMonthIST, getISTDayOfMonth, getISTMonth, getISTYear, startOfMonthIST } from "@/lib/time";
 
 type AttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY";
 
@@ -11,16 +12,14 @@ type CellStatus = AttendanceStatus | "OFF";
 const weekdayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 function monthBounds(year: number, month: number) {
-  const start = new Date(year, month - 1, 1);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(year, month, 0);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
+  return { start: startOfMonthIST(year, month), end: endOfMonthIST(year, month) };
 }
 
 function weekdayLabelFromDate(date: Date) {
+  // Pure (year, month, day) round-trip through host-local Date fields: this
+  // determines the real-world Gregorian weekday for a given calendar date,
+  // which does not depend on timezone offset, so it stays correct
+  // regardless of the host process timezone.
   return weekdayLabels[date.getDay()];
 }
 
@@ -32,8 +31,8 @@ function toDayMap(
   const map = new Map<number, AttendanceStatus>();
 
   for (const entry of entries) {
-    if (entry.date.getFullYear() === year && entry.date.getMonth() === month - 1) {
-      map.set(entry.date.getDate(), entry.status);
+    if (getISTYear(entry.date) === year && getISTMonth(entry.date) === month) {
+      map.set(getISTDayOfMonth(entry.date), entry.status);
     }
   }
 
@@ -49,9 +48,9 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
 
-  const now = new Date();
-  const month = Number(url.searchParams.get("month") ?? now.getMonth() + 1);
-  const year = Number(url.searchParams.get("year") ?? now.getFullYear());
+  const istDefaults = currentISTMonthYear();
+  const month = Number(url.searchParams.get("month") ?? istDefaults.month);
+  const year = Number(url.searchParams.get("year") ?? istDefaults.year);
   const staffId = url.searchParams.get("staffId")?.trim() || null;
 
   if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < 2000 || year > 3000) {
@@ -59,7 +58,7 @@ export async function GET(request: Request) {
   }
 
   const { start, end } = monthBounds(year, month);
-  const daysInMonth = end.getDate();
+  const daysInMonth = daysInMonthIST(year, month);
 
   try {
     const staffList = await prisma.staff.findMany({
@@ -103,7 +102,7 @@ export async function GET(request: Request) {
         },
         date: {
           gte: start,
-          lte: end,
+          lt: end,
         },
       },
       orderBy: {

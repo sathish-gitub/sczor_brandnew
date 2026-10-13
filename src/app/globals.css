@@ -88,6 +88,18 @@ input {
   background: transparent !important;
 }
 
+/* Used by the Day View calendar when staff-paging arrows are shown, so the
+   native scrollbar doesn't duplicate the arrow affordance while trackpad
+   and touch scrolling still work normally. */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 .staff-scroll::-webkit-scrollbar {
   width: 4px;
 }

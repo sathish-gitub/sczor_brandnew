@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { istDayBounds, todayISTDateString } from "@/lib/time";
 
 type Notification = {
   id: string;
@@ -12,14 +13,6 @@ type Notification = {
   createdAt: string;
 };
 
-function dayBounds() {
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
-  return { start, end };
-}
-
 export async function GET() {
   const session = await getServerSession(authOptions);
 
@@ -28,12 +21,12 @@ export async function GET() {
   }
 
   const tenantId = session.user.tenantId;
-  const { start, end } = dayBounds();
+  const { start, end } = istDayBounds(todayISTDateString());
 
   try {
     const [appointments, invoices, attendances] = await Promise.all([
       prisma.appointment.findMany({
-        where: { tenantId, appointmentDate: { gte: start, lte: end } },
+        where: { tenantId, appointmentDate: { gte: start, lt: end } },
         orderBy: { createdAt: "desc" },
         take: 5,
         select: {
@@ -44,7 +37,7 @@ export async function GET() {
         },
       }),
       prisma.invoice.findMany({
-        where: { tenantId, invoiceDate: { gte: start, lte: end } },
+        where: { tenantId, invoiceDate: { gte: start, lt: end } },
         orderBy: { createdAt: "desc" },
         take: 5,
         select: {
@@ -56,7 +49,7 @@ export async function GET() {
         },
       }),
       prisma.attendance.findMany({
-        where: { tenantId, date: { gte: start, lte: end }, status: { in: ["ABSENT", "LEAVE"] } },
+        where: { tenantId, date: { gte: start, lt: end }, status: { in: ["ABSENT", "LEAVE"] } },
         orderBy: { createdAt: "desc" },
         take: 5,
         select: {

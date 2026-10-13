@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { currentISTMonthYear, endOfMonthIST, startOfMonthIST } from "@/lib/time";
 
 async function tenantIdOrNull() {
   const session = await getServerSession(authOptions);
@@ -10,17 +11,11 @@ async function tenantIdOrNull() {
 }
 
 function monthBounds(month?: number, year?: number) {
-  const now = new Date();
-  const targetMonth = month ?? now.getMonth() + 1;
-  const targetYear = year ?? now.getFullYear();
+  const defaults = currentISTMonthYear();
+  const targetMonth = month ?? defaults.month;
+  const targetYear = year ?? defaults.year;
 
-  const start = new Date(targetYear, targetMonth - 1, 1);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(targetYear, targetMonth, 0);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
+  return { start: startOfMonthIST(targetYear, targetMonth), end: endOfMonthIST(targetYear, targetMonth) };
 }
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -43,7 +38,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       staffId: id,
       date: {
         gte: bounds.start,
-        lte: bounds.end,
+        lt: bounds.end,
       },
     },
     orderBy: {

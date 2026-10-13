@@ -3,31 +3,19 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { istDayBounds, istMonthBounds, toISTDateString, todayISTDateString } from "@/lib/time";
 
-function parseDate(value: string | null, endOfDay = false) {
+function parseDateOnlyParam(value: string | null) {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return null;
   }
 
-  const date = new Date(`${value}T00:00:00`);
-  if (endOfDay) {
-    date.setHours(23, 59, 59, 999);
-  }
-
-  return date;
+  return value;
 }
 
-function monthBounds() {
-  const now = new Date();
-  const start = new Date(now.getFullYear(), now.getMonth(), 1);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-  end.setHours(23, 59, 59, 999);
-  return { start, end };
-}
-
-function dayKey(value: Date) {
-  return value.toISOString().slice(0, 10);
+// Inclusive end bound: the last millisecond of the IST calendar day.
+function endOfDayInclusive(dateStr: string) {
+  return new Date(istDayBounds(dateStr).end.getTime() - 1);
 }
 
 export async function GET(request: Request) {
@@ -37,14 +25,15 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const startDate = parseDate(url.searchParams.get("startDate"));
-  const endDate = parseDate(url.searchParams.get("endDate"), true);
+  const startDateStr = parseDateOnlyParam(url.searchParams.get("startDate"));
+  const endDateStr = parseDateOnlyParam(url.searchParams.get("endDate"));
   const staffId = url.searchParams.get("staffId")?.trim() || undefined;
   const paymentMethod = url.searchParams.get("paymentMethod")?.trim() || undefined;
 
-  const fallback = monthBounds();
-  const from = startDate ?? fallback.start;
-  const to = endDate ?? fallback.end;
+  const fallback = istMonthBounds(todayISTDateString());
+  const fallbackEnd = new Date(fallback.end.getTime() - 1);
+  const from = startDateStr ? istDayBounds(startDateStr).start : fallback.start;
+  const to = endDateStr ? endOfDayInclusive(endDateStr) : fallbackEnd;
 
   try {
     const invoices = await prisma.invoice.findMany({
@@ -113,7 +102,7 @@ export async function GET(request: Request) {
       paymentBuckets[invoice.paymentMethod].amount += total;
       paymentBuckets[invoice.paymentMethod].count += 1;
 
-      const key = dayKey(invoice.invoiceDate);
+      const key = toISTDateString(invoice.invoiceDate);
       const day = dailyBuckets.get(key) ?? {
         revenue: 0,
         gst: 0,

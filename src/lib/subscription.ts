@@ -1,3 +1,5 @@
+import { addISTCalendarMonths, addISTCalendarYears } from "@/lib/time";
+
 export type TrialStatus = {
   status: "ACTIVE" | "TRIAL" | "EXPIRED";
   message: string;
@@ -46,13 +48,9 @@ export function calculateSubscriptionEnd(
   plan: "MONTHLY" | "YEARLY",
   startDate: Date = new Date(),
 ): Date {
-  const end = new Date(startDate);
-  if (plan === "MONTHLY") {
-    end.setMonth(end.getMonth() + 1);
-  } else {
-    end.setFullYear(end.getFullYear() + 1);
-  }
-  return end;
+  return plan === "MONTHLY"
+    ? addISTCalendarMonths(startDate, 1)
+    : addISTCalendarYears(startDate, 1);
 }
 
 export type AccessLevel = "FULL" | "READ_ONLY";

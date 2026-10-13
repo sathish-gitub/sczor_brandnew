@@ -3,49 +3,40 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { istDayBounds, toISTDateString, todayISTDateString } from "@/lib/time";
 
 const STOCK_IN_TYPES = new Set(["PURCHASE_IN", "MANUAL_ADJUST_IN"]);
 const STOCK_OUT_TYPES = new Set(["SALE_OUT", "WASTAGE", "MANUAL_ADJUST_OUT"]);
 
-function parseDate(value: string | null, endOfDay = false) {
+function parseDateOnlyParam(value: string | null) {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return null;
   }
 
-  const date = new Date(`${value}T00:00:00`);
-  if (endOfDay) {
-    date.setHours(23, 59, 59, 999);
-  }
+  return value;
+}
 
-  return date;
+// Inclusive end bound: the last millisecond of the IST calendar day.
+function endOfDayInclusive(dateStr: string) {
+  return new Date(istDayBounds(dateStr).end.getTime() - 1);
 }
 
 function last30Days() {
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
-  const start = new Date();
-  start.setDate(start.getDate() - 29);
-  start.setHours(0, 0, 0, 0);
+  const todayStr = todayISTDateString();
+  const end = endOfDayInclusive(todayStr);
+  const startStr = toISTDateString(new Date(istDayBounds(todayStr).start.getTime() - 29 * 24 * 60 * 60 * 1000));
+  const start = istDayBounds(startStr).start;
   return { start, end };
-}
-
-function toDateKey(date: Date) {
-  const year = date.getFullYear();
-  const month = `${date.getMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getDate()}`.padStart(2, "0");
-  return `${year}-${month}-${day}`;
 }
 
 function dayKeys(start: Date, end: Date) {
   const keys: string[] = [];
-  const cursor = new Date(start);
-  cursor.setHours(0, 0, 0, 0);
-  const last = new Date(end);
-  last.setHours(0, 0, 0, 0);
+  let cursorStr = toISTDateString(start);
+  const endStr = toISTDateString(end);
 
-  while (cursor <= last) {
-    keys.push(toDateKey(cursor));
-    cursor.setDate(cursor.getDate() + 1);
+  while (cursorStr <= endStr) {
+    keys.push(cursorStr);
+    cursorStr = toISTDateString(new Date(istDayBounds(cursorStr).start.getTime() + 24 * 60 * 60 * 1000));
   }
 
   return keys;
@@ -66,8 +57,10 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
 
   const fallback = last30Days();
-  const from = parseDate(url.searchParams.get("startDate")) ?? fallback.start;
-  const to = parseDate(url.searchParams.get("endDate"), true) ?? fallback.end;
+  const startDateStr = parseDateOnlyParam(url.searchParams.get("startDate"));
+  const endDateStr = parseDateOnlyParam(url.searchParams.get("endDate"));
+  const from = startDateStr ? istDayBounds(startDateStr).start : fallback.start;
+  const to = endDateStr ? endOfDayInclusive(endDateStr) : fallback.end;
 
   try {
     const [products, movements, purchaseOrders] = await Promise.all([
@@ -134,7 +127,7 @@ export async function GET(request: Request) {
 
     for (const movement of rangeMovements) {
       const quantity = Number(movement.quantity);
-      const key = toDateKey(movement.createdAt);
+      const key = toISTDateString(movement.createdAt);
 
       if (STOCK_IN_TYPES.has(movement.type)) {
         stockInByDay.set(key, (stockInByDay.get(key) ?? 0) + quantity);

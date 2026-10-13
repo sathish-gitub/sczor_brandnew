@@ -1,3 +1,5 @@
+import { formatISTDateDDMMYYYY, formatISTInstantTime12Hour } from "@/lib/time";
+
 export type ExportColumnType = "text" | "number" | "currency" | "date" | "percent";
 
 export type ExportColumn = {
@@ -71,21 +73,7 @@ async function loadRupeeFontBase64() {
 
 function formatGeneratedOn() {
   const now = new Date();
-  const datePart = new Intl.DateTimeFormat("en-GB", {
-    timeZone: "Asia/Kolkata",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(now);
-
-  const timePart = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Kolkata",
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  }).format(now);
-
-  return `${datePart} ${timePart}`;
+  return `${formatISTDateDDMMYYYY(now)} ${formatISTInstantTime12Hour(now)}`;
 }
 
 function toDisplayValue(value: unknown, type: ExportColumnType = "text") {

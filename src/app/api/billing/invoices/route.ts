@@ -3,39 +3,14 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { istDayBounds, istMonthBounds, todayISTDateString } from "@/lib/time";
 
-function dayBounds(date = new Date()) {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(date);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
-}
-
-function monthBounds(date = new Date()) {
-  const start = new Date(date.getFullYear(), date.getMonth(), 1);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
-}
-
-function parseDateParam(value: string | null, endOfDay: boolean) {
+function parseDateOnlyParam(value: string | null) {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return null;
   }
 
-  const date = new Date(`${value}T00:00:00`);
-
-  if (endOfDay) {
-    date.setHours(23, 59, 59, 999);
-  }
-
-  return date;
+  return value;
 }
 
 export async function GET(request: Request) {
@@ -53,8 +28,10 @@ export async function GET(request: Request) {
     : Math.min(50, Math.max(1, Number(url.searchParams.get("limit") ?? "20")));
   const search = url.searchParams.get("search")?.trim() ?? "";
   const paymentMethod = url.searchParams.get("paymentMethod")?.trim();
-  const from = parseDateParam(url.searchParams.get("from"), false);
-  const to = parseDateParam(url.searchParams.get("to"), true);
+  const from = parseDateOnlyParam(url.searchParams.get("from"));
+  const to = parseDateOnlyParam(url.searchParams.get("to"));
+  const fromInstant = from ? istDayBounds(from).start : undefined;
+  const toInstant = to ? istDayBounds(to).end : undefined;
 
   const where = {
     tenantId: session.user.tenantId,
@@ -65,8 +42,8 @@ export async function GET(request: Request) {
     invoiceDate:
       from || to
         ? {
-            gte: from ?? undefined,
-            lte: to ?? undefined,
+            gte: fromInstant,
+            lt: toInstant,
           }
         : undefined,
     OR: search
@@ -108,8 +85,9 @@ export async function GET(request: Request) {
       );
     }
 
-    const today = dayBounds();
-    const thisMonth = monthBounds();
+    const todayStr = todayISTDateString();
+    const today = istDayBounds(todayStr);
+    const thisMonth = istMonthBounds(todayStr);
 
     const [invoices, todayAggregate, monthAggregate] = await Promise.all([
       prisma.invoice.findMany({
@@ -150,7 +128,7 @@ export async function GET(request: Request) {
           paymentStatus: "PAID",
           invoiceDate: {
             gte: today.start,
-            lte: today.end,
+            lt: today.end,
           },
         },
       }),
@@ -163,7 +141,7 @@ export async function GET(request: Request) {
           paymentStatus: "PAID",
           invoiceDate: {
             gte: thisMonth.start,
-            lte: thisMonth.end,
+            lt: thisMonth.end,
           },
         },
       }),

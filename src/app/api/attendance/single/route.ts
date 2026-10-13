@@ -5,6 +5,8 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
+import { attendanceDateInstant, findAttendanceIdsForDay } from "@/lib/attendanceDate";
+import { todayISTDateString } from "@/lib/time";
 
 type AttendanceStatus = "PRESENT" | "ABSENT" | "LEAVE" | "HALF_DAY";
 
@@ -13,10 +15,6 @@ const singleSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   status: z.enum(["PRESENT", "ABSENT", "LEAVE", "HALF_DAY"]),
 });
-
-function parseDateOnly(value: string) {
-  return new Date(`${value}T00:00:00`);
-}
 
 function availabilityFromStatus(status: AttendanceStatus) {
   if (status === "ABSENT" || status === "LEAVE") {
@@ -50,11 +48,8 @@ export async function PATCH(request: Request) {
     }
 
     const payload = parsed.data;
-    const date = parseDateOnly(payload.date);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (date > today) {
+    const todayStr = todayISTDateString();
+    if (payload.date > todayStr) {
       return NextResponse.json({ error: "Future date is not allowed." }, { status: 400 });
     }
 
@@ -72,24 +67,23 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Staff member not found." }, { status: 404 });
     }
 
+    const existingIds = await findAttendanceIdsForDay(session.user.tenantId, [payload.staffId], payload.date);
+    const existingId = existingIds.get(payload.staffId);
+
     await prisma.$transaction([
-      prisma.attendance.upsert({
-        where: {
-          staffId_date: {
-            staffId: payload.staffId,
-            date,
-          },
-        },
-        update: {
-          status: payload.status,
-        },
-        create: {
-          tenantId: session.user.tenantId,
-          staffId: payload.staffId,
-          date,
-          status: payload.status,
-        },
-      }),
+      existingId
+        ? prisma.attendance.update({
+            where: { id: existingId },
+            data: { status: payload.status },
+          })
+        : prisma.attendance.create({
+            data: {
+              tenantId: session.user.tenantId,
+              staffId: payload.staffId,
+              date: attendanceDateInstant(payload.date),
+              status: payload.status,
+            },
+          }),
       prisma.staff.update({
         where: {
           id: payload.staffId,

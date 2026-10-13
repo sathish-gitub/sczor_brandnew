@@ -3,15 +3,10 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { currentISTMonthYear, endOfMonthIST, startOfMonthIST } from "@/lib/time";
 
 function monthBounds(year: number, month: number) {
-  const start = new Date(year, month - 1, 1);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(year, month, 0);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
+  return { start: startOfMonthIST(year, month), end: endOfMonthIST(year, month) };
 }
 
 export async function GET(request: Request) {
@@ -22,9 +17,9 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const now = new Date();
-  const month = Number(url.searchParams.get("month") ?? now.getMonth() + 1);
-  const year = Number(url.searchParams.get("year") ?? now.getFullYear());
+  const defaults = currentISTMonthYear();
+  const month = Number(url.searchParams.get("month") ?? defaults.month);
+  const year = Number(url.searchParams.get("year") ?? defaults.year);
 
   if (!Number.isInteger(month) || month < 1 || month > 12 || !Number.isInteger(year) || year < 2000 || year > 3000) {
     return NextResponse.json({ error: "Invalid month or year." }, { status: 400 });
@@ -58,7 +53,7 @@ export async function GET(request: Request) {
       where: {
         tenantId: session.user.tenantId,
         staffId: { in: staffIds },
-        date: { gte: start, lte: end },
+        date: { gte: start, lt: end },
       },
       select: { staffId: true, status: true },
     });
@@ -85,7 +80,7 @@ export async function GET(request: Request) {
 
     const items = staffList.map((staff) => {
       const applicableHistory = staff.salaryHistory
-        .filter((entry) => entry.effectiveFrom <= end && (entry.effectiveTo === null || entry.effectiveTo >= start))
+        .filter((entry) => entry.effectiveFrom < end && (entry.effectiveTo === null || entry.effectiveTo >= start))
         .sort((a, b) => b.effectiveFrom.getTime() - a.effectiveFrom.getTime())[0];
 
       const baseSalary = applicableHistory

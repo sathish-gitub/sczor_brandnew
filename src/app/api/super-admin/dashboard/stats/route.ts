@@ -5,9 +5,15 @@ import { authOptions } from "@/lib/auth";
 import { PRICING_PLANS } from "@/lib/pricing";
 import { prisma } from "@/lib/prisma";
 import { getTenantSalonStatus } from "@/lib/tenantStatus";
+import { currentISTMonthYear, endOfMonthIST, startOfMonthIST } from "@/lib/time";
 
 const MONTHLY_PRICE = PRICING_PLANS.MONTHLY.price;
 const YEARLY_PRICE = PRICING_PLANS.YEARLY.price;
+
+const monthLabels = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -17,7 +23,8 @@ export async function GET() {
   }
 
   const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const istNow = currentISTMonthYear();
+  const monthStart = startOfMonthIST(istNow.year, istNow.month);
 
   const tenants = await prisma.tenant.findMany({
     select: {
@@ -62,11 +69,16 @@ export async function GET() {
 
   const monthlySignups: Array<{ month: string; count: number }> = [];
   for (let i = 5; i >= 0; i -= 1) {
-    const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+    // Pure (year, month) index arithmetic seeded from the IST "current" month;
+    // stays correct regardless of host timezone (no instant conversion here).
+    const totalMonthIndex = (istNow.month - 1) - i;
+    const year = istNow.year + Math.floor(totalMonthIndex / 12);
+    const month = (((totalMonthIndex % 12) + 12) % 12) + 1;
+    const start = startOfMonthIST(year, month);
+    const end = endOfMonthIST(year, month);
     const count = tenants.filter((tenant) => tenant.createdAt >= start && tenant.createdAt < end).length;
     monthlySignups.push({
-      month: start.toLocaleDateString("en-US", { month: "short" }),
+      month: monthLabels[month - 1],
       count,
     });
   }

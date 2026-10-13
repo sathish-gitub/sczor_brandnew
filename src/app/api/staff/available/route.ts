@@ -3,22 +3,11 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { istDayBounds } from "@/lib/time";
 
 async function tenantIdOrNull() {
   const session = await getServerSession(authOptions);
   return session?.user.tenantId ?? null;
-}
-
-function parseDateOnly(value: string) {
-  return new Date(`${value}T00:00:00`);
-}
-
-function dayBoundsFor(date: Date) {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(date);
-  end.setHours(23, 59, 59, 999);
-  return { start, end };
 }
 
 export async function GET(request: Request) {
@@ -36,8 +25,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Valid date is required." }, { status: 400 });
   }
 
-  const targetDate = parseDateOnly(date);
-  const bounds = dayBoundsFor(targetDate);
+  const bounds = istDayBounds(date);
 
   const staff = await prisma.staff.findMany({
     where: {
@@ -52,7 +40,7 @@ export async function GET(request: Request) {
         where: {
           date: {
             gte: bounds.start,
-            lte: bounds.end,
+            lt: bounds.end,
           },
         },
         take: 1,
@@ -61,7 +49,7 @@ export async function GET(request: Request) {
         where: {
           appointmentDate: {
             gte: bounds.start,
-            lte: bounds.end,
+            lt: bounds.end,
           },
           status: {
             not: "CANCELLED",

@@ -15,6 +15,7 @@ import {
 import { calculateGSTBreakdown } from "../src/lib/gst";
 import { calculatePayroll, PayrollCalculationError } from "../src/lib/payrollCalculation";
 import { calculateLoyaltyTier } from "../src/lib/utils";
+import { getISTMonth, getISTWeekday, getISTYear, istWallTimeToInstant, toISTDateString } from "../src/lib/time";
 
 // ---------------------------------------------------------------------------
 // Setup
@@ -72,16 +73,16 @@ function addDays(date: Date, days: number) {
   return new Date(date.getTime() + days * DAY_MS);
 }
 
+// IST-aware (not host-local): the IST midnight instant that begins the
+// IST calendar day containing `date`. Matches the convention every other
+// appointment/attendance instant in this seed (and in the live app) uses.
 function startOfDay(date: Date) {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
+  return istWallTimeToInstant(toISTDateString(date), "00:00");
 }
 
+// IST-aware: the last millisecond of the IST calendar day containing `date`.
 function endOfDay(date: Date) {
-  const d = new Date(date);
-  d.setHours(23, 59, 59, 999);
-  return d;
+  return new Date(startOfDay(date).getTime() + DAY_MS - 1);
 }
 
 function padNum(n: number, len = 4) {
@@ -320,7 +321,7 @@ async function main() {
   const subscriptionStart = windowStart;
   const subscriptionEnd = addDays(subscriptionStart, 365);
 
-  console.log(`Window: ${windowStart.toDateString()} -> ${now.toDateString()} (${totalDays} days)`);
+  console.log(`Window: ${toISTDateString(windowStart)} -> ${toISTDateString(now)} (${totalDays} days)`);
 
   // -------------------------------------------------------------------
   // 1. Tenant, Owner, Settings, Subscription Payment
@@ -392,7 +393,7 @@ async function main() {
       razorpayPaymentId: `pay_demo_${tenant.id.slice(-8)}`,
       periodStart: subscriptionStart,
       periodEnd: subscriptionEnd,
-      invoiceNumber: `SUB-INV-DEMO-${subscriptionStart.getFullYear()}-${tenant.id.slice(-6)}`,
+      invoiceNumber: `SUB-INV-DEMO-${getISTYear(subscriptionStart)}-${tenant.id.slice(-6)}`,
       baseAmount: gstBreakdown.baseAmount,
       gstAmount: gstBreakdown.gstAmount,
       gstRate: gstBreakdown.gstRate,
@@ -547,8 +548,9 @@ async function main() {
     // gentle upward trend: bias dayFraction towards later part of window using sqrt
     const dayFraction = Math.pow(Math.random(), 0.7);
     const dayOffset = Math.min(totalDays - 1, Math.floor(dayFraction * totalDays));
-    const createdAt = addDays(windowStart, dayOffset);
-    createdAt.setHours(randomInt(9, 19), randomChoice([0, 15, 30, 45]), 0, 0);
+    const day = addDays(windowStart, dayOffset);
+    const createdTime = `${padNum(randomInt(9, 19), 2)}:${padNum(randomChoice([0, 15, 30, 45]), 2)}`;
+    const createdAt = istWallTimeToInstant(toISTDateString(day), createdTime);
     customerSeeds.push({
       mobile: `70000${padNum(10000 + i, 5)}`,
       name,
@@ -639,7 +641,7 @@ async function main() {
   const poReceiptsByDay = new Map<number, POSeed & { poNumber: string }>();
   for (const po of poSeeds) {
     poSeq += 1;
-    const poNumber = `PO-${now.getFullYear()}-${padNum(poSeq)}`;
+    const poNumber = `PO-${getISTYear(now)}-${padNum(poSeq)}`;
     const createdAt = addDays(windowStart, po.dayOffset);
     const totalAmount = roundMoney(po.items.reduce((sum, it) => sum + it.quantity * it.unitCost, 0));
     const isPending = po.receivedAfterDays === -1;
@@ -694,7 +696,7 @@ async function main() {
   let cancelledCount = 0;
   let walkinCount = 0;
 
-  const invoiceNumberYear = now.getFullYear();
+  const invoiceNumberYear = getISTYear(now);
   function nextAppointmentNumber() {
     appointmentSeq += 1;
     return `SCZO-${invoiceNumberYear}-${padNum(appointmentSeq)}`;
@@ -858,7 +860,7 @@ async function main() {
 
   for (let d = 0; d < totalDays; d++) {
     const date = addDays(windowStart, d);
-    const dow = date.getDay();
+    const dow = getISTWeekday(date);
     const dayName = DOW_NAMES[dow];
     const isWorkingDay = tenant.workingDays.includes(dayName);
 
@@ -915,8 +917,7 @@ async function main() {
       const hour = randomInt(9, 19);
       const minute = randomChoice([0, 30]);
       const appointmentTime = `${padNum(hour, 2)}:${padNum(minute, 2)}`;
-      const appointmentDate = new Date(date);
-      appointmentDate.setHours(hour, minute, 0, 0);
+      const appointmentDate = istWallTimeToInstant(toISTDateString(date), appointmentTime);
 
       let status: AppointmentStatus;
       if (isRecentDay) {
@@ -986,8 +987,8 @@ async function main() {
       const customer = randomChoice(availableCustomers);
       const staff = randomChoice(anyStaffForWalkin);
       const hour = randomInt(10, 19);
-      const invoiceDate = new Date(date);
-      invoiceDate.setHours(hour, randomChoice([0, 15, 30, 45]), 0, 0);
+      const invoiceTime = `${padNum(hour, 2)}:${padNum(randomChoice([0, 15, 30, 45]), 2)}`;
+      const invoiceDate = istWallTimeToInstant(toISTDateString(date), invoiceTime);
       const invoice = await createInvoiceFor(customer, staff.id, invoiceDate, null, null);
       if (invoice) walkinCount += 1;
     }
@@ -1088,19 +1089,25 @@ async function main() {
   }
 
   // Build the list of (year, month) pairs covered by the window, oldest first.
+  // Seed years/months from IST calendar fields of the real instants, then
+  // iterate with pure integer month-index arithmetic (host-TZ safe).
   const monthKeys: { year: number; month: number }[] = [];
   {
-    const cursor = new Date(windowStart.getFullYear(), windowStart.getMonth(), 1);
-    const end = new Date(now.getFullYear(), now.getMonth(), 1);
-    while (cursor <= end) {
-      monthKeys.push({ year: cursor.getFullYear(), month: cursor.getMonth() + 1 });
-      cursor.setMonth(cursor.getMonth() + 1);
+    const startYear = getISTYear(windowStart);
+    const startMonth = getISTMonth(windowStart); // 1-12
+    const endYear = getISTYear(now);
+    const endMonth = getISTMonth(now);
+    let monthIndex = startYear * 12 + (startMonth - 1);
+    const endIndex = endYear * 12 + (endMonth - 1);
+    while (monthIndex <= endIndex) {
+      monthKeys.push({ year: Math.floor(monthIndex / 12), month: (monthIndex % 12) + 1 });
+      monthIndex += 1;
     }
   }
 
   let payrollCount = 0;
   for (const { year, month } of monthKeys) {
-    const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1;
+    const isCurrentMonth = year === getISTYear(now) && month === getISTMonth(now);
     for (const staff of staffRecords) {
       try {
         const result = await withRetry(() => calculatePayroll(staff.id, month, year, tenant.id));
