@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { currentISTMonthYear, endOfMonthIST, startOfMonthIST } from "@/lib/time";
 import { getStaffDesignationName, staffDesignationSelect } from "@/lib/staffDesignation";
+import { getMissingAttendanceByStaff } from "@/lib/payrollAttendanceCheck";
 
 function monthBounds(year: number, month: number) {
   return { start: startOfMonthIST(year, month), end: endOfMonthIST(year, month) };
@@ -41,6 +42,7 @@ export async function GET(request: Request) {
         ...staffDesignationSelect,
         baseSalary: true,
         commissionRate: true,
+        joiningDate: true,
         salaryHistory: {
           orderBy: { effectiveFrom: "desc" },
           select: { baseSalary: true, commissionRate: true, effectiveFrom: true, effectiveTo: true },
@@ -50,14 +52,24 @@ export async function GET(request: Request) {
 
     const staffIds = staffList.map((item) => item.id);
 
-    const attendance = await prisma.attendance.findMany({
-      where: {
+    const [attendance, missingAttendanceByStaff] = await Promise.all([
+      prisma.attendance.findMany({
+        where: {
+          tenantId: session.user.tenantId,
+          staffId: { in: staffIds },
+          date: { gte: start, lt: end },
+        },
+        select: { staffId: true, status: true },
+      }),
+      getMissingAttendanceByStaff({
         tenantId: session.user.tenantId,
-        staffId: { in: staffIds },
-        date: { gte: start, lt: end },
-      },
-      select: { staffId: true, status: true },
-    });
+        month,
+        year,
+        staff: staffList.map((staff) => ({ staffId: staff.id, staffName: staff.name, joiningDate: staff.joiningDate })),
+      }),
+    ]);
+
+    const missingDatesByStaff = new Map(missingAttendanceByStaff.map((entry) => [entry.staffId, entry.missingDates]));
 
     const attendanceByStaff = new Map<string, { PRESENT: number; ABSENT: number; LEAVE: number; HALF_DAY: number; WEEK_OFF: number }>();
 
@@ -98,6 +110,7 @@ export async function GET(request: Request) {
 
       const attendanceCounts = attendanceByStaff.get(staff.id) ?? { PRESENT: 0, ABSENT: 0, LEAVE: 0, HALF_DAY: 0, WEEK_OFF: 0 };
       const payroll = payrollByStaff.get(staff.id) ?? null;
+      const missingDates = missingDatesByStaff.get(staff.id) ?? [];
 
       return {
         id: staff.id,
@@ -109,6 +122,7 @@ export async function GET(request: Request) {
         attendance: attendanceCounts,
         payrollId: payroll?.id ?? null,
         payrollStatus: payroll?.status ?? null,
+        missingDates,
       };
     });
 

@@ -39,14 +39,19 @@ async function generateForStaff(tenantId: string, staffId: string, month: number
     where: { staffId_month_year: { staffId, month, year } },
   });
 
+  if (existing && !regenerate) {
+    throw new PayrollCalculationError("Payroll already generated for this month.");
+  }
+
+  // Compute before deleting the existing payslip, so a failed attendance
+  // check (or any other calculation error) on a regenerate leaves the
+  // existing payslip intact instead of destroying it first.
+  const result = await calculatePayroll(staffId, month, year, tenantId);
+
   if (existing) {
-    if (!regenerate) {
-      throw new PayrollCalculationError("Payroll already generated for this month.");
-    }
     await prisma.payroll.delete({ where: { id: existing.id } });
   }
 
-  const result = await calculatePayroll(staffId, month, year, tenantId);
   const payslipNumber = await nextPayslipNumber(tenantId, year, month);
 
   return prisma.payroll.create({
@@ -66,6 +71,8 @@ async function generateForStaff(tenantId: string, staffId: string, month: number
       paidLeaveDays: result.paidLeaveDays,
       lopDays: result.lopDays,
       totalWorkingDays: result.totalWorkingDays,
+      dayMethod: result.dayMethod,
+      dailyRateDivisor: result.dailyRateDivisor,
       leaveDeduction: result.leaveDeduction,
       grossPay: result.grossPay,
       netPay: result.netPay,
@@ -110,7 +117,7 @@ export async function POST(request: Request) {
     });
 
     const generated: Array<{ staffId: string; staffName: string; payrollId: string }> = [];
-    const failed: Array<{ staffId: string; staffName: string; reason: string }> = [];
+    const failed: Array<{ staffId: string; staffName: string; reason: string; missingDates?: string[] }> = [];
 
     for (const staff of staffList) {
       try {
@@ -121,6 +128,7 @@ export async function POST(request: Request) {
           staffId: staff.id,
           staffName: staff.name,
           reason: error instanceof PayrollCalculationError ? error.message : "Unable to generate payroll.",
+          missingDates: error instanceof PayrollCalculationError ? error.missingDates : undefined,
         });
       }
     }
@@ -133,7 +141,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ payroll });
   } catch (error) {
     if (error instanceof PayrollCalculationError) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      return NextResponse.json({ error: error.message, missingDates: error.missingDates }, { status: 400 });
     }
 
     console.error("Failed to generate payroll", error);

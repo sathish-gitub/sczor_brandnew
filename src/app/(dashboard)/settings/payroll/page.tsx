@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
+import { PAYROLL_DAY_METHOD_INFO, PAYROLL_DAY_METHOD_VALUES, type PayrollDayMethod } from "@/lib/payrollDayMethod";
 
 type PayrollSettingsForm = {
   defaultPaidLeavesPerMonth: number;
+  payrollDayMethod: PayrollDayMethod;
 };
 
 const defaults: PayrollSettingsForm = {
   defaultPaidLeavesPerMonth: 1,
+  payrollDayMethod: "CALENDAR_DAYS",
 };
 
 export default function PayrollSettingsPage() {
@@ -101,6 +104,42 @@ export default function PayrollSettingsPage() {
           <p className="mt-2 text-xs text-[var(--muted)]">
             Applies to all staff unless a staff member has a custom leave allowance set on their profile.
           </p>
+        </div>
+
+        <div className="max-w-xl border-t border-[var(--border)] pt-4">
+          <span className="block text-sm text-[var(--muted)]">Daily Salary Method</span>
+          <p className="mt-1 text-xs text-[var(--muted)]">
+            Used to turn a staff member&apos;s monthly salary into a per-day rate for Absent, Half Day and unpaid Leave (LOP)
+            deductions.
+          </p>
+          <div className="mt-3 space-y-2">
+            {PAYROLL_DAY_METHOD_VALUES.map((method) => {
+              const info = PAYROLL_DAY_METHOD_INFO[method];
+              return (
+                <label
+                  key={method}
+                  className={`block cursor-pointer rounded-xl border px-3 py-2.5 ${
+                    form.payrollDayMethod === method ? "border-[var(--primary)] bg-[var(--primary)]/5" : "border-[var(--border)]"
+                  }`}
+                >
+                  <div className="flex items-start gap-2">
+                    <input
+                      type="radio"
+                      name="payrollDayMethod"
+                      checked={form.payrollDayMethod === method}
+                      onChange={() => setForm((current) => ({ ...current, payrollDayMethod: method }))}
+                      className="mt-1"
+                    />
+                    <div>
+                      <p className="text-sm font-semibold text-[var(--foreground)]">{info.label}</p>
+                      <p className="mt-0.5 text-xs text-[var(--muted)]">{info.description}</p>
+                      <p className="mt-0.5 text-xs italic text-[var(--muted)]">e.g. {info.example}</p>
+                    </div>
+                  </div>
+                </label>
+              );
+            })}
+          </div>
         </div>
 
         <button type="button" onClick={onSave} disabled={saving} className="h-10 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white disabled:opacity-70">

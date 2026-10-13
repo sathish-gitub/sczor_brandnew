@@ -112,6 +112,7 @@ export async function GET() {
       },
       payroll: {
         defaultPaidLeavesPerMonth: settings?.defaultPaidLeavesPerMonth ?? 1,
+        payrollDayMethod: settings?.payrollDayMethod ?? "CALENDAR_DAYS",
       },
       account: {
         ownerName: user.name,

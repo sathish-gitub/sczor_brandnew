@@ -341,6 +341,23 @@ export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedIntNullableFilter<$PrismaModel>
 }
 
+export type EnumPayrollDayMethodFilter<$PrismaModel = never> = {
+  equals?: $Enums.PayrollDayMethod | Prisma.EnumPayrollDayMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.PayrollDayMethod[] | Prisma.ListEnumPayrollDayMethodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PayrollDayMethod[] | Prisma.ListEnumPayrollDayMethodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPayrollDayMethodFilter<$PrismaModel> | $Enums.PayrollDayMethod
+}
+
+export type EnumPayrollDayMethodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PayrollDayMethod | Prisma.EnumPayrollDayMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.PayrollDayMethod[] | Prisma.ListEnumPayrollDayMethodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PayrollDayMethod[] | Prisma.ListEnumPayrollDayMethodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPayrollDayMethodWithAggregatesFilter<$PrismaModel> | $Enums.PayrollDayMethod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPayrollDayMethodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPayrollDayMethodFilter<$PrismaModel>
+}
+
 export type EnumAppointmentStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.AppointmentStatus | Prisma.EnumAppointmentStatusFieldRefInput<$PrismaModel>
   in?: $Enums.AppointmentStatus[] | Prisma.ListEnumAppointmentStatusFieldRefInput<$PrismaModel>
@@ -781,6 +798,23 @@ export type NestedFloatNullableFilter<$PrismaModel = never> = {
   gt?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   gte?: number | Prisma.FloatFieldRefInput<$PrismaModel>
   not?: Prisma.NestedFloatNullableFilter<$PrismaModel> | number | null
+}
+
+export type NestedEnumPayrollDayMethodFilter<$PrismaModel = never> = {
+  equals?: $Enums.PayrollDayMethod | Prisma.EnumPayrollDayMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.PayrollDayMethod[] | Prisma.ListEnumPayrollDayMethodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PayrollDayMethod[] | Prisma.ListEnumPayrollDayMethodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPayrollDayMethodFilter<$PrismaModel> | $Enums.PayrollDayMethod
+}
+
+export type NestedEnumPayrollDayMethodWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.PayrollDayMethod | Prisma.EnumPayrollDayMethodFieldRefInput<$PrismaModel>
+  in?: $Enums.PayrollDayMethod[] | Prisma.ListEnumPayrollDayMethodFieldRefInput<$PrismaModel>
+  notIn?: $Enums.PayrollDayMethod[] | Prisma.ListEnumPayrollDayMethodFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumPayrollDayMethodWithAggregatesFilter<$PrismaModel> | $Enums.PayrollDayMethod
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumPayrollDayMethodFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumPayrollDayMethodFilter<$PrismaModel>
 }
 
 export type NestedEnumAppointmentStatusFilter<$PrismaModel = never> = {

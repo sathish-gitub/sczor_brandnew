@@ -216,6 +216,8 @@ model Payroll {
   paidLeaveDays    Int       @default(0) // leave days within allowance, unpaid deduction
   lopDays          Decimal   @default(0) @db.Decimal(5, 2) // excess leave treated as LOP (can include half-day fractions)
   totalWorkingDays Int // present + absent + leave + half
+  dayMethod        PayrollDayMethod @default(CALENDAR_DAYS) // daily-rate method in effect when this payslip was generated
+  dailyRateDivisor Decimal   @db.Decimal(6, 2) @default(30) // divisor used for baseSalary / dailyRateDivisor at generation time
   leaveDeduction   Decimal   @db.Decimal(10, 2) // proportional salary deduction for unpaid leave/absent days
   grossPay         Decimal   @db.Decimal(10, 2) // baseSalary + commissionAmount
   netPay           Decimal   @db.Decimal(10, 2) // grossPay - leaveDeduction
@@ -431,6 +433,7 @@ model SalonSettings {
   platinumThreshold         Int     @default(5000)
   slotDurationMinutes       Int     @default(30)
   defaultPaidLeavesPerMonth Int     @default(1)
+  payrollDayMethod          PayrollDayMethod @default(CALENDAR_DAYS)
   mondayEnabled             Boolean @default(true)
   mondayOpen                String  @default("09:00")
   mondayClose               String  @default("21:00")
@@ -733,4 +736,10 @@ enum AttendanceStatus {
   LEAVE
   HALF_DAY
   WEEK_OFF
+}
+
+enum PayrollDayMethod {
+  CALENDAR_DAYS // monthly salary / actual days in the calendar month
+  FIXED_30 // monthly salary / 30, regardless of the month's actual length
+  WORKING_DAYS // monthly salary / (days in month - Week Off days), never less than 1
 }

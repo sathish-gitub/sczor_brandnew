@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CalendarClock } from "lucide-react";
 
 import { Modal } from "@/components/ui/Modal";
+import { PAYROLL_DAY_METHOD_INFO, type PayrollDayMethod } from "@/lib/payrollDayMethod";
+import { formatMissingDatesSummary } from "@/lib/formatMissingDates";
 
 type StaffOverviewItem = {
   id: string;
@@ -16,6 +18,7 @@ type StaffOverviewItem = {
   attendance: { PRESENT: number; ABSENT: number; LEAVE: number; HALF_DAY: number; WEEK_OFF: number };
   payrollId: string | null;
   payrollStatus: string | null;
+  missingDates: string[];
 };
 
 type PayrollPreviewResult = {
@@ -27,12 +30,14 @@ type PayrollPreviewResult = {
   lopDays: number;
   halfDays: number;
   usedDefaultLeaveAllowance: boolean;
+  dayMethod: PayrollDayMethod;
+  dailyRateDivisor: number;
   netPay: number;
 };
 
 type SingleGenerateTarget = { staffId: string; staffName: string; regenerate: boolean };
 
-type BulkPreviewItem = { staffId: string; staffName: string; result?: PayrollPreviewResult; error?: string };
+type BulkPreviewItem = { staffId: string; staffName: string; result?: PayrollPreviewResult; error?: string; missingDates?: string[] };
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -59,6 +64,7 @@ export default function PayrollPage() {
 
   const [singleTarget, setSingleTarget] = useState<SingleGenerateTarget | null>(null);
   const [singlePreview, setSinglePreview] = useState<PayrollPreviewResult | null>(null);
+  const [singleMissingDates, setSingleMissingDates] = useState<string[] | null>(null);
   const [singlePreviewLoading, setSinglePreviewLoading] = useState(false);
   const [singlePreviewError, setSinglePreviewError] = useState<string | null>(null);
 
@@ -131,6 +137,7 @@ export default function PayrollPage() {
   async function openSinglePreview(staffId: string, staffName: string, regenerate: boolean) {
     setSingleTarget({ staffId, staffName, regenerate });
     setSinglePreview(null);
+    setSingleMissingDates(null);
     setSinglePreviewError(null);
     setSinglePreviewLoading(true);
 
@@ -140,13 +147,17 @@ export default function PayrollPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ staffId, month, year }),
       });
-      const payload = (await response.json()) as { error?: string; result?: PayrollPreviewResult };
+      const payload = (await response.json()) as { error?: string; result?: PayrollPreviewResult; missingDates?: string[] };
 
       if (!response.ok) {
         throw new Error(payload.error ?? "Unable to calculate payroll preview.");
       }
 
-      setSinglePreview(payload.result ?? null);
+      if (payload.missingDates && payload.missingDates.length > 0) {
+        setSingleMissingDates(payload.missingDates);
+      } else {
+        setSinglePreview(payload.result ?? null);
+      }
     } catch (previewError) {
       setSinglePreviewError(previewError instanceof Error ? previewError.message : "Unable to calculate payroll preview.");
     } finally {
@@ -157,6 +168,7 @@ export default function PayrollPage() {
   function closeSinglePreview() {
     setSingleTarget(null);
     setSinglePreview(null);
+    setSingleMissingDates(null);
     setSinglePreviewError(null);
     setSinglePreviewLoading(false);
   }
@@ -240,6 +252,8 @@ export default function PayrollPage() {
   }
 
   const yearOptions = Array.from({ length: 5 }).map((_, index) => now.getFullYear() - 2 + index);
+
+  const bulkHasMissingAttendance = (bulkPreviewItems ?? []).some((entry) => (entry.missingDates?.length ?? 0) > 0);
 
   return (
     <div className="space-y-5">
@@ -365,9 +379,21 @@ export default function PayrollPage() {
                       </td>
                     )}
                     <td className="px-4 py-3 text-[var(--muted)]">
-                      {item.attendance.PRESENT} Present / {item.attendance.LEAVE} Leave / {item.attendance.ABSENT} Absent
-                      {item.attendance.HALF_DAY > 0 ? ` / ${item.attendance.HALF_DAY} Half-day` : ""}
-                      {item.attendance.WEEK_OFF > 0 ? ` / ${item.attendance.WEEK_OFF} Week Off` : ""}
+                      <div>
+                        {item.attendance.PRESENT} Present / {item.attendance.LEAVE} Leave / {item.attendance.ABSENT} Absent
+                        {item.attendance.HALF_DAY > 0 ? ` / ${item.attendance.HALF_DAY} Half-day` : ""}
+                        {item.attendance.WEEK_OFF > 0 ? ` / ${item.attendance.WEEK_OFF} Week Off` : ""}
+                      </div>
+                      {item.missingDates.length > 0 ? (
+                        <Link
+                          href={`/attendance?staffId=${item.id}&date=${item.missingDates[0]}`}
+                          title={formatMissingDatesSummary(item.missingDates)}
+                          className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-200"
+                        >
+                          <CalendarClock className="h-3.5 w-3.5" />
+                          Attendance incomplete ({item.missingDates.length} days)
+                        </Link>
+                      ) : null}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-1.5">
@@ -413,7 +439,12 @@ export default function PayrollPage() {
         )}
       </div>
 
-      <Modal open={singleTarget !== null} onClose={closeSinglePreview} title="Confirm Payslip Generation" size="sm">
+      <Modal
+        open={singleTarget !== null}
+        onClose={closeSinglePreview}
+        title={singleMissingDates && singleMissingDates.length > 0 ? "Attendance Incomplete" : "Confirm Payslip Generation"}
+        size="sm"
+      >
         {singleTarget ? (
           <div className="space-y-4">
             <p className="text-sm font-semibold text-[var(--foreground)]">
@@ -430,65 +461,98 @@ export default function PayrollPage() {
               <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                 {singlePreviewError}
               </div>
-            ) : singlePreview ? (
-              <div className="space-y-1.5 rounded-xl border border-[var(--border)] bg-slate-50 px-3 py-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-[var(--muted)]">Present</span>
-                  <span className="font-medium text-[var(--foreground)]">{singlePreview.presentDays} days</span>
+            ) : singleMissingDates && singleMissingDates.length > 0 ? (
+              <div className="space-y-3">
+                <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-3 text-sm text-red-700">
+                  <CalendarClock className="mt-0.5 h-4 w-4 shrink-0" />
+                  <p>
+                    Attendance is incomplete for {singleTarget.staffName}. Please mark attendance for these dates before
+                    generating payroll: <span className="font-semibold">{formatMissingDatesSummary(singleMissingDates)}</span>.
+                  </p>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[var(--muted)]">Absent</span>
-                  <span className="font-medium text-[var(--foreground)]">{singlePreview.absentDays} days</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[var(--muted)]">Leave (paid)</span>
-                  <span className="font-medium text-[var(--foreground)]">
-                    {singlePreview.paidLeaveDays} days
-                    {singlePreview.usedDefaultLeaveAllowance ? (
-                      <span className="ml-1 font-normal text-[var(--muted)]">(salon default)</span>
-                    ) : null}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[var(--muted)]">Leave (unpaid/LOP)</span>
-                  <span className="font-medium text-[var(--foreground)]">{singlePreview.lopDays} days</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[var(--muted)]">Half Days</span>
-                  <span className="font-medium text-[var(--foreground)]">{singlePreview.halfDays} days</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[var(--muted)]">Week Off (paid)</span>
-                  <span className="font-medium text-[var(--foreground)]">{singlePreview.weekOffDays} days</span>
-                </div>
-                <div className="mt-2 flex items-center justify-between border-t border-[var(--border)] pt-2 font-semibold text-[var(--foreground)]">
-                  <span>Estimated Net Pay</span>
-                  <span>{formatCurrency(singlePreview.netPay)}</span>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={closeSinglePreview}
+                    className="h-10 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
+                  >
+                    Close
+                  </button>
+                  <Link
+                    href={`/attendance?staffId=${singleTarget.staffId}&date=${singleMissingDates[0]}`}
+                    className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white"
+                  >
+                    Go to Attendance
+                  </Link>
                 </div>
               </div>
+            ) : singlePreview ? (
+              <>
+                <div className="space-y-1.5 rounded-xl border border-[var(--border)] bg-slate-50 px-3 py-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--muted)]">Present</span>
+                    <span className="font-medium text-[var(--foreground)]">{singlePreview.presentDays} days</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--muted)]">Absent</span>
+                    <span className="font-medium text-[var(--foreground)]">{singlePreview.absentDays} days</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--muted)]">Leave (paid)</span>
+                    <span className="font-medium text-[var(--foreground)]">
+                      {singlePreview.paidLeaveDays} days
+                      {singlePreview.usedDefaultLeaveAllowance ? (
+                        <span className="ml-1 font-normal text-[var(--muted)]">(salon default)</span>
+                      ) : null}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--muted)]">Leave (unpaid/LOP)</span>
+                    <span className="font-medium text-[var(--foreground)]">{singlePreview.lopDays} days</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--muted)]">Half Days</span>
+                    <span className="font-medium text-[var(--foreground)]">{singlePreview.halfDays} days</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--muted)]">Week Off (paid)</span>
+                    <span className="font-medium text-[var(--foreground)]">{singlePreview.weekOffDays} days</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--muted)]">Daily Rate Method</span>
+                    <span className="font-medium text-[var(--foreground)]">
+                      {PAYROLL_DAY_METHOD_INFO[singlePreview.dayMethod].label} (salary / {singlePreview.dailyRateDivisor})
+                    </span>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between border-t border-[var(--border)] pt-2 font-semibold text-[var(--foreground)]">
+                    <span>Estimated Net Pay</span>
+                    <span>{formatCurrency(singlePreview.netPay)}</span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-[var(--muted)]">
+                  If this doesn&apos;t look right, cancel and update attendance records first, then come back to generate.
+                </p>
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={closeSinglePreview}
+                    className="h-10 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmSingleGenerate}
+                    disabled={!singlePreview || pendingIds.has(singleTarget.staffId)}
+                    className="h-10 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {pendingIds.has(singleTarget.staffId) ? "Generating..." : "Confirm & Generate"}
+                  </button>
+                </div>
+              </>
             ) : null}
-
-            <p className="text-xs text-[var(--muted)]">
-              If this doesn&apos;t look right, cancel and update attendance records first, then come back to generate.
-            </p>
-
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={closeSinglePreview}
-                className="h-10 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={confirmSingleGenerate}
-                disabled={!singlePreview || pendingIds.has(singleTarget.staffId)}
-                className="h-10 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {pendingIds.has(singleTarget.staffId) ? "Generating..." : "Confirm & Generate"}
-              </button>
-            </div>
           </div>
         ) : null}
       </Modal>
@@ -521,7 +585,22 @@ export default function PayrollPage() {
                   {bulkPreviewItems.map((entry) => (
                     <tr key={entry.staffId} className="border-b border-[var(--border)] last:border-b-0">
                       <td className="px-3 py-2 font-medium text-[var(--foreground)]">{entry.staffName}</td>
-                      {entry.result ? (
+                      {entry.missingDates && entry.missingDates.length > 0 ? (
+                        <td className="px-3 py-2 text-red-700" colSpan={2}>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="inline-flex items-center gap-1 font-semibold">
+                              <CalendarClock className="h-3.5 w-3.5" />
+                              Attendance incomplete: {formatMissingDatesSummary(entry.missingDates)}
+                            </span>
+                            <Link
+                              href={`/attendance?staffId=${entry.staffId}&date=${entry.missingDates[0]}`}
+                              className="text-xs font-semibold text-[var(--primary)] hover:underline"
+                            >
+                              Go to Attendance
+                            </Link>
+                          </div>
+                        </td>
+                      ) : entry.result ? (
                         <>
                           <td className="px-3 py-2 text-[var(--muted)]">
                             {entry.result.paidLeaveDays} / {entry.result.lopDays}
@@ -545,9 +624,16 @@ export default function PayrollPage() {
             </div>
           ) : null}
 
-          <p className="text-xs text-[var(--muted)]">
-            If this doesn&apos;t look right, cancel and update attendance records first, then come back to generate.
-          </p>
+          {bulkHasMissingAttendance ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              Attendance is incomplete for one or more staff members. Mark their attendance for the dates listed above, then
+              reopen Generate All.
+            </div>
+          ) : (
+            <p className="text-xs text-[var(--muted)]">
+              If this doesn&apos;t look right, cancel and update attendance records first, then come back to generate.
+            </p>
+          )}
 
           <div className="flex justify-end gap-2">
             <button
@@ -560,7 +646,7 @@ export default function PayrollPage() {
             <button
               type="button"
               onClick={confirmBulkGenerate}
-              disabled={bulkPending || !bulkPreviewItems}
+              disabled={bulkPending || !bulkPreviewItems || bulkHasMissingAttendance}
               className="h-10 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               {bulkPending ? "Generating..." : "Confirm & Generate"}

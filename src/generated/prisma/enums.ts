@@ -114,3 +114,12 @@ export const AttendanceStatus = {
 } as const
 
 export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof AttendanceStatus]
+
+
+export const PayrollDayMethod = {
+  CALENDAR_DAYS: 'CALENDAR_DAYS',
+  FIXED_30: 'FIXED_30',
+  WORKING_DAYS: 'WORKING_DAYS'
+} as const
+
+export type PayrollDayMethod = (typeof PayrollDayMethod)[keyof typeof PayrollDayMethod]

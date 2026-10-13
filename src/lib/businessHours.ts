@@ -18,7 +18,7 @@ const DAY_FIELD_MAP = {
   Sun: "sunday",
 } as const;
 
-type SalonSettingsRow = {
+export type SalonSettingsRow = {
   mondayEnabled: boolean;
   mondayOpen: string;
   mondayClose: string;
@@ -41,6 +41,30 @@ type SalonSettingsRow = {
   sundayOpen: string;
   sundayClose: string;
 } | null;
+
+const SALON_SETTINGS_WEEKDAY_SELECT = {
+  mondayEnabled: true,
+  mondayOpen: true,
+  mondayClose: true,
+  tuesdayEnabled: true,
+  tuesdayOpen: true,
+  tuesdayClose: true,
+  wednesdayEnabled: true,
+  wednesdayOpen: true,
+  wednesdayClose: true,
+  thursdayEnabled: true,
+  thursdayOpen: true,
+  thursdayClose: true,
+  fridayEnabled: true,
+  fridayOpen: true,
+  fridayClose: true,
+  saturdayEnabled: true,
+  saturdayOpen: true,
+  saturdayClose: true,
+  sundayEnabled: true,
+  sundayOpen: true,
+  sundayClose: true,
+} as const;
 
 export type DayBusinessHours = {
   open: string;
@@ -107,29 +131,7 @@ export async function getBusinessHoursForDate({
 
   const settings = await prisma.salonSettings.findUnique({
     where: { tenantId },
-    select: {
-      mondayEnabled: true,
-      mondayOpen: true,
-      mondayClose: true,
-      tuesdayEnabled: true,
-      tuesdayOpen: true,
-      tuesdayClose: true,
-      wednesdayEnabled: true,
-      wednesdayOpen: true,
-      wednesdayClose: true,
-      thursdayEnabled: true,
-      thursdayOpen: true,
-      thursdayClose: true,
-      fridayEnabled: true,
-      fridayOpen: true,
-      fridayClose: true,
-      saturdayEnabled: true,
-      saturdayOpen: true,
-      saturdayClose: true,
-      sundayEnabled: true,
-      sundayOpen: true,
-      sundayClose: true,
-    },
+    select: SALON_SETTINGS_WEEKDAY_SELECT,
   });
 
   const holiday = await prisma.holiday.findUnique({
@@ -149,3 +151,71 @@ export async function getBusinessHoursForDate({
 
   return { open: day.open, close: day.close, closed: false, closedReason: null };
 }
+
+export type MonthBusinessHoursContext = {
+  tenant: { openTime: string; closeTime: string; workingDays: string[] };
+  settings: SalonSettingsRow;
+  /** "YYYY-MM-DD" IST dates within the month that fall on a `Holiday`. */
+  holidayDates: Set<string>;
+};
+
+/**
+ * Loads tenant + settings + this month's holidays once, so callers that need
+ * "is this date automatically non-working" for every day in an IST calendar
+ * month (payroll attendance checks, the daily-rate WORKING_DAYS divisor) can
+ * answer it per-date with pure JS instead of one DB round-trip per date.
+ */
+export async function loadMonthBusinessHoursContext({
+  tenantId,
+  year,
+  month,
+}: {
+  tenantId: string;
+  year: number;
+  month: number;
+}): Promise<MonthBusinessHoursContext | null> {
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: tenantId },
+    select: { openTime: true, closeTime: true, workingDays: true },
+  });
+
+  if (!tenant) {
+    return null;
+  }
+
+  const settings = await prisma.salonSettings.findUnique({
+    where: { tenantId },
+    select: SALON_SETTINGS_WEEKDAY_SELECT,
+  });
+
+  const nextMonth = month === 12 ? 1 : month + 1;
+  const nextYear = month === 12 ? year + 1 : year;
+  const monthStartKey = holidayDateKey(`${year}-${String(month).padStart(2, "0")}-01`);
+  const monthEndKey = holidayDateKey(`${nextYear}-${String(nextMonth).padStart(2, "0")}-01`);
+
+  const holidays = await prisma.holiday.findMany({
+    where: { tenantId, date: { gte: monthStartKey, lt: monthEndKey } },
+    select: { date: true },
+  });
+
+  const holidayDates = new Set(holidays.map((holiday) => holiday.date.toISOString().slice(0, 10)));
+
+  return { tenant, settings, holidayDates };
+}
+
+/**
+ * Whether IST calendar date `dateStr` is an automatic non-working day
+ * (business-hours weekday disabled, or a `Holiday`), using a pre-loaded
+ * `MonthBusinessHoursContext`. Pure/cheap — no DB call. Matches the "closed"
+ * rule used by `getBusinessHoursForDate` (same holiday + weekday logic), so
+ * a date flagged here also displays as automatic Week Off in the attendance
+ * UI (see `resolveAttendanceDisplayStatus` in `src/lib/attendanceStatus.ts`).
+ */
+export function isAutomaticNonWorkingDay(dateStr: string, context: MonthBusinessHoursContext): boolean {
+  if (context.holidayDates.has(dateStr)) {
+    return true;
+  }
+
+  return !resolveDayBusinessHours({ dateStr, settings: context.settings, tenant: context.tenant }).enabled;
+}
+

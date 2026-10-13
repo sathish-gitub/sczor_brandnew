@@ -4,9 +4,11 @@ import { z } from "zod";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { PAYROLL_DAY_METHOD_VALUES } from "@/lib/payrollDayMethod";
 
 const schema = z.object({
   defaultPaidLeavesPerMonth: z.coerce.number().int().min(0).max(31),
+  payrollDayMethod: z.enum(PAYROLL_DAY_METHOD_VALUES).optional(),
 });
 
 export async function PUT(request: Request) {
@@ -33,9 +35,11 @@ export async function PUT(request: Request) {
       create: {
         tenantId: session.user.tenantId,
         defaultPaidLeavesPerMonth: parsed.data.defaultPaidLeavesPerMonth,
+        ...(parsed.data.payrollDayMethod ? { payrollDayMethod: parsed.data.payrollDayMethod } : {}),
       },
       update: {
         defaultPaidLeavesPerMonth: parsed.data.defaultPaidLeavesPerMonth,
+        ...(parsed.data.payrollDayMethod ? { payrollDayMethod: parsed.data.payrollDayMethod } : {}),
       },
     });
 

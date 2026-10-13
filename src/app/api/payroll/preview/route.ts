@@ -52,6 +52,7 @@ export async function POST(request: Request) {
       staffName: string;
       result?: PayrollCalculationResult;
       error?: string;
+      missingDates?: string[];
     }> = [];
 
     for (const staff of staffList) {
@@ -59,6 +60,11 @@ export async function POST(request: Request) {
         const result = await calculatePayroll(staff.id, month, year, tenantId);
         previews.push({ staffId: staff.id, staffName: staff.name, result });
       } catch (error) {
+        if (error instanceof PayrollCalculationError && error.missingDates && error.missingDates.length > 0) {
+          previews.push({ staffId: staff.id, staffName: staff.name, missingDates: error.missingDates });
+          continue;
+        }
+
         previews.push({
           staffId: staff.id,
           staffName: staff.name,
@@ -72,9 +78,13 @@ export async function POST(request: Request) {
 
   try {
     const result = await calculatePayroll(staffId!, month, year, tenantId);
-    return NextResponse.json({ result });
+    return NextResponse.json({ result, missingDates: [] });
   } catch (error) {
     if (error instanceof PayrollCalculationError) {
+      if (error.missingDates && error.missingDates.length > 0) {
+        return NextResponse.json({ missingDates: error.missingDates });
+      }
+
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 

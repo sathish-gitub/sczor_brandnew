@@ -1,9 +1,20 @@
 import { prisma } from "@/lib/prisma";
 import { getStaffRevenue } from "@/lib/staffRevenue";
-import { istMonthBounds } from "@/lib/time";
+import { istMonthBounds, daysInMonthIST, toISTDateString } from "@/lib/time";
 import { getStaffDesignationName, staffDesignationSelect } from "@/lib/staffDesignation";
+import { loadMonthBusinessHoursContext } from "@/lib/businessHours";
+import { countWeekOffDatesInMonth, getMissingAttendanceForStaff, formatMissingDatesSummary } from "@/lib/payrollAttendanceCheck";
+import { computeDailyRateDivisor, DEFAULT_PAYROLL_DAY_METHOD, type PayrollDayMethod } from "@/lib/payrollDayMethod";
 
-export class PayrollCalculationError extends Error {}
+export class PayrollCalculationError extends Error {
+  /** Populated only when the failure is incomplete attendance, so callers can render the missing dates directly. */
+  missingDates?: string[];
+
+  constructor(message: string, missingDates?: string[]) {
+    super(message);
+    this.missingDates = missingDates;
+  }
+}
 
 export type PayrollCalculationResult = {
   staffId: string;
@@ -22,6 +33,9 @@ export type PayrollCalculationResult = {
   lopDays: number;
   usedDefaultLeaveAllowance: boolean;
   totalWorkingDays: number;
+  dayMethod: PayrollDayMethod;
+  dailyRateDivisor: number;
+  dailyRate: number;
   leaveDeduction: number;
   grossPay: number;
   netPay: number;
@@ -51,6 +65,7 @@ export async function calculatePayroll(
         baseSalary: true,
         commissionRate: true,
         paidLeavesPerMonth: true,
+        joiningDate: true,
         salaryHistory: {
           orderBy: { effectiveFrom: "desc" },
           select: {
@@ -63,7 +78,10 @@ export async function calculatePayroll(
         },
       },
     }),
-    prisma.salonSettings.findUnique({ where: { tenantId }, select: { defaultPaidLeavesPerMonth: true } }),
+    prisma.salonSettings.findUnique({
+      where: { tenantId },
+      select: { defaultPaidLeavesPerMonth: true, payrollDayMethod: true },
+    }),
   ]);
 
   if (!staff) {
@@ -71,6 +89,7 @@ export async function calculatePayroll(
   }
 
   const tenantDefaultPaidLeaves = salonSettings?.defaultPaidLeavesPerMonth ?? 1;
+  const dayMethod: PayrollDayMethod = salonSettings?.payrollDayMethod ?? DEFAULT_PAYROLL_DAY_METHOD;
 
   const { start, end } = monthBounds(year, month);
 
@@ -100,20 +119,39 @@ export async function calculatePayroll(
     throw new PayrollCalculationError("Salary is not configured for this staff member.");
   }
 
-  const attendance = await prisma.attendance.findMany({
-    where: { tenantId, staffId, date: { gte: start, lt: end } },
-    select: { status: true },
+  // Mandatory attendance check: every required IST day (1st of month, or
+  // joiningDate if later, through the payroll end date) must have an
+  // Attendance row unless it's Week Off. See src/lib/payrollAttendanceCheck.ts.
+  const businessHoursContext = await loadMonthBusinessHoursContext({ tenantId, year, month });
+  const missingDates = await getMissingAttendanceForStaff({
+    tenantId,
+    staffId,
+    staffName: staff.name,
+    joiningDate: staff.joiningDate,
+    month,
+    year,
+    context: businessHoursContext,
   });
 
-  if (attendance.length === 0) {
+  if (missingDates.length > 0) {
     throw new PayrollCalculationError(
-      "No attendance records found for this staff in the selected month - cannot generate payroll.",
+      `Attendance is incomplete for ${staff.name}. Missing dates: ${formatMissingDatesSummary(missingDates)}.`,
+      missingDates,
     );
   }
 
+  const attendance = await prisma.attendance.findMany({
+    where: { tenantId, staffId, date: { gte: start, lt: end } },
+    select: { status: true, date: true },
+  });
+
   const counts = { PRESENT: 0, ABSENT: 0, LEAVE: 0, HALF_DAY: 0, WEEK_OFF: 0 };
+  const storedWeekOffDates: string[] = [];
   for (const entry of attendance) {
     counts[entry.status] += 1;
+    if (entry.status === "WEEK_OFF") {
+      storedWeekOffDates.push(toISTDateString(entry.date));
+    }
   }
 
   // Week Off (stored or automatic) is a fully paid day: included in the
@@ -124,7 +162,18 @@ export async function calculatePayroll(
   const paidLeaveDays = Math.min(counts.LEAVE, paidLeavesPerMonth);
   const lopDays = Math.max(0, counts.LEAVE - paidLeavesPerMonth);
 
-  const dailyRate = baseSalary / totalWorkingDays;
+  // Daily rate denominator per the salon's configured payroll day method
+  // (src/lib/payrollDayMethod.ts) -- independent of how many days were
+  // actually marked present/absent/leave this month.
+  const weekOffDaysInMonth = countWeekOffDatesInMonth({
+    year,
+    month,
+    context: businessHoursContext,
+    storedWeekOffDates,
+  });
+  const daysInMonth = daysInMonthIST(year, month);
+  const dailyRateDivisor = computeDailyRateDivisor({ method: dayMethod, daysInMonth, weekOffDaysInMonth });
+  const dailyRate = baseSalary / dailyRateDivisor;
   const leaveDeduction = roundMoney((counts.ABSENT + lopDays + counts.HALF_DAY * 0.5) * dailyRate);
 
   // Reuses the same revenue attribution as the Staff Performance report
@@ -153,6 +202,9 @@ export async function calculatePayroll(
     lopDays,
     usedDefaultLeaveAllowance,
     totalWorkingDays,
+    dayMethod,
+    dailyRateDivisor,
+    dailyRate: roundMoney(dailyRate),
     leaveDeduction,
     grossPay,
     netPay,

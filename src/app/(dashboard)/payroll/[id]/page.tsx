@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { PAYROLL_DAY_METHOD_INFO, type PayrollDayMethod } from "@/lib/payrollDayMethod";
+
 type PayrollDetail = {
   id: string;
   payslipNumber: string;
@@ -23,6 +25,8 @@ type PayrollDetail = {
   paidLeaveDays: number;
   lopDays: number;
   totalWorkingDays: number;
+  dayMethod: PayrollDayMethod;
+  dailyRateDivisor: number;
   leaveDeduction: number;
   grossPay: number;
   netPay: number;
@@ -201,6 +205,12 @@ export default function PayslipPage({ params }: { params: Promise<{ id: string }
         <div className="border-b border-dashed border-[var(--border)] py-4">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Deductions</p>
           <div className="space-y-1.5 text-sm">
+            <div className="flex items-center justify-between text-[var(--muted)]">
+              <span>Daily Rate Method</span>
+              <span>
+                {PAYROLL_DAY_METHOD_INFO[payroll.dayMethod].label} (salary / {payroll.dailyRateDivisor})
+              </span>
+            </div>
             <div className="flex items-center justify-between text-[var(--muted)]">
               <span>Absent + LOP days</span>
               <span>{payroll.absentDays + payroll.lopDays}</span>

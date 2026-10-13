@@ -2863,6 +2863,8 @@ export const PayrollScalarFieldEnum = {
   paidLeaveDays: 'paidLeaveDays',
   lopDays: 'lopDays',
   totalWorkingDays: 'totalWorkingDays',
+  dayMethod: 'dayMethod',
+  dailyRateDivisor: 'dailyRateDivisor',
   leaveDeduction: 'leaveDeduction',
   grossPay: 'grossPay',
   netPay: 'netPay',
@@ -3026,6 +3028,7 @@ export const SalonSettingsScalarFieldEnum = {
   platinumThreshold: 'platinumThreshold',
   slotDurationMinutes: 'slotDurationMinutes',
   defaultPaidLeavesPerMonth: 'defaultPaidLeavesPerMonth',
+  payrollDayMethod: 'payrollDayMethod',
   mondayEnabled: 'mondayEnabled',
   mondayOpen: 'mondayOpen',
   mondayClose: 'mondayClose',
@@ -3402,6 +3405,20 @@ export type EnumAvailabilityFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'Availability[]'
  */
 export type ListEnumAvailabilityFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Availability[]'>
+    
+
+
+/**
+ * Reference to a field of type 'PayrollDayMethod'
+ */
+export type EnumPayrollDayMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PayrollDayMethod'>
+    
+
+
+/**
+ * Reference to a field of type 'PayrollDayMethod[]'
+ */
+export type ListEnumPayrollDayMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PayrollDayMethod[]'>
     
 
 

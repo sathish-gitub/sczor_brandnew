@@ -71,6 +71,7 @@ export type SalonSettingsMinAggregateOutputType = {
   platinumThreshold: number | null
   slotDurationMinutes: number | null
   defaultPaidLeavesPerMonth: number | null
+  payrollDayMethod: $Enums.PayrollDayMethod | null
   mondayEnabled: boolean | null
   mondayOpen: string | null
   mondayClose: string | null
@@ -134,6 +135,7 @@ export type SalonSettingsMaxAggregateOutputType = {
   platinumThreshold: number | null
   slotDurationMinutes: number | null
   defaultPaidLeavesPerMonth: number | null
+  payrollDayMethod: $Enums.PayrollDayMethod | null
   mondayEnabled: boolean | null
   mondayOpen: string | null
   mondayClose: string | null
@@ -197,6 +199,7 @@ export type SalonSettingsCountAggregateOutputType = {
   platinumThreshold: number
   slotDurationMinutes: number
   defaultPaidLeavesPerMonth: number
+  payrollDayMethod: number
   mondayEnabled: number
   mondayOpen: number
   mondayClose: number
@@ -292,6 +295,7 @@ export type SalonSettingsMinAggregateInputType = {
   platinumThreshold?: true
   slotDurationMinutes?: true
   defaultPaidLeavesPerMonth?: true
+  payrollDayMethod?: true
   mondayEnabled?: true
   mondayOpen?: true
   mondayClose?: true
@@ -355,6 +359,7 @@ export type SalonSettingsMaxAggregateInputType = {
   platinumThreshold?: true
   slotDurationMinutes?: true
   defaultPaidLeavesPerMonth?: true
+  payrollDayMethod?: true
   mondayEnabled?: true
   mondayOpen?: true
   mondayClose?: true
@@ -418,6 +423,7 @@ export type SalonSettingsCountAggregateInputType = {
   platinumThreshold?: true
   slotDurationMinutes?: true
   defaultPaidLeavesPerMonth?: true
+  payrollDayMethod?: true
   mondayEnabled?: true
   mondayOpen?: true
   mondayClose?: true
@@ -568,6 +574,7 @@ export type SalonSettingsGroupByOutputType = {
   platinumThreshold: number
   slotDurationMinutes: number
   defaultPaidLeavesPerMonth: number
+  payrollDayMethod: $Enums.PayrollDayMethod
   mondayEnabled: boolean
   mondayOpen: string
   mondayClose: string
@@ -654,6 +661,7 @@ export type SalonSettingsWhereInput = {
   platinumThreshold?: Prisma.IntFilter<"SalonSettings"> | number
   slotDurationMinutes?: Prisma.IntFilter<"SalonSettings"> | number
   defaultPaidLeavesPerMonth?: Prisma.IntFilter<"SalonSettings"> | number
+  payrollDayMethod?: Prisma.EnumPayrollDayMethodFilter<"SalonSettings"> | $Enums.PayrollDayMethod
   mondayEnabled?: Prisma.BoolFilter<"SalonSettings"> | boolean
   mondayOpen?: Prisma.StringFilter<"SalonSettings"> | string
   mondayClose?: Prisma.StringFilter<"SalonSettings"> | string
@@ -718,6 +726,7 @@ export type SalonSettingsOrderByWithRelationInput = {
   platinumThreshold?: Prisma.SortOrder
   slotDurationMinutes?: Prisma.SortOrder
   defaultPaidLeavesPerMonth?: Prisma.SortOrder
+  payrollDayMethod?: Prisma.SortOrder
   mondayEnabled?: Prisma.SortOrder
   mondayOpen?: Prisma.SortOrder
   mondayClose?: Prisma.SortOrder
@@ -785,6 +794,7 @@ export type SalonSettingsWhereUniqueInput = Prisma.AtLeast<{
   platinumThreshold?: Prisma.IntFilter<"SalonSettings"> | number
   slotDurationMinutes?: Prisma.IntFilter<"SalonSettings"> | number
   defaultPaidLeavesPerMonth?: Prisma.IntFilter<"SalonSettings"> | number
+  payrollDayMethod?: Prisma.EnumPayrollDayMethodFilter<"SalonSettings"> | $Enums.PayrollDayMethod
   mondayEnabled?: Prisma.BoolFilter<"SalonSettings"> | boolean
   mondayOpen?: Prisma.StringFilter<"SalonSettings"> | string
   mondayClose?: Prisma.StringFilter<"SalonSettings"> | string
@@ -849,6 +859,7 @@ export type SalonSettingsOrderByWithAggregationInput = {
   platinumThreshold?: Prisma.SortOrder
   slotDurationMinutes?: Prisma.SortOrder
   defaultPaidLeavesPerMonth?: Prisma.SortOrder
+  payrollDayMethod?: Prisma.SortOrder
   mondayEnabled?: Prisma.SortOrder
   mondayOpen?: Prisma.SortOrder
   mondayClose?: Prisma.SortOrder
@@ -920,6 +931,7 @@ export type SalonSettingsScalarWhereWithAggregatesInput = {
   platinumThreshold?: Prisma.IntWithAggregatesFilter<"SalonSettings"> | number
   slotDurationMinutes?: Prisma.IntWithAggregatesFilter<"SalonSettings"> | number
   defaultPaidLeavesPerMonth?: Prisma.IntWithAggregatesFilter<"SalonSettings"> | number
+  payrollDayMethod?: Prisma.EnumPayrollDayMethodWithAggregatesFilter<"SalonSettings"> | $Enums.PayrollDayMethod
   mondayEnabled?: Prisma.BoolWithAggregatesFilter<"SalonSettings"> | boolean
   mondayOpen?: Prisma.StringWithAggregatesFilter<"SalonSettings"> | string
   mondayClose?: Prisma.StringWithAggregatesFilter<"SalonSettings"> | string
@@ -982,6 +994,7 @@ export type SalonSettingsCreateInput = {
   platinumThreshold?: number
   slotDurationMinutes?: number
   defaultPaidLeavesPerMonth?: number
+  payrollDayMethod?: $Enums.PayrollDayMethod
   mondayEnabled?: boolean
   mondayOpen?: string
   mondayClose?: string
@@ -1046,6 +1059,7 @@ export type SalonSettingsUncheckedCreateInput = {
   platinumThreshold?: number
   slotDurationMinutes?: number
   defaultPaidLeavesPerMonth?: number
+  payrollDayMethod?: $Enums.PayrollDayMethod
   mondayEnabled?: boolean
   mondayOpen?: string
   mondayClose?: string
@@ -1108,6 +1122,7 @@ export type SalonSettingsUpdateInput = {
   platinumThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   defaultPaidLeavesPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  payrollDayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   mondayEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mondayOpen?: Prisma.StringFieldUpdateOperationsInput | string
   mondayClose?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1172,6 +1187,7 @@ export type SalonSettingsUncheckedUpdateInput = {
   platinumThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   defaultPaidLeavesPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  payrollDayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   mondayEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mondayOpen?: Prisma.StringFieldUpdateOperationsInput | string
   mondayClose?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1235,6 +1251,7 @@ export type SalonSettingsCreateManyInput = {
   platinumThreshold?: number
   slotDurationMinutes?: number
   defaultPaidLeavesPerMonth?: number
+  payrollDayMethod?: $Enums.PayrollDayMethod
   mondayEnabled?: boolean
   mondayOpen?: string
   mondayClose?: string
@@ -1297,6 +1314,7 @@ export type SalonSettingsUpdateManyMutationInput = {
   platinumThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   defaultPaidLeavesPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  payrollDayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   mondayEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mondayOpen?: Prisma.StringFieldUpdateOperationsInput | string
   mondayClose?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1360,6 +1378,7 @@ export type SalonSettingsUncheckedUpdateManyInput = {
   platinumThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   defaultPaidLeavesPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  payrollDayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   mondayEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mondayOpen?: Prisma.StringFieldUpdateOperationsInput | string
   mondayClose?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1428,6 +1447,7 @@ export type SalonSettingsCountOrderByAggregateInput = {
   platinumThreshold?: Prisma.SortOrder
   slotDurationMinutes?: Prisma.SortOrder
   defaultPaidLeavesPerMonth?: Prisma.SortOrder
+  payrollDayMethod?: Prisma.SortOrder
   mondayEnabled?: Prisma.SortOrder
   mondayOpen?: Prisma.SortOrder
   mondayClose?: Prisma.SortOrder
@@ -1506,6 +1526,7 @@ export type SalonSettingsMaxOrderByAggregateInput = {
   platinumThreshold?: Prisma.SortOrder
   slotDurationMinutes?: Prisma.SortOrder
   defaultPaidLeavesPerMonth?: Prisma.SortOrder
+  payrollDayMethod?: Prisma.SortOrder
   mondayEnabled?: Prisma.SortOrder
   mondayOpen?: Prisma.SortOrder
   mondayClose?: Prisma.SortOrder
@@ -1569,6 +1590,7 @@ export type SalonSettingsMinOrderByAggregateInput = {
   platinumThreshold?: Prisma.SortOrder
   slotDurationMinutes?: Prisma.SortOrder
   defaultPaidLeavesPerMonth?: Prisma.SortOrder
+  payrollDayMethod?: Prisma.SortOrder
   mondayEnabled?: Prisma.SortOrder
   mondayOpen?: Prisma.SortOrder
   mondayClose?: Prisma.SortOrder
@@ -1678,6 +1700,7 @@ export type SalonSettingsCreateWithoutTenantInput = {
   platinumThreshold?: number
   slotDurationMinutes?: number
   defaultPaidLeavesPerMonth?: number
+  payrollDayMethod?: $Enums.PayrollDayMethod
   mondayEnabled?: boolean
   mondayOpen?: string
   mondayClose?: string
@@ -1740,6 +1763,7 @@ export type SalonSettingsUncheckedCreateWithoutTenantInput = {
   platinumThreshold?: number
   slotDurationMinutes?: number
   defaultPaidLeavesPerMonth?: number
+  payrollDayMethod?: $Enums.PayrollDayMethod
   mondayEnabled?: boolean
   mondayOpen?: string
   mondayClose?: string
@@ -1818,6 +1842,7 @@ export type SalonSettingsUpdateWithoutTenantInput = {
   platinumThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   defaultPaidLeavesPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  payrollDayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   mondayEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mondayOpen?: Prisma.StringFieldUpdateOperationsInput | string
   mondayClose?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1880,6 +1905,7 @@ export type SalonSettingsUncheckedUpdateWithoutTenantInput = {
   platinumThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   slotDurationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   defaultPaidLeavesPerMonth?: Prisma.IntFieldUpdateOperationsInput | number
+  payrollDayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   mondayEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   mondayOpen?: Prisma.StringFieldUpdateOperationsInput | string
   mondayClose?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1945,6 +1971,7 @@ export type SalonSettingsSelect<ExtArgs extends runtime.Types.Extensions.Interna
   platinumThreshold?: boolean
   slotDurationMinutes?: boolean
   defaultPaidLeavesPerMonth?: boolean
+  payrollDayMethod?: boolean
   mondayEnabled?: boolean
   mondayOpen?: boolean
   mondayClose?: boolean
@@ -2009,6 +2036,7 @@ export type SalonSettingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   platinumThreshold?: boolean
   slotDurationMinutes?: boolean
   defaultPaidLeavesPerMonth?: boolean
+  payrollDayMethod?: boolean
   mondayEnabled?: boolean
   mondayOpen?: boolean
   mondayClose?: boolean
@@ -2073,6 +2101,7 @@ export type SalonSettingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   platinumThreshold?: boolean
   slotDurationMinutes?: boolean
   defaultPaidLeavesPerMonth?: boolean
+  payrollDayMethod?: boolean
   mondayEnabled?: boolean
   mondayOpen?: boolean
   mondayClose?: boolean
@@ -2137,6 +2166,7 @@ export type SalonSettingsSelectScalar = {
   platinumThreshold?: boolean
   slotDurationMinutes?: boolean
   defaultPaidLeavesPerMonth?: boolean
+  payrollDayMethod?: boolean
   mondayEnabled?: boolean
   mondayOpen?: boolean
   mondayClose?: boolean
@@ -2185,7 +2215,7 @@ export type SalonSettingsSelectScalar = {
   emailEnabled?: boolean
 }
 
-export type SalonSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "onboardingStep1Done" | "loyaltyPointsPerRupee" | "rupeePerPoint" | "minPointsToRedeem" | "maxRedeemPercent" | "pointsExpiryEnabled" | "pointsExpiryMonths" | "silverThreshold" | "goldThreshold" | "platinumThreshold" | "slotDurationMinutes" | "defaultPaidLeavesPerMonth" | "mondayEnabled" | "mondayOpen" | "mondayClose" | "mondayBreak" | "tuesdayEnabled" | "tuesdayOpen" | "tuesdayClose" | "tuesdayBreak" | "wednesdayEnabled" | "wednesdayOpen" | "wednesdayClose" | "wednesdayBreak" | "thursdayEnabled" | "thursdayOpen" | "thursdayClose" | "thursdayBreak" | "fridayEnabled" | "fridayOpen" | "fridayClose" | "fridayBreak" | "saturdayEnabled" | "saturdayOpen" | "saturdayClose" | "saturdayBreak" | "sundayEnabled" | "sundayOpen" | "sundayClose" | "sundayBreak" | "gstEnabled" | "gstRate" | "taxLabel" | "currency" | "currencySymbol" | "invoicePrefix" | "invoiceNumberFormat" | "invoiceStartNumber" | "invoiceFooter" | "invoiceTerms" | "cashEnabled" | "upiEnabled" | "cardEnabled" | "walletEnabled" | "upiId" | "smsEnabled" | "whatsappEnabled" | "emailEnabled", ExtArgs["result"]["salonSettings"]>
+export type SalonSettingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "onboardingStep1Done" | "loyaltyPointsPerRupee" | "rupeePerPoint" | "minPointsToRedeem" | "maxRedeemPercent" | "pointsExpiryEnabled" | "pointsExpiryMonths" | "silverThreshold" | "goldThreshold" | "platinumThreshold" | "slotDurationMinutes" | "defaultPaidLeavesPerMonth" | "payrollDayMethod" | "mondayEnabled" | "mondayOpen" | "mondayClose" | "mondayBreak" | "tuesdayEnabled" | "tuesdayOpen" | "tuesdayClose" | "tuesdayBreak" | "wednesdayEnabled" | "wednesdayOpen" | "wednesdayClose" | "wednesdayBreak" | "thursdayEnabled" | "thursdayOpen" | "thursdayClose" | "thursdayBreak" | "fridayEnabled" | "fridayOpen" | "fridayClose" | "fridayBreak" | "saturdayEnabled" | "saturdayOpen" | "saturdayClose" | "saturdayBreak" | "sundayEnabled" | "sundayOpen" | "sundayClose" | "sundayBreak" | "gstEnabled" | "gstRate" | "taxLabel" | "currency" | "currencySymbol" | "invoicePrefix" | "invoiceNumberFormat" | "invoiceStartNumber" | "invoiceFooter" | "invoiceTerms" | "cashEnabled" | "upiEnabled" | "cardEnabled" | "walletEnabled" | "upiId" | "smsEnabled" | "whatsappEnabled" | "emailEnabled", ExtArgs["result"]["salonSettings"]>
 export type SalonSettingsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
@@ -2216,6 +2246,7 @@ export type $SalonSettingsPayload<ExtArgs extends runtime.Types.Extensions.Inter
     platinumThreshold: number
     slotDurationMinutes: number
     defaultPaidLeavesPerMonth: number
+    payrollDayMethod: $Enums.PayrollDayMethod
     mondayEnabled: boolean
     mondayOpen: string
     mondayClose: string
@@ -2700,6 +2731,7 @@ export interface SalonSettingsFieldRefs {
   readonly platinumThreshold: Prisma.FieldRef<"SalonSettings", 'Int'>
   readonly slotDurationMinutes: Prisma.FieldRef<"SalonSettings", 'Int'>
   readonly defaultPaidLeavesPerMonth: Prisma.FieldRef<"SalonSettings", 'Int'>
+  readonly payrollDayMethod: Prisma.FieldRef<"SalonSettings", 'PayrollDayMethod'>
   readonly mondayEnabled: Prisma.FieldRef<"SalonSettings", 'Boolean'>
   readonly mondayOpen: Prisma.FieldRef<"SalonSettings", 'String'>
   readonly mondayClose: Prisma.FieldRef<"SalonSettings", 'String'>
