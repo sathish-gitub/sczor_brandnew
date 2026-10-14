@@ -2,11 +2,22 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
+import { computeReplenishment } from "@/lib/inventoryReplenishment";
 import { prisma } from "@/lib/prisma";
 import { istDayBounds, toISTDateString, todayISTDateString } from "@/lib/time";
 
 const STOCK_IN_TYPES = new Set(["PURCHASE_IN", "MANUAL_ADJUST_IN"]);
-const STOCK_OUT_TYPES = new Set(["SALE_OUT", "WASTAGE", "MANUAL_ADJUST_OUT"]);
+const STOCK_OUT_TYPES = new Set(["SALE_OUT", "WASTAGE", "MANUAL_ADJUST_OUT", "USAGE"]);
+const MAX_EXPORT_ROWS = 50000;
+
+const MOVEMENT_TYPE_LABELS: Record<string, string> = {
+  PURCHASE_IN: "Purchase",
+  SALE_OUT: "Sale",
+  MANUAL_ADJUST_IN: "Manual (In)",
+  MANUAL_ADJUST_OUT: "Manual (Out)",
+  WASTAGE: "Wastage",
+  USAGE: "Usage",
+};
 
 function parseDateOnlyParam(value: string | null) {
   if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -63,37 +74,39 @@ export async function GET(request: Request) {
   const to = endDateStr ? endOfDayInclusive(endDateStr) : fallback.end;
 
   try {
-    const [products, movements, purchaseOrders] = await Promise.all([
-      prisma.product.findMany({
-        where: { tenantId },
-        select: {
-          id: true,
-          name: true,
-          unit: true,
-          costPrice: true,
-          sellingPrice: true,
-          currentStock: true,
-          isRetailItem: true,
-          status: true,
-          createdAt: true,
-          category: { select: { name: true } },
-        },
-      }),
-      prisma.stockMovement.findMany({
-        where: { tenantId },
-        select: {
-          productId: true,
-          type: true,
-          quantity: true,
-          createdAt: true,
-        },
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.purchaseOrder.findMany({
-        where: { tenantId, createdAt: { gte: from, lte: to } },
-        select: { status: true, totalAmount: true, receivedAt: true },
-      }),
-    ]);
+    const products = await prisma.product.findMany({
+      where: { tenantId },
+      select: {
+        id: true,
+        name: true,
+        unit: true,
+        packSize: true,
+        costPrice: true,
+        sellingPrice: true,
+        currentStock: true,
+        reorderLevel: true,
+        isRetailItem: true,
+        status: true,
+        createdAt: true,
+        category: { select: { name: true } },
+      },
+    });
+
+    const movements = await prisma.stockMovement.findMany({
+      where: { tenantId },
+      select: {
+        productId: true,
+        type: true,
+        quantity: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const purchaseOrders = await prisma.purchaseOrder.findMany({
+      where: { tenantId, createdAt: { gte: from, lte: to } },
+      select: { status: true, totalAmount: true, receivedAt: true },
+    });
 
     // ---- Stock Valuation ----
     let totalCostValue = 0;
@@ -105,7 +118,7 @@ export async function GET(request: Request) {
     for (const product of products) {
       const currentStock = Number(product.currentStock);
       const costPrice = Number(product.costPrice);
-      const sellingPrice = Number(product.sellingPrice);
+      const sellingPrice = product.sellingPrice === null ? 0 : Number(product.sellingPrice);
 
       totalCostValue += currentStock * costPrice;
       totalRetailValue += currentStock * sellingPrice;
@@ -125,6 +138,10 @@ export async function GET(request: Request) {
     const stockOutByDay = new Map<string, number>();
     const salesByProductInRange = new Map<string, number>();
 
+    let salesOutInRange = 0;
+    let usageOutInRange = 0;
+    let wastageOutInRange = 0;
+
     for (const movement of rangeMovements) {
       const quantity = Number(movement.quantity);
       const key = toISTDateString(movement.createdAt);
@@ -133,6 +150,14 @@ export async function GET(request: Request) {
         stockInByDay.set(key, (stockInByDay.get(key) ?? 0) + quantity);
       } else if (STOCK_OUT_TYPES.has(movement.type)) {
         stockOutByDay.set(key, (stockOutByDay.get(key) ?? 0) + quantity);
+      }
+
+      if (movement.type === "SALE_OUT") {
+        salesOutInRange += quantity;
+      } else if (movement.type === "USAGE") {
+        usageOutInRange += quantity;
+      } else if (movement.type === "WASTAGE") {
+        wastageOutInRange += quantity;
       }
 
       if (movement.type === "SALE_OUT") {
@@ -192,12 +217,78 @@ export async function GET(request: Request) {
       .filter((order) => order.status === "RECEIVED" && order.receivedAt && order.receivedAt >= from && order.receivedAt <= to)
       .reduce((sum, order) => sum + Number(order.totalAmount), 0);
 
+    // ---- Stock movement history (date-range scoped, capped for export safety) ----
+    const movementTypeFilterMap: Record<string, string[]> = {
+      PURCHASE: ["PURCHASE_IN"],
+      SALE: ["SALE_OUT"],
+      USAGE: ["USAGE"],
+      WASTAGE: ["WASTAGE"],
+      MANUAL: ["MANUAL_ADJUST_IN", "MANUAL_ADJUST_OUT"],
+    };
+    const movementTypeParam = url.searchParams.get("movementType")?.trim().toUpperCase();
+    const movementTypeFilter = movementTypeParam ? movementTypeFilterMap[movementTypeParam] : undefined;
+    const movementHistoryWhere = {
+      tenantId,
+      createdAt: { gte: from, lte: to },
+      type: movementTypeFilter ? { in: movementTypeFilter } : undefined,
+    };
+
+    const movementHistoryCount = await prisma.stockMovement.count({ where: movementHistoryWhere });
+    const movementHistoryTruncated = movementHistoryCount > MAX_EXPORT_ROWS;
+
+    const movementHistoryRaw = movementHistoryTruncated
+      ? []
+      : await prisma.stockMovement.findMany({
+          where: movementHistoryWhere,
+          include: {
+            product: { select: { name: true } },
+            createdBy: { select: { name: true } },
+          },
+          orderBy: { createdAt: "desc" },
+        });
+
+    const movementHistory = movementHistoryRaw.map((movement) => ({
+      id: movement.id,
+      date: toISTDateString(movement.occurredOn ?? movement.createdAt),
+      productName: movement.product.name,
+      type: movement.type,
+      typeLabel: MOVEMENT_TYPE_LABELS[movement.type] ?? movement.type,
+      quantity: roundMoney(Number(movement.quantity)),
+      reasonOrNotes: movement.notes?.trim() || movement.reason?.trim() || "-",
+      enteredBy: movement.createdBy?.name ?? "-",
+    }));
+
+    // ---- Replenishment (all active products, current state) ----
+    const replenishment = products
+      .filter((product) => product.status === "ACTIVE")
+      .map((product) => {
+        const currentStock = Number(product.currentStock);
+        const reorderLevel = Number(product.reorderLevel);
+        const info = computeReplenishment(currentStock, reorderLevel, product.packSize ? Number(product.packSize) : null);
+
+        return {
+          productId: product.id,
+          productName: product.name,
+          currentStock: roundMoney(currentStock),
+          reorderLevel: roundMoney(reorderLevel),
+          status: info.status,
+          statusLabel: info.statusLabel,
+          suggestedReorderQty: roundMoney(info.suggestedReorderQty),
+        };
+      })
+      .sort((a, b) => (a.status === b.status ? a.productName.localeCompare(b.productName) : a.status === "REORDER_NOW" ? -1 : 1));
+
     return NextResponse.json({
       stockValuation: {
         totalCostValue: roundMoney(totalCostValue),
         totalRetailValue: roundMoney(totalRetailValue),
         totalProducts: products.length,
         totalUnits: roundMoney(totalUnits),
+      },
+      stockOutBreakdown: {
+        sales: roundMoney(salesOutInRange),
+        usage: roundMoney(usageOutInRange),
+        wastage: roundMoney(wastageOutInRange),
       },
       topMovingProducts,
       slowMovingProducts,
@@ -212,6 +303,9 @@ export async function GET(request: Request) {
         pendingOrders,
         totalSpend: roundMoney(totalSpend),
       },
+      movementHistory,
+      movementHistoryTruncated,
+      replenishment,
     });
   } catch (error) {
     console.error("Failed to load inventory report", error);
