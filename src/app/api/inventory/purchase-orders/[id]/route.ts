@@ -16,7 +16,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const order = await prisma.purchaseOrder.findFirst({
     where: { id, tenantId: session.user.tenantId },
     include: {
-      supplier: { select: { id: true, name: true, phone: true, email: true } },
+      supplier: { select: { id: true, name: true, phone: true, email: true, contactPerson: true, address: true } },
       items: {
         include: {
           product: { select: { id: true, name: true, unit: true, packSize: true, sku: true } },

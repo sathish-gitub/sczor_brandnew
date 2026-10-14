@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 
 import { useAccess } from "@/contexts/AccessContext";
 import { useToast } from "@/components/ui/Toast";
-import { formatStock } from "@/lib/productUnits";
+import { formatPackSize, formatStock } from "@/lib/productUnits";
+import { exportPurchaseOrderToPdf, toExportSalonDetails } from "@/lib/exportReport";
 
 type PurchaseOrderPayload = {
   id: string;
@@ -17,7 +18,7 @@ type PurchaseOrderPayload = {
   notes: string | null;
   createdAt: string;
   receivedAt: string | null;
-  supplier: { id: string; name: string; phone: string | null; email: string | null };
+  supplier: { id: string; name: string; phone: string | null; email: string | null; contactPerson: string | null; address: string | null };
   items: Array<{
     id: string;
     quantity: number;
@@ -60,6 +61,7 @@ export default function PurchaseOrderDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [actionBusy, setActionBusy] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [pdfBusy, setPdfBusy] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -148,6 +150,49 @@ export default function PurchaseOrderDetailPage() {
     setRefreshKey((key) => key + 1);
   }
 
+  async function downloadPdf() {
+    if (!order || pdfBusy) {
+      return;
+    }
+
+    setPdfBusy(true);
+
+    try {
+      await exportPurchaseOrderToPdf({
+        salon: toExportSalonDetails(access),
+        poNumber: order.poNumber,
+        status: order.status,
+        dateLabel: formatDate(order.createdAt),
+        supplier: {
+          name: order.supplier.name,
+          contactPerson: order.supplier.contactPerson,
+          phone: order.supplier.phone,
+          email: order.supplier.email,
+          address: order.supplier.address,
+        },
+        items: order.items.map((item) => ({
+          product: item.product.name,
+          unitLabel: formatPackSize(item.product.unit, item.product.packSize) ?? item.product.unit.toUpperCase(),
+          quantity: item.quantity,
+          unitCost: item.unitCost,
+          amount: item.amount,
+        })),
+        subtotal: order.totalAmount,
+        grandTotal: order.totalAmount,
+        notes: order.notes,
+        filename: `sczor-purchase-order-${order.poNumber}`,
+      });
+    } catch (pdfError) {
+      showToast({
+        variant: "error",
+        title: "Unable to generate PDF",
+        message: pdfError instanceof Error ? pdfError.message : "Please try again.",
+      });
+    } finally {
+      setPdfBusy(false);
+    }
+  }
+
   if (loading) {
     return <div className="h-64 animate-pulse rounded-2xl border border-[var(--border)] bg-white" />;
   }
@@ -188,26 +233,38 @@ export default function PurchaseOrderDetailPage() {
             </p>
           </div>
 
-          {isPending ? (
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={cancelOrder}
-                disabled={actionBusy || isReadOnly}
-                className="inline-flex h-10 items-center justify-center rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
-              >
-                Cancel Order
-              </button>
-              <button
-                type="button"
-                onClick={markAsReceived}
-                disabled={actionBusy || isReadOnly}
-                className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)] disabled:opacity-50"
-              >
-                Mark as Received
-              </button>
-            </div>
-          ) : null}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={downloadPdf}
+              disabled={pdfBusy}
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-[var(--foreground)] hover:bg-slate-50 disabled:opacity-50"
+            >
+              <Download className="h-4 w-4" />
+              {pdfBusy ? "Preparing..." : "Download PDF"}
+            </button>
+
+            {isPending ? (
+              <>
+                <button
+                  type="button"
+                  onClick={cancelOrder}
+                  disabled={actionBusy || isReadOnly}
+                  className="inline-flex h-10 items-center justify-center rounded-xl border border-red-200 px-4 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
+                >
+                  Cancel Order
+                </button>
+                <button
+                  type="button"
+                  onClick={markAsReceived}
+                  disabled={actionBusy || isReadOnly}
+                  className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)] disabled:opacity-50"
+                >
+                  Mark as Received
+                </button>
+              </>
+            ) : null}
+          </div>
         </div>
 
         {order.notes ? <p className="mt-3 text-sm text-[var(--muted)]">Notes: {order.notes}</p> : null}

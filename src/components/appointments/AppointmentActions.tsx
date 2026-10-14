@@ -5,20 +5,28 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LoaderCircle } from "lucide-react";
 
-type AppointmentStatus =
-  | "BOOKED"
-  | "IN_PROGRESS"
-  | "COMPLETED"
-  | "CANCELLED"
-  | "BILLED";
+import { useAccess } from "@/contexts/AccessContext";
+import type { AppointmentStatusValue } from "@/lib/appointmentStatusStyles";
+import {
+  canCancelAppointment,
+  canConvertToInvoice,
+  canViewInvoice,
+} from "@/lib/appointmentStatusActions";
+
+type AppointmentStatus = AppointmentStatusValue;
 
 type AppointmentActionsProps = {
   appointmentId: string;
   status: AppointmentStatus;
+  invoiceId?: string | null;
 };
 
-export function AppointmentActions({ appointmentId, status }: AppointmentActionsProps) {
+const STATUS_OPTIONS: AppointmentStatus[] = ["BOOKED", "IN_PROGRESS", "COMPLETED", "BILLED", "CANCELLED"];
+
+export function AppointmentActions({ appointmentId, status, invoiceId = null }: AppointmentActionsProps) {
   const router = useRouter();
+  const access = useAccess();
+  const isReadOnly = access.accessLevel === "READ_ONLY";
   const [currentStatus, setCurrentStatus] = useState<AppointmentStatus>(status);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,6 +72,11 @@ export function AppointmentActions({ appointmentId, status }: AppointmentActions
   }
 
   const isLocked = currentStatus === "BILLED" || currentStatus === "CANCELLED" || currentStatus === "COMPLETED";
+  const canCancel = canCancelAppointment(currentStatus);
+  const hasInvoice = Boolean(invoiceId);
+  const showConvertToInvoice = canConvertToInvoice(currentStatus, hasInvoice) && !isReadOnly;
+  const showViewInvoice = canViewInvoice(hasInvoice);
+  const statusOptions = canCancel ? STATUS_OPTIONS : STATUS_OPTIONS.filter((option) => option !== "CANCELLED");
 
   return (
     <div className="space-y-3">
@@ -87,15 +100,22 @@ export function AppointmentActions({ appointmentId, status }: AppointmentActions
             disabled={loading}
             className="bg-transparent font-semibold text-[var(--foreground)] outline-none"
           >
-            <option value="BOOKED">Booked</option>
-            <option value="IN_PROGRESS">In Progress</option>
-            <option value="COMPLETED">Completed</option>
-            <option value="BILLED">Billed</option>
-            <option value="CANCELLED">Cancelled</option>
+            {statusOptions.map((option) => (
+              <option key={option} value={option}>
+                {option.replaceAll("_", " ")}
+              </option>
+            ))}
           </select>
         </label>
 
-        {!isLocked ? (
+        {showViewInvoice ? (
+          <Link
+            href={`/billing/invoices/${invoiceId}`}
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
+          >
+            View Invoice
+          </Link>
+        ) : showConvertToInvoice ? (
           <Link
             href={`/billing?appointmentId=${appointmentId}`}
             className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
@@ -104,14 +124,16 @@ export function AppointmentActions({ appointmentId, status }: AppointmentActions
           </Link>
         ) : null}
 
-        <button
-          type="button"
-          onClick={cancelAppointment}
-          disabled={loading || isLocked}
-          className="inline-flex h-10 items-center justify-center rounded-xl border border-red-300 px-4 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : "Cancel"}
-        </button>
+        {canCancel ? (
+          <button
+            type="button"
+            onClick={cancelAppointment}
+            disabled={loading}
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-red-300 px-4 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : "Cancel"}
+          </button>
+        ) : null}
       </div>
     </div>
   );

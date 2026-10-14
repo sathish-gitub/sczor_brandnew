@@ -4,14 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Package, Truck } from "lucide-react";
 
-type TabKey = "PRODUCTS" | "SUPPLIERS" | "PURCHASE_ORDERS" | "LOW_STOCK" | "REPORTS";
+type TabKey = "PRODUCTS" | "SUPPLIERS" | "PURCHASE_ORDERS" | "LOW_STOCK";
 
 const tabs: Array<{ key: TabKey; label: string; href: string; icon?: typeof Package }> = [
   { key: "PRODUCTS", label: "Products", href: "/inventory", icon: Package },
   { key: "SUPPLIERS", label: "Suppliers", href: "/inventory/suppliers", icon: Truck },
   { key: "PURCHASE_ORDERS", label: "Purchase Orders", href: "/inventory/purchase-orders" },
   { key: "LOW_STOCK", label: "Low Stock", href: "/inventory/low-stock" },
-  { key: "REPORTS", label: "Reports", href: "/reports/inventory" },
 ];
 
 function resolveActiveTab(pathname: string): TabKey {
@@ -25,10 +24,6 @@ function resolveActiveTab(pathname: string): TabKey {
 
   if (pathname.startsWith("/inventory/low-stock")) {
     return "LOW_STOCK";
-  }
-
-  if (pathname.startsWith("/reports/inventory")) {
-    return "REPORTS";
   }
 
   return "PRODUCTS";

@@ -53,6 +53,7 @@ export type CalendarLine = {
   totalDuration: number;
   appointmentDate: string;
   appointmentTime: string;
+  invoiceId: string | null;
 };
 
 export type CalendarBusinessHours = {
@@ -83,6 +84,7 @@ export type CalendarAppointmentGroup = {
   totalDuration: number;
   appointmentDate: string;
   appointmentTime: string;
+  invoiceId: string | null;
   lines: CalendarLine[];
 };
 
@@ -109,6 +111,7 @@ export function groupLinesByAppointment(lines: CalendarLine[]): Map<string, Cale
       totalDuration: line.totalDuration,
       appointmentDate: line.appointmentDate,
       appointmentTime: line.appointmentTime,
+      invoiceId: line.invoiceId,
       lines: [line],
     });
   }

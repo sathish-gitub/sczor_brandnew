@@ -53,7 +53,7 @@ const OUTGOING_TYPES = new Set(["SALE_OUT", "MANUAL_ADJUST_OUT", "WASTAGE", "USA
 
 const WASTAGE_REASONS = ["Expired", "Damaged", "Spilled", "Lost", "Other"] as const;
 
-type AdjustType = "STOCK_IN" | "STOCK_OUT" | "WASTAGE" | "USAGE";
+type AdjustType = "WASTAGE" | "USAGE";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-IN", {
@@ -87,9 +87,8 @@ export default function ProductDetailPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const [showAdjustModal, setShowAdjustModal] = useState(false);
-  const [adjustType, setAdjustType] = useState<AdjustType>("STOCK_IN");
+  const [adjustType, setAdjustType] = useState<AdjustType>("USAGE");
   const [adjustQuantity, setAdjustQuantity] = useState("");
-  const [adjustReason, setAdjustReason] = useState("");
   const [wastageDate, setWastageDate] = useState(todayISTDateString());
   const [wastageReason, setWastageReason] = useState<(typeof WASTAGE_REASONS)[number]>("Expired");
   const [wastageNotes, setWastageNotes] = useState("");
@@ -147,9 +146,8 @@ export default function ProductDetailPage() {
 
 
   function openAdjustModal() {
-    setAdjustType("STOCK_IN");
+    setAdjustType("USAGE");
     setAdjustQuantity("");
-    setAdjustReason("");
     setWastageDate(todayISTDateString());
     setWastageReason("Expired");
     setWastageNotes("");
@@ -170,16 +168,14 @@ export default function ProductDetailPage() {
       return;
     }
 
-    if (product && quantity > product.currentStock && adjustType !== "STOCK_IN") {
+    if (product && quantity > product.currentStock) {
       setAdjustError(`Quantity cannot exceed current stock (${formatStock(product.currentStock, product.unit, product.packSize)}).`);
       return;
     }
 
     let body: Record<string, unknown> = { type: adjustType, quantity: adjustQuantity };
 
-    if (adjustType === "STOCK_IN" || adjustType === "STOCK_OUT") {
-      body = { ...body, reason: adjustReason };
-    } else if (adjustType === "WASTAGE") {
+    if (adjustType === "WASTAGE") {
       if (wastageDate > todayISTDateString()) {
         setAdjustError("Date cannot be in the future.");
         return;
@@ -283,7 +279,7 @@ export default function ProductDetailPage() {
               className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)] disabled:opacity-50"
             >
               <PackagePlus className="h-4 w-4" />
-              Adjust Stock
+              Record Usage / Wastage
             </button>
           </div>
         </div>
@@ -371,7 +367,7 @@ export default function ProductDetailPage() {
         )}
       </section>
 
-      <Modal open={showAdjustModal} onClose={() => setShowAdjustModal(false)} title="Adjust Stock" size="sm">
+      <Modal open={showAdjustModal} onClose={() => setShowAdjustModal(false)} title="Record Usage / Wastage" size="sm">
         <div className="space-y-3">
           <label className="space-y-1 text-sm">
             <span className="font-medium text-[var(--foreground)]">Type</span>
@@ -380,8 +376,6 @@ export default function ProductDetailPage() {
               onChange={(event) => setAdjustType(event.target.value as AdjustType)}
               className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm"
             >
-              <option value="STOCK_IN">Add Stock</option>
-              <option value="STOCK_OUT">Reduce Stock</option>
               <option value="USAGE">Usage</option>
               <option value="WASTAGE">Wastage</option>
             </select>
@@ -438,18 +432,6 @@ export default function ProductDetailPage() {
               className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
             />
           </label>
-
-          {adjustType === "STOCK_IN" || adjustType === "STOCK_OUT" ? (
-            <label className="space-y-1 text-sm">
-              <span className="font-medium text-[var(--foreground)]">Reason (optional)</span>
-              <textarea
-                value={adjustReason}
-                onChange={(event) => setAdjustReason(event.target.value)}
-                rows={2}
-                className="w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-              />
-            </label>
-          ) : null}
 
           {adjustType === "WASTAGE" ? (
             <>

@@ -480,6 +480,14 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
     const createdId = mode === "create" ? payload?.appointment?.id : undefined;
 
     router.refresh();
+
+    // When an edit saves the status as Completed, go straight to billing with
+    // this appointment prefilled instead of back to the appointments list.
+    if (mode === "edit" && values.status === "COMPLETED" && initialData?.id) {
+      router.push(`/billing?appointmentId=${initialData.id}`);
+      return;
+    }
+
     router.push(
       `/appointments?success=${mode === "create" ? "created" : "updated"}&date=${values.appointmentDate}&t=${Date.now()}` +
         (createdId ? `&appointmentId=${createdId}` : ""),

@@ -212,6 +212,7 @@ export async function GET(request: Request) {
               staff: { select: { id: true, name: true, designation: true, designationId: true, staffDesignation: { select: { name: true } } } },
             },
           },
+          invoice: { select: { id: true, invoiceNumber: true } },
         },
         orderBy: [{ appointmentDate: "desc" }, { appointmentTime: "desc" }],
         skip: (page - 1) * limit,

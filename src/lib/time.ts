@@ -432,3 +432,14 @@ export function addDaysToDateString(dateStr: string, deltaDays: number): string 
   const shifted = new Date(utcNoon + deltaDays * 24 * 60 * 60 * 1000);
   return shifted.toISOString().slice(0, 10);
 }
+
+/**
+ * Format a day count for display in payroll contexts.
+ * Examples: "1 day", "2 days", "0.5 day", "1.5 days"
+ */
+export function formatDays(days: number): string {
+  const rounded = Number(days.toFixed(1));
+  if (rounded === 1) return "1 day";
+  if (rounded === 0.5) return "0.5 day";
+  return `${rounded} days`;
+}

@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ExportButtons } from "@/components/reports/ExportButtons";
 import { FilterChips } from "@/components/reports/FilterChips";
 import { MonthCalendar } from "@/components/attendance/MonthCalendar";
-import { StaffAvatar } from "@/components/staff/StaffAvatar";
 import { useAccess } from "@/contexts/AccessContext";
 import type { ExportColumn } from "@/lib/exportReport";
 import { formatFiltersLabel, formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
@@ -30,7 +29,6 @@ type ReportRow = {
     leave: number;
     halfDay: number;
     weekOff: number;
-    attendancePercent: number;
   };
 };
 
@@ -38,17 +36,45 @@ type AttendanceReportResponse = {
   month: number;
   year: number;
   days: Array<{ day: number; weekday: string; isBusinessWorkingDay: boolean }>;
-  overview: {
-    workingDays: number;
-    avgAttendancePercent: number;
-    perfectAttendanceCount: number;
-    mostAbsentStaff: string;
-  };
   items: ReportRow[];
 };
 
+const MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+/** Status codes shown in the compact matrix cells, in legend display order. */
+const LEGEND_STATUSES: CellStatus[] = ["PRESENT", "ABSENT", "LEAVE", "WEEK_OFF", "HALF_DAY", "NOT_MARKED"];
+
+const TOTAL_COLUMNS: Array<{ key: keyof ReportRow["summary"]; header: string; title: string }> = [
+  { key: "present", header: "P", title: "Present" },
+  { key: "absent", header: "A", title: "Absent" },
+  { key: "leave", header: "L", title: "Leave" },
+  { key: "weekOff", header: "WO", title: "Week Off" },
+  { key: "halfDay", header: "HD", title: "Half Day" },
+];
+
 function formatMonthInput(year: number, month: number) {
   return `${year}-${`${month}`.padStart(2, "0")}`;
+}
+
+function pad2(value: number) {
+  return String(value).padStart(2, "0");
+}
+
+function slugify(value: string) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "staff";
 }
 
 export default function AttendanceReportsPage() {
@@ -62,8 +88,8 @@ export default function AttendanceReportsPage() {
   const monthInput =
     monthParam && /^\d{4}-\d{2}$/.test(monthParam) ? monthParam : formatMonthInput(istDefaults.year, istDefaults.month);
   const staffFilter = searchParams.get("staffId") ?? "ALL";
+  const isMatrixView = staffFilter === "ALL";
   const [searchQuery, setSearchQuery] = useState("");
-  const [focusDay, setFocusDay] = useState<number | undefined>(undefined);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -171,6 +197,24 @@ export default function AttendanceReportsPage() {
     );
   }, [report, searchQuery]);
 
+  const selectedStaff = useMemo(() => {
+    if (isMatrixView || !report) {
+      return null;
+    }
+
+    return report.items[0] ?? null;
+  }, [isMatrixView, report]);
+
+  const selectedStaffStatuses = useMemo(() => {
+    if (!selectedStaff) {
+      return {} as Record<number, CellStatus>;
+    }
+
+    return Object.fromEntries(selectedStaff.cells.map((cell) => [cell.day, cell.status])) as Record<number, CellStatus>;
+  }, [selectedStaff]);
+
+  const monthLabel = report ? `${MONTH_NAMES[report.month - 1]} ${report.year}` : "";
+
   function getAttendanceExportConfig() {
     if (!report) {
       return {
@@ -182,91 +226,128 @@ export default function AttendanceReportsPage() {
       };
     }
 
-    const dayColumns: ExportColumn[] = report.days.map((day) => ({
-      header: `${day.day} ${day.weekday}`,
-      key: `day${day.day}`,
-      type: "text",
-      width: 8,
-    }));
+    const periodLabels = formatPeriodRange(
+      `${report.year}-${String(report.month).padStart(2, "0")}-01`,
+      `${report.year}-${String(report.month).padStart(2, "0")}-${String(daysInMonthIST(report.year, report.month)).padStart(2, "0")}`,
+    );
 
-    const columns: ExportColumn[] = [
-      { header: "Staff", key: "name", type: "text" },
-      { header: "Designation", key: "designation", type: "text" },
-      ...dayColumns,
-      { header: "Present", key: "present", type: "number" },
-      { header: "Absent", key: "absent", type: "number" },
-      { header: "Leave", key: "leave", type: "number" },
-      { header: "Week Off", key: "weekOff", type: "number" },
-      { header: "Half Day", key: "halfDay", type: "number" },
-      { header: "Attendance %", key: "attendancePercent", type: "percent" },
-    ];
+    const staffName = staffFilter !== "ALL" ? staffOptions.find((option) => option.id === staffFilter)?.name ?? staffFilter : null;
 
-    const rows = visibleItems.map((item) => {
-      const row: Record<string, unknown> = {
-        name: item.name,
-        designation: item.designation,
-        present: item.summary.present,
-        absent: item.summary.absent,
-        leave: item.summary.leave,
-        weekOff: item.summary.weekOff,
-        halfDay: item.summary.halfDay,
-        attendancePercent: item.summary.attendancePercent,
-      };
+    const filtersLabel = formatFiltersLabel([
+      { label: "Month", value: monthLabel },
+      staffName ? { label: "Staff", value: staffName } : null,
+    ]);
 
-      item.cells.forEach((cell) => {
-        row[`day${cell.day}`] = getAttendanceStatusStyle(cell.status).shortLabel;
+    // Matrix (all staff): every active staff member as a row and every day of
+    // the month as a column, mirroring the on-screen matrix. Exports always
+    // use the full staff list, ignoring the on-screen name/designation search.
+    if (isMatrixView) {
+      const dayColumns: ExportColumn[] = report.days.map((day) => ({
+        header: String(day.day),
+        key: `day${day.day}`,
+        type: "text",
+        width: 3,
+      }));
+
+      const columns: ExportColumn[] = [
+        { header: "Staff", key: "name", type: "text", width: 16 },
+        { header: "Designation", key: "designation", type: "text", width: 12 },
+        ...dayColumns,
+        { header: "Present", key: "present", type: "number", width: 6 },
+        { header: "Absent", key: "absent", type: "number", width: 6 },
+        { header: "Leave", key: "leave", type: "number", width: 6 },
+        { header: "Week Off", key: "weekOff", type: "number", width: 7 },
+        { header: "Half Day", key: "halfDay", type: "number", width: 6 },
+      ];
+
+      const rows = report.items.map((item) => {
+        const row: Record<string, unknown> = {
+          name: item.name,
+          designation: item.designation,
+          present: item.summary.present,
+          absent: item.summary.absent,
+          leave: item.summary.leave,
+          weekOff: item.summary.weekOff,
+          halfDay: item.summary.halfDay,
+        };
+
+        item.cells.forEach((cell) => {
+          row[`day${cell.day}`] = getAttendanceStatusStyle(cell.status).shortLabel;
+        });
+
+        return row;
       });
 
-      return row;
-    });
+      const legendRows = LEGEND_STATUSES.map((status) => {
+        const style = getAttendanceStatusStyle(status);
+        return { code: style.shortLabel, meaning: style.label };
+      });
+
+      return {
+        title: "Attendance Report - Matrix",
+        salon: toExportSalonDetails(access),
+        ...periodLabels,
+        filtersLabel,
+        generatedBy: access.userName,
+        summary: [
+          { label: "Total Staff", value: report.items.length, type: "number" as const },
+          { label: "Total Present", value: report.items.reduce((sum, item) => sum + item.summary.present, 0), type: "number" as const },
+          { label: "Total Absent", value: report.items.reduce((sum, item) => sum + item.summary.absent, 0), type: "number" as const },
+          { label: "Total Leave", value: report.items.reduce((sum, item) => sum + item.summary.leave, 0), type: "number" as const },
+          { label: "Total Week Off", value: report.items.reduce((sum, item) => sum + item.summary.weekOff, 0), type: "number" as const },
+        ],
+        columns,
+        rows,
+        extraSections: [
+          {
+            title: "Legend",
+            columns: [
+              { header: "Code", key: "code", type: "text" as const },
+              { header: "Meaning", key: "meaning", type: "text" as const },
+            ],
+            rows: legendRows,
+          },
+        ],
+        filename: `sczor-attendance-matrix-${report.year}-${String(report.month).padStart(2, "0")}`,
+      };
+    }
+
+    // Single staff: one row per calendar date with its weekday and status.
+    const columns: ExportColumn[] = [
+      { header: "Date", key: "date", type: "text", width: 12 },
+      { header: "Weekday", key: "weekday", type: "text", width: 10 },
+      { header: "Status", key: "status", type: "text", width: 14 },
+      { header: "Notes", key: "notes", type: "text", width: 20 },
+    ];
+
+    const rows =
+      selectedStaff?.cells.map((cell) => ({
+        date: `${pad2(cell.day)}/${pad2(report.month)}/${report.year}`,
+        weekday: cell.weekday,
+        status: getAttendanceStatusStyle(cell.status).label,
+        notes: "-",
+      })) ?? [];
 
     return {
-      title: "Attendance Report",
+      title: `Attendance Report - ${selectedStaff?.name ?? "Staff"}`,
       salon: toExportSalonDetails(access),
-      ...formatPeriodRange(
-        `${report.year}-${String(report.month).padStart(2, "0")}-01`,
-        `${report.year}-${String(report.month).padStart(2, "0")}-${String(daysInMonthIST(report.year, report.month)).padStart(2, "0")}`,
-      ),
-      filtersLabel: formatFiltersLabel([
-        staffFilter !== "ALL" ? { label: "Staff", value: staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter } : null,
-      ]),
+      ...periodLabels,
+      filtersLabel,
       generatedBy: access.userName,
-      summary: [
-        { label: "Total Present", value: visibleItems.reduce((sum, item) => sum + item.summary.present, 0), type: "number" as const },
-        { label: "Total Absent", value: visibleItems.reduce((sum, item) => sum + item.summary.absent, 0), type: "number" as const },
-        { label: "Total Leave", value: visibleItems.reduce((sum, item) => sum + item.summary.leave, 0), type: "number" as const },
-        { label: "Total Week Off", value: visibleItems.reduce((sum, item) => sum + item.summary.weekOff, 0), type: "number" as const },
-      ],
+      summary: selectedStaff
+        ? [
+            { label: "Present", value: selectedStaff.summary.present, type: "number" as const },
+            { label: "Absent", value: selectedStaff.summary.absent, type: "number" as const },
+            { label: "Leave", value: selectedStaff.summary.leave, type: "number" as const },
+            { label: "Week Off", value: selectedStaff.summary.weekOff, type: "number" as const },
+            { label: "Half Day", value: selectedStaff.summary.halfDay, type: "number" as const },
+          ]
+        : undefined,
       columns,
       rows,
-      filename: `sczor-attendance-${report.year}-${String(report.month).padStart(2, "0")}`,
+      filename: `sczor-attendance-${slugify(selectedStaff?.name ?? "staff")}-${report.year}-${String(report.month).padStart(2, "0")}`,
     };
   }
-
-  const calendarTarget = visibleItems[0] ?? null;
-  const calendarStatuses = useMemo(() => {
-    if (!calendarTarget) {
-      return {} as Record<number, CellStatus>;
-    }
-
-    return Object.fromEntries(calendarTarget.cells.map((cell) => [cell.day, cell.status])) as Record<number, CellStatus>;
-  }, [calendarTarget]);
-
-  const focusDayRows = useMemo(() => {
-    if (!report || !focusDay) {
-      return [];
-    }
-
-    return visibleItems.map((item) => {
-      const cell = item.cells.find((entry) => entry.day === focusDay);
-      return {
-        staffId: item.staffId,
-        name: item.name,
-        designation: item.designation,
-        status: (cell?.status ?? "NOT_MARKED") as CellStatus,
-      };
-    });
-  }, [report, focusDay, visibleItems]);
 
   return (
     <div className="space-y-5">
@@ -276,7 +357,7 @@ export default function AttendanceReportsPage() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Attendance Reports</h1>
-            <p className="mt-1 text-sm text-[var(--muted)]">Monthly attendance analytics for your staff team.</p>
+            <p className="mt-1 text-sm text-[var(--muted)]">Monthly attendance for your staff team.</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -316,154 +397,149 @@ export default function AttendanceReportsPage() {
             ))}
           </select>
 
-          <input
-            type="search"
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search by name or designation..."
-            className="h-10 flex-1 rounded-xl border border-[var(--border)] px-3 text-sm"
-          />
+          {isMatrixView ? (
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search by name or designation..."
+              className="h-10 flex-1 rounded-xl border border-[var(--border)] px-3 text-sm"
+            />
+          ) : null}
         </div>
       </header>
 
       {loading ? (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="h-24 animate-pulse rounded-xl border border-[var(--border)] bg-white" />
-            ))}
-          </div>
           <div className="h-72 animate-pulse rounded-xl border border-[var(--border)] bg-white" />
         </div>
       ) : !report || report.items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[var(--border)] bg-white px-6 py-16 text-center">
-          <p className="text-base font-semibold text-[var(--foreground)]">No staff found. Add staff first.</p>
+          <p className="text-base font-semibold text-[var(--foreground)]">
+            {isMatrixView ? "No active staff found. Add staff first." : "Staff member not found."}
+          </p>
         </div>
-      ) : visibleItems.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[var(--border)] bg-white px-6 py-16 text-center">
-          <p className="text-base font-semibold text-[var(--foreground)]">No staff match &quot;{searchQuery}&quot;.</p>
-        </div>
-      ) : (
-        <>
-          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <div className="rounded-xl border border-[var(--border)] bg-white p-4">
-              <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">Working Days</p>
-              <p className="mt-2 text-2xl font-bold text-[var(--foreground)]">{report.overview.workingDays}</p>
-            </div>
-            <div className="rounded-xl border border-[var(--border)] bg-white p-4">
-              <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">Avg Attendance %</p>
-              <p className="mt-2 text-2xl font-bold text-[var(--foreground)]">{report.overview.avgAttendancePercent}%</p>
-            </div>
-            <div className="rounded-xl border border-[var(--border)] bg-white p-4">
-              <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">Perfect Attendance</p>
-              <p className="mt-2 text-2xl font-bold text-[var(--foreground)]">{report.overview.perfectAttendanceCount}</p>
-            </div>
-            <div className="rounded-xl border border-[var(--border)] bg-white p-4">
-              <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">Most Absent</p>
-              <p className="mt-2 text-lg font-bold text-[var(--foreground)]">{report.overview.mostAbsentStaff}</p>
-            </div>
-          </section>
-
-          <section className="overflow-x-auto rounded-xl border border-[var(--border)] bg-white">
-            <table className="min-w-[1280px] w-full text-left text-xs">
-              <thead className="bg-slate-50 uppercase tracking-[0.08em] text-[var(--muted)]">
-                <tr>
-                  <th className="px-3 py-2 text-sm">Staff</th>
+      ) : isMatrixView ? (
+        visibleItems.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-[var(--border)] bg-white px-6 py-16 text-center">
+            <p className="text-base font-semibold text-[var(--foreground)]">No staff match &quot;{searchQuery}&quot;.</p>
+          </div>
+        ) : (
+          <section className="space-y-3">
+            <div className="relative max-h-[70vh] overflow-auto rounded-xl border border-[var(--border)] bg-white">
+              <table className="w-max table-fixed border-collapse text-xs">
+                <colgroup>
+                  <col className="w-40" />
                   {report.days.map((day) => (
-                    <th key={day.day} className="px-2 py-2 text-center">
-                      {day.weekday}
-                      <br />
-                      {day.day}
-                    </th>
+                    <col key={`col-${day.day}`} className="w-8" />
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {visibleItems.map((row) => (
-                  <tr key={row.staffId} className="border-t border-[var(--border)]">
-                    <td className="px-3 py-2">
-                      <p className="text-sm font-semibold text-[var(--foreground)]">{row.name}</p>
-                      <p className="text-[11px] text-[var(--muted)]">{row.designation}</p>
-                    </td>
-                    {row.cells.map((cell) => {
-                      const style = getAttendanceStatusStyle(cell.status);
-                      return (
-                        <td key={`${row.staffId}-${cell.day}`} className="px-1 py-1 text-center">
-                          <span className={`inline-flex h-7 w-7 items-center justify-center rounded-full font-semibold ${style.cellClassName}`}>
-                            {style.shortLabel}
-                          </span>
-                        </td>
-                      );
-                    })}
+                  {TOTAL_COLUMNS.map((column) => (
+                    <col key={`col-total-${column.key}`} className="w-12" />
+                  ))}
+                </colgroup>
+                <thead className="bg-slate-50 text-[11px] uppercase tracking-[0.06em] text-[var(--muted)]">
+                  <tr>
+                    <th className="sticky left-0 top-0 z-30 border-b border-[var(--border)] bg-slate-50 px-3 py-2 text-left">
+                      Staff
+                    </th>
+                    {report.days.map((day) => (
+                      <th
+                        key={day.day}
+                        className={[
+                          "sticky top-0 z-20 border-b border-[var(--border)] px-1 py-2 text-center font-semibold",
+                          day.isBusinessWorkingDay ? "bg-slate-50" : "bg-slate-200",
+                        ].join(" ")}
+                      >
+                        {day.day}
+                      </th>
+                    ))}
+                    {TOTAL_COLUMNS.map((column) => (
+                      <th
+                        key={column.key}
+                        title={column.title}
+                        className="sticky top-0 z-20 border-b border-[var(--border)] bg-slate-50 px-1 py-2 text-center font-semibold"
+                      >
+                        {column.header}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
+                </thead>
+                <tbody>
+                  {visibleItems.map((row) => (
+                    <tr key={row.staffId} className="border-t border-[var(--border)]">
+                      <td className="sticky left-0 z-10 border-r border-[var(--border)] bg-white px-3 py-2 text-left">
+                        <p className="truncate text-sm font-semibold text-[var(--foreground)]">{row.name}</p>
+                        <p className="truncate text-[11px] text-[var(--muted)]">{row.designation}</p>
+                      </td>
+                      {row.cells.map((cell) => {
+                        const style = getAttendanceStatusStyle(cell.status);
+                        const column = report.days[cell.day - 1];
+                        return (
+                          <td
+                            key={`${row.staffId}-${cell.day}`}
+                            className={["px-1 py-1 text-center", column && !column.isBusinessWorkingDay ? "bg-slate-50" : ""].join(
+                              " ",
+                            )}
+                          >
+                            <span
+                              className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold ${style.cellClassName}`}
+                            >
+                              {style.shortLabel}
+                            </span>
+                          </td>
+                        );
+                      })}
+                      {TOTAL_COLUMNS.map((column) => (
+                        <td key={column.key} className="px-1 py-1 text-center text-sm font-semibold text-[var(--foreground)]">
+                          {row.summary[column.key]}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          {calendarTarget ? (
-            <section className="space-y-3">
-              <h2 className="text-lg font-semibold text-[var(--foreground)]">Month Calendar: {calendarTarget.name}</h2>
-              <MonthCalendar
-                year={report.year}
-                month={report.month}
-                dayStatuses={calendarStatuses}
-                selectedDay={focusDay}
-                onDayClick={(day) => setFocusDay(day)}
-              />
-
-              {focusDay ? (
-                <div className="rounded-xl border border-[var(--border)] bg-white p-4">
-                  <h3 className="text-sm font-semibold text-[var(--foreground)]">Day {focusDay} Snapshot</h3>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {focusDayRows.map((row) => {
-                      const style = getAttendanceStatusStyle(row.status);
-                      return (
-                        <div key={`focus-${row.staffId}`} className="rounded-lg border border-[var(--border)] p-3">
-                          <p className="text-sm font-semibold text-[var(--foreground)]">{row.name}</p>
-                          <p className="text-xs text-[var(--muted)]">{row.designation}</p>
-                          <span className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${style.badgeClassName}`}>
-                            {style.shortLabel} {style.label}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : null}
-            </section>
-          ) : null}
-
-          <section>
-            <h2 className="mb-3 text-lg font-semibold text-[var(--foreground)]">Individual Staff Summary</h2>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {visibleItems.map((row) => (
-                <article key={`summary-${row.staffId}`} className="rounded-xl border border-[var(--border)] bg-white p-4">
-                  <div className="flex items-center gap-3">
-                    <StaffAvatar name={row.name} />
-                    <div>
-                      <p className="font-semibold text-[var(--foreground)]">{row.name}</p>
-                      <p className="text-xs text-[var(--muted)]">{row.designation}</p>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 space-y-1 text-sm">
-                    <p className="flex justify-between"><span className="text-[var(--muted)]">Present days</span><span className="font-semibold">{row.summary.present}</span></p>
-                    <p className="flex justify-between"><span className="text-[var(--muted)]">Absent days</span><span className="font-semibold">{row.summary.absent}</span></p>
-                    <p className="flex justify-between"><span className="text-[var(--muted)]">Leave days</span><span className="font-semibold">{row.summary.leave}</span></p>
-                    <p className="flex justify-between"><span className="text-[var(--muted)]">Week Off days</span><span className="font-semibold">{row.summary.weekOff}</span></p>
-                    <p className="flex justify-between"><span className="text-[var(--muted)]">Attendance %</span><span className="font-semibold">{row.summary.attendancePercent}%</span></p>
-                  </div>
-
-                  <div className="mt-3 h-2 rounded-full bg-slate-100">
-                    <div className="h-2 rounded-full bg-emerald-500" style={{ width: `${row.summary.attendancePercent}%` }} />
-                  </div>
-                </article>
-              ))}
+            <div className="flex flex-wrap gap-2 text-xs">
+              {LEGEND_STATUSES.map((status) => {
+                const style = getAttendanceStatusStyle(status);
+                return (
+                  <span key={status} className={`inline-flex items-center gap-1 rounded-full px-2 py-1 ${style.badgeClassName}`}>
+                    {style.shortLabel} {style.label}
+                  </span>
+                );
+              })}
+              <span className="inline-flex items-center gap-1 rounded-full bg-slate-200 px-2 py-1 text-slate-600">
+                Shaded column = non-working day
+              </span>
             </div>
           </section>
-        </>
-      )}
+        )
+      ) : selectedStaff ? (
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-[var(--foreground)]">{selectedStaff.name}</h2>
+            <p className="text-sm text-[var(--muted)]">{selectedStaff.designation}</p>
+          </div>
+
+          <MonthCalendar year={report.year} month={report.month} dayStatuses={selectedStaffStatuses} />
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+            {[
+              { label: "Present", value: selectedStaff.summary.present },
+              { label: "Absent", value: selectedStaff.summary.absent },
+              { label: "Leave", value: selectedStaff.summary.leave },
+              { label: "Week Off", value: selectedStaff.summary.weekOff },
+              { label: "Half Day", value: selectedStaff.summary.halfDay },
+            ].map((item) => (
+              <div key={item.label} className="rounded-xl border border-[var(--border)] bg-white p-4">
+                <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">{item.label}</p>
+                <p className="mt-2 text-2xl font-bold text-[var(--foreground)]">{item.value}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

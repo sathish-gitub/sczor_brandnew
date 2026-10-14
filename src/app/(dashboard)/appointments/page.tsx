@@ -5,11 +5,17 @@ import Link from "next/link";
 import { useAccess } from "@/contexts/AccessContext";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Edit, Eye, LoaderCircle, Plus, Search, Trash } from "lucide-react";
+import { Edit, Eye, LoaderCircle, Plus, Receipt, Search, Trash } from "lucide-react";
 
 import { StatusBadge } from "@/components/appointments/StatusBadge";
 import { AppointmentViewTabs } from "@/components/appointments/calendar/AppointmentViewTabs";
 import { WhatsAppConfirmationButton } from "@/components/appointments/WhatsAppConfirmationButton";
+import {
+  canCancelAppointment,
+  canConvertToInvoice,
+  canSendBookingConfirmation,
+  canViewInvoice,
+} from "@/lib/appointmentStatusActions";
 import { combinedServiceNames, distinctStaffLabel } from "@/lib/appointmentDisplay";
 import { maskId } from "@/lib/formatId";
 import { istMonthBounds, istWallTimeToInstant, istWeekBounds, todayISTDateString, toISTDateString } from "@/lib/time";
@@ -34,6 +40,7 @@ type AppointmentRow = {
     mobile: string;
   };
   services: AppointmentServiceLineRow[];
+  invoice: { id: string; invoiceNumber: string } | null;
 };
 
 type Stats = {
@@ -302,7 +309,7 @@ export default function AppointmentsPage() {
       {successMessage ? (
         <div className="flex flex-wrap items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
           <span>{successMessage}</span>
-          {createdAppointment && salonName ? (
+          {createdAppointment && salonName && canSendBookingConfirmation(createdAppointment.status) ? (
             <WhatsAppConfirmationButton
               customerName={createdAppointment.customer.name}
               mobile={createdAppointment.customer.mobile}
@@ -452,7 +459,7 @@ export default function AppointmentsPage() {
                     <StatusBadge status={row.status} />
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <Link
                         href={`/appointments/${row.id}`}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
@@ -461,6 +468,23 @@ export default function AppointmentsPage() {
                       >
                         <Eye className="h-4 w-4" />
                       </Link>
+                      {canViewInvoice(Boolean(row.invoice)) ? (
+                        <Link
+                          href={`/billing/invoices/${row.invoice?.id}`}
+                          className="inline-flex h-8 items-center justify-center gap-1 rounded-lg bg-[var(--primary)] px-2.5 text-xs font-semibold text-white hover:bg-[var(--accent)]"
+                          title="View Invoice"
+                        >
+                          <Receipt className="h-3.5 w-3.5" /> View Invoice
+                        </Link>
+                      ) : canConvertToInvoice(row.status, Boolean(row.invoice)) && access.accessLevel !== "READ_ONLY" ? (
+                        <Link
+                          href={`/billing?appointmentId=${row.id}`}
+                          className="inline-flex h-8 items-center justify-center gap-1 rounded-lg bg-[var(--primary)] px-2.5 text-xs font-semibold text-white hover:bg-[var(--accent)]"
+                          title="Convert to Invoice"
+                        >
+                          <Receipt className="h-3.5 w-3.5" /> Convert to Invoice
+                        </Link>
+                      ) : null}
                       {row.status !== "BILLED" && row.status !== "CANCELLED" ? (
                         <Link
                           href={`/appointments/${row.id}/edit`}
@@ -471,7 +495,7 @@ export default function AppointmentsPage() {
                           <Edit className="h-4 w-4" />
                         </Link>
                       ) : null}
-                      {row.status !== "BILLED" && row.status !== "CANCELLED" && row.status !== "COMPLETED" ? (
+                      {canCancelAppointment(row.status) ? (
                         <button
                           type="button"
                           onClick={() => cancelAppointment(row.id)}

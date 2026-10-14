@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, Menu, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useAccess } from "@/contexts/AccessContext";
 
 type NavbarProps = {
   userName: string;
@@ -51,16 +53,8 @@ function pageTitleFromPath(pathname: string) {
     .join(" ");
 }
 
-function toInitials(name: string) {
-  return name
-    .split(" ")
-    .map((value) => value[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
-
 export function Navbar({ userName, onMenuClick }: NavbarProps) {
+  const access = useAccess();
   const pathname = usePathname();
   const [searchOpen, setSearchOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -68,6 +62,15 @@ export function Navbar({ userName, onMenuClick }: NavbarProps) {
   const [results, setResults] = useState<SearchResults>(emptyResults);
   const [searching, setSearching] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [logoCacheBust, setLogoCacheBust] = useState(0);
+
+  // Update cache bust value when logo changes to refresh it in the UI after upload
+  // (see router.refresh() in salon-profile/page.tsx after save)
+  useEffect(() => {
+    if (access.tenantLogo) {
+      setLogoCacheBust(prev => prev + 1);
+    }
+  }, [access.tenantLogo]);
 
   useEffect(() => {
     setSearchOpen(false);
@@ -253,14 +256,27 @@ export function Navbar({ userName, onMenuClick }: NavbarProps) {
               </div>
             ) : null}
           </div>
-          <div className="flex items-center gap-2 rounded-xl border border-[var(--border)] px-2.5 py-1.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-[var(--primary)]">
-              {toInitials(userName)}
-            </div>
+          <Link
+            href="/settings/salon-profile"
+            className="flex items-center gap-2 rounded-xl border border-[var(--border)] px-2.5 py-1.5 hover:bg-slate-50"
+          >
+            {access.tenantLogo ? (
+              <Image
+                src={`${access.tenantLogo}?v=${logoCacheBust}`}
+                alt="Salon logo"
+                width={28}
+                height={28}
+                className="h-7 w-7 rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-[var(--primary)]">
+                {access.tenantName ? access.tenantName[0]?.toUpperCase() : "?"}
+              </div>
+            )}
             <span className="hidden max-w-28 truncate text-sm font-medium text-[var(--foreground)] sm:inline">
               {userName}
             </span>
-          </div>
+          </Link>
         </div>
       </div>
     </header>

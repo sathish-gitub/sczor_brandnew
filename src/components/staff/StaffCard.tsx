@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CalendarDays, Clock3, Eye, Phone, Star } from "lucide-react";
 
 import { StaffAvatar } from "@/components/staff/StaffAvatar";
-import { getAttendanceStatusStyle, type DisplayAttendanceStatus } from "@/lib/attendanceStatus";
+import { getAttendanceStatusStyle, getInactiveStaffLabel, type DisplayAttendanceStatus } from "@/lib/attendanceStatus";
 import { formatISTTenureLabel, toISTDateString } from "@/lib/time";
 
 type StaffCardProps = {
@@ -26,7 +26,7 @@ export function StaffCard({ member }: StaffCardProps) {
   const displayStatus = member.displayStatus ?? "NOT_MARKED";
   const isInactive = displayStatus === "INACTIVE";
   const style = isInactive
-    ? { label: "Inactive", badgeClassName: "bg-gray-100 text-gray-500" }
+    ? { label: getInactiveStaffLabel(), badgeClassName: "bg-gray-100 text-gray-500" }
     : getAttendanceStatusStyle(displayStatus);
 
   return (

@@ -1,8 +1,6 @@
 "use client";
 
 import { UserPlus } from "lucide-react";
-import Image from "next/image";
-import { ChangeEvent } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -14,7 +12,6 @@ type AccountForm = {
   ownerName: string;
   email: string;
   mobile: string;
-  profilePhoto: string;
 };
 
 type TeamMember = {
@@ -49,7 +46,7 @@ function passwordStrength(password: string) {
 export default function AccountSettingsPage() {
   const { showToast } = useToast();
 
-  const [profile, setProfile] = useState<AccountForm>({ ownerName: "", email: "", mobile: "", profilePhoto: "" });
+  const [profile, setProfile] = useState<AccountForm>({ ownerName: "", email: "", mobile: "" });
   const [profileSaving, setProfileSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -109,20 +106,6 @@ export default function AccountSettingsPage() {
   }, [showToast]);
 
   const strength = useMemo(() => passwordStrength(password.newPassword), [password.newPassword]);
-
-  function onProfilePhotoChange(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const value = typeof reader.result === "string" ? reader.result : "";
-      setProfile((current) => ({ ...current, profilePhoto: value }));
-    };
-    reader.readAsDataURL(file);
-  }
 
   async function saveProfile() {
     setProfileSaving(true);
@@ -237,15 +220,6 @@ export default function AccountSettingsPage() {
 
       <section className="rounded-xl border border-[var(--border)] bg-white p-5">
         <h2 className="text-base font-semibold">Profile</h2>
-        <div className="mt-3 flex items-center gap-4">
-          <div className="h-16 w-16 overflow-hidden rounded-full border border-[var(--border)] bg-slate-50">
-            {profile.profilePhoto ? <Image src={profile.profilePhoto} alt="Profile preview" width={64} height={64} className="h-full w-full object-cover" /> : null}
-          </div>
-          <label className="inline-flex h-10 cursor-pointer items-center rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700">
-            Upload Photo
-            <input type="file" accept="image/*" className="hidden" onChange={onProfilePhotoChange} />
-          </label>
-        </div>
         <div className="mt-3 grid gap-4 sm:grid-cols-2">
           <Field label="Owner Name" value={profile.ownerName} onChange={(value) => setProfile((current) => ({ ...current, ownerName: value }))} />
           <Field label="Email" value={profile.email} onChange={(value) => setProfile((current) => ({ ...current, email: value }))} />

@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
 import { formatPackSize } from "@/lib/productUnits";
+import { AddSupplierModal, type CreatedSupplier } from "@/components/inventory/AddSupplierModal";
 
 type SupplierOption = {
   id: string;
@@ -40,6 +41,8 @@ function roundMoney(value: number) {
   return Math.round(value * 100) / 100;
 }
 
+const ADD_NEW_SUPPLIER = "__add_new_supplier__";
+
 export default function NewPurchaseOrderPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -47,6 +50,8 @@ export default function NewPurchaseOrderPage() {
   const prefillSupplierId = searchParams.get("supplierId");
 
   const [suppliers, setSuppliers] = useState<SupplierOption[]>([]);
+  const [suppliersLoaded, setSuppliersLoaded] = useState(false);
+  const [showAddSupplierModal, setShowAddSupplierModal] = useState(false);
   const [products, setProducts] = useState<ProductOption[]>([]);
   const [supplierId, setSupplierId] = useState("");
   const [notes, setNotes] = useState("");
@@ -86,6 +91,7 @@ export default function NewPurchaseOrderPage() {
       }
 
       setSuppliers(suppliersPayload?.items ?? []);
+      setSuppliersLoaded(true);
       const loadedProducts = (productsPayload?.items ?? []).map((item) => ({
         id: item.id,
         name: item.name,
@@ -137,6 +143,15 @@ export default function NewPurchaseOrderPage() {
 
   function removeLine(index: number) {
     setItems((current) => current.filter((_, itemIndex) => itemIndex !== index));
+  }
+
+  function handleSupplierCreated(supplier: CreatedSupplier) {
+    setSuppliers((current) =>
+      current.some((item) => item.id === supplier.id)
+        ? current
+        : [...current, supplier].sort((a, b) => a.name.localeCompare(b.name)),
+    );
+    setSupplierId(supplier.id);
   }
 
   const lineAmounts = items.map((item) => roundMoney(Number(item.quantity || 0) * Number(item.unitCost || 0)));
@@ -202,18 +217,33 @@ export default function NewPurchaseOrderPage() {
           <span className="font-medium text-[var(--foreground)]">Supplier</span>
           <select
             value={supplierId}
-            onChange={(event) => setSupplierId(event.target.value)}
+            onChange={(event) => {
+              if (event.target.value === ADD_NEW_SUPPLIER) {
+                setShowAddSupplierModal(true);
+                return;
+              }
+
+              setSupplierId(event.target.value);
+            }}
             required
             className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
           >
             <option value="">Select supplier</option>
+            {suppliersLoaded && suppliers.length === 0 ? <option disabled>No suppliers yet</option> : null}
             {suppliers.map((supplier) => (
               <option key={supplier.id} value={supplier.id}>
                 {supplier.name}
               </option>
             ))}
+            <option value={ADD_NEW_SUPPLIER}>+ Add New Supplier</option>
           </select>
         </label>
+
+        <AddSupplierModal
+          open={showAddSupplierModal}
+          onClose={() => setShowAddSupplierModal(false)}
+          onCreated={handleSupplierCreated}
+        />
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">

@@ -25,14 +25,13 @@ export function buildBookingConfirmationMessage(input: BookingConfirmationInput)
   const timeLabel = formatClockTime12Hour(input.appointmentTime);
 
   const contactSentence = input.salonPhone
-    ? ` If you need to reschedule or cancel your appointment, please contact us at ${input.salonPhone} at least 24 hours in advance. ⏰`
+    ? ` If you need to reschedule or cancel your appointment, please contact us at ${input.salonPhone} at least 24 hours in advance.`
     : "";
 
   return (
     `Hi ${input.customerName},\n\n` +
-    `Your appointment at ${input.salonName} on ${dateLabel} at ${timeLabel} is Confirmed 💇‍♀️💇‍♂️ We look forward to seeing you soon.\n\n` +
+    `Your appointment at ${input.salonName} on ${dateLabel} at ${timeLabel} is confirmed. We look forward to seeing you soon.\n\n` +
     `Please arrive 15 minutes early to your appointment to allow time to check in and relax.${contactSentence}\n\n` +
-    `We can't wait to pamper you! 🧖‍♀️🧖‍♂️\n\n` +
     `Sincerely,\nThe team at ${input.salonName}`
   );
 }
@@ -64,7 +63,7 @@ export function buildPostBillingMessage(input: PostBillingInput): string {
 
   return (
     `Hi ${input.customerName},\n\n` +
-    `Your ${noun} at ${input.salonName} on ${dateLabel} at ${timeLabel} is Completed.` +
+    `Your ${noun} at ${input.salonName} on ${dateLabel} at ${timeLabel} is completed.` +
     reviewLine +
     `\n\nHere is your invoice: ${input.publicInvoiceUrl}\n\n` +
     `Sincerely,\n${input.salonName}`

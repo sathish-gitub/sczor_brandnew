@@ -11,7 +11,6 @@ import { CategoryStockDonut, type CategoryStockPoint } from "@/components/charts
 import { StockMovementTrendChart, type StockMovementTrendPoint } from "@/components/charts/StockMovementTrendChart";
 import { TopMovingProductsBarChart, type TopMovingProductPoint } from "@/components/charts/TopMovingProductsBarChart";
 import { InventoryReportTabs } from "@/components/inventory/InventoryReportTabs";
-import { InventoryTabs } from "@/components/inventory/InventoryTabs";
 import { useAccess } from "@/contexts/AccessContext";
 import { formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
 
@@ -39,7 +38,7 @@ type MovementHistoryRow = {
 type InventoryReportPayload = {
   stockValuation: {
     totalCostValue: number;
-    totalRetailValue: number;
+    totalSoldValue: number;
     totalProducts: number;
     totalUnits: number;
   };
@@ -138,7 +137,6 @@ export default function InventoryReportsPage() {
 
   return (
     <div className="space-y-5">
-      <InventoryTabs />
       <InventoryReportTabs />
 
       <header className="flex flex-col gap-3 rounded-xl border border-[var(--border)] bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -158,7 +156,7 @@ export default function InventoryReportsPage() {
               summary: data
                 ? [
                     { label: "Stock Value (Cost)", value: data.stockValuation.totalCostValue, type: "currency" },
-                    { label: "Stock Value (Retail)", value: data.stockValuation.totalRetailValue, type: "currency" },
+                    { label: "Total Sold Value", value: data.stockValuation.totalSoldValue, type: "currency" },
                     { label: "Total Products", value: data.stockValuation.totalProducts, type: "number" },
                     { label: "Total Stock Units", value: data.stockValuation.totalUnits, type: "number" },
                     { label: "Stock Out — Sales", value: data.stockOutBreakdown.sales, type: "number" },
@@ -194,7 +192,7 @@ export default function InventoryReportsPage() {
                   title: "Stock Valuation",
                   columns: [
                     { header: "Total Cost Value", key: "totalCostValue", type: "currency" },
-                    { header: "Total Retail Value", key: "totalRetailValue", type: "currency" },
+                    { header: "Total Sold Value", key: "totalSoldValue", type: "currency" },
                     { header: "Total Products", key: "totalProducts", type: "number" },
                     { header: "Total Units in Stock", key: "totalUnits", type: "number" },
                   ],
@@ -243,7 +241,7 @@ export default function InventoryReportsPage() {
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label="Total Cost Value" value={formatCurrency(data?.stockValuation.totalCostValue ?? 0)} />
-        <StatCard label="Total Retail Value" value={formatCurrency(data?.stockValuation.totalRetailValue ?? 0)} />
+        <StatCard label="Total Sold Value" value={formatCurrency(data?.stockValuation.totalSoldValue ?? 0)} />
         <StatCard label="Total Products" value={data?.stockValuation.totalProducts ?? 0} />
         <StatCard label="Total Units in Stock" value={data?.stockValuation.totalUnits ?? 0} />
       </section>

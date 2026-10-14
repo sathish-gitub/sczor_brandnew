@@ -15,6 +15,7 @@ import {
   serviceLineSchema,
 } from "@/lib/appointmentServicePayload";
 import { assertNoStaffConflicts, loadStaffLineWindowsForDate } from "@/lib/appointmentLines";
+import { cancelBlockedMessage } from "@/lib/appointmentStatusActions";
 import { istWallTimeToInstant } from "@/lib/time";
 
 const appointmentInclude = {
@@ -186,11 +187,12 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
           return NextResponse.json({ error: "Appointment not found." }, { status: 404 });
         }
 
-        if (patchParsed.data.status === "CANCELLED" && (existing.status === "COMPLETED" || existing.status === "BILLED")) {
-          return NextResponse.json(
-            { error: `Cannot cancel a ${existing.status === "COMPLETED" ? "completed" : "billed"} appointment.` },
-            { status: 400 },
-          );
+        if (patchParsed.data.status === "CANCELLED") {
+          const blockedMessage = cancelBlockedMessage(existing.status);
+
+          if (blockedMessage) {
+            return NextResponse.json({ error: blockedMessage }, { status: 400 });
+          }
         }
 
         await prisma.appointment.update({
@@ -251,11 +253,19 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
     const existing = await prisma.appointment.findFirst({
       where: { id, tenantId },
-      select: { staffId: true, services: { select: { staffId: true } } },
+      select: { status: true, staffId: true, services: { select: { staffId: true } } },
     });
 
     if (!existing) {
       return NextResponse.json({ error: "Appointment not found." }, { status: 404 });
+    }
+
+    if (payload.status === "CANCELLED" && existing.status !== "CANCELLED") {
+      const blockedMessage = cancelBlockedMessage(existing.status);
+
+      if (blockedMessage) {
+        return NextResponse.json({ error: blockedMessage }, { status: 400 });
+      }
     }
 
     const firstLine = lines[0];
@@ -347,11 +357,10 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     return NextResponse.json({ error: "Appointment not found." }, { status: 404 });
   }
 
-  if (existing.status === "COMPLETED" || existing.status === "BILLED") {
-    return NextResponse.json(
-      { error: `Cannot cancel a ${existing.status === "COMPLETED" ? "completed" : "billed"} appointment.` },
-      { status: 400 },
-    );
+  const blockedMessage = cancelBlockedMessage(existing.status);
+
+  if (blockedMessage) {
+    return NextResponse.json({ error: blockedMessage }, { status: 400 });
   }
 
   await prisma.appointment.update({

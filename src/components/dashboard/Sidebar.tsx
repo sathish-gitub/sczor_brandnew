@@ -146,6 +146,26 @@ function isActiveRoute(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function getMatchingItems(pathname: string, sections: SidebarSection[]): Array<{ href: string }> {
+  const matches: Array<{ href: string }> = [];
+
+  for (const section of sections) {
+    for (const item of section.items) {
+      if (isActiveRoute(pathname, item.href)) {
+        matches.push({ href: item.href });
+      }
+    }
+  }
+
+  // Return only the longest matching href (most specific)
+  if (matches.length === 0) {
+    return [];
+  }
+
+  matches.sort((a, b) => b.href.length - a.href.length);
+  return [matches[0]];
+}
+
 export function Sidebar({ tenantName, user, mobileOpen, onCloseMobile }: SidebarProps) {
   const pathname = usePathname();
 
@@ -194,36 +214,41 @@ export function Sidebar({ tenantName, user, mobileOpen, onCloseMobile }: Sidebar
       </div>
 
       <div className="sidebar-nav flex-1 overflow-y-auto px-3 py-4">
-        {sections.map((section, sectionIndex) => (
-          <div key={section.heading ?? `section-${sectionIndex}`} className="mb-5 border-b border-white/10 pb-5 last:border-b-0 last:pb-0">
-            {section.heading ? (
-              <p className="mb-2 px-3 text-[11px] font-semibold tracking-[0.18em] text-white/40">{section.heading}</p>
-            ) : null}
-            <nav className="space-y-1.5">
-              {section.items.map((item) => {
-                const active = isActiveRoute(pathname, item.href);
-                const Icon = item.icon;
+        {(() => {
+          const activeMatches = getMatchingItems(pathname, sections);
+          const activeHref = activeMatches[0]?.href;
 
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onCloseMobile}
-                    className={[
-                      "group flex items-center gap-3 rounded-r-xl px-3 py-2.5 text-sm font-medium transition-colors",
-                      active
-                        ? "border-l-[3px] border-[#2563EB] bg-[rgba(59,130,246,0.2)] text-[#93C5FD]"
-                        : "border-l-[3px] border-transparent text-[rgba(255,255,255,0.65)] hover:bg-[rgba(147,197,253,0.12)] hover:text-white",
-                    ].join(" ")}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-        ))}
+          return sections.map((section, sectionIndex) => (
+            <div key={section.heading ?? `section-${sectionIndex}`} className="mb-5 border-b border-white/10 pb-5 last:border-b-0 last:pb-0">
+              {section.heading ? (
+                <p className="mb-2 px-3 text-[11px] font-semibold tracking-[0.18em] text-white/40">{section.heading}</p>
+              ) : null}
+              <nav className="space-y-1.5">
+                {section.items.map((item) => {
+                  const active = activeHref === item.href;
+                  const Icon = item.icon;
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onCloseMobile}
+                      className={[
+                        "group flex items-center gap-3 rounded-r-xl px-3 py-2.5 text-sm font-medium transition-colors",
+                        active
+                          ? "border-l-[3px] border-[#2563EB] bg-[rgba(59,130,246,0.2)] text-[#93C5FD]"
+                          : "border-l-[3px] border-transparent text-[rgba(255,255,255,0.65)] hover:bg-[rgba(147,197,253,0.12)] hover:text-white",
+                      ].join(" ")}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          ));
+        })()}
       </div>
 
       <div className="mt-auto border-t border-white/10 px-4 py-4">
@@ -232,7 +257,7 @@ export function Sidebar({ tenantName, user, mobileOpen, onCloseMobile }: Sidebar
           onClick={onCloseMobile}
           className={[
             "mb-4 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
-            isActiveRoute(pathname, "/settings")
+            (pathname === "/settings" || pathname.startsWith("/settings/"))
               ? "border-l-[3px] border-[#2563EB] bg-[rgba(59,130,246,0.2)] text-[#93C5FD]"
               : "border-l-[3px] border-transparent text-[rgba(255,255,255,0.65)] hover:bg-[rgba(147,197,253,0.12)] hover:text-white",
           ].join(" ")}

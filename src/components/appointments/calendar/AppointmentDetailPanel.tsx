@@ -6,6 +6,12 @@ import { LoaderCircle, X } from "lucide-react";
 
 import { StatusBadge } from "@/components/appointments/StatusBadge";
 import { WhatsAppConfirmationButton } from "@/components/appointments/WhatsAppConfirmationButton";
+import {
+  canCancelAppointment,
+  canConvertToInvoice,
+  canSendBookingConfirmation,
+  canViewInvoice,
+} from "@/lib/appointmentStatusActions";
 import type { CalendarAppointmentGroup } from "@/lib/calendarTypes";
 import { formatClockTime12Hour, formatDurationLabel, formatISTDateDDMMYYYY } from "@/lib/time";
 import { maskId } from "@/lib/formatId";
@@ -17,6 +23,7 @@ type AppointmentDetailPanelProps = {
   isReadOnly: boolean;
   onClose: () => void;
   onStatusChanged: (appointmentId: string, status: CalendarAppointmentGroup["status"]) => void;
+  onRefetch: () => void;
 };
 
 const STATUS_OPTIONS = ["BOOKED", "IN_PROGRESS", "COMPLETED", "BILLED", "CANCELLED"] as const;
@@ -28,6 +35,7 @@ export function AppointmentDetailPanel({
   isReadOnly,
   onClose,
   onStatusChanged,
+  onRefetch,
 }: AppointmentDetailPanelProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,6 +44,11 @@ export function AppointmentDetailPanel({
   // appointment can no longer be edited or have its status changed further.
   const isLocked = group.status === "BILLED" || group.status === "CANCELLED" || group.status === "COMPLETED";
   const canEdit = group.status !== "BILLED" && group.status !== "CANCELLED";
+  const canCancel = canCancelAppointment(group.status);
+  const hasInvoice = Boolean(group.invoiceId);
+  const showConvertToInvoice = canConvertToInvoice(group.status, hasInvoice) && !isReadOnly;
+  const showViewInvoice = canViewInvoice(hasInvoice);
+  const statusOptions = canCancel ? STATUS_OPTIONS : STATUS_OPTIONS.filter((option) => option !== "CANCELLED");
 
   async function updateStatus(nextStatus: (typeof STATUS_OPTIONS)[number]) {
     setLoading(true);
@@ -56,6 +69,7 @@ export function AppointmentDetailPanel({
       }
 
       onStatusChanged(group.appointmentId, nextStatus);
+      onRefetch();
     } catch (requestError) {
       console.error(requestError);
       setError("Unable to update status.");
@@ -179,15 +193,33 @@ export function AppointmentDetailPanel({
             ) : null}
           </div>
 
-          <WhatsAppConfirmationButton
-            customerName={group.customerName}
-            mobile={group.customerMobile}
-            salonName={salonName}
-            salonPhone={salonPhone}
-            appointmentDate={group.appointmentDate}
-            appointmentTime={group.appointmentTime}
-            className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-[var(--border)] px-3 text-sm font-semibold text-slate-700 hover:border-[var(--accent)] hover:text-[var(--accent)]"
-          />
+          {showViewInvoice ? (
+            <Link
+              href={`/billing/invoices/${group.invoiceId}`}
+              className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-[var(--primary)] px-3 text-sm font-semibold text-white hover:bg-[var(--accent)]"
+            >
+              View Invoice
+            </Link>
+          ) : showConvertToInvoice ? (
+            <Link
+              href={`/billing?appointmentId=${group.appointmentId}`}
+              className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-[var(--primary)] px-3 text-sm font-semibold text-white hover:bg-[var(--accent)]"
+            >
+              Convert to Invoice
+            </Link>
+          ) : null}
+
+          {canSendBookingConfirmation(group.status) ? (
+            <WhatsAppConfirmationButton
+              customerName={group.customerName}
+              mobile={group.customerMobile}
+              salonName={salonName}
+              salonPhone={salonPhone}
+              appointmentDate={group.appointmentDate}
+              appointmentTime={group.appointmentTime}
+              className="inline-flex h-10 w-full items-center justify-center rounded-xl border border-[var(--border)] px-3 text-sm font-semibold text-slate-700 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+            />
+          ) : null}
 
           {!isReadOnly ? (
             <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -221,7 +253,7 @@ export function AppointmentDetailPanel({
                   onChange={(event) => updateStatus(event.target.value as (typeof STATUS_OPTIONS)[number])}
                   className="bg-transparent font-semibold text-[var(--foreground)] outline-none disabled:text-slate-400"
                 >
-                  {STATUS_OPTIONS.map((option) => (
+                  {statusOptions.map((option) => (
                     <option key={option} value={option}>
                       {option.replaceAll("_", " ")}
                     </option>
@@ -229,7 +261,7 @@ export function AppointmentDetailPanel({
                 </select>
               </label>
 
-              {!isLocked ? (
+              {canCancel ? (
                 <button
                   type="button"
                   disabled={loading}

@@ -6,7 +6,6 @@ import { DataTable } from "@/components/reports/DataTable";
 import { FilterChips } from "@/components/reports/FilterChips";
 import { StatCard } from "@/components/reports/StatCard";
 import { InventoryReportTabs } from "@/components/inventory/InventoryReportTabs";
-import { InventoryTabs } from "@/components/inventory/InventoryTabs";
 import { SearchableCombobox } from "@/components/ui/SearchableCombobox";
 import { useAccess } from "@/contexts/AccessContext";
 import { formatFiltersLabel, formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
@@ -161,7 +160,6 @@ export default function WastageReportPage() {
 
   return (
     <div className="space-y-5">
-      <InventoryTabs />
       <InventoryReportTabs />
 
       <header className="rounded-xl border border-[var(--border)] bg-white p-4">

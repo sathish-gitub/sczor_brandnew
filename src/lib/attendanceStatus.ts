@@ -126,9 +126,15 @@ export function isPaidAttendanceStatus(status: AttendanceStatusValue): boolean {
   return status === "PRESENT" || status === "HALF_DAY" || status === "WEEK_OFF";
 }
 
+/** Label for inactive staff member status (shown instead of "Inactive" in UI to indicate unavailability). */
+export function getInactiveStaffLabel(): string {
+  return "Unavailable";
+}
+
 /** Label for the manual Availability status enum (AVAILABLE/BUSY/OFF_DUTY). OFF_DUTY is displayed as "Week Off" for consistency with the attendance statuses. */
 export function getAvailabilityStatusLabel(status: "AVAILABLE" | "BUSY" | "OFF_DUTY"): string {
   if (status === "AVAILABLE") return "Available";
   if (status === "BUSY") return "Busy";
   return "Week Off"; // OFF_DUTY displayed as "Week Off"
 }
+

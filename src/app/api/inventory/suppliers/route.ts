@@ -7,7 +7,11 @@ import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
 
 const createSupplierSchema = z.object({
-  name: z.string().trim().min(2, "Supplier name is required."),
+  name: z
+    .string()
+    .trim()
+    .min(2, "Supplier name is required.")
+    .transform((value) => value.replace(/\s+/g, " ")),
   contactPerson: z.string().optional().or(z.literal("")),
   phone: z.string().optional().or(z.literal("")),
   email: z.string().email("Invalid email address.").optional().or(z.literal("")),
@@ -85,6 +89,15 @@ export async function POST(request: Request) {
 
     const payload = parsed.data;
 
+    const existing = await prisma.supplier.findFirst({
+      where: { tenantId, name: { equals: payload.name, mode: "insensitive" } },
+      select: { id: true },
+    });
+
+    if (existing) {
+      return NextResponse.json({ error: "This supplier already exists." }, { status: 409 });
+    }
+
     const supplier = await prisma.supplier.create({
       data: {
         tenantId,
@@ -99,6 +112,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ supplier }, { status: 201 });
   } catch (error) {
+    const prismaError = error as { code?: string };
+
+    if (prismaError.code === "P2002") {
+      return NextResponse.json({ error: "This supplier already exists." }, { status: 409 });
+    }
+
     console.error("Failed to create supplier", error);
     return NextResponse.json({ error: "Unable to create supplier." }, { status: 500 });
   }

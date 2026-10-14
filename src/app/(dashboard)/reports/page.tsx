@@ -2,6 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import {
+  BarChart3,
+  Boxes,
+  Clock,
+  PackageSearch,
+  Scissors,
+  TrendingDown,
+  Users,
+  Wallet,
+} from "lucide-react";
 
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
 import { ExportButtons } from "@/components/reports/ExportButtons";
@@ -10,6 +20,26 @@ import { RevenueChart } from "@/components/reports/RevenueChart";
 import { StatCard } from "@/components/reports/StatCard";
 import { useAccess } from "@/contexts/AccessContext";
 import { formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
+
+type ReportCard = {
+  label: string;
+  description: string;
+  href: string;
+  icon: typeof BarChart3;
+};
+
+const REPORT_CARDS: ReportCard[] = [
+  { label: "Revenue", description: "Daily, weekly and monthly revenue trends.", href: "/reports/revenue", icon: BarChart3 },
+  { label: "Staff", description: "Staff performance and service revenue.", href: "/reports/staff", icon: Users },
+  { label: "Customers", description: "Customer analytics and retention.", href: "/reports/customers", icon: Users },
+  { label: "Services", description: "Top services by count and revenue.", href: "/reports#top-services", icon: Scissors },
+  { label: "Profit & Loss", description: "Income, expenses and net profit.", href: "/reports/profit-loss", icon: TrendingDown },
+  { label: "Payroll", description: "Gross, deductions and net pay by staff.", href: "/reports/payroll", icon: Wallet },
+  { label: "Inventory Summary", description: "Stock valuation and movement trends.", href: "/reports/inventory", icon: Boxes },
+  { label: "Usage Report", description: "Stock used internally by period.", href: "/reports/inventory/usage", icon: PackageSearch },
+  { label: "Wastage Report", description: "Stock wasted, with reasons.", href: "/reports/inventory/wastage", icon: PackageSearch },
+  { label: "Attendance", description: "Present, absent, leave and week off.", href: "/attendance/reports", icon: Clock },
+];
 
 function toDateString(date: Date) {
   const year = date.getFullYear();
@@ -122,26 +152,25 @@ export default function ReportsOverviewPage() {
         <DateRangePicker value={range} onChange={setRange} />
       </header>
 
-      <div className="flex flex-wrap gap-2">
-        <Link
-          href="/reports/profit-loss"
-          className="inline-flex items-center gap-1.5 rounded-full bg-[var(--primary)] px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90"
-        >
-          Profit & Loss Analysis
-        </Link>
-        <Link
-          href="/reports/inventory"
-          className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
-        >
-          Inventory Reports
-        </Link>
-        <Link
-          href="/reports/payroll"
-          className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
-        >
-          Payroll Reports
-        </Link>
-      </div>
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {REPORT_CARDS.map((card) => {
+          const Icon = card.icon;
+
+          return (
+            <Link
+              key={card.label}
+              href={card.href}
+              className="flex flex-col gap-2 rounded-xl border border-[var(--border)] bg-white p-4 transition hover:border-[var(--primary)] hover:shadow-sm"
+            >
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#0D1B3E]/5 text-[#0D1B3E]">
+                <Icon className="h-4.5 w-4.5" />
+              </span>
+              <span className="text-sm font-semibold text-[var(--foreground)]">{card.label}</span>
+              <span className="text-xs text-[var(--muted)]">{card.description}</span>
+            </Link>
+          );
+        })}
+      </section>
 
       {loading ? (
         <div className="h-72 animate-pulse rounded-xl border border-[var(--border)] bg-white" />
@@ -156,7 +185,7 @@ export default function ReportsOverviewPage() {
 
           <RevenueChart title="Daily Revenue" data={chartData} />
 
-          <section className="rounded-xl border border-[var(--border)] bg-white p-4">
+          <section id="top-services" className="rounded-xl border border-[var(--border)] bg-white p-4 scroll-mt-20">
             <div className="mb-3 flex items-center justify-between gap-2">
               <h2 className="text-base font-semibold text-[var(--foreground)]">Top Services</h2>
               <div className="flex items-center gap-3">

@@ -108,9 +108,23 @@ export async function GET(request: Request) {
       select: { status: true, totalAmount: true, receivedAt: true },
     });
 
+    // Total Sold Value: sum of product-line invoice amounts (pre invoice-level discount) for
+    // invoices dated inside the selected range, excluding cancelled/refunded invoices.
+    const soldValueAgg = await prisma.invoiceItem.aggregate({
+      where: {
+        productId: { not: null },
+        invoice: {
+          tenantId,
+          invoiceDate: { gte: from, lte: to },
+          paymentStatus: { notIn: ["CANCELLED", "REFUNDED"] },
+        },
+      },
+      _sum: { amount: true },
+    });
+    const totalSoldValue = Number(soldValueAgg._sum.amount ?? 0);
+
     // ---- Stock Valuation ----
     let totalCostValue = 0;
-    let totalRetailValue = 0;
     let totalUnits = 0;
 
     const categoryBuckets = new Map<string, { productCount: number; stockValue: number }>();
@@ -118,10 +132,8 @@ export async function GET(request: Request) {
     for (const product of products) {
       const currentStock = Number(product.currentStock);
       const costPrice = Number(product.costPrice);
-      const sellingPrice = product.sellingPrice === null ? 0 : Number(product.sellingPrice);
 
       totalCostValue += currentStock * costPrice;
-      totalRetailValue += currentStock * sellingPrice;
       totalUnits += currentStock;
 
       const categoryName = product.category?.name ?? "Uncategorized";
@@ -281,7 +293,7 @@ export async function GET(request: Request) {
     return NextResponse.json({
       stockValuation: {
         totalCostValue: roundMoney(totalCostValue),
-        totalRetailValue: roundMoney(totalRetailValue),
+        totalSoldValue: roundMoney(totalSoldValue),
         totalProducts: products.length,
         totalUnits: roundMoney(totalUnits),
       },

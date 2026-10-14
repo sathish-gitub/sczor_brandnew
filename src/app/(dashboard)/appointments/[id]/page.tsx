@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { AppointmentActions } from "@/components/appointments/AppointmentActions";
 import { StatusBadge } from "@/components/appointments/StatusBadge";
 import { WhatsAppConfirmationButton } from "@/components/appointments/WhatsAppConfirmationButton";
+import { canSendBookingConfirmation } from "@/lib/appointmentStatusActions";
 import { authOptions } from "@/lib/auth";
 import { maskId } from "@/lib/formatId";
 import { prisma } from "@/lib/prisma";
@@ -191,15 +192,21 @@ export default async function AppointmentDetailPage({ params }: { params: Promis
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <AppointmentActions appointmentId={appointment.id} status={appointment.status} />
-          <WhatsAppConfirmationButton
-            customerName={appointment.customer.name}
-            mobile={appointment.customer.mobile}
-            salonName={tenant?.name ?? "Our Salon"}
-            salonPhone={tenant?.phone}
-            appointmentDate={appointment.appointmentDate}
-            appointmentTime={appointment.appointmentTime}
+          <AppointmentActions
+            appointmentId={appointment.id}
+            status={appointment.status}
+            invoiceId={appointment.invoice?.id ?? null}
           />
+          {canSendBookingConfirmation(appointment.status) ? (
+            <WhatsAppConfirmationButton
+              customerName={appointment.customer.name}
+              mobile={appointment.customer.mobile}
+              salonName={tenant?.name ?? "Our Salon"}
+              salonPhone={tenant?.phone}
+              appointmentDate={appointment.appointmentDate}
+              appointmentTime={appointment.appointmentTime}
+            />
+          ) : null}
         </div>
       </section>
 

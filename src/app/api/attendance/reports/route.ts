@@ -111,7 +111,10 @@ export async function GET(request: Request) {
     const staffList = await prisma.staff.findMany({
       where: {
         tenantId,
-        ...(staffId ? { id: staffId } : {}),
+        // The default matrix view only lists active staff; an explicitly
+        // selected staffId (single-staff view) is shown regardless of
+        // status since the caller already knows which staff member they want.
+        ...(staffId ? { id: staffId } : { status: "ACTIVE" }),
       },
       orderBy: {
         name: "asc",
@@ -128,12 +131,6 @@ export async function GET(request: Request) {
         month,
         year,
         days: [],
-        overview: {
-          workingDays: 0,
-          avgAttendancePercent: 0,
-          perfectAttendanceCount: 0,
-          mostAbsentStaff: "-",
-        },
         items: [],
       });
     }
@@ -185,12 +182,6 @@ export async function GET(request: Request) {
       };
     });
 
-    let workingDaysThisMonth = 0;
-    let avgAttendanceAccumulator = 0;
-    let perfectAttendanceCount = 0;
-    let highestAbsent = -1;
-    let mostAbsentStaff = "-";
-
     const items = staffList.map((staff) => {
       const entryMap = toDayMap(attendanceByStaff.get(staff.id) ?? [], year, month);
 
@@ -199,7 +190,6 @@ export async function GET(request: Request) {
       let leave = 0;
       let halfDay = 0;
       let weekOff = 0;
-      let workingDays = 0;
 
       const cells = dayColumns.map((column) => {
         const storedStatus = entryMap.get(column.day) ?? null;
@@ -210,18 +200,14 @@ export async function GET(request: Request) {
 
         if (status === "WEEK_OFF") {
           weekOff += 1;
-        } else {
-          workingDays += 1;
-
-          if (status === "PRESENT") {
-            present += 1;
-          } else if (status === "ABSENT") {
-            absent += 1;
-          } else if (status === "LEAVE") {
-            leave += 1;
-          } else if (status === "HALF_DAY") {
-            halfDay += 1;
-          }
+        } else if (status === "PRESENT") {
+          present += 1;
+        } else if (status === "ABSENT") {
+          absent += 1;
+        } else if (status === "LEAVE") {
+          leave += 1;
+        } else if (status === "HALF_DAY") {
+          halfDay += 1;
         }
 
         return {
@@ -230,19 +216,6 @@ export async function GET(request: Request) {
           status,
         };
       });
-
-      const attendancePercent = workingDays > 0 ? Math.round(((present + halfDay) / workingDays) * 100) : 0;
-
-      workingDaysThisMonth = Math.max(workingDaysThisMonth, workingDays);
-      avgAttendanceAccumulator += attendancePercent;
-      if (attendancePercent === 100 && workingDays > 0) {
-        perfectAttendanceCount += 1;
-      }
-
-      if (absent > highestAbsent) {
-        highestAbsent = absent;
-        mostAbsentStaff = staff.name;
-      }
 
       return {
         staffId: staff.id,
@@ -255,23 +228,14 @@ export async function GET(request: Request) {
           leave,
           halfDay,
           weekOff,
-          attendancePercent,
         },
       };
     });
-
-    const avgAttendancePercent = Math.round(avgAttendanceAccumulator / items.length);
 
     return NextResponse.json({
       month,
       year,
       days: dayColumns,
-      overview: {
-        workingDays: workingDaysThisMonth,
-        avgAttendancePercent,
-        perfectAttendanceCount,
-        mostAbsentStaff,
-      },
       items,
     });
   } catch (error) {

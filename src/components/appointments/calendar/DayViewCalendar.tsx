@@ -556,6 +556,7 @@ export function DayViewCalendar() {
           isReadOnly={isReadOnly}
           onClose={() => setSelectedAppointmentId(null)}
           onStatusChanged={handleStatusChanged}
+          onRefetch={fetchCalendar}
         />
       ) : null}
     </div>

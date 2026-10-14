@@ -11,7 +11,8 @@
     "db:seed": "ts-node prisma/seed.ts",
     "lint": "eslint",
     "test:time": "tsx --test src/lib/time.test.ts",
-    "test:payroll": "tsx --test src/lib/payrollProration.test.ts"
+    "test:payroll": "tsx --test src/lib/payrollProration.test.ts",
+    "test:export": "tsx scripts/test-export-excel.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.3",

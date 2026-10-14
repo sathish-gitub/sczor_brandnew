@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -43,6 +44,7 @@ const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg"];
 
 export default function SalonProfileSettingsPage() {
   const { showToast } = useToast();
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<SalonProfileForm>(defaultForm);
@@ -128,6 +130,7 @@ export default function SalonProfileSettingsPage() {
 
     showToast({ variant: "success", title: "Salon profile updated" });
     setSaving(false);
+    router.refresh();
   }
 
   if (loading) {

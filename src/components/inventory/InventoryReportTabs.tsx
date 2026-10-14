@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 
 type TabKey = "SUMMARY" | "USAGE" | "WASTAGE";
 
@@ -23,13 +24,23 @@ function resolveActiveTab(pathname: string): TabKey {
   return "SUMMARY";
 }
 
-/** Sub-navigation between the three inventory report pages, shown below the top-level `InventoryTabs`. */
+/** Sub-navigation between the three inventory report pages, shown on each /reports/inventory/** page. */
 export function InventoryReportTabs() {
   const pathname = usePathname();
   const activeTab = resolveActiveTab(pathname);
 
   return (
     <nav className="flex flex-wrap items-center gap-2">
+      <Link
+        href="/reports"
+        className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" />
+        All Reports
+      </Link>
+
+      <span className="h-5 w-px bg-[var(--border)]" aria-hidden="true" />
+
       {tabs.map((tab) => {
         const isActive = tab.key === activeTab;
 

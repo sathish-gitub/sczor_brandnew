@@ -22,7 +22,7 @@ import { ServicePopularityDonut, type ServicePopularityPoint } from "@/component
 import { StaffPerformanceBarChart, type StaffPerformancePoint } from "@/components/charts/StaffPerformanceBarChart";
 import { LowStockWidget } from "@/components/inventory/LowStockWidget";
 import { PayrollStatusWidget } from "@/components/payroll/PayrollStatusWidget";
-import { getAttendanceStatusStyle } from "@/lib/attendanceStatus";
+import { getAttendanceStatusStyle, getInactiveStaffLabel } from "@/lib/attendanceStatus";
 
 type DashboardStats = {
   todayAppointments: number;
@@ -151,7 +151,7 @@ function statusChip(status: DashboardAppointment["status"]) {
 function staffStatus(status: StaffAvailability["displayStatus"]) {
   if (status === "INACTIVE") {
     return {
-      label: "Inactive",
+      label: getInactiveStaffLabel(),
       dot: "bg-slate-400",
     };
   }

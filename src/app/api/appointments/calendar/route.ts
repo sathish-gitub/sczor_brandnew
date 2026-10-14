@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getBusinessHoursForDate } from "@/lib/businessHours";
-import { resolveAttendanceDisplayStatus } from "@/lib/attendanceStatus";
+import { resolveAttendanceDisplayStatus, getInactiveStaffLabel } from "@/lib/attendanceStatus";
 import { addMinutesToClock, instantForOffset, istDayBounds, istWallTimeToInstant, toISTWeekday } from "@/lib/time";
 import { getStaffDesignationName, staffDesignationSelect } from "@/lib/staffDesignation";
 import type { CalendarAttendanceStatus, CalendarLine, CalendarResponse, CalendarStaffMember } from "@/lib/calendarTypes";
@@ -96,7 +96,7 @@ export async function GET(request: Request) {
 
       let unavailableLabel: string | null = null;
       if (member.status !== "ACTIVE") {
-        unavailableLabel = "Inactive";
+        unavailableLabel = getInactiveStaffLabel();
       } else if (displayStatus === "ABSENT") {
         unavailableLabel = "Absent";
       } else if (displayStatus === "LEAVE") {
@@ -163,6 +163,7 @@ export async function GET(request: Request) {
             totalAmount: true,
             duration: true,
             customer: { select: { name: true, mobile: true } },
+            invoice: { select: { id: true } },
           },
         },
       },
@@ -215,6 +216,7 @@ export async function GET(request: Request) {
           totalDuration: line.appointment.duration,
           appointmentDate: appointmentDate.toISOString(),
           appointmentTime,
+          invoiceId: line.appointment.invoice?.id ?? null,
         });
 
         offset += line.duration;

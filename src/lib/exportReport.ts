@@ -8,7 +8,7 @@ export type ExportColumn = {
   header: string;
   key: string;
   type?: ExportColumnType;
-  /** Excel column width hint (characters). Ignored by the PDF renderer. */
+  /** Excel column width hint (characters); also used as a PDF column-width hint (converted to points) for dense tables where every column must fit on one page. */
   width?: number;
   /** Explicit text alignment override; otherwise inferred from `type`. */
   align?: ExportColumnAlign;
@@ -41,7 +41,8 @@ export type ExportSection = {
 
 export type ExportConfig = {
   title: string;
-  salon: ExportSalonDetails;
+  /** Optional: when absent, the salon block (name/address/contact/logo) is skipped entirely. */
+  salon?: ExportSalonDetails;
   /** Date range label, e.g. "01/10/2026". Shown as "From Date: ..." */
   fromDateLabel?: string;
   /** Date range label, e.g. "14/10/2026". Shown as "To Date: ..." */
@@ -275,21 +276,28 @@ function buildDetailLines(config: Pick<ExportConfig, "fromDateLabel" | "toDateLa
   return lines;
 }
 
-function resolveAlign(column: ExportColumn): ExportColumnAlign {
+/**
+ * Alignment for each known column type; any column/type not present here (missing column,
+ * missing `type`, or a typo'd type string) falls back to "left" via the default below.
+ */
+const ALIGN_BY_TYPE: Partial<Record<ExportColumnType, ExportColumnAlign>> = {
+  number: "right",
+  currency: "right",
+  percent: "right",
+  date: "center",
+};
+
+/** Safe alignment lookup: never throws, even if `column` itself is undefined or has no/unknown `type`. */
+function resolveAlign(column: ExportColumn | undefined | null): ExportColumnAlign {
+  if (!column) {
+    return "left";
+  }
+
   if (column.align) {
     return column.align;
   }
 
-  switch (column.type) {
-    case "number":
-    case "currency":
-    case "percent":
-      return "right";
-    case "date":
-      return "center";
-    default:
-      return "left";
-  }
+  return ALIGN_BY_TYPE[column.type as ExportColumnType] ?? "left";
 }
 
 function toDisplayValue(value: unknown, type: ExportColumnType = "text") {
@@ -482,10 +490,11 @@ function buildExcelSheet(workbook: import("exceljs").Workbook, sheetTitle: strin
 
   const headerRowIndex = worksheet.rowCount + 1;
   const headerRow = worksheet.addRow(config.columns.map((column) => column.header));
+  // ExcelJS Row.eachCell callbacks use a 1-based column number; config.columns is 0-based.
   headerRow.eachCell((cell, index) => {
     cell.font = { bold: true, color: { argb: "FF000000" } };
     cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: EXPORT_STYLE.colors.headerFillArgb } };
-    cell.alignment = { horizontal: excelAlign(resolveAlign(config.columns[index])), vertical: "middle", wrapText: true };
+    cell.alignment = { horizontal: excelAlign(resolveAlign(config.columns[index - 1])), vertical: "middle", wrapText: true };
     applyBlackBorder(cell);
   });
 
@@ -538,7 +547,8 @@ function buildExcelSheet(workbook: import("exceljs").Workbook, sheetTitle: strin
   return worksheet;
 }
 
-export async function exportToExcel(config: ExportConfig) {
+/** Builds the full workbook (all sheets) for a report config without touching the DOM/download APIs — safe to call from Node (tests) or the browser. */
+export async function buildExcelWorkbook(config: ExportConfig) {
   const ExcelJS = (await import("exceljs")).default;
   const workbook = new ExcelJS.Workbook();
   workbook.creator = "sczor";
@@ -573,6 +583,11 @@ export async function exportToExcel(config: ExportConfig) {
     }
   }
 
+  return workbook;
+}
+
+export async function exportToExcel(config: ExportConfig) {
+  const workbook = await buildExcelWorkbook(config);
   const buffer = await workbook.xlsx.writeBuffer();
   downloadBlob(new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }), `${config.filename}.xlsx`);
 }
@@ -606,7 +621,7 @@ export async function exportToPdf(config: ExportConfig) {
   const pageWidth = doc.internal.pageSize.getWidth();
   const contentWidth = pageWidth - marginPt * 2;
 
-  const logo = config.salon.logo ? await loadLogoImage(config.salon.logo) : null;
+  const logo = config.salon?.logo ? await loadLogoImage(config.salon.logo) : null;
 
   let textX = marginPt;
   let cursorY = marginPt + 6;
@@ -622,16 +637,18 @@ export async function exportToPdf(config: ExportConfig) {
     }
   }
 
-  doc.setFont(fontName, "bold");
-  doc.setFontSize(fontSizes.salonName);
-  doc.text(config.salon.name, textX, cursorY);
-  cursorY += fontSizes.salonName + 4;
+  if (config.salon) {
+    doc.setFont(fontName, "bold");
+    doc.setFontSize(fontSizes.salonName);
+    doc.text(config.salon.name, textX, cursorY);
+    cursorY += fontSizes.salonName + 4;
 
-  doc.setFont(fontName, "normal");
-  doc.setFontSize(fontSizes.body);
-  for (const line of buildSalonDetailLines(config.salon)) {
-    doc.text(line, textX, cursorY, { maxWidth: contentWidth - (textX - marginPt) });
-    cursorY += fontSizes.body + 4;
+    doc.setFont(fontName, "normal");
+    doc.setFontSize(fontSizes.body);
+    for (const line of buildSalonDetailLines(config.salon)) {
+      doc.text(line, textX, cursorY, { maxWidth: contentWidth - (textX - marginPt) });
+      cursorY += fontSizes.body + 4;
+    }
   }
 
   if (logo) {
@@ -710,8 +727,16 @@ export async function exportToPdf(config: ExportConfig) {
         lineWidth: borderWidthPt,
       },
       alternateRowStyles: { fillColor: EXPORT_STYLE.colors.zebraFillRgb },
+      // `column.width` (an Excel character-width hint) doubles as a PDF column-width hint for
+      // dense tables (e.g. a per-day attendance matrix) that need every column to fit on one
+      // page; columns without an explicit width keep the previous auto-sized minimum.
       columnStyles: Object.fromEntries(
-        columns.map((column, index) => [index, { halign: resolveAlign(column), minCellWidth: 34 }]),
+        columns.map((column, index) => [
+          index,
+          column.width
+            ? { halign: resolveAlign(column), cellWidth: Math.max(14, column.width * 5) }
+            : { halign: resolveAlign(column), minCellWidth: 34 },
+        ]),
       ),
       margin: { left: marginPt, right: marginPt },
       showHead: "everyPage",
@@ -768,8 +793,289 @@ export async function exportToPdf(config: ExportConfig) {
     doc.setFont(fontName, "normal");
     doc.setTextColor(0, 0, 0);
     doc.text("sczor", marginPt, footerY);
-    doc.text(config.salon.name, pageSize.getWidth() / 2, footerY, { align: "center" });
+    doc.text(config.salon?.name ?? "", pageSize.getWidth() / 2, footerY, { align: "center" });
     doc.text(`Page ${i} of ${totalPages}`, pageSize.getWidth() - marginPt, footerY, { align: "right" });
+  }
+
+  doc.save(`${config.filename}.pdf`);
+}
+
+export type PurchaseOrderPdfSupplier = {
+  name: string;
+  contactPerson?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  address?: string | null;
+  gstNumber?: string | null;
+};
+
+export type PurchaseOrderPdfItem = {
+  product: string;
+  unitLabel: string;
+  quantity: number;
+  unitCost: number;
+  amount: number;
+};
+
+export type PurchaseOrderPdfConfig = {
+  salon?: ExportSalonDetails;
+  poNumber: string;
+  status: string;
+  dateLabel: string;
+  expectedDateLabel?: string | null;
+  supplier: PurchaseOrderPdfSupplier;
+  items: PurchaseOrderPdfItem[];
+  subtotal: number;
+  taxLabel?: string | null;
+  taxAmount?: number | null;
+  grandTotal: number;
+  notes?: string | null;
+  filename: string;
+};
+
+/**
+ * A dedicated Purchase Order PDF (not a generic report export): salon block, title band,
+ * PO metadata + supplier block, a bordered line-item table, a totals box, notes and a
+ * signature line. Reuses the same shared style constants and font/logo loading as the
+ * report exports so every PDF in the app looks consistent.
+ */
+export async function exportPurchaseOrderToPdf(config: PurchaseOrderPdfConfig) {
+  const { jsPDF } = await import("jspdf");
+  const autoTableModule = await import("jspdf-autotable");
+  const autoTable = autoTableModule.default;
+
+  const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+
+  let fontName = "helvetica";
+  try {
+    const base64 = await loadRupeeFontBase64();
+    doc.addFileToVFS(FONT_FILE, base64);
+    doc.addFont(FONT_FILE, FONT_NAME, "normal");
+    doc.addFont(FONT_FILE, FONT_NAME, "bold");
+    fontName = FONT_NAME;
+  } catch (error) {
+    console.error("Falling back to default PDF font; rupee symbol may not render.", error);
+  }
+
+  doc.setFont(fontName, "normal");
+
+  const { marginPt, logoHeightPt, logoGapPt, fontSizes, borderWidthPt } = EXPORT_STYLE.pdf;
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const contentWidth = pageWidth - marginPt * 2;
+
+  const logo = config.salon?.logo ? await loadLogoImage(config.salon.logo) : null;
+
+  let textX = marginPt;
+  let cursorY = marginPt + 6;
+  const headerTop = cursorY;
+
+  if (logo) {
+    const logoWidthPt = logoHeightPt * (logo.width / logo.height);
+    try {
+      doc.addImage(logo.dataUrl, logo.format, marginPt, headerTop - 4, logoWidthPt, logoHeightPt);
+      textX = marginPt + logoWidthPt + logoGapPt;
+    } catch (error) {
+      console.error("Skipping logo in export; it could not be drawn.", error);
+    }
+  }
+
+  if (config.salon) {
+    doc.setFont(fontName, "bold");
+    doc.setFontSize(fontSizes.salonName);
+    doc.text(config.salon.name, textX, cursorY);
+    cursorY += fontSizes.salonName + 4;
+
+    doc.setFont(fontName, "normal");
+    doc.setFontSize(fontSizes.body);
+    for (const line of buildSalonDetailLines(config.salon)) {
+      doc.text(line, textX, cursorY, { maxWidth: contentWidth - (textX - marginPt) });
+      cursorY += fontSizes.body + 4;
+    }
+  }
+
+  if (logo) {
+    cursorY = Math.max(cursorY, headerTop + logoHeightPt + 6);
+  }
+
+  cursorY += 6;
+
+  // Title band: centred bold black text on a soft yellow fill with a black border, full table width.
+  const bandHeight = fontSizes.title + 14;
+  doc.setFillColor(...EXPORT_STYLE.colors.titleBandFillRgb);
+  doc.setDrawColor(...EXPORT_STYLE.colors.blackRgb);
+  doc.setLineWidth(borderWidthPt);
+  doc.rect(marginPt, cursorY, contentWidth, bandHeight, "FD");
+  doc.setFont(fontName, "bold");
+  doc.setFontSize(fontSizes.title);
+  doc.setTextColor(0, 0, 0);
+  doc.text("Purchase Order", marginPt + contentWidth / 2, cursorY + bandHeight / 2 + fontSizes.title / 3, { align: "center" });
+  cursorY += bandHeight + 10;
+
+  // PO metadata (left column) and supplier block (right column), side by side.
+  doc.setFont(fontName, "normal");
+  doc.setFontSize(fontSizes.body);
+
+  const metaLines = [`PO Number: ${config.poNumber}`, `Date: ${config.dateLabel}`, `Status: ${config.status}`];
+  if (config.expectedDateLabel) {
+    metaLines.push(`Expected Date: ${config.expectedDateLabel}`);
+  }
+
+  const supplierLines = [`Supplier: ${config.supplier.name}`];
+  if (config.supplier.contactPerson) {
+    supplierLines.push(`Contact Person: ${config.supplier.contactPerson}`);
+  }
+  if (config.supplier.phone) {
+    supplierLines.push(`Phone: ${config.supplier.phone}`);
+  }
+  if (config.supplier.email) {
+    supplierLines.push(`Email: ${config.supplier.email}`);
+  }
+  if (config.supplier.address) {
+    supplierLines.push(`Address: ${config.supplier.address}`);
+  }
+  if (config.supplier.gstNumber) {
+    supplierLines.push(`GSTIN: ${config.supplier.gstNumber}`);
+  }
+
+  const columnWidth = contentWidth / 2 - 10;
+  const metaStartY = cursorY;
+  let metaY = metaStartY;
+  for (const line of metaLines) {
+    doc.text(line, marginPt, metaY, { maxWidth: columnWidth });
+    metaY += fontSizes.body + 5;
+  }
+
+  let supplierY = metaStartY;
+  for (const line of supplierLines) {
+    doc.text(line, marginPt + columnWidth + 20, supplierY, { maxWidth: columnWidth });
+    supplierY += fontSizes.body + 5;
+  }
+
+  cursorY = Math.max(metaY, supplierY) + 10;
+
+  // Line-item table.
+  const head = [["S.No", "Product", "Unit", "Quantity", "Unit Cost", "Line Total"]];
+  const body = config.items.map((item, index) => [
+    String(index + 1),
+    item.product,
+    item.unitLabel,
+    toDisplayValue(item.quantity, "number"),
+    toDisplayValue(item.unitCost, "currency"),
+    toDisplayValue(item.amount, "currency"),
+  ]);
+
+  autoTable(doc, {
+    startY: cursorY,
+    head,
+    body,
+    theme: "grid",
+    styles: {
+      font: fontName,
+      fontSize: fontSizes.table,
+      cellPadding: 5,
+      lineColor: EXPORT_STYLE.colors.blackRgb,
+      lineWidth: borderWidthPt,
+      overflow: "linebreak",
+      valign: "middle",
+      textColor: EXPORT_STYLE.colors.blackRgb,
+    },
+    headStyles: {
+      font: fontName,
+      fontStyle: "bold",
+      fillColor: EXPORT_STYLE.colors.headerFillRgb,
+      textColor: EXPORT_STYLE.colors.blackRgb,
+      lineColor: EXPORT_STYLE.colors.blackRgb,
+      lineWidth: borderWidthPt,
+    },
+    alternateRowStyles: { fillColor: EXPORT_STYLE.colors.zebraFillRgb },
+    columnStyles: {
+      0: { halign: "center", cellWidth: 36 },
+      1: { halign: "left" },
+      2: { halign: "center", cellWidth: 70 },
+      3: { halign: "right", cellWidth: 60 },
+      4: { halign: "right", cellWidth: 70 },
+      5: { halign: "right", cellWidth: 80 },
+    },
+    margin: { left: marginPt, right: marginPt },
+    showHead: "everyPage",
+  });
+
+  let afterTableY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 14;
+
+  // Totals box, right-aligned under the table.
+  const totalsRows: Array<[string, string]> = [["Subtotal", toDisplayValue(config.subtotal, "currency")]];
+  if (config.taxLabel && config.taxAmount != null) {
+    totalsRows.push([config.taxLabel, toDisplayValue(config.taxAmount, "currency")]);
+  }
+  totalsRows.push(["Grand Total", toDisplayValue(config.grandTotal, "currency")]);
+  const lastTotalsRowIndex = totalsRows.length - 1;
+
+  autoTable(doc, {
+    startY: afterTableY,
+    body: totalsRows,
+    theme: "grid",
+    tableWidth: 220,
+    styles: {
+      font: fontName,
+      fontSize: fontSizes.table,
+      cellPadding: 5,
+      lineColor: EXPORT_STYLE.colors.blackRgb,
+      lineWidth: borderWidthPt,
+      textColor: EXPORT_STYLE.colors.blackRgb,
+    },
+    columnStyles: {
+      0: { halign: "left", fontStyle: "bold", cellWidth: 120 },
+      1: { halign: "right", cellWidth: 100 },
+    },
+    margin: { left: pageWidth - marginPt - 220, right: marginPt },
+    didParseCell: (data) => {
+      if (data.row.index === lastTotalsRowIndex) {
+        data.cell.styles.fillColor = EXPORT_STYLE.colors.totalsFillRgb;
+        data.cell.styles.fontStyle = "bold";
+      }
+    },
+  });
+
+  afterTableY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 20;
+
+  if (config.notes) {
+    doc.setFont(fontName, "bold");
+    doc.setFontSize(fontSizes.body);
+    doc.text("Notes:", marginPt, afterTableY);
+    afterTableY += fontSizes.body + 4;
+    doc.setFont(fontName, "normal");
+    const noteLines = doc.splitTextToSize(config.notes, contentWidth);
+    doc.text(noteLines, marginPt, afterTableY);
+    afterTableY += noteLines.length * (fontSizes.body + 4) + 10;
+  }
+
+  // Signature line, placed after the content but never above the footer.
+  const signatureY = Math.min(Math.max(afterTableY + 40, pageHeight - marginPt - 60), pageHeight - marginPt - 30);
+  doc.setDrawColor(...EXPORT_STYLE.colors.blackRgb);
+  doc.setLineWidth(0.5);
+  doc.line(pageWidth - marginPt - 160, signatureY, pageWidth - marginPt, signatureY);
+  doc.setFont(fontName, "normal");
+  doc.setFontSize(fontSizes.body);
+  doc.text("Authorised signatory", pageWidth - marginPt - 160, signatureY + 14);
+
+  // Footer + page numbers are added last so the true total page count is known.
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i += 1) {
+    doc.setPage(i);
+    const size = doc.internal.pageSize;
+    const footerY = size.getHeight() - marginPt + 14;
+
+    doc.setDrawColor(...EXPORT_STYLE.colors.blackRgb);
+    doc.setLineWidth(0.5);
+    doc.line(marginPt, footerY - 12, size.getWidth() - marginPt, footerY - 12);
+
+    doc.setFontSize(8);
+    doc.setFont(fontName, "normal");
+    doc.setTextColor(0, 0, 0);
+    doc.text("sczor", marginPt, footerY);
+    doc.text(config.salon?.name ?? "", size.getWidth() / 2, footerY, { align: "center" });
+    doc.text(`Page ${i} of ${totalPages}`, size.getWidth() - marginPt, footerY, { align: "right" });
   }
 
   doc.save(`${config.filename}.pdf`);
