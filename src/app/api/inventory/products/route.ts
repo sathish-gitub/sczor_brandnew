@@ -29,7 +29,16 @@ const createProductSchema = z
         return Number.isFinite(num) ? num : NaN;
       }),
     costPrice: z.coerce.number().min(0, "Cost price must be zero or greater."),
-    sellingPrice: z.coerce.number().min(0, "Selling price must be zero or greater."),
+    sellingPrice: z
+      .union([z.string(), z.number(), z.null()])
+      .optional()
+      .transform((value) => {
+        if (value === "" || value === null || value === undefined) {
+          return null;
+        }
+        const num = typeof value === "number" ? value : Number(value);
+        return Number.isFinite(num) ? num : NaN;
+      }),
     initialStock: z.coerce.number().min(0, "Initial stock must be zero or greater.").default(0),
     reorderLevel: z.coerce.number().min(0, "Reorder level must be zero or greater.").default(0),
     isRetailItem: z.coerce.boolean().default(true),
@@ -37,6 +46,14 @@ const createProductSchema = z
     status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
   })
   .superRefine((data, ctx) => {
+    if (data.sellingPrice !== null) {
+      if (Number.isNaN(data.sellingPrice)) {
+        ctx.addIssue({ code: "custom", message: "Selling price must be a valid number.", path: ["sellingPrice"] });
+      } else if (data.sellingPrice < 0) {
+        ctx.addIssue({ code: "custom", message: "Selling price must be zero or greater.", path: ["sellingPrice"] });
+      }
+    }
+
     if (!isSizedUnit(data.unit)) {
       return;
     }
@@ -71,7 +88,7 @@ function serializeProduct(product: {
   return {
     ...product,
     costPrice: Number(product.costPrice),
-    sellingPrice: Number(product.sellingPrice),
+    sellingPrice: product.sellingPrice === null ? null : Number(product.sellingPrice),
     currentStock: Number(product.currentStock),
     reorderLevel: Number(product.reorderLevel),
     packSize: product.packSize === null ? null : Number(product.packSize),
@@ -150,7 +167,7 @@ export async function POST(request: Request) {
 
     const payload = parsed.data;
 
-    if (payload.sellingPrice < payload.costPrice) {
+    if (payload.sellingPrice !== null && payload.sellingPrice < payload.costPrice) {
       return NextResponse.json(
         { error: "Selling price should not be lower than cost price." },
         { status: 400 },

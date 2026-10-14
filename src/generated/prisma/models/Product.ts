@@ -276,7 +276,7 @@ export type ProductGroupByOutputType = {
   unit: string
   packSize: runtime.Decimal | null
   costPrice: runtime.Decimal
-  sellingPrice: runtime.Decimal
+  sellingPrice: runtime.Decimal | null
   currentStock: runtime.Decimal
   reorderLevel: runtime.Decimal
   isRetailItem: boolean
@@ -319,7 +319,7 @@ export type ProductWhereInput = {
   unit?: Prisma.StringFilter<"Product"> | string
   packSize?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFilter<"Product"> | boolean
@@ -345,7 +345,7 @@ export type ProductOrderByWithRelationInput = {
   unit?: Prisma.SortOrder
   packSize?: Prisma.SortOrderInput | Prisma.SortOrder
   costPrice?: Prisma.SortOrder
-  sellingPrice?: Prisma.SortOrder
+  sellingPrice?: Prisma.SortOrderInput | Prisma.SortOrder
   currentStock?: Prisma.SortOrder
   reorderLevel?: Prisma.SortOrder
   isRetailItem?: Prisma.SortOrder
@@ -374,7 +374,7 @@ export type ProductWhereUniqueInput = Prisma.AtLeast<{
   unit?: Prisma.StringFilter<"Product"> | string
   packSize?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFilter<"Product"> | boolean
@@ -400,7 +400,7 @@ export type ProductOrderByWithAggregationInput = {
   unit?: Prisma.SortOrder
   packSize?: Prisma.SortOrderInput | Prisma.SortOrder
   costPrice?: Prisma.SortOrder
-  sellingPrice?: Prisma.SortOrder
+  sellingPrice?: Prisma.SortOrderInput | Prisma.SortOrder
   currentStock?: Prisma.SortOrder
   reorderLevel?: Prisma.SortOrder
   isRetailItem?: Prisma.SortOrder
@@ -428,7 +428,7 @@ export type ProductScalarWhereWithAggregatesInput = {
   unit?: Prisma.StringWithAggregatesFilter<"Product"> | string
   packSize?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.DecimalNullableWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalWithAggregatesFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolWithAggregatesFilter<"Product"> | boolean
@@ -447,7 +447,7 @@ export type ProductCreateInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -471,7 +471,7 @@ export type ProductUncheckedCreateInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -493,7 +493,7 @@ export type ProductUpdateInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -517,7 +517,7 @@ export type ProductUncheckedUpdateInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -540,7 +540,7 @@ export type ProductCreateManyInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -559,7 +559,7 @@ export type ProductUpdateManyMutationInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -577,7 +577,7 @@ export type ProductUncheckedUpdateManyInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -862,7 +862,7 @@ export type ProductCreateWithoutTenantInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -885,7 +885,7 @@ export type ProductUncheckedCreateWithoutTenantInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -936,7 +936,7 @@ export type ProductScalarWhereInput = {
   unit?: Prisma.StringFilter<"Product"> | string
   packSize?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.DecimalNullableFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFilter<"Product"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFilter<"Product"> | boolean
@@ -955,7 +955,7 @@ export type ProductCreateWithoutInvoiceItemsInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -978,7 +978,7 @@ export type ProductUncheckedCreateWithoutInvoiceItemsInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -1015,7 +1015,7 @@ export type ProductUpdateWithoutInvoiceItemsInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1038,7 +1038,7 @@ export type ProductUncheckedUpdateWithoutInvoiceItemsInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1059,7 +1059,7 @@ export type ProductCreateWithoutSupplierInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -1082,7 +1082,7 @@ export type ProductUncheckedCreateWithoutSupplierInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -1129,7 +1129,7 @@ export type ProductCreateWithoutCategoryInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -1151,7 +1151,7 @@ export type ProductUncheckedCreateWithoutCategoryInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -1199,7 +1199,7 @@ export type ProductCreateWithoutStockMovementsInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -1222,7 +1222,7 @@ export type ProductUncheckedCreateWithoutStockMovementsInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -1259,7 +1259,7 @@ export type ProductUpdateWithoutStockMovementsInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1282,7 +1282,7 @@ export type ProductUncheckedUpdateWithoutStockMovementsInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1303,7 +1303,7 @@ export type ProductCreateWithoutPurchaseOrderItemsInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -1326,7 +1326,7 @@ export type ProductUncheckedCreateWithoutPurchaseOrderItemsInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -1363,7 +1363,7 @@ export type ProductUpdateWithoutPurchaseOrderItemsInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1386,7 +1386,7 @@ export type ProductUncheckedUpdateWithoutPurchaseOrderItemsInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1408,7 +1408,7 @@ export type ProductCreateManyTenantInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -1426,7 +1426,7 @@ export type ProductUpdateWithoutTenantInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1449,7 +1449,7 @@ export type ProductUncheckedUpdateWithoutTenantInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1471,7 +1471,7 @@ export type ProductUncheckedUpdateManyWithoutTenantInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1490,7 +1490,7 @@ export type ProductCreateManySupplierInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -1508,7 +1508,7 @@ export type ProductUpdateWithoutSupplierInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1531,7 +1531,7 @@ export type ProductUncheckedUpdateWithoutSupplierInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1553,7 +1553,7 @@ export type ProductUncheckedUpdateManyWithoutSupplierInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1571,7 +1571,7 @@ export type ProductCreateManyCategoryInput = {
   unit?: string
   packSize?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice: runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: boolean
@@ -1590,7 +1590,7 @@ export type ProductUpdateWithoutCategoryInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1612,7 +1612,7 @@ export type ProductUncheckedUpdateWithoutCategoryInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1634,7 +1634,7 @@ export type ProductUncheckedUpdateManyWithoutCategoryInput = {
   unit?: Prisma.StringFieldUpdateOperationsInput | string
   packSize?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   costPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  sellingPrice?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  sellingPrice?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   currentStock?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reorderLevel?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isRetailItem?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1827,7 +1827,7 @@ export type $ProductPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     unit: string
     packSize: runtime.Decimal | null
     costPrice: runtime.Decimal
-    sellingPrice: runtime.Decimal
+    sellingPrice: runtime.Decimal | null
     currentStock: runtime.Decimal
     reorderLevel: runtime.Decimal
     isRetailItem: boolean

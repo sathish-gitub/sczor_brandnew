@@ -18,7 +18,7 @@ export default function NewProductPage() {
   const [unit, setUnit] = useState("pcs");
   const [packSize, setPackSize] = useState("");
   const [costPrice, setCostPrice] = useState("0");
-  const [sellingPrice, setSellingPrice] = useState("0");
+  const [sellingPrice, setSellingPrice] = useState("");
   const [initialStock, setInitialStock] = useState("0");
   const [reorderLevel, setReorderLevel] = useState("0");
   const [isRetailItem, setIsRetailItem] = useState(true);
@@ -175,16 +175,19 @@ export default function NewProductPage() {
           </label>
 
           <label className="space-y-1 text-sm">
-            <span className="font-medium text-[var(--foreground)]">Selling Price (INR)</span>
+            <span className="font-medium text-[var(--foreground)]">Selling Price (INR) <span className="font-normal text-[var(--muted)]">(optional)</span></span>
             <input
               value={sellingPrice}
               onChange={(event) => setSellingPrice(event.target.value)}
               type="number"
               min="0"
               step="0.01"
-              required
+              placeholder="Leave blank if not sold at POS"
               className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
             />
+            <span className="text-xs text-[var(--muted)]">
+              A product with no selling price cannot be sold at POS.
+            </span>
           </label>
         </div>
 

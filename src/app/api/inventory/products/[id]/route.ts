@@ -32,11 +32,32 @@ const updateProductSchema = z
         return Number.isFinite(num) ? num : NaN;
       }),
     costPrice: z.coerce.number().min(0).optional(),
-    sellingPrice: z.coerce.number().min(0).optional(),
+    sellingPrice: z
+      .union([z.string(), z.number(), z.null()])
+      .optional()
+      .transform((value) => {
+        if (value === undefined) {
+          return undefined;
+        }
+        if (value === "" || value === null) {
+          return null;
+        }
+        const num = typeof value === "number" ? value : Number(value);
+        return Number.isFinite(num) ? num : NaN;
+      }),
     reorderLevel: z.coerce.number().min(0).optional(),
     isRetailItem: z.coerce.boolean().optional(),
     supplierId: z.string().optional().or(z.literal("")),
     status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.sellingPrice !== undefined && data.sellingPrice !== null) {
+      if (Number.isNaN(data.sellingPrice)) {
+        ctx.addIssue({ code: "custom", message: "Selling price must be a valid number.", path: ["sellingPrice"] });
+      } else if (data.sellingPrice < 0) {
+        ctx.addIssue({ code: "custom", message: "Selling price must be zero or greater.", path: ["sellingPrice"] });
+      }
+    }
   })
   .superRefine((data, ctx) => {
     if (data.unit === undefined || !isSizedUnit(data.unit)) {
@@ -73,7 +94,7 @@ function serializeProduct(product: {
   return {
     ...product,
     costPrice: Number(product.costPrice),
-    sellingPrice: Number(product.sellingPrice),
+    sellingPrice: product.sellingPrice === null ? null : Number(product.sellingPrice),
     currentStock: Number(product.currentStock),
     reorderLevel: Number(product.reorderLevel),
     packSize: product.packSize === null ? null : Number(product.packSize),

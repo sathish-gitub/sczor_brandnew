@@ -9,6 +9,7 @@ import { Modal } from "@/components/ui/Modal";
 import { useToast } from "@/components/ui/Toast";
 import { useAccess } from "@/contexts/AccessContext";
 import { formatStock } from "@/lib/productUnits";
+import { formatISTDateShort, formatISTDayMonthShort, todayISTDateString } from "@/lib/time";
 
 type ProductPayload = {
   id: string;
@@ -18,7 +19,7 @@ type ProductPayload = {
   unit: string;
   packSize: number | null;
   costPrice: number;
-  sellingPrice: number;
+  sellingPrice: number | null;
   currentStock: number;
   reorderLevel: number;
   isRetailItem: boolean;
@@ -33,6 +34,9 @@ type MovementPayload = {
   quantity: number;
   reason: string | null;
   reference: string | null;
+  notes: string | null;
+  occurredOn: string | null;
+  periodStart: string | null;
   createdAt: string;
 };
 
@@ -42,9 +46,14 @@ const MOVEMENT_LABELS: Record<string, string> = {
   MANUAL_ADJUST_IN: "Stock In",
   MANUAL_ADJUST_OUT: "Stock Out",
   WASTAGE: "Wastage",
+  USAGE: "Usage",
 };
 
-const OUTGOING_TYPES = new Set(["SALE_OUT", "MANUAL_ADJUST_OUT", "WASTAGE"]);
+const OUTGOING_TYPES = new Set(["SALE_OUT", "MANUAL_ADJUST_OUT", "WASTAGE", "USAGE"]);
+
+const WASTAGE_REASONS = ["Expired", "Damaged", "Spilled", "Lost", "Other"] as const;
+
+type AdjustType = "STOCK_IN" | "STOCK_OUT" | "WASTAGE" | "USAGE";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("en-IN", {
@@ -52,6 +61,18 @@ function formatCurrency(value: number) {
     currency: "INR",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function movementDateLabel(movement: MovementPayload) {
+  if (movement.type === "USAGE" && movement.periodStart && movement.occurredOn) {
+    return `${formatISTDayMonthShort(movement.periodStart)} - ${formatISTDayMonthShort(movement.occurredOn)}`;
+  }
+
+  if (movement.occurredOn) {
+    return formatISTDateShort(movement.occurredOn);
+  }
+
+  return formatISTDateShort(movement.createdAt);
 }
 
 export default function ProductDetailPage() {
@@ -66,9 +87,15 @@ export default function ProductDetailPage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const [showAdjustModal, setShowAdjustModal] = useState(false);
-  const [adjustType, setAdjustType] = useState<"STOCK_IN" | "STOCK_OUT" | "WASTAGE">("STOCK_IN");
+  const [adjustType, setAdjustType] = useState<AdjustType>("STOCK_IN");
   const [adjustQuantity, setAdjustQuantity] = useState("");
   const [adjustReason, setAdjustReason] = useState("");
+  const [wastageDate, setWastageDate] = useState(todayISTDateString());
+  const [wastageReason, setWastageReason] = useState<(typeof WASTAGE_REASONS)[number]>("Expired");
+  const [wastageNotes, setWastageNotes] = useState("");
+  const [usageFromDate, setUsageFromDate] = useState(todayISTDateString());
+  const [usageToDate, setUsageToDate] = useState(todayISTDateString());
+  const [usageNotes, setUsageNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [adjustError, setAdjustError] = useState<string | null>(null);
 
@@ -118,10 +145,17 @@ export default function ProductDetailPage() {
     };
   }, [params.id, refreshKey]);
 
+
   function openAdjustModal() {
     setAdjustType("STOCK_IN");
     setAdjustQuantity("");
     setAdjustReason("");
+    setWastageDate(todayISTDateString());
+    setWastageReason("Expired");
+    setWastageNotes("");
+    setUsageFromDate(todayISTDateString());
+    setUsageToDate(todayISTDateString());
+    setUsageNotes("");
     setAdjustError(null);
     setShowAdjustModal(true);
   }
@@ -136,9 +170,39 @@ export default function ProductDetailPage() {
       return;
     }
 
-    if (adjustType === "WASTAGE" && !adjustReason.trim()) {
-      setAdjustError("Reason is required for wastage.");
+    if (product && quantity > product.currentStock && adjustType !== "STOCK_IN") {
+      setAdjustError(`Quantity cannot exceed current stock (${formatStock(product.currentStock, product.unit, product.packSize)}).`);
       return;
+    }
+
+    let body: Record<string, unknown> = { type: adjustType, quantity: adjustQuantity };
+
+    if (adjustType === "STOCK_IN" || adjustType === "STOCK_OUT") {
+      body = { ...body, reason: adjustReason };
+    } else if (adjustType === "WASTAGE") {
+      if (wastageDate > todayISTDateString()) {
+        setAdjustError("Date cannot be in the future.");
+        return;
+      }
+
+      if (wastageReason === "Other" && !wastageNotes.trim()) {
+        setAdjustError("Notes are required when reason is Other.");
+        return;
+      }
+
+      body = { ...body, occurredOn: wastageDate, reason: wastageReason, notes: wastageNotes };
+    } else if (adjustType === "USAGE") {
+      if (usageToDate > todayISTDateString()) {
+        setAdjustError("To Date cannot be in the future.");
+        return;
+      }
+
+      if (usageFromDate > usageToDate) {
+        setAdjustError("From Date cannot be after To Date.");
+        return;
+      }
+
+      body = { ...body, periodStart: usageFromDate, occurredOn: usageToDate, notes: usageNotes };
     }
 
     setSubmitting(true);
@@ -146,7 +210,7 @@ export default function ProductDetailPage() {
     const response = await fetch(`/api/inventory/products/${params.id}/adjust-stock`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: adjustType, quantity: adjustQuantity, reason: adjustReason }),
+      body: JSON.stringify(body),
     });
 
     const payload = (await response.json().catch(() => null)) as { error?: string } | null;
@@ -247,7 +311,9 @@ export default function ProductDetailPage() {
           </div>
           <div className="rounded-xl bg-slate-50 p-3">
             <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">Selling Price</p>
-            <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">{formatCurrency(product.sellingPrice)}</p>
+            <p className="mt-1 text-lg font-semibold text-[var(--foreground)]">
+              {product.sellingPrice === null ? "-" : formatCurrency(product.sellingPrice)}
+            </p>
           </div>
         </div>
 
@@ -272,19 +338,14 @@ export default function ProductDetailPage() {
                   <th className="px-4 py-3">Type</th>
                   <th className="px-4 py-3">Quantity</th>
                   <th className="px-4 py-3">Reason</th>
+                  <th className="px-4 py-3">Notes</th>
                   <th className="px-4 py-3">Reference</th>
                 </tr>
               </thead>
               <tbody>
                 {movements.map((movement) => (
                   <tr key={movement.id} className="border-b border-[var(--border)] last:border-b-0">
-                    <td className="px-4 py-3 text-[var(--muted)]">
-                      {new Date(movement.createdAt).toLocaleDateString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </td>
+                    <td className="px-4 py-3 text-[var(--muted)]">{movementDateLabel(movement)}</td>
                     <td className="px-4 py-3">
                       <span
                         className={[
@@ -300,6 +361,7 @@ export default function ProductDetailPage() {
                       {formatStock(movement.quantity, product.unit, product.packSize)}
                     </td>
                     <td className="px-4 py-3 text-[var(--muted)]">{movement.reason || "—"}</td>
+                    <td className="px-4 py-3 text-[var(--muted)]">{movement.notes || "—"}</td>
                     <td className="px-4 py-3 text-[var(--muted)]">{movement.reference || "—"}</td>
                   </tr>
                 ))}
@@ -315,14 +377,54 @@ export default function ProductDetailPage() {
             <span className="font-medium text-[var(--foreground)]">Type</span>
             <select
               value={adjustType}
-              onChange={(event) => setAdjustType(event.target.value as "STOCK_IN" | "STOCK_OUT" | "WASTAGE")}
+              onChange={(event) => setAdjustType(event.target.value as AdjustType)}
               className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm"
             >
-              <option value="STOCK_IN">Stock In</option>
-              <option value="STOCK_OUT">Stock Out</option>
+              <option value="STOCK_IN">Add Stock</option>
+              <option value="STOCK_OUT">Reduce Stock</option>
+              <option value="USAGE">Usage</option>
               <option value="WASTAGE">Wastage</option>
             </select>
           </label>
+
+          {adjustType === "WASTAGE" ? (
+            <label className="space-y-1 text-sm">
+              <span className="font-medium text-[var(--foreground)]">Date</span>
+              <input
+                value={wastageDate}
+                onChange={(event) => setWastageDate(event.target.value)}
+                type="date"
+                max={todayISTDateString()}
+                className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+              />
+            </label>
+          ) : null}
+
+          {adjustType === "USAGE" ? (
+            <div className="grid grid-cols-2 gap-3">
+              <label className="space-y-1 text-sm">
+                <span className="font-medium text-[var(--foreground)]">From Date</span>
+                <input
+                  value={usageFromDate}
+                  onChange={(event) => setUsageFromDate(event.target.value)}
+                  type="date"
+                  max={todayISTDateString()}
+                  className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+                />
+              </label>
+              <label className="space-y-1 text-sm">
+                <span className="font-medium text-[var(--foreground)]">To Date</span>
+                <input
+                  value={usageToDate}
+                  onChange={(event) => setUsageToDate(event.target.value)}
+                  type="date"
+                  min={usageFromDate}
+                  max={todayISTDateString()}
+                  className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+                />
+              </label>
+            </div>
+          ) : null}
 
           <label className="space-y-1 text-sm">
             <span className="font-medium text-[var(--foreground)]">Quantity ({product.unit})</span>
@@ -337,17 +439,61 @@ export default function ProductDetailPage() {
             />
           </label>
 
-          <label className="space-y-1 text-sm">
-            <span className="font-medium text-[var(--foreground)]">
-              Reason {adjustType === "WASTAGE" ? "(required)" : "(optional)"}
-            </span>
-            <textarea
-              value={adjustReason}
-              onChange={(event) => setAdjustReason(event.target.value)}
-              rows={2}
-              className="w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
-            />
-          </label>
+          {adjustType === "STOCK_IN" || adjustType === "STOCK_OUT" ? (
+            <label className="space-y-1 text-sm">
+              <span className="font-medium text-[var(--foreground)]">Reason (optional)</span>
+              <textarea
+                value={adjustReason}
+                onChange={(event) => setAdjustReason(event.target.value)}
+                rows={2}
+                className="w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              />
+            </label>
+          ) : null}
+
+          {adjustType === "WASTAGE" ? (
+            <>
+              <label className="space-y-1 text-sm">
+                <span className="font-medium text-[var(--foreground)]">Reason</span>
+                <select
+                  value={wastageReason}
+                  onChange={(event) => setWastageReason(event.target.value as (typeof WASTAGE_REASONS)[number])}
+                  className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm"
+                >
+                  {WASTAGE_REASONS.map((reason) => (
+                    <option key={reason} value={reason}>
+                      {reason}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="space-y-1 text-sm">
+                <span className="font-medium text-[var(--foreground)]">
+                  Notes {wastageReason === "Other" ? "(required)" : "(optional)"}
+                </span>
+                <textarea
+                  value={wastageNotes}
+                  onChange={(event) => setWastageNotes(event.target.value)}
+                  rows={2}
+                  className="w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+                />
+              </label>
+            </>
+          ) : null}
+
+          {adjustType === "USAGE" ? (
+            <label className="space-y-1 text-sm">
+              <span className="font-medium text-[var(--foreground)]">Notes (optional)</span>
+              <textarea
+                value={usageNotes}
+                onChange={(event) => setUsageNotes(event.target.value)}
+                rows={2}
+                placeholder="e.g. Used in colouring services"
+                className="w-full rounded-xl border border-[var(--border)] px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
+              />
+            </label>
+          ) : null}
 
           {adjustError ? <p className="text-sm text-red-600">{adjustError}</p> : null}
 

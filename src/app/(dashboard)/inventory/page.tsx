@@ -15,7 +15,7 @@ type ProductItem = {
   sku: string | null;
   unit: string;
   packSize: number | null;
-  sellingPrice: number;
+  sellingPrice: number | null;
   currentStock: number;
   reorderLevel: number;
   status: "ACTIVE" | "INACTIVE";

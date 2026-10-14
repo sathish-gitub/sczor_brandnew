@@ -26,7 +26,7 @@ type ProductItem = {
   sku: string | null;
   unit: string;
   packSize: number | null;
-  price: number;
+  price: number | null;
   currentStock: number;
   category: string | null;
 };
@@ -394,10 +394,11 @@ export default function BillingPage() {
   }
 
   function addProductToCart(product: ProductItem) {
-    if (product.currentStock <= 0) {
+    if (product.currentStock <= 0 || product.price === null) {
       return;
     }
 
+    const price = product.price;
     const key = `PRODUCT:${product.id}`;
 
     setCart((current) => {
@@ -412,7 +413,7 @@ export default function BillingPage() {
             name: product.name,
             unit: product.unit,
             packSize: product.packSize,
-            price: product.price,
+            price,
             quantity: 1,
             maxStock: product.currentStock,
           },
@@ -877,13 +878,15 @@ export default function BillingPage() {
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {visibleProducts.map((product) => {
                 const outOfStock = product.currentStock <= 0;
+                const noPrice = product.price === null;
+                const disabled = outOfStock || noPrice;
 
                 return (
                   <article
                     key={product.id}
                     className={[
                       "relative rounded-xl border p-3",
-                      outOfStock
+                      disabled
                         ? "border-[var(--border)] bg-slate-100 opacity-60 grayscale"
                         : "border-[var(--border)] bg-slate-50",
                     ].join(" ")}
@@ -892,16 +895,22 @@ export default function BillingPage() {
                       <span className="absolute right-2 top-2 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
                         Out of Stock
                       </span>
+                    ) : noPrice ? (
+                      <span className="absolute right-2 top-2 rounded-full bg-amber-600 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                        No Price
+                      </span>
                     ) : null}
                     <p className="text-sm font-semibold text-[var(--foreground)]">{product.name}</p>
-                    <p className="text-xs text-[var(--muted)]">{formatCurrency(product.price)}</p>
+                    <p className="text-xs text-[var(--muted)]">
+                      {product.price === null ? "No price set" : formatCurrency(product.price)}
+                    </p>
                     <p className="mt-1 text-xs text-[var(--muted)]">
                       {outOfStock ? "Out of stock" : formatStock(product.currentStock, product.unit, product.packSize) + " in stock"}
                     </p>
                     <button
                       type="button"
                       onClick={() => addProductToCart(product)}
-                      disabled={outOfStock}
+                      disabled={disabled}
                       className="mt-3 inline-flex h-8 items-center justify-center rounded-lg bg-[var(--primary)] px-3 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       + Add

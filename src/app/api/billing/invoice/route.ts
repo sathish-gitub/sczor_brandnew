@@ -193,6 +193,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "One or more products are unavailable." }, { status: 400 });
     }
 
+    const noPriceProducts = productItems
+      .map((item) => productMap.get(item.productId!)!)
+      .filter((product) => product.sellingPrice === null);
+
+    if (noPriceProducts.length > 0) {
+      const names = [...new Set(noPriceProducts.map((product) => product.name))].join(", ");
+      return NextResponse.json(
+        { error: `${names} ${noPriceProducts.length > 1 ? "have" : "has"} no selling price set and cannot be sold.` },
+        { status: 400 },
+      );
+    }
+
     const requestedStaffIds = [
       ...new Set(serviceItems.map((item) => item.staffId).filter((value): value is string => Boolean(value))),
     ];

@@ -38,7 +38,7 @@ export async function GET() {
         sku: product.sku,
         unit: product.unit,
         packSize: product.packSize === null ? null : Number(product.packSize),
-        price: Number(product.sellingPrice),
+        price: product.sellingPrice === null ? null : Number(product.sellingPrice),
         currentStock: Number(product.currentStock),
         category: product.category?.name ?? null,
       })),

@@ -599,6 +599,10 @@ export const StockMovementScalarFieldEnum = {
   quantity: 'quantity',
   reason: 'reason',
   reference: 'reference',
+  notes: 'notes',
+  occurredOn: 'occurredOn',
+  periodStart: 'periodStart',
+  createdById: 'createdById',
   tenantId: 'tenantId',
   createdAt: 'createdAt'
 } as const

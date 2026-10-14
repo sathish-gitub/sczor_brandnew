@@ -17,7 +17,7 @@ type ProductPayload = {
   unit: string;
   packSize: number | null;
   costPrice: number;
-  sellingPrice: number;
+  sellingPrice: number | null;
   currentStock: number;
   reorderLevel: number;
   isRetailItem: boolean;
@@ -41,7 +41,7 @@ export default function EditProductPage() {
   const [packSize, setPackSize] = useState("");
   const [missingPackSizeOnLoad, setMissingPackSizeOnLoad] = useState(false);
   const [costPrice, setCostPrice] = useState("0");
-  const [sellingPrice, setSellingPrice] = useState("0");
+  const [sellingPrice, setSellingPrice] = useState("");
   const [currentStock, setCurrentStock] = useState(0);
   const [reorderLevel, setReorderLevel] = useState("0");
   const [isRetailItem, setIsRetailItem] = useState(true);
@@ -89,7 +89,7 @@ export default function EditProductPage() {
       setPackSize(product.packSize === null ? "" : String(product.packSize));
       setMissingPackSizeOnLoad(isSizedUnit(product.unit) && product.packSize === null);
       setCostPrice(String(product.costPrice));
-      setSellingPrice(String(product.sellingPrice));
+      setSellingPrice(product.sellingPrice === null ? "" : String(product.sellingPrice));
       setCurrentStock(product.currentStock);
       setReorderLevel(String(product.reorderLevel));
       setIsRetailItem(product.isRetailItem);
@@ -254,16 +254,19 @@ export default function EditProductPage() {
           </label>
 
           <label className="space-y-1 text-sm">
-            <span className="font-medium text-[var(--foreground)]">Selling Price (INR)</span>
+            <span className="font-medium text-[var(--foreground)]">Selling Price (INR) <span className="font-normal text-[var(--muted)]">(optional)</span></span>
             <input
               value={sellingPrice}
               onChange={(event) => setSellingPrice(event.target.value)}
               type="number"
               min="0"
               step="0.01"
-              required
+              placeholder="Leave blank if not sold at POS"
               className="h-10 w-full rounded-xl border border-[var(--border)] px-3"
             />
+            <span className="text-xs text-[var(--muted)]">
+              A product with no selling price cannot be sold at POS.
+            </span>
           </label>
         </div>
 

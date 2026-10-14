@@ -10,7 +10,7 @@ type ProductCardProps = {
     sku: string | null;
     unit: string;
     packSize: number | null;
-    sellingPrice: number;
+    sellingPrice: number | null;
     currentStock: number;
     reorderLevel: number;
     status: "ACTIVE" | "INACTIVE";
@@ -58,7 +58,9 @@ export function ProductCard({ product, onDelete, busy }: ProductCardProps) {
         </div>
         <div className="rounded-xl bg-slate-50 p-3">
           <p className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">Selling Price</p>
-          <p className="mt-1 font-semibold text-[var(--foreground)]">{formatCurrency(product.sellingPrice)}</p>
+          <p className="mt-1 font-semibold text-[var(--foreground)]">
+            {product.sellingPrice === null ? "-" : formatCurrency(product.sellingPrice)}
+          </p>
         </div>
       </div>
 

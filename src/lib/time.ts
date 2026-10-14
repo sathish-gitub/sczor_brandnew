@@ -29,6 +29,13 @@ const IST_DDMMYYYY_FORMATTER = new Intl.DateTimeFormat("en-GB", {
   year: "numeric",
 });
 
+const IST_DATE_SHORT_FORMATTER = new Intl.DateTimeFormat("en-GB", {
+  timeZone: IST_TIME_ZONE,
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
+
 const IST_HHMM_FORMATTER = new Intl.DateTimeFormat("en-GB", {
   timeZone: IST_TIME_ZONE,
   hour: "2-digit",
@@ -65,6 +72,12 @@ const IST_DAY_MONTH_FORMATTER = new Intl.DateTimeFormat("en-GB", {
   timeZone: IST_TIME_ZONE,
   day: "numeric",
   month: "long",
+});
+
+const IST_DAY_MONTH_SHORT_FORMATTER = new Intl.DateTimeFormat("en-GB", {
+  timeZone: IST_TIME_ZONE,
+  day: "numeric",
+  month: "short",
 });
 
 const IST_LONG_DATE_FORMATTER = new Intl.DateTimeFormat("en-IN", {
@@ -280,6 +293,12 @@ export function formatISTDayMonth(value: Date | string): string {
   return IST_DAY_MONTH_FORMATTER.format(date);
 }
 
+/** "15 Sep" style short label in IST, for an absolute instant (e.g. "1 Oct - 7 Oct" ranges). */
+export function formatISTDayMonthShort(value: Date | string): string {
+  const date = typeof value === "string" ? new Date(value) : value;
+  return IST_DAY_MONTH_SHORT_FORMATTER.format(date);
+}
+
 /** Add whole minutes to a "HH:mm" wall-clock time, wrapping within a 24h day (for same-day offset labels). */
 export function addMinutesToClock(time: string, minutes: number): string {
   const [hours, mins] = time.split(":").map(Number);
@@ -304,6 +323,12 @@ export function instantForOffset(appointmentDate: Date, appointmentTime: string,
 export function formatISTDateDDMMYYYY(value: Date | string): string {
   const date = typeof value === "string" ? new Date(value) : value;
   return IST_DDMMYYYY_FORMATTER.format(date);
+}
+
+/** "14 Oct 2026" style label in IST, for an absolute instant. */
+export function formatISTDateShort(value: Date | string): string {
+  const date = typeof value === "string" ? new Date(value) : value;
+  return IST_DATE_SHORT_FORMATTER.format(date);
 }
 
 /** "Monday, 15 September 2025" style label in IST, for an "YYYY-MM-DD" IST calendar date string. */
