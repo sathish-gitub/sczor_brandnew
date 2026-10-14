@@ -40,6 +40,7 @@ export type PayrollAvgAggregateOutputType = {
   paidLeaveDays: number | null
   lopDays: runtime.Decimal | null
   totalWorkingDays: number | null
+  payableDays: runtime.Decimal | null
   dailyRateDivisor: runtime.Decimal | null
   leaveDeduction: runtime.Decimal | null
   grossPay: runtime.Decimal | null
@@ -60,6 +61,7 @@ export type PayrollSumAggregateOutputType = {
   paidLeaveDays: number | null
   lopDays: runtime.Decimal | null
   totalWorkingDays: number | null
+  payableDays: runtime.Decimal | null
   dailyRateDivisor: runtime.Decimal | null
   leaveDeduction: runtime.Decimal | null
   grossPay: runtime.Decimal | null
@@ -82,6 +84,9 @@ export type PayrollMinAggregateOutputType = {
   paidLeaveDays: number | null
   lopDays: runtime.Decimal | null
   totalWorkingDays: number | null
+  periodStart: Date | null
+  periodEnd: Date | null
+  payableDays: runtime.Decimal | null
   dayMethod: $Enums.PayrollDayMethod | null
   dailyRateDivisor: runtime.Decimal | null
   leaveDeduction: runtime.Decimal | null
@@ -110,6 +115,9 @@ export type PayrollMaxAggregateOutputType = {
   paidLeaveDays: number | null
   lopDays: runtime.Decimal | null
   totalWorkingDays: number | null
+  periodStart: Date | null
+  periodEnd: Date | null
+  payableDays: runtime.Decimal | null
   dayMethod: $Enums.PayrollDayMethod | null
   dailyRateDivisor: runtime.Decimal | null
   leaveDeduction: runtime.Decimal | null
@@ -138,6 +146,9 @@ export type PayrollCountAggregateOutputType = {
   paidLeaveDays: number
   lopDays: number
   totalWorkingDays: number
+  periodStart: number
+  periodEnd: number
+  payableDays: number
   dayMethod: number
   dailyRateDivisor: number
   leaveDeduction: number
@@ -166,6 +177,7 @@ export type PayrollAvgAggregateInputType = {
   paidLeaveDays?: true
   lopDays?: true
   totalWorkingDays?: true
+  payableDays?: true
   dailyRateDivisor?: true
   leaveDeduction?: true
   grossPay?: true
@@ -186,6 +198,7 @@ export type PayrollSumAggregateInputType = {
   paidLeaveDays?: true
   lopDays?: true
   totalWorkingDays?: true
+  payableDays?: true
   dailyRateDivisor?: true
   leaveDeduction?: true
   grossPay?: true
@@ -208,6 +221,9 @@ export type PayrollMinAggregateInputType = {
   paidLeaveDays?: true
   lopDays?: true
   totalWorkingDays?: true
+  periodStart?: true
+  periodEnd?: true
+  payableDays?: true
   dayMethod?: true
   dailyRateDivisor?: true
   leaveDeduction?: true
@@ -236,6 +252,9 @@ export type PayrollMaxAggregateInputType = {
   paidLeaveDays?: true
   lopDays?: true
   totalWorkingDays?: true
+  periodStart?: true
+  periodEnd?: true
+  payableDays?: true
   dayMethod?: true
   dailyRateDivisor?: true
   leaveDeduction?: true
@@ -264,6 +283,9 @@ export type PayrollCountAggregateInputType = {
   paidLeaveDays?: true
   lopDays?: true
   totalWorkingDays?: true
+  periodStart?: true
+  periodEnd?: true
+  payableDays?: true
   dayMethod?: true
   dailyRateDivisor?: true
   leaveDeduction?: true
@@ -379,6 +401,9 @@ export type PayrollGroupByOutputType = {
   paidLeaveDays: number
   lopDays: runtime.Decimal
   totalWorkingDays: number
+  periodStart: Date | null
+  periodEnd: Date | null
+  payableDays: runtime.Decimal | null
   dayMethod: $Enums.PayrollDayMethod
   dailyRateDivisor: runtime.Decimal
   leaveDeduction: runtime.Decimal
@@ -430,6 +455,9 @@ export type PayrollWhereInput = {
   paidLeaveDays?: Prisma.IntFilter<"Payroll"> | number
   lopDays?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFilter<"Payroll"> | number
+  periodStart?: Prisma.DateTimeNullableFilter<"Payroll"> | Date | string | null
+  periodEnd?: Prisma.DateTimeNullableFilter<"Payroll"> | Date | string | null
+  payableDays?: Prisma.DecimalNullableFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFilter<"Payroll"> | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -460,6 +488,9 @@ export type PayrollOrderByWithRelationInput = {
   paidLeaveDays?: Prisma.SortOrder
   lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
+  periodStart?: Prisma.SortOrderInput | Prisma.SortOrder
+  periodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
+  payableDays?: Prisma.SortOrderInput | Prisma.SortOrder
   dayMethod?: Prisma.SortOrder
   dailyRateDivisor?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
@@ -495,6 +526,9 @@ export type PayrollWhereUniqueInput = Prisma.AtLeast<{
   paidLeaveDays?: Prisma.IntFilter<"Payroll"> | number
   lopDays?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFilter<"Payroll"> | number
+  periodStart?: Prisma.DateTimeNullableFilter<"Payroll"> | Date | string | null
+  periodEnd?: Prisma.DateTimeNullableFilter<"Payroll"> | Date | string | null
+  payableDays?: Prisma.DecimalNullableFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFilter<"Payroll"> | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -525,6 +559,9 @@ export type PayrollOrderByWithAggregationInput = {
   paidLeaveDays?: Prisma.SortOrder
   lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
+  periodStart?: Prisma.SortOrderInput | Prisma.SortOrder
+  periodEnd?: Prisma.SortOrderInput | Prisma.SortOrder
+  payableDays?: Prisma.SortOrderInput | Prisma.SortOrder
   dayMethod?: Prisma.SortOrder
   dailyRateDivisor?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
@@ -561,6 +598,9 @@ export type PayrollScalarWhereWithAggregatesInput = {
   paidLeaveDays?: Prisma.IntWithAggregatesFilter<"Payroll"> | number
   lopDays?: Prisma.DecimalWithAggregatesFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntWithAggregatesFilter<"Payroll"> | number
+  periodStart?: Prisma.DateTimeNullableWithAggregatesFilter<"Payroll"> | Date | string | null
+  periodEnd?: Prisma.DateTimeNullableWithAggregatesFilter<"Payroll"> | Date | string | null
+  payableDays?: Prisma.DecimalNullableWithAggregatesFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodWithAggregatesFilter<"Payroll"> | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalWithAggregatesFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalWithAggregatesFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -588,6 +628,9 @@ export type PayrollCreateInput = {
   paidLeaveDays?: number
   lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  payableDays?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: $Enums.PayrollDayMethod
   dailyRateDivisor?: runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -617,6 +660,9 @@ export type PayrollUncheckedCreateInput = {
   paidLeaveDays?: number
   lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  payableDays?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: $Enums.PayrollDayMethod
   dailyRateDivisor?: runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -644,6 +690,9 @@ export type PayrollUpdateInput = {
   paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payableDays?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -673,6 +722,9 @@ export type PayrollUncheckedUpdateInput = {
   paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payableDays?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -701,6 +753,9 @@ export type PayrollCreateManyInput = {
   paidLeaveDays?: number
   lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  payableDays?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: $Enums.PayrollDayMethod
   dailyRateDivisor?: runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -728,6 +783,9 @@ export type PayrollUpdateManyMutationInput = {
   paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payableDays?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -755,6 +813,9 @@ export type PayrollUncheckedUpdateManyInput = {
   paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payableDays?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -804,6 +865,9 @@ export type PayrollCountOrderByAggregateInput = {
   paidLeaveDays?: Prisma.SortOrder
   lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
+  periodStart?: Prisma.SortOrder
+  periodEnd?: Prisma.SortOrder
+  payableDays?: Prisma.SortOrder
   dayMethod?: Prisma.SortOrder
   dailyRateDivisor?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
@@ -830,6 +894,7 @@ export type PayrollAvgOrderByAggregateInput = {
   paidLeaveDays?: Prisma.SortOrder
   lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
+  payableDays?: Prisma.SortOrder
   dailyRateDivisor?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
   grossPay?: Prisma.SortOrder
@@ -852,6 +917,9 @@ export type PayrollMaxOrderByAggregateInput = {
   paidLeaveDays?: Prisma.SortOrder
   lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
+  periodStart?: Prisma.SortOrder
+  periodEnd?: Prisma.SortOrder
+  payableDays?: Prisma.SortOrder
   dayMethod?: Prisma.SortOrder
   dailyRateDivisor?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
@@ -880,6 +948,9 @@ export type PayrollMinOrderByAggregateInput = {
   paidLeaveDays?: Prisma.SortOrder
   lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
+  periodStart?: Prisma.SortOrder
+  periodEnd?: Prisma.SortOrder
+  payableDays?: Prisma.SortOrder
   dayMethod?: Prisma.SortOrder
   dailyRateDivisor?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
@@ -906,6 +977,7 @@ export type PayrollSumOrderByAggregateInput = {
   paidLeaveDays?: Prisma.SortOrder
   lopDays?: Prisma.SortOrder
   totalWorkingDays?: Prisma.SortOrder
+  payableDays?: Prisma.SortOrder
   dailyRateDivisor?: Prisma.SortOrder
   leaveDeduction?: Prisma.SortOrder
   grossPay?: Prisma.SortOrder
@@ -1015,6 +1087,9 @@ export type PayrollCreateWithoutTenantInput = {
   paidLeaveDays?: number
   lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  payableDays?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: $Enums.PayrollDayMethod
   dailyRateDivisor?: runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1043,6 +1118,9 @@ export type PayrollUncheckedCreateWithoutTenantInput = {
   paidLeaveDays?: number
   lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  payableDays?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: $Enums.PayrollDayMethod
   dailyRateDivisor?: runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1099,6 +1177,9 @@ export type PayrollScalarWhereInput = {
   paidLeaveDays?: Prisma.IntFilter<"Payroll"> | number
   lopDays?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFilter<"Payroll"> | number
+  periodStart?: Prisma.DateTimeNullableFilter<"Payroll"> | Date | string | null
+  periodEnd?: Prisma.DateTimeNullableFilter<"Payroll"> | Date | string | null
+  payableDays?: Prisma.DecimalNullableFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFilter<"Payroll"> | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1126,6 +1207,9 @@ export type PayrollCreateWithoutStaffInput = {
   paidLeaveDays?: number
   lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  payableDays?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: $Enums.PayrollDayMethod
   dailyRateDivisor?: runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1153,6 +1237,9 @@ export type PayrollUncheckedCreateWithoutStaffInput = {
   paidLeaveDays?: number
   lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  payableDays?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: $Enums.PayrollDayMethod
   dailyRateDivisor?: runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1207,6 +1294,9 @@ export type PayrollCreateManyTenantInput = {
   paidLeaveDays?: number
   lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  payableDays?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: $Enums.PayrollDayMethod
   dailyRateDivisor?: runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1233,6 +1323,9 @@ export type PayrollUpdateWithoutTenantInput = {
   paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payableDays?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1261,6 +1354,9 @@ export type PayrollUncheckedUpdateWithoutTenantInput = {
   paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payableDays?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1288,6 +1384,9 @@ export type PayrollUncheckedUpdateManyWithoutTenantInput = {
   paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payableDays?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1314,6 +1413,9 @@ export type PayrollCreateManyStaffInput = {
   paidLeaveDays?: number
   lopDays?: runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays: number
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  payableDays?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: $Enums.PayrollDayMethod
   dailyRateDivisor?: runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1341,6 +1443,9 @@ export type PayrollUpdateWithoutStaffInput = {
   paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payableDays?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1368,6 +1473,9 @@ export type PayrollUncheckedUpdateWithoutStaffInput = {
   paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payableDays?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1395,6 +1503,9 @@ export type PayrollUncheckedUpdateManyWithoutStaffInput = {
   paidLeaveDays?: Prisma.IntFieldUpdateOperationsInput | number
   lopDays?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   totalWorkingDays?: Prisma.IntFieldUpdateOperationsInput | number
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  payableDays?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   dayMethod?: Prisma.EnumPayrollDayMethodFieldUpdateOperationsInput | $Enums.PayrollDayMethod
   dailyRateDivisor?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   leaveDeduction?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1425,6 +1536,9 @@ export type PayrollSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   paidLeaveDays?: boolean
   lopDays?: boolean
   totalWorkingDays?: boolean
+  periodStart?: boolean
+  periodEnd?: boolean
+  payableDays?: boolean
   dayMethod?: boolean
   dailyRateDivisor?: boolean
   leaveDeduction?: boolean
@@ -1455,6 +1569,9 @@ export type PayrollSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   paidLeaveDays?: boolean
   lopDays?: boolean
   totalWorkingDays?: boolean
+  periodStart?: boolean
+  periodEnd?: boolean
+  payableDays?: boolean
   dayMethod?: boolean
   dailyRateDivisor?: boolean
   leaveDeduction?: boolean
@@ -1485,6 +1602,9 @@ export type PayrollSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   paidLeaveDays?: boolean
   lopDays?: boolean
   totalWorkingDays?: boolean
+  periodStart?: boolean
+  periodEnd?: boolean
+  payableDays?: boolean
   dayMethod?: boolean
   dailyRateDivisor?: boolean
   leaveDeduction?: boolean
@@ -1515,6 +1635,9 @@ export type PayrollSelectScalar = {
   paidLeaveDays?: boolean
   lopDays?: boolean
   totalWorkingDays?: boolean
+  periodStart?: boolean
+  periodEnd?: boolean
+  payableDays?: boolean
   dayMethod?: boolean
   dailyRateDivisor?: boolean
   leaveDeduction?: boolean
@@ -1527,7 +1650,7 @@ export type PayrollSelectScalar = {
   tenantId?: boolean
 }
 
-export type PayrollOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "month" | "year" | "baseSalary" | "commissionRate" | "commissionAmount" | "revenueGenerated" | "presentDays" | "absentDays" | "leaveDays" | "halfDays" | "paidLeaveDays" | "lopDays" | "totalWorkingDays" | "dayMethod" | "dailyRateDivisor" | "leaveDeduction" | "grossPay" | "netPay" | "payslipNumber" | "status" | "generatedAt" | "paidAt" | "tenantId", ExtArgs["result"]["payroll"]>
+export type PayrollOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "staffId" | "month" | "year" | "baseSalary" | "commissionRate" | "commissionAmount" | "revenueGenerated" | "presentDays" | "absentDays" | "leaveDays" | "halfDays" | "paidLeaveDays" | "lopDays" | "totalWorkingDays" | "periodStart" | "periodEnd" | "payableDays" | "dayMethod" | "dailyRateDivisor" | "leaveDeduction" | "grossPay" | "netPay" | "payslipNumber" | "status" | "generatedAt" | "paidAt" | "tenantId", ExtArgs["result"]["payroll"]>
 export type PayrollInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   staff?: boolean | Prisma.StaffDefaultArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1563,6 +1686,9 @@ export type $PayrollPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     paidLeaveDays: number
     lopDays: runtime.Decimal
     totalWorkingDays: number
+    periodStart: Date | null
+    periodEnd: Date | null
+    payableDays: runtime.Decimal | null
     dayMethod: $Enums.PayrollDayMethod
     dailyRateDivisor: runtime.Decimal
     leaveDeduction: runtime.Decimal
@@ -2013,6 +2139,9 @@ export interface PayrollFieldRefs {
   readonly paidLeaveDays: Prisma.FieldRef<"Payroll", 'Int'>
   readonly lopDays: Prisma.FieldRef<"Payroll", 'Decimal'>
   readonly totalWorkingDays: Prisma.FieldRef<"Payroll", 'Int'>
+  readonly periodStart: Prisma.FieldRef<"Payroll", 'DateTime'>
+  readonly periodEnd: Prisma.FieldRef<"Payroll", 'DateTime'>
+  readonly payableDays: Prisma.FieldRef<"Payroll", 'Decimal'>
   readonly dayMethod: Prisma.FieldRef<"Payroll", 'PayrollDayMethod'>
   readonly dailyRateDivisor: Prisma.FieldRef<"Payroll", 'Decimal'>
   readonly leaveDeduction: Prisma.FieldRef<"Payroll", 'Decimal'>

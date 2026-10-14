@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Trash2 } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
 
 type StaffDesignationRow = {
   id: string;
@@ -14,6 +15,10 @@ export default function ManageDesignationsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [addDraft, setAddDraft] = useState("");
+  const [addSaving, setAddSaving] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -75,6 +80,61 @@ export default function ManageDesignationsPage() {
     }
   }
 
+  async function handleAddDesignation() {
+    if (addSaving) {
+      return;
+    }
+
+    const name = addDraft.trim();
+
+    if (!name) {
+      setAddError("Designation name is required.");
+      return;
+    }
+
+    if (name.length > 40) {
+      setAddError("Designation name is too long (max 40 characters).");
+      return;
+    }
+
+    setAddSaving(true);
+    setAddError(null);
+
+    try {
+      const response = await fetch("/api/staff/designations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as
+        | { error?: string; designation?: StaffDesignationRow }
+        | null;
+
+      if (!response.ok) {
+        setAddError(payload?.error ?? "Unable to add designation.");
+        setAddSaving(false);
+        return;
+      }
+
+      if (payload?.designation) {
+        setItems((current) => {
+          const filtered = current.filter((item) => item.id !== payload.designation!.id);
+          const next = [...filtered, payload.designation!];
+          return next.sort((a, b) => a.name.localeCompare(b.name));
+        });
+        setAddDraft("");
+        setAddModalOpen(false);
+      }
+    } catch (addDesignationError) {
+      setAddError(addDesignationError instanceof Error ? addDesignationError.message : "Unable to add designation.");
+    } finally {
+      setAddSaving(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <header className="space-y-2">
@@ -82,10 +142,21 @@ export default function ManageDesignationsPage() {
           <ArrowLeft className="h-4 w-4" />
           Back to Staff
         </Link>
-        <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Manage Designations</h1>
-        <p className="text-sm text-[var(--muted)]">
-          Designations used on staff profiles. A designation can only be deleted once no staff member uses it.
-        </p>
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Manage Designations</h1>
+            <p className="mt-1 text-sm text-[var(--muted)]">
+              Designations used on staff profiles. A designation can only be deleted once no staff member uses it.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setAddModalOpen(true)}
+            className="inline-flex h-10 items-center justify-center rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--accent)]"
+          >
+            Add New Designation
+          </button>
+        </div>
       </header>
 
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
@@ -118,6 +189,52 @@ export default function ManageDesignationsPage() {
           </ul>
         )}
       </div>
+
+      <Modal open={addModalOpen} onClose={() => setAddModalOpen(false)} title="Add New Designation" size="sm">
+        <div className="space-y-3">
+          <input
+            autoFocus
+            type="text"
+            value={addDraft}
+            onChange={(event) => {
+              setAddDraft(event.target.value);
+              setAddError(null);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !addSaving) {
+                event.preventDefault();
+                handleAddDesignation();
+              }
+              if (event.key === "Escape") {
+                setAddModalOpen(false);
+              }
+            }}
+            placeholder="Designation name"
+            maxLength={40}
+            className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm"
+          />
+
+          {addError ? <p className="text-xs text-red-600">{addError}</p> : null}
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={() => setAddModalOpen(false)}
+              className="h-10 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={() => handleAddDesignation()}
+              disabled={addSaving || !addDraft.trim()}
+              className="h-10 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {addSaving ? "Saving..." : "Save"}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

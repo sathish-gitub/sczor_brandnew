@@ -142,6 +142,7 @@ model Staff {
   email               String?
   dateOfBirth         DateTime?
   joiningDate         DateTime?
+  lastWorkingDate     DateTime? // payroll period end cap for a staff member who has left; null = still active for payroll purposes
   experienceYears     Decimal?             @db.Decimal(4, 1)
   specializations     String[]             @default([])
   workingDays         String[]             @default(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
@@ -200,33 +201,36 @@ model SalaryHistory {
 }
 
 model Payroll {
-  id               String    @id @default(cuid())
+  id               String           @id @default(cuid())
   staffId          String
-  staff            Staff     @relation(fields: [staffId], references: [id])
+  staff            Staff            @relation(fields: [staffId], references: [id])
   month            Int // 1-12
   year             Int
-  baseSalary       Decimal   @db.Decimal(10, 2)
-  commissionRate   Decimal   @db.Decimal(5, 2)
-  commissionAmount Decimal   @db.Decimal(10, 2) // calculated: revenue * rate
-  revenueGenerated Decimal   @db.Decimal(10, 2) // total service revenue credited to staff this month
+  baseSalary       Decimal          @db.Decimal(10, 2) // full configured monthly salary (not prorated); see grossPay/netPay for the prorated amount actually paid
+  commissionRate   Decimal          @db.Decimal(5, 2)
+  commissionAmount Decimal          @db.Decimal(10, 2) // calculated: revenue * rate
+  revenueGenerated Decimal          @db.Decimal(10, 2) // total service revenue credited to staff this month
   presentDays      Int
   absentDays       Int
   leaveDays        Int
   halfDays         Int
-  paidLeaveDays    Int       @default(0) // leave days within allowance, unpaid deduction
-  lopDays          Decimal   @default(0) @db.Decimal(5, 2) // excess leave treated as LOP (can include half-day fractions)
+  paidLeaveDays    Int              @default(0) // leave days within allowance, unpaid deduction
+  lopDays          Decimal          @default(0) @db.Decimal(5, 2) // excess leave treated as LOP (can include half-day fractions)
   totalWorkingDays Int // present + absent + leave + half
+  periodStart      DateTime? // payable-period start (prorated generations only; null on payslips generated before proration)
+  periodEnd        DateTime? // payable-period end
+  payableDays      Decimal?         @db.Decimal(6, 2) // calendar/working days actually paid within the period (capped at dailyRateDivisor)
   dayMethod        PayrollDayMethod @default(CALENDAR_DAYS) // daily-rate method in effect when this payslip was generated
-  dailyRateDivisor Decimal   @db.Decimal(6, 2) @default(30) // divisor used for baseSalary / dailyRateDivisor at generation time
-  leaveDeduction   Decimal   @db.Decimal(10, 2) // proportional salary deduction for unpaid leave/absent days
-  grossPay         Decimal   @db.Decimal(10, 2) // baseSalary + commissionAmount
-  netPay           Decimal   @db.Decimal(10, 2) // grossPay - leaveDeduction
+  dailyRateDivisor Decimal          @default(30) @db.Decimal(6, 2) // divisor used for baseSalary / dailyRateDivisor at generation time
+  leaveDeduction   Decimal          @db.Decimal(10, 2) // proportional salary deduction for unpaid leave/absent/half days within the period
+  grossPay         Decimal          @db.Decimal(10, 2) // baseSalaryPaid (prorated) + commissionAmount
+  netPay           Decimal          @db.Decimal(10, 2) // grossPay - leaveDeduction
   payslipNumber    String // e.g. PAY-2026-09-0001
-  status           String    @default("GENERATED") // GENERATED | PAID
-  generatedAt      DateTime  @default(now())
+  status           String           @default("GENERATED") // GENERATED | PAID
+  generatedAt      DateTime         @default(now())
   paidAt           DateTime?
   tenantId         String
-  tenant           Tenant    @relation(fields: [tenantId], references: [id])
+  tenant           Tenant           @relation(fields: [tenantId], references: [id])
 
   @@unique([staffId, month, year])
   @@unique([payslipNumber, tenantId])
@@ -418,68 +422,68 @@ model Attendance {
 }
 
 model SalonSettings {
-  id                        String  @id @default(cuid())
-  tenantId                  String  @unique
-  tenant                    Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  onboardingStep1Done       Boolean @default(false)
-  loyaltyPointsPerRupee     Decimal @default(0.1) @db.Decimal(5, 2)
-  rupeePerPoint             Decimal @default(1) @db.Decimal(5, 2)
-  minPointsToRedeem         Int     @default(100)
-  maxRedeemPercent          Decimal @default(50) @db.Decimal(5, 2)
-  pointsExpiryEnabled       Boolean @default(false)
-  pointsExpiryMonths        Int     @default(12)
-  silverThreshold           Int     @default(500)
-  goldThreshold             Int     @default(2000)
-  platinumThreshold         Int     @default(5000)
-  slotDurationMinutes       Int     @default(30)
-  defaultPaidLeavesPerMonth Int     @default(1)
+  id                        String           @id @default(cuid())
+  tenantId                  String           @unique
+  tenant                    Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  onboardingStep1Done       Boolean          @default(false)
+  loyaltyPointsPerRupee     Decimal          @default(0.1) @db.Decimal(5, 2)
+  rupeePerPoint             Decimal          @default(1) @db.Decimal(5, 2)
+  minPointsToRedeem         Int              @default(100)
+  maxRedeemPercent          Decimal          @default(50) @db.Decimal(5, 2)
+  pointsExpiryEnabled       Boolean          @default(false)
+  pointsExpiryMonths        Int              @default(12)
+  silverThreshold           Int              @default(500)
+  goldThreshold             Int              @default(2000)
+  platinumThreshold         Int              @default(5000)
+  slotDurationMinutes       Int              @default(30)
+  defaultPaidLeavesPerMonth Int              @default(1)
   payrollDayMethod          PayrollDayMethod @default(CALENDAR_DAYS)
-  mondayEnabled             Boolean @default(true)
-  mondayOpen                String  @default("09:00")
-  mondayClose               String  @default("21:00")
+  mondayEnabled             Boolean          @default(true)
+  mondayOpen                String           @default("09:00")
+  mondayClose               String           @default("21:00")
   mondayBreak               String?
-  tuesdayEnabled            Boolean @default(true)
-  tuesdayOpen               String  @default("09:00")
-  tuesdayClose              String  @default("21:00")
+  tuesdayEnabled            Boolean          @default(true)
+  tuesdayOpen               String           @default("09:00")
+  tuesdayClose              String           @default("21:00")
   tuesdayBreak              String?
-  wednesdayEnabled          Boolean @default(true)
-  wednesdayOpen             String  @default("09:00")
-  wednesdayClose            String  @default("21:00")
+  wednesdayEnabled          Boolean          @default(true)
+  wednesdayOpen             String           @default("09:00")
+  wednesdayClose            String           @default("21:00")
   wednesdayBreak            String?
-  thursdayEnabled           Boolean @default(true)
-  thursdayOpen              String  @default("09:00")
-  thursdayClose             String  @default("21:00")
+  thursdayEnabled           Boolean          @default(true)
+  thursdayOpen              String           @default("09:00")
+  thursdayClose             String           @default("21:00")
   thursdayBreak             String?
-  fridayEnabled             Boolean @default(true)
-  fridayOpen                String  @default("09:00")
-  fridayClose               String  @default("21:00")
+  fridayEnabled             Boolean          @default(true)
+  fridayOpen                String           @default("09:00")
+  fridayClose               String           @default("21:00")
   fridayBreak               String?
-  saturdayEnabled           Boolean @default(true)
-  saturdayOpen              String  @default("09:00")
-  saturdayClose             String  @default("21:00")
+  saturdayEnabled           Boolean          @default(true)
+  saturdayOpen              String           @default("09:00")
+  saturdayClose             String           @default("21:00")
   saturdayBreak             String?
-  sundayEnabled             Boolean @default(false)
-  sundayOpen                String  @default("09:00")
-  sundayClose               String  @default("21:00")
+  sundayEnabled             Boolean          @default(false)
+  sundayOpen                String           @default("09:00")
+  sundayClose               String           @default("21:00")
   sundayBreak               String?
-  gstEnabled                Boolean @default(true)
-  gstRate                   Decimal @default(18) @db.Decimal(5, 2)
-  taxLabel                  String  @default("GST")
-  currency                  String  @default("INR")
-  currencySymbol            String  @default("₹")
-  invoicePrefix             String  @default("INV")
-  invoiceNumberFormat       String  @default("INV-YYYY-XXXX")
-  invoiceStartNumber        Int     @default(1)
+  gstEnabled                Boolean          @default(true)
+  gstRate                   Decimal          @default(18) @db.Decimal(5, 2)
+  taxLabel                  String           @default("GST")
+  currency                  String           @default("INR")
+  currencySymbol            String           @default("₹")
+  invoicePrefix             String           @default("INV")
+  invoiceNumberFormat       String           @default("INV-YYYY-XXXX")
+  invoiceStartNumber        Int              @default(1)
   invoiceFooter             String?
   invoiceTerms              String?
-  cashEnabled               Boolean @default(true)
-  upiEnabled                Boolean @default(true)
-  cardEnabled               Boolean @default(true)
-  walletEnabled             Boolean @default(true)
+  cashEnabled               Boolean          @default(true)
+  upiEnabled                Boolean          @default(true)
+  cardEnabled               Boolean          @default(true)
+  walletEnabled             Boolean          @default(true)
   upiId                     String?
-  smsEnabled                Boolean @default(false)
-  whatsappEnabled           Boolean @default(false)
-  emailEnabled              Boolean @default(false)
+  smsEnabled                Boolean          @default(false)
+  whatsappEnabled           Boolean          @default(false)
+  emailEnabled              Boolean          @default(false)
 }
 
 model Holiday {

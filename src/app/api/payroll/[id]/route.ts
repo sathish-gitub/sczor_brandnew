@@ -61,6 +61,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         paidLeaveDays: payroll.paidLeaveDays,
         lopDays: Number(payroll.lopDays),
         totalWorkingDays: payroll.totalWorkingDays,
+        periodStart: payroll.periodStart,
+        periodEnd: payroll.periodEnd,
+        payableDays: payroll.payableDays === null ? null : Number(payroll.payableDays),
+        // Derived, not a separate column: baseSalaryPaid = grossPay - commissionAmount.
+        baseSalaryPaid: Number(payroll.grossPay) - Number(payroll.commissionAmount),
+        deductionDays: payroll.absentDays + Number(payroll.lopDays) + payroll.halfDays * 0.5,
         dayMethod: payroll.dayMethod,
         dailyRateDivisor: Number(payroll.dailyRateDivisor),
         leaveDeduction: Number(payroll.leaveDeduction),

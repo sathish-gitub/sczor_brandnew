@@ -1,6 +1,6 @@
-import { Save } from "lucide-react";
-
 import { ATTENDANCE_STATUS_VALUES, getAttendanceStatusStyle, type AttendanceStatusValue } from "@/lib/attendanceStatus";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AlertCircle, Check } from "lucide-react";
 
 type AttendanceRow = {
   staffId: string;
@@ -10,14 +10,15 @@ type AttendanceRow = {
   displayStatus: AttendanceStatusValue | "NOT_MARKED";
 };
 
+type RowSaveState = "idle" | "saving" | "saved" | "error";
+
 type AttendanceTableProps = {
   rows: AttendanceRow[];
   pendingStatuses: Record<string, AttendanceStatusValue>;
-  savingAll: boolean;
   onMarkAll: (status: AttendanceStatusValue) => void;
   onStatusChange: (staffId: string, status: AttendanceStatusValue) => void;
-  onSaveAll: () => void;
-  hasUnsavedChanges: boolean;
+  onAutoSave: (staffId: string, status: AttendanceStatusValue) => Promise<boolean>;
+  isReadOnly?: boolean;
 };
 
 function statusWithFallback(row: AttendanceRow, pending: AttendanceStatusValue | undefined): AttendanceStatusValue {
@@ -29,28 +30,80 @@ function statusWithFallback(row: AttendanceRow, pending: AttendanceStatusValue |
     return row.status;
   }
 
-  // No stored row yet: default the dropdown to what will actually be saved
-  // if "Save Attendance" is clicked without any further changes — an
-  // automatic Week Off on a closed day, or Present as the usual daily guess.
   return row.displayStatus === "WEEK_OFF" ? "WEEK_OFF" : "PRESENT";
 }
 
 export function AttendanceTable({
   rows,
   pendingStatuses,
-  savingAll,
   onMarkAll,
   onStatusChange,
-  onSaveAll,
-  hasUnsavedChanges,
+  onAutoSave,
+  isReadOnly = false,
 }: AttendanceTableProps) {
+  const [rowSaveStates, setRowSaveStates] = useState<Record<string, RowSaveState>>({});
+  const debounceTimers = useRef<Record<string, NodeJS.Timeout>>({});
+
+  const totalSavingCount = useMemo(
+    () => Object.values(rowSaveStates).filter((state) => state === "saving").length,
+    [rowSaveStates],
+  );
+
+  const allSaved = useMemo(
+    () =>
+      Object.values(rowSaveStates).every((state) => state === "idle" || state === "saved") &&
+      Object.keys(pendingStatuses).length === 0,
+    [rowSaveStates, pendingStatuses],
+  );
+
+  const handleStatusChange = useCallback(
+    (staffId: string, status: AttendanceStatusValue) => {
+      onStatusChange(staffId, status);
+      setRowSaveStates((prev) => ({ ...prev, [staffId]: "saving" }));
+
+      // Clear previous timer
+      if (debounceTimers.current[staffId]) {
+        clearTimeout(debounceTimers.current[staffId]);
+      }
+
+      // Set new timer
+      debounceTimers.current[staffId] = setTimeout(async () => {
+        const success = await onAutoSave(staffId, status);
+        setRowSaveStates((prev) => ({
+          ...prev,
+          [staffId]: success ? "saved" : "error",
+        }));
+
+        // Fade out "Saved" after 2 seconds
+        if (success) {
+          setTimeout(() => {
+            setRowSaveStates((prev) => ({
+              ...prev,
+              [staffId]: "idle",
+            }));
+          }, 2000);
+        }
+      }, 400);
+    },
+    [onStatusChange, onAutoSave],
+  );
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    const timers = debounceTimers.current;
+    return () => {
+      Object.values(timers).forEach(clearTimeout);
+    };
+  }, []);
+
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border)] bg-white p-3">
         <button
           type="button"
           onClick={() => onMarkAll("PRESENT")}
-          className="inline-flex h-9 items-center rounded-lg border border-emerald-200 px-3 text-xs font-semibold text-emerald-700"
+          disabled={isReadOnly}
+          className="inline-flex h-9 items-center rounded-lg border border-emerald-200 px-3 text-xs font-semibold text-emerald-700 disabled:opacity-50"
         >
           Mark all Present
         </button>
@@ -58,7 +111,8 @@ export function AttendanceTable({
         <button
           type="button"
           onClick={() => onMarkAll("ABSENT")}
-          className="inline-flex h-9 items-center rounded-lg border border-red-200 px-3 text-xs font-semibold text-red-700"
+          disabled={isReadOnly}
+          className="inline-flex h-9 items-center rounded-lg border border-red-200 px-3 text-xs font-semibold text-red-700 disabled:opacity-50"
         >
           Mark all Absent
         </button>
@@ -66,20 +120,19 @@ export function AttendanceTable({
         <button
           type="button"
           onClick={() => onMarkAll("WEEK_OFF")}
-          className="inline-flex h-9 items-center rounded-lg border border-indigo-200 px-3 text-xs font-semibold text-indigo-700"
+          disabled={isReadOnly}
+          className="inline-flex h-9 items-center rounded-lg border border-indigo-200 px-3 text-xs font-semibold text-indigo-700 disabled:opacity-50"
         >
           Mark all Week Off
         </button>
 
-        <button
-          type="button"
-          onClick={onSaveAll}
-          disabled={savingAll || !hasUnsavedChanges}
-          className="ml-auto inline-flex h-9 items-center gap-1 rounded-lg bg-slate-900 px-3 text-xs font-semibold text-white disabled:opacity-60"
-        >
-          <Save className="h-3.5 w-3.5" />
-          {savingAll ? "Saving..." : "Save Attendance"}
-        </button>
+        <div className="ml-auto text-xs font-medium text-[var(--muted)]">
+          {allSaved ? (
+            <span className="text-emerald-700">All changes saved</span>
+          ) : totalSavingCount > 0 ? (
+            <span className="text-amber-700">Saving {totalSavingCount} changes...</span>
+          ) : null}
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-white">
@@ -95,6 +148,7 @@ export function AttendanceTable({
             {rows.map((row) => {
               const current = statusWithFallback(row, pendingStatuses[row.staffId]);
               const style = getAttendanceStatusStyle(current);
+              const saveState = rowSaveStates[row.staffId] ?? "idle";
 
               return (
                 <tr key={row.staffId} className="border-t border-[var(--border)]">
@@ -106,20 +160,43 @@ export function AttendanceTable({
                   </td>
                   <td className="px-4 py-3 text-[var(--muted)]">{row.designation}</td>
                   <td className="px-4 py-3">
-                    <label className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] px-2.5 py-1.5">
-                      <span className={`inline-block h-2.5 w-2.5 rounded-full ${style.dotClassName}`} />
-                      <select
-                        value={current}
-                        onChange={(event) => onStatusChange(row.staffId, event.target.value as AttendanceStatusValue)}
-                        className="bg-transparent text-sm font-medium text-[var(--foreground)] outline-none"
-                      >
-                        {ATTENDANCE_STATUS_VALUES.map((value) => (
-                          <option key={value} value={value}>
-                            {getAttendanceStatusStyle(value).label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                    <div className="flex items-center gap-2">
+                      <label className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] px-2.5 py-1.5">
+                        <span className={`inline-block h-2.5 w-2.5 rounded-full ${style.dotClassName}`} />
+                        <select
+                          value={current}
+                          onChange={(event) => handleStatusChange(row.staffId, event.target.value as AttendanceStatusValue)}
+                          disabled={isReadOnly}
+                          className="bg-transparent text-sm font-medium text-[var(--foreground)] outline-none disabled:opacity-50"
+                        >
+                          {ATTENDANCE_STATUS_VALUES.map((value) => (
+                            <option key={value} value={value}>
+                              {getAttendanceStatusStyle(value).label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+
+                      <div className="min-w-[80px] text-xs font-medium">
+                        {saveState === "saving" ? (
+                          <span className="text-amber-700">Saving...</span>
+                        ) : saveState === "saved" ? (
+                          <span className="inline-flex items-center gap-1 text-emerald-700">
+                            <Check className="h-3 w-3" />
+                            Saved
+                          </span>
+                        ) : saveState === "error" ? (
+                          <button
+                            type="button"
+                            onClick={() => handleStatusChange(row.staffId, current)}
+                            className="text-red-700 hover:underline"
+                          >
+                            <AlertCircle className="inline h-3 w-3 mr-1" />
+                            Failed, tap to retry
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
                   </td>
                 </tr>
               );

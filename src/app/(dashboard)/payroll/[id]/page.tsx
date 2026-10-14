@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { PAYROLL_DAY_METHOD_INFO, type PayrollDayMethod } from "@/lib/payrollDayMethod";
+import { formatISTDayMonth } from "@/lib/time";
 
 type PayrollDetail = {
   id: string;
@@ -25,6 +26,15 @@ type PayrollDetail = {
   paidLeaveDays: number;
   lopDays: number;
   totalWorkingDays: number;
+  /** Payable period bounds (null for payslips generated before proration). */
+  periodStart: string | null;
+  periodEnd: string | null;
+  /** Calendar/working days actually paid within the period, capped at dailyRateDivisor (null for pre-proration payslips). */
+  payableDays: number | null;
+  /** baseSalary prorated to payableDays — the base-pay component actually paid. */
+  baseSalaryPaid: number;
+  /** Unpaid ABSENT + LOP + 0.5 x HALF_DAY days within the period. */
+  deductionDays: number;
   dayMethod: PayrollDayMethod;
   dailyRateDivisor: number;
   leaveDeduction: number;
@@ -169,7 +179,11 @@ export default function PayslipPage({ params }: { params: Promise<{ id: string }
           </div>
           <div>
             <p className="text-[var(--muted)]">Pay Period</p>
-            <p className="font-semibold text-[var(--foreground)]">{months[payroll.month - 1]} {payroll.year}</p>
+            <p className="font-semibold text-[var(--foreground)]">
+              {payroll.periodStart && payroll.periodEnd
+                ? `${formatISTDayMonth(payroll.periodStart)} - ${formatISTDayMonth(payroll.periodEnd)}, ${payroll.year}`
+                : `${months[payroll.month - 1]} ${payroll.year}`}
+            </p>
           </div>
           <div>
             <p className="text-[var(--muted)]">Employee</p>
@@ -185,9 +199,14 @@ export default function PayslipPage({ params }: { params: Promise<{ id: string }
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Earnings</p>
           <div className="space-y-1.5 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-[var(--foreground)]">Base Salary</span>
-              <span className="font-medium text-[var(--foreground)]">{formatCurrency(payroll.baseSalary)}</span>
+              <span className="text-[var(--foreground)]">
+                Base Salary {payroll.payableDays !== null ? `(${payroll.payableDays} of ${payroll.dailyRateDivisor} days)` : null}
+              </span>
+              <span className="font-medium text-[var(--foreground)]">{formatCurrency(payroll.baseSalaryPaid)}</span>
             </div>
+            {payroll.baseSalaryPaid !== payroll.baseSalary ? (
+              <p className="text-xs text-[var(--muted)]">(full monthly salary: {formatCurrency(payroll.baseSalary)})</p>
+            ) : null}
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[var(--foreground)]">Commission ({payroll.commissionRate}%)</span>
@@ -208,7 +227,7 @@ export default function PayslipPage({ params }: { params: Promise<{ id: string }
             <div className="flex items-center justify-between text-[var(--muted)]">
               <span>Daily Rate Method</span>
               <span>
-                {PAYROLL_DAY_METHOD_INFO[payroll.dayMethod].label} (salary / {payroll.dailyRateDivisor})
+                {PAYROLL_DAY_METHOD_INFO[payroll.dayMethod].label} (salary / {payroll.dailyRateDivisor} = {formatCurrency(payroll.baseSalary / payroll.dailyRateDivisor)}/day)
               </span>
             </div>
             <div className="flex items-center justify-between text-[var(--muted)]">
@@ -220,7 +239,7 @@ export default function PayslipPage({ params }: { params: Promise<{ id: string }
               <span>{payroll.halfDays} (0.5)</span>
             </div>
             <div className="flex items-center justify-between font-semibold text-red-600">
-              <span>Deduction</span>
+              <span>Deduction ({payroll.deductionDays} days)</span>
               <span>-{formatCurrency(payroll.leaveDeduction)}</span>
             </div>
           </div>

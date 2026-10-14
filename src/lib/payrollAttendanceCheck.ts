@@ -4,7 +4,9 @@
  * For a payroll month and an active staff member, the required IST days run
  * from the 1st of the month (or the staff member's `joiningDate` if it falls
  * later in that month) up to the payroll end date: the last day of the
- * month for a past month, or today (IST, inclusive) for the current month.
+ * month for a past month, or today (IST, inclusive) for the current month —
+ * further capped at the staff member's `lastWorkingDate`, if set, so a
+ * staff member who has left is never asked for attendance after they left.
  * Future months have no required days.
  *
  * A required day that is Week Off (an automatic non-working day — business
@@ -27,12 +29,15 @@ import {
   istMonthBounds,
   todayISTDateString,
   toISTDateString,
+  addDaysToDateString,
 } from "@/lib/time";
 
 export type StaffAttendanceRequirement = {
   staffId: string;
   staffName: string;
   joiningDate: Date | null;
+  /** Required days stop here if set (a staff member who has left should not be asked for attendance after this date). */
+  lastWorkingDate?: Date | null;
 };
 
 export type MissingAttendanceByStaff = {
@@ -98,6 +103,7 @@ export async function getMissingAttendanceByStaff({
 
   return staff.map((member) => {
     let startDay = 1;
+    let endDay = lastRequiredDay;
 
     if (member.joiningDate) {
       const joinYear = getISTYear(member.joiningDate);
@@ -112,10 +118,24 @@ export async function getMissingAttendanceByStaff({
       }
     }
 
+    if (member.lastWorkingDate) {
+      const leftYear = getISTYear(member.lastWorkingDate);
+      const leftMonth = getISTMonth(member.lastWorkingDate);
+
+      if (leftYear < year || (leftYear === year && leftMonth < month)) {
+        // Left entirely before this payroll month started: no required days.
+        return { staffId: member.staffId, staffName: member.staffName, missingDates: [] };
+      }
+
+      if (leftYear === year && leftMonth === month) {
+        endDay = Math.min(endDay, getISTDayOfMonth(member.lastWorkingDate));
+      }
+    }
+
     const attendedDates = attendedDatesByStaff.get(member.staffId) ?? new Set<string>();
     const missingDates: string[] = [];
 
-    for (let day = startDay; day <= lastRequiredDay; day += 1) {
+    for (let day = startDay; day <= endDay; day += 1) {
       const dateStr = `${year}-${pad(month)}-${pad(day)}`;
 
       if (attendedDates.has(dateStr)) {
@@ -139,6 +159,7 @@ export async function getMissingAttendanceForStaff({
   staffId,
   staffName,
   joiningDate,
+  lastWorkingDate,
   month,
   year,
   context,
@@ -147,6 +168,7 @@ export async function getMissingAttendanceForStaff({
   staffId: string;
   staffName: string;
   joiningDate: Date | null;
+  lastWorkingDate?: Date | null;
   month: number;
   year: number;
   context?: MonthBusinessHoursContext | null;
@@ -155,7 +177,7 @@ export async function getMissingAttendanceForStaff({
     tenantId,
     month,
     year,
-    staff: [{ staffId, staffName, joiningDate }],
+    staff: [{ staffId, staffName, joiningDate, lastWorkingDate }],
     context,
   });
 
@@ -189,6 +211,43 @@ export function countWeekOffDatesInMonth({
     if (context && isAutomaticNonWorkingDay(dateStr, context)) {
       weekOffDates.add(dateStr);
     }
+  }
+
+  return weekOffDates.size;
+}
+
+/**
+ * Count of "Week Off" IST dates within an arbitrary inclusive date range
+ * (automatic non-working days, unioned with `storedWeekOffDates`), for the
+ * WORKING_DAYS `payableDays` calculation (see `src/lib/payrollProration.ts`),
+ * which is scoped to the payable period rather than the whole month.
+ */
+export function countWeekOffDatesInRange({
+  startDateStr,
+  endDateStr,
+  context,
+  storedWeekOffDates,
+}: {
+  startDateStr: string;
+  endDateStr: string;
+  context: MonthBusinessHoursContext | null;
+  storedWeekOffDates: Iterable<string>;
+}): number {
+  const stored = new Set(storedWeekOffDates);
+  const weekOffDates = new Set<string>();
+
+  for (const dateStr of stored) {
+    if (dateStr >= startDateStr && dateStr <= endDateStr) {
+      weekOffDates.add(dateStr);
+    }
+  }
+
+  let cursor = startDateStr;
+  while (cursor <= endDateStr) {
+    if (context && isAutomaticNonWorkingDay(cursor, context)) {
+      weekOffDates.add(cursor);
+    }
+    cursor = addDaysToDateString(cursor, 1);
   }
 
   return weekOffDates.size;

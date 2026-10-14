@@ -7,6 +7,7 @@ import { AlertTriangle, CalendarClock } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { PAYROLL_DAY_METHOD_INFO, type PayrollDayMethod } from "@/lib/payrollDayMethod";
 import { formatMissingDatesSummary } from "@/lib/formatMissingDates";
+import { formatISTDayMonth } from "@/lib/time";
 
 type StaffOverviewItem = {
   id: string;
@@ -32,6 +33,14 @@ type PayrollPreviewResult = {
   usedDefaultLeaveAllowance: boolean;
   dayMethod: PayrollDayMethod;
   dailyRateDivisor: number;
+  dailyRate: number;
+  periodStart: string;
+  periodEnd: string;
+  payableDays: number;
+  baseSalaryPaid: number;
+  deductionDays: number;
+  leaveDeduction: number;
+  commissionAmount: number;
   netPay: number;
 };
 
@@ -490,6 +499,12 @@ export default function PayrollPage() {
               <>
                 <div className="space-y-1.5 rounded-xl border border-[var(--border)] bg-slate-50 px-3 py-3 text-sm">
                   <div className="flex items-center justify-between">
+                    <span className="text-[var(--muted)]">Pay Period</span>
+                    <span className="font-medium text-[var(--foreground)]">
+                      {formatISTDayMonth(singlePreview.periodStart)} - {formatISTDayMonth(singlePreview.periodEnd)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
                     <span className="text-[var(--muted)]">Present</span>
                     <span className="font-medium text-[var(--foreground)]">{singlePreview.presentDays} days</span>
                   </div>
@@ -521,8 +536,26 @@ export default function PayrollPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--muted)]">Daily Rate Method</span>
                     <span className="font-medium text-[var(--foreground)]">
-                      {PAYROLL_DAY_METHOD_INFO[singlePreview.dayMethod].label} (salary / {singlePreview.dailyRateDivisor})
+                      {PAYROLL_DAY_METHOD_INFO[singlePreview.dayMethod].label} (salary / {singlePreview.dailyRateDivisor} = {formatCurrency(singlePreview.dailyRate)}/day)
                     </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--muted)]">Payable Days</span>
+                    <span className="font-medium text-[var(--foreground)]">
+                      {singlePreview.payableDays} of {singlePreview.dailyRateDivisor}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--muted)]">Base Pay (prorated)</span>
+                    <span className="font-medium text-[var(--foreground)]">{formatCurrency(singlePreview.baseSalaryPaid)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[var(--muted)]">Commission</span>
+                    <span className="font-medium text-[var(--foreground)]">{formatCurrency(singlePreview.commissionAmount)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-red-600">
+                    <span>Deduction ({singlePreview.deductionDays} days)</span>
+                    <span className="font-medium">-{formatCurrency(singlePreview.leaveDeduction)}</span>
                   </div>
                   <div className="mt-2 flex items-center justify-between border-t border-[var(--border)] pt-2 font-semibold text-[var(--foreground)]">
                     <span>Estimated Net Pay</span>
@@ -578,6 +611,7 @@ export default function PayrollPage() {
                   <tr>
                     <th className="px-3 py-2">Staff</th>
                     <th className="px-3 py-2">Leave (paid/LOP)</th>
+                    <th className="px-3 py-2">Payable Days</th>
                     <th className="px-3 py-2">Estimated Net Pay</th>
                   </tr>
                 </thead>
@@ -586,7 +620,7 @@ export default function PayrollPage() {
                     <tr key={entry.staffId} className="border-b border-[var(--border)] last:border-b-0">
                       <td className="px-3 py-2 font-medium text-[var(--foreground)]">{entry.staffName}</td>
                       {entry.missingDates && entry.missingDates.length > 0 ? (
-                        <td className="px-3 py-2 text-red-700" colSpan={2}>
+                        <td className="px-3 py-2 text-red-700" colSpan={3}>
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="inline-flex items-center gap-1 font-semibold">
                               <CalendarClock className="h-3.5 w-3.5" />
@@ -608,12 +642,15 @@ export default function PayrollPage() {
                               <span className="ml-1 text-xs">(salon default)</span>
                             ) : null}
                           </td>
+                          <td className="px-3 py-2 text-[var(--muted)]">
+                            {entry.result.payableDays} of {entry.result.dailyRateDivisor}
+                          </td>
                           <td className="px-3 py-2 font-medium text-[var(--foreground)]">
                             {formatCurrency(entry.result.netPay)}
                           </td>
                         </>
                       ) : (
-                        <td className="px-3 py-2 text-amber-700" colSpan={2}>
+                        <td className="px-3 py-2 text-amber-700" colSpan={3}>
                           {entry.error}
                         </td>
                       )}

@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { checkWriteAccess } from "@/lib/enforceAccess";
 import { calculatePayroll, PayrollCalculationError } from "@/lib/payrollCalculation";
 import { prisma } from "@/lib/prisma";
+import { startOfDayIST } from "@/lib/time";
 
 const payloadSchema = z
   .object({
@@ -71,6 +72,9 @@ async function generateForStaff(tenantId: string, staffId: string, month: number
       paidLeaveDays: result.paidLeaveDays,
       lopDays: result.lopDays,
       totalWorkingDays: result.totalWorkingDays,
+      periodStart: startOfDayIST(result.periodStart),
+      periodEnd: startOfDayIST(result.periodEnd),
+      payableDays: result.payableDays,
       dayMethod: result.dayMethod,
       dailyRateDivisor: result.dailyRateDivisor,
       leaveDeduction: result.leaveDeduction,

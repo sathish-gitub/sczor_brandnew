@@ -43,6 +43,7 @@ export async function GET(request: Request) {
         baseSalary: true,
         commissionRate: true,
         joiningDate: true,
+        lastWorkingDate: true,
         salaryHistory: {
           orderBy: { effectiveFrom: "desc" },
           select: { baseSalary: true, commissionRate: true, effectiveFrom: true, effectiveTo: true },
@@ -65,7 +66,12 @@ export async function GET(request: Request) {
         tenantId: session.user.tenantId,
         month,
         year,
-        staff: staffList.map((staff) => ({ staffId: staff.id, staffName: staff.name, joiningDate: staff.joiningDate })),
+        staff: staffList.map((staff) => ({
+          staffId: staff.id,
+          staffName: staff.name,
+          joiningDate: staff.joiningDate,
+          lastWorkingDate: staff.lastWorkingDate,
+        })),
       }),
     ]);
 

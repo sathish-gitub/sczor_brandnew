@@ -9,6 +9,7 @@ import { AttendanceSummary } from "@/components/attendance/AttendanceSummary";
 import { AttendanceTable } from "@/components/attendance/AttendanceTable";
 import { emptyAttendanceStatusCounts, type AttendanceStatusValue } from "@/lib/attendanceStatus";
 import { addDaysToDateString, formatISTLongDate, todayISTDateString } from "@/lib/time";
+import { useAccess } from "@/contexts/AccessContext";
 
 type AttendanceRow = {
   staffId: string;
@@ -41,6 +42,7 @@ export default function AttendancePage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const access = useAccess();
 
   const today = todayISTDateString();
   const dateParam = searchParams.get("date");
@@ -52,11 +54,13 @@ export default function AttendancePage() {
   const [isBusinessWorkingDay, setIsBusinessWorkingDay] = useState(true);
   const [staffOptions, setStaffOptions] = useState<StaffOption[]>([]);
   const [pendingStatuses, setPendingStatuses] = useState<Record<string, AttendanceStatusValue>>({});
-  const [savingAll, setSavingAll] = useState(false);
+  const [rowSaveAttempts, setRowSaveAttempts] = useState<Record<string, boolean>>({});
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const isReadOnly = access.accessLevel === "READ_ONLY";
 
   const enqueueToast = useCallback((tone: "success" | "error", text: string) => {
     const id = createToastId();
@@ -65,8 +69,6 @@ export default function AttendancePage() {
       setToasts((current) => current.filter((item) => item.id !== id));
     }, 2400);
   }, []);
-
-  const hasUnsavedChanges = Object.keys(pendingStatuses).length > 0;
 
   const updateQuery = useCallback(
     (updates: Record<string, string | null>) => {
@@ -135,6 +137,7 @@ export default function AttendancePage() {
         setRows(payload.items ?? []);
         setIsBusinessWorkingDay(payload.isBusinessWorkingDay ?? true);
         setPendingStatuses({});
+        setRowSaveAttempts({});
       } catch (loadError) {
         if (!active) {
           return;
@@ -157,7 +160,7 @@ export default function AttendancePage() {
 
   useEffect(() => {
     const handler = (event: BeforeUnloadEvent) => {
-      if (!hasUnsavedChanges) {
+      if (Object.keys(rowSaveAttempts).length === 0 || Object.values(rowSaveAttempts).every((v) => v)) {
         return;
       }
 
@@ -167,11 +170,11 @@ export default function AttendancePage() {
 
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [hasUnsavedChanges]);
+  }, [rowSaveAttempts]);
 
   useEffect(() => {
     const clickHandler = (event: MouseEvent) => {
-      if (!hasUnsavedChanges) {
+      if (Object.keys(rowSaveAttempts).length === 0 || Object.values(rowSaveAttempts).every((v) => v)) {
         return;
       }
 
@@ -195,7 +198,7 @@ export default function AttendancePage() {
 
     document.addEventListener("click", clickHandler);
     return () => document.removeEventListener("click", clickHandler);
-  }, [hasUnsavedChanges]);
+  }, [rowSaveAttempts]);
 
   function defaultStatusFor(row: AttendanceRow): AttendanceStatusValue {
     if (row.status) {
@@ -205,59 +208,55 @@ export default function AttendancePage() {
     return row.displayStatus === "WEEK_OFF" ? "WEEK_OFF" : "PRESENT";
   }
 
-  async function saveAll() {
-    const updates = rows.map((row) => ({
-      staffId: row.staffId,
-      status: pendingStatuses[row.staffId] ?? defaultStatusFor(row),
-    }));
+  async function autoSaveRow(staffId: string, status: AttendanceStatusValue): Promise<boolean> {
+    try {
+      const response = await fetch("/api/attendance/single", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          staffId,
+          date: selectedDate,
+          status,
+        }),
+      });
 
-    if (updates.length === 0) {
-      enqueueToast("success", "No attendance rows to save.");
-      return;
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        enqueueToast("error", payload?.error ?? "Unable to save attendance.");
+        return false;
+      }
+
+      // Success: update the row
+      setRows((current) =>
+        current.map((row) =>
+          row.staffId === staffId
+            ? {
+                ...row,
+                status,
+                displayStatus: status,
+              }
+            : row,
+        ),
+      );
+
+      setPendingStatuses((current) => {
+        const next = { ...current };
+        delete next[staffId];
+        return next;
+      });
+
+      setRowSaveAttempts((current) => ({
+        ...current,
+        [staffId]: true,
+      }));
+
+      return true;
+    } catch {
+      enqueueToast("error", "Unable to save attendance.");
+      return false;
     }
-
-    setSavingAll(true);
-
-    const response = await fetch("/api/attendance/bulk", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        date: selectedDate,
-        attendances: updates,
-      }),
-    });
-
-    const payload = (await response.json().catch(() => null)) as { error?: string; successCount?: number } | null;
-
-    if (!response.ok) {
-      enqueueToast("error", payload?.error ?? "Unable to save attendance changes.");
-      setSavingAll(false);
-      return;
-    }
-
-    const updateMap = new Map(updates.map((item) => [item.staffId, item.status]));
-
-    setRows((current) =>
-      current.map((row) => {
-        const nextStatus = updateMap.get(row.staffId);
-
-        if (!nextStatus) {
-          return row;
-        }
-
-        return {
-          ...row,
-          status: nextStatus,
-          displayStatus: nextStatus,
-        };
-      }),
-    );
-
-    setPendingStatuses({});
-    setSavingAll(false);
-    enqueueToast("success", `Attendance saved (${payload?.successCount ?? updates.length} entries).`);
   }
 
   function onStatusChange(staffId: string, status: AttendanceStatusValue) {
@@ -281,18 +280,80 @@ export default function AttendancePage() {
   }, [rows, searchQuery]);
 
   function onMarkAll(status: AttendanceStatusValue) {
-    // Applies to the currently filtered (staff dropdown + search) rows only.
+    const staffIds = filteredRows.map((row) => row.staffId);
+
+    // Update pending statuses first
     setPendingStatuses((current) => {
       const next = { ...current };
-      for (const staffId of filteredRows.map((row) => row.staffId)) {
+      for (const staffId of staffIds) {
         next[staffId] = status;
       }
       return next;
     });
+
+    // Auto-save all at once via bulk endpoint
+    (async () => {
+      const updates = staffIds.map((staffId) => ({
+        staffId,
+        status,
+      }));
+
+      try {
+        const response = await fetch("/api/attendance/bulk", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            date: selectedDate,
+            attendances: updates,
+          }),
+        });
+
+        if (!response.ok) {
+          const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+          enqueueToast("error", payload?.error ?? "Unable to save attendance.");
+          return;
+        }
+
+        // Success: update the rows
+        setRows((current) =>
+          current.map((row) =>
+            staffIds.includes(row.staffId)
+              ? {
+                  ...row,
+                  status,
+                  displayStatus: status,
+                }
+              : row,
+          ),
+        );
+
+        setPendingStatuses((current) => {
+          const next = { ...current };
+          for (const staffId of staffIds) {
+            delete next[staffId];
+          }
+          return next;
+        });
+
+        setRowSaveAttempts((current) => {
+          const next = { ...current };
+          for (const staffId of staffIds) {
+            next[staffId] = true;
+          }
+          return next;
+        });
+
+        enqueueToast("success", `Marked ${staffIds.length} staff as ${status.replace(/_/g, " ").toLowerCase()}.`);
+      } catch {
+        enqueueToast("error", "Unable to save attendance.");
+      }
+    })();
   }
 
   function guardedChange(updates: Record<string, string | null>) {
-    if (hasUnsavedChanges) {
+    if (Object.keys(rowSaveAttempts).length > 0 && !Object.values(rowSaveAttempts).every((v) => v)) {
       const allow = window.confirm("You have unsaved attendance changes. Continue without saving?");
       if (!allow) {
         return;
@@ -452,11 +513,10 @@ export default function AttendancePage() {
           <AttendanceTable
             rows={filteredRows}
             pendingStatuses={pendingStatuses}
-            savingAll={savingAll}
-            hasUnsavedChanges={hasUnsavedChanges}
             onMarkAll={onMarkAll}
             onStatusChange={onStatusChange}
-            onSaveAll={saveAll}
+            onAutoSave={autoSaveRow}
+            isReadOnly={isReadOnly}
           />
 
           <AttendanceSummary counts={counts.counts} notMarked={counts.notMarked} title="Today's Summary" totalOverride={rows.length} />

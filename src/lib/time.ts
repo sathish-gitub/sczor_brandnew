@@ -154,6 +154,11 @@ export function endOfDayIST(dateStr: string): Date {
   return istDayBounds(dateStr).end;
 }
 
+/** [start, end) instants spanning the inclusive IST calendar date range `startDateStr`..`endDateStr`. */
+export function istRangeBounds(startDateStr: string, endDateStr: string): { start: Date; end: Date } {
+  return { start: startOfDayIST(startDateStr), end: endOfDayIST(endDateStr) };
+}
+
 /** Start-of-month instant (IST midnight on the 1st) for `year`-`month` (1-12). */
 export function startOfMonthIST(year: number, month: number): Date {
   return istWallTimeToInstant(`${year}-${String(month).padStart(2, "0")}-01`, "00:00");

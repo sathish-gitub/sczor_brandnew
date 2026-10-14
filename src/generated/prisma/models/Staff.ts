@@ -49,6 +49,7 @@ export type StaffMinAggregateOutputType = {
   email: string | null
   dateOfBirth: Date | null
   joiningDate: Date | null
+  lastWorkingDate: Date | null
   experienceYears: runtime.Decimal | null
   status: $Enums.Status | null
   availabilityStatus: $Enums.Availability | null
@@ -70,6 +71,7 @@ export type StaffMaxAggregateOutputType = {
   email: string | null
   dateOfBirth: Date | null
   joiningDate: Date | null
+  lastWorkingDate: Date | null
   experienceYears: runtime.Decimal | null
   status: $Enums.Status | null
   availabilityStatus: $Enums.Availability | null
@@ -91,6 +93,7 @@ export type StaffCountAggregateOutputType = {
   email: number
   dateOfBirth: number
   joiningDate: number
+  lastWorkingDate: number
   experienceYears: number
   specializations: number
   workingDays: number
@@ -130,6 +133,7 @@ export type StaffMinAggregateInputType = {
   email?: true
   dateOfBirth?: true
   joiningDate?: true
+  lastWorkingDate?: true
   experienceYears?: true
   status?: true
   availabilityStatus?: true
@@ -151,6 +155,7 @@ export type StaffMaxAggregateInputType = {
   email?: true
   dateOfBirth?: true
   joiningDate?: true
+  lastWorkingDate?: true
   experienceYears?: true
   status?: true
   availabilityStatus?: true
@@ -172,6 +177,7 @@ export type StaffCountAggregateInputType = {
   email?: true
   dateOfBirth?: true
   joiningDate?: true
+  lastWorkingDate?: true
   experienceYears?: true
   specializations?: true
   workingDays?: true
@@ -282,6 +288,7 @@ export type StaffGroupByOutputType = {
   email: string | null
   dateOfBirth: Date | null
   joiningDate: Date | null
+  lastWorkingDate: Date | null
   experienceYears: runtime.Decimal | null
   specializations: string[]
   workingDays: string[]
@@ -328,6 +335,7 @@ export type StaffWhereInput = {
   email?: Prisma.StringNullableFilter<"Staff"> | string | null
   dateOfBirth?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   joiningDate?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  lastWorkingDate?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   experienceYears?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StringNullableListFilter<"Staff">
   workingDays?: Prisma.StringNullableListFilter<"Staff">
@@ -361,6 +369,7 @@ export type StaffOrderByWithRelationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
   joiningDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastWorkingDate?: Prisma.SortOrderInput | Prisma.SortOrder
   experienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
   specializations?: Prisma.SortOrder
   workingDays?: Prisma.SortOrder
@@ -397,6 +406,7 @@ export type StaffWhereUniqueInput = Prisma.AtLeast<{
   email?: Prisma.StringNullableFilter<"Staff"> | string | null
   dateOfBirth?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   joiningDate?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  lastWorkingDate?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   experienceYears?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StringNullableListFilter<"Staff">
   workingDays?: Prisma.StringNullableListFilter<"Staff">
@@ -430,6 +440,7 @@ export type StaffOrderByWithAggregationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrderInput | Prisma.SortOrder
   joiningDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastWorkingDate?: Prisma.SortOrderInput | Prisma.SortOrder
   experienceYears?: Prisma.SortOrderInput | Prisma.SortOrder
   specializations?: Prisma.SortOrder
   workingDays?: Prisma.SortOrder
@@ -461,6 +472,7 @@ export type StaffScalarWhereWithAggregatesInput = {
   email?: Prisma.StringNullableWithAggregatesFilter<"Staff"> | string | null
   dateOfBirth?: Prisma.DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
   joiningDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
+  lastWorkingDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Staff"> | Date | string | null
   experienceYears?: Prisma.DecimalNullableWithAggregatesFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StringNullableListFilter<"Staff">
   workingDays?: Prisma.StringNullableListFilter<"Staff">
@@ -483,6 +495,7 @@ export type StaffCreateInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -515,6 +528,7 @@ export type StaffUncheckedCreateInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -545,6 +559,7 @@ export type StaffUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -577,6 +592,7 @@ export type StaffUncheckedUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -608,6 +624,7 @@ export type StaffCreateManyInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -630,6 +647,7 @@ export type StaffUpdateManyMutationInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -652,6 +670,7 @@ export type StaffUncheckedUpdateManyInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -685,6 +704,7 @@ export type StaffCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   joiningDate?: Prisma.SortOrder
+  lastWorkingDate?: Prisma.SortOrder
   experienceYears?: Prisma.SortOrder
   specializations?: Prisma.SortOrder
   workingDays?: Prisma.SortOrder
@@ -715,6 +735,7 @@ export type StaffMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   joiningDate?: Prisma.SortOrder
+  lastWorkingDate?: Prisma.SortOrder
   experienceYears?: Prisma.SortOrder
   status?: Prisma.SortOrder
   availabilityStatus?: Prisma.SortOrder
@@ -736,6 +757,7 @@ export type StaffMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   joiningDate?: Prisma.SortOrder
+  lastWorkingDate?: Prisma.SortOrder
   experienceYears?: Prisma.SortOrder
   status?: Prisma.SortOrder
   availabilityStatus?: Prisma.SortOrder
@@ -1015,6 +1037,7 @@ export type StaffCreateWithoutTenantInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1046,6 +1069,7 @@ export type StaffUncheckedCreateWithoutTenantInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1105,6 +1129,7 @@ export type StaffScalarWhereInput = {
   email?: Prisma.StringNullableFilter<"Staff"> | string | null
   dateOfBirth?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   joiningDate?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
+  lastWorkingDate?: Prisma.DateTimeNullableFilter<"Staff"> | Date | string | null
   experienceYears?: Prisma.DecimalNullableFilter<"Staff"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StringNullableListFilter<"Staff">
   workingDays?: Prisma.StringNullableListFilter<"Staff">
@@ -1127,6 +1152,7 @@ export type StaffCreateWithoutStaffDesignationInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1157,6 +1183,7 @@ export type StaffUncheckedCreateWithoutStaffDesignationInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1213,6 +1240,7 @@ export type StaffCreateWithoutSalaryHistoryInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1244,6 +1272,7 @@ export type StaffUncheckedCreateWithoutSalaryHistoryInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1289,6 +1318,7 @@ export type StaffUpdateWithoutSalaryHistoryInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -1320,6 +1350,7 @@ export type StaffUncheckedUpdateWithoutSalaryHistoryInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -1349,6 +1380,7 @@ export type StaffCreateWithoutPayrollsInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1380,6 +1412,7 @@ export type StaffUncheckedCreateWithoutPayrollsInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1425,6 +1458,7 @@ export type StaffUpdateWithoutPayrollsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -1456,6 +1490,7 @@ export type StaffUncheckedUpdateWithoutPayrollsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -1485,6 +1520,7 @@ export type StaffCreateWithoutAppointmentsInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1516,6 +1552,7 @@ export type StaffUncheckedCreateWithoutAppointmentsInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1561,6 +1598,7 @@ export type StaffUpdateWithoutAppointmentsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -1592,6 +1630,7 @@ export type StaffUncheckedUpdateWithoutAppointmentsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -1621,6 +1660,7 @@ export type StaffCreateWithoutAppointmentServicesInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1652,6 +1692,7 @@ export type StaffUncheckedCreateWithoutAppointmentServicesInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1697,6 +1738,7 @@ export type StaffUpdateWithoutAppointmentServicesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -1728,6 +1770,7 @@ export type StaffUncheckedUpdateWithoutAppointmentServicesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -1757,6 +1800,7 @@ export type StaffCreateWithoutInvoicesInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1788,6 +1832,7 @@ export type StaffUncheckedCreateWithoutInvoicesInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1833,6 +1878,7 @@ export type StaffUpdateWithoutInvoicesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -1864,6 +1910,7 @@ export type StaffUncheckedUpdateWithoutInvoicesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -1893,6 +1940,7 @@ export type StaffCreateWithoutInvoiceItemsInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1924,6 +1972,7 @@ export type StaffUncheckedCreateWithoutInvoiceItemsInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -1969,6 +2018,7 @@ export type StaffUpdateWithoutInvoiceItemsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -2000,6 +2050,7 @@ export type StaffUncheckedUpdateWithoutInvoiceItemsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -2029,6 +2080,7 @@ export type StaffCreateWithoutRatingsInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -2060,6 +2112,7 @@ export type StaffUncheckedCreateWithoutRatingsInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -2105,6 +2158,7 @@ export type StaffUpdateWithoutRatingsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -2136,6 +2190,7 @@ export type StaffUncheckedUpdateWithoutRatingsInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -2165,6 +2220,7 @@ export type StaffCreateWithoutAttendancesInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -2196,6 +2252,7 @@ export type StaffUncheckedCreateWithoutAttendancesInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -2241,6 +2298,7 @@ export type StaffUpdateWithoutAttendancesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -2272,6 +2330,7 @@ export type StaffUncheckedUpdateWithoutAttendancesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -2302,6 +2361,7 @@ export type StaffCreateManyTenantInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -2323,6 +2383,7 @@ export type StaffUpdateWithoutTenantInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -2354,6 +2415,7 @@ export type StaffUncheckedUpdateWithoutTenantInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -2384,6 +2446,7 @@ export type StaffUncheckedUpdateManyWithoutTenantInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -2405,6 +2468,7 @@ export type StaffCreateManyStaffDesignationInput = {
   email?: string | null
   dateOfBirth?: Date | string | null
   joiningDate?: Date | string | null
+  lastWorkingDate?: Date | string | null
   experienceYears?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffCreatespecializationsInput | string[]
   workingDays?: Prisma.StaffCreateworkingDaysInput | string[]
@@ -2427,6 +2491,7 @@ export type StaffUpdateWithoutStaffDesignationInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -2457,6 +2522,7 @@ export type StaffUncheckedUpdateWithoutStaffDesignationInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -2487,6 +2553,7 @@ export type StaffUncheckedUpdateManyWithoutStaffDesignationInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   joiningDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastWorkingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   experienceYears?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   specializations?: Prisma.StaffUpdatespecializationsInput | string[]
   workingDays?: Prisma.StaffUpdateworkingDaysInput | string[]
@@ -2604,6 +2671,7 @@ export type StaffSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   email?: boolean
   dateOfBirth?: boolean
   joiningDate?: boolean
+  lastWorkingDate?: boolean
   experienceYears?: boolean
   specializations?: boolean
   workingDays?: boolean
@@ -2638,6 +2706,7 @@ export type StaffSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   email?: boolean
   dateOfBirth?: boolean
   joiningDate?: boolean
+  lastWorkingDate?: boolean
   experienceYears?: boolean
   specializations?: boolean
   workingDays?: boolean
@@ -2663,6 +2732,7 @@ export type StaffSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   email?: boolean
   dateOfBirth?: boolean
   joiningDate?: boolean
+  lastWorkingDate?: boolean
   experienceYears?: boolean
   specializations?: boolean
   workingDays?: boolean
@@ -2688,6 +2758,7 @@ export type StaffSelectScalar = {
   email?: boolean
   dateOfBirth?: boolean
   joiningDate?: boolean
+  lastWorkingDate?: boolean
   experienceYears?: boolean
   specializations?: boolean
   workingDays?: boolean
@@ -2702,7 +2773,7 @@ export type StaffSelectScalar = {
   updatedAt?: boolean
 }
 
-export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "designation" | "designationId" | "mobile" | "email" | "dateOfBirth" | "joiningDate" | "experienceYears" | "specializations" | "workingDays" | "status" | "availabilityStatus" | "baseSalary" | "commissionRate" | "paidLeavesPerMonth" | "salaryEffectiveFrom" | "tenantId" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
+export type StaffOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "designation" | "designationId" | "mobile" | "email" | "dateOfBirth" | "joiningDate" | "lastWorkingDate" | "experienceYears" | "specializations" | "workingDays" | "status" | "availabilityStatus" | "baseSalary" | "commissionRate" | "paidLeavesPerMonth" | "salaryEffectiveFrom" | "tenantId" | "createdAt" | "updatedAt", ExtArgs["result"]["staff"]>
 export type StaffInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   staffDesignation?: boolean | Prisma.Staff$staffDesignationArgs<ExtArgs>
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -2748,6 +2819,7 @@ export type $StaffPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     email: string | null
     dateOfBirth: Date | null
     joiningDate: Date | null
+    lastWorkingDate: Date | null
     experienceYears: runtime.Decimal | null
     specializations: string[]
     workingDays: string[]
@@ -3201,6 +3273,7 @@ export interface StaffFieldRefs {
   readonly email: Prisma.FieldRef<"Staff", 'String'>
   readonly dateOfBirth: Prisma.FieldRef<"Staff", 'DateTime'>
   readonly joiningDate: Prisma.FieldRef<"Staff", 'DateTime'>
+  readonly lastWorkingDate: Prisma.FieldRef<"Staff", 'DateTime'>
   readonly experienceYears: Prisma.FieldRef<"Staff", 'Decimal'>
   readonly specializations: Prisma.FieldRef<"Staff", 'String[]'>
   readonly workingDays: Prisma.FieldRef<"Staff", 'String[]'>

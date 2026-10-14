@@ -49,43 +49,58 @@ export function DesignationSelect({ value, onChange, showManageLink = true, clas
   }, []);
 
   async function saveDesignation() {
+    if (saving) {
+      return;
+    }
+
     const name = draft.trim();
 
-    if (name.length < 2) {
-      setError("Designation name must be at least 2 characters.");
+    if (!name) {
+      setError("Designation name is required.");
+      return;
+    }
+
+    if (name.length > 40) {
+      setError("Designation name is too long (max 40 characters).");
       return;
     }
 
     setSaving(true);
     setError(null);
 
-    const response = await fetch("/api/staff/designations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
-    });
+    try {
+      const response = await fetch("/api/staff/designations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
 
-    const payload = (await response.json().catch(() => null)) as
-      | { error?: string; designation?: StaffDesignationOption }
-      | null;
+      const payload = (await response.json().catch(() => null)) as
+        | { error?: string; designation?: StaffDesignationOption }
+        | null;
 
-    setSaving(false);
+      if (!response.ok) {
+        setError(payload?.error ?? "Unable to add designation.");
+        setSaving(false);
+        return;
+      }
 
-    if (!response.ok || !payload?.designation) {
-      setError(payload?.error ?? "Unable to add designation.");
-      return;
+      if (payload?.designation) {
+        const created = payload.designation;
+
+        setOptions((current) => {
+          const filtered = current.filter((item) => item.id !== created.id);
+          return [...filtered, created].sort((a, b) => a.name.localeCompare(b.name));
+        });
+        onChange(created.id);
+        setDraft("");
+        setAdding(false);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Unable to add designation.");
+    } finally {
+      setSaving(false);
     }
-
-    const created = payload.designation;
-
-    setOptions((current) =>
-      current.some((item) => item.id === created.id)
-        ? current
-        : [...current, created].sort((a, b) => a.name.localeCompare(b.name)),
-    );
-    onChange(created.id);
-    setDraft("");
-    setAdding(false);
   }
 
   return (
@@ -118,7 +133,7 @@ export function DesignationSelect({ value, onChange, showManageLink = true, clas
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key === "Enter") {
+              if (event.key === "Enter" && !saving) {
                 event.preventDefault();
                 void saveDesignation();
               }

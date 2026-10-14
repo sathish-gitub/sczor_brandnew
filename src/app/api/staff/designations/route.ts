@@ -7,7 +7,12 @@ import { prisma } from "@/lib/prisma";
 import { DEFAULT_STAFF_DESIGNATIONS } from "@/lib/utils";
 
 const createSchema = z.object({
-  name: z.string().trim().min(2, "Designation name is required.").max(40, "Designation name is too long."),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Designation name is required.")
+    .max(40, "Designation name is too long.")
+    .transform((v) => v.replace(/\s+/g, " ")),
 });
 
 async function tenantIdOrNull() {
@@ -83,7 +88,7 @@ export async function POST(request: Request) {
     });
 
     if (existing) {
-      return NextResponse.json({ designation: existing, alreadyExists: true });
+      return NextResponse.json({ error: "This designation already exists." }, { status: 409 });
     }
 
     const designation = await prisma.staffDesignation.create({
@@ -93,7 +98,19 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ designation }, { status: 201 });
   } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.includes("Unique constraint failed") &&
+      error.message.includes("StaffDesignation_tenantId_name_key")
+    ) {
+      return NextResponse.json(
+        { error: "This designation already exists." },
+        { status: 409 },
+      );
+    }
+
     console.error("Failed to create staff designation", error);
     return NextResponse.json({ error: "Unable to create designation." }, { status: 500 });
   }
 }
+
