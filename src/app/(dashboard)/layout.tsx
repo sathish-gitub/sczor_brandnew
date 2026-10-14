@@ -37,6 +37,14 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
     },
     select: {
       name: true,
+      logo: true,
+      address: true,
+      city: true,
+      state: true,
+      pincode: true,
+      phone: true,
+      email: true,
+      gstNumber: true,
       trialEndsAt: true,
       isSubscribed: true,
       plan: true,
@@ -57,7 +65,19 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
   };
 
   return (
-    <AccessProvider accessLevel={access.accessLevel} tenantName={tenant.name}>
+    <AccessProvider
+      accessLevel={access.accessLevel}
+      tenantName={tenant.name}
+      tenantLogo={tenant.logo}
+      tenantAddress={tenant.address}
+      tenantCity={tenant.city}
+      tenantState={tenant.state}
+      tenantPincode={tenant.pincode}
+      tenantPhone={tenant.phone}
+      tenantEmail={tenant.email}
+      tenantGstNumber={tenant.gstNumber}
+      userName={user.name}
+    >
       <DashboardShell
         tenantName={tenant.name}
         user={user}

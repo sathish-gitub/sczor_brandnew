@@ -11,7 +11,7 @@ import { StockMovementTrendChart, type StockMovementTrendPoint } from "@/compone
 import { TopMovingProductsBarChart, type TopMovingProductPoint } from "@/components/charts/TopMovingProductsBarChart";
 import { InventoryTabs } from "@/components/inventory/InventoryTabs";
 import { useAccess } from "@/contexts/AccessContext";
-import { formatPeriodLabel } from "@/lib/exportReport";
+import { formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
 
 type InventoryReportPayload = {
   stockValuation: {
@@ -48,7 +48,7 @@ function formatCurrency(value: number) {
 }
 
 export default function InventoryReportsPage() {
-  const { tenantName } = useAccess();
+  const access = useAccess();
   const [range, setRange] = useState(last30DaysRange());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -111,8 +111,16 @@ export default function InventoryReportsPage() {
             disabled={!data}
             getConfig={() => ({
               title: "Inventory Report — Slow Moving Products",
-              salonName: tenantName,
-              periodLabel: formatPeriodLabel(range.startDate, range.endDate),
+              salon: toExportSalonDetails(access),
+              ...formatPeriodRange(range.startDate, range.endDate),
+              generatedBy: access.userName,
+              summary: data
+                ? [
+                    { label: "Stock Value (Cost)", value: data.stockValuation.totalCostValue, type: "currency" },
+                    { label: "Stock Value (Retail)", value: data.stockValuation.totalRetailValue, type: "currency" },
+                    { label: "Total Products", value: data.stockValuation.totalProducts, type: "number" },
+                  ]
+                : undefined,
               columns: [
                 { header: "Product", key: "name", type: "text" },
                 { header: "Units Sold", key: "unitsSold", type: "number" },

@@ -9,6 +9,8 @@ import { ExportButtons } from "@/components/reports/ExportButtons";
 import { PayrollTrendChart, type PayrollTrendPoint } from "@/components/charts/PayrollTrendChart";
 import { CommissionVsBaseBarChart, type CommissionVsBasePoint } from "@/components/charts/CommissionVsBaseBarChart";
 import { useAccess } from "@/contexts/AccessContext";
+import { formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
+import { daysInMonthIST } from "@/lib/time";
 
 type StaffBreakdownRow = {
   payrollId: string;
@@ -44,7 +46,7 @@ function formatCurrency(value: number) {
 }
 
 export default function PayrollReportsPage() {
-  const { tenantName } = useAccess();
+  const access = useAccess();
   const now = new Date();
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
@@ -129,8 +131,20 @@ export default function PayrollReportsPage() {
             disabled={!data}
             getConfig={() => ({
               title: "Payroll Report — Staff Breakdown",
-              salonName: tenantName,
-              periodLabel: `${months[month - 1]} ${year}`,
+              salon: toExportSalonDetails(access),
+              ...formatPeriodRange(
+                `${year}-${String(month).padStart(2, "0")}-01`,
+                `${year}-${String(month).padStart(2, "0")}-${String(daysInMonthIST(year, month)).padStart(2, "0")}`,
+              ),
+              filtersLabel: "None",
+              generatedBy: access.userName,
+              summary: [
+                { label: "Total Staff Paid", value: data?.summary.totalStaffPaid ?? 0, type: "number" },
+                { label: "Total Base Salary", value: data?.summary.totalBaseSalary ?? 0, type: "currency" },
+                { label: "Total Commission", value: data?.summary.totalCommission ?? 0, type: "currency" },
+                { label: "Total Deductions", value: data?.summary.totalDeductions ?? 0, type: "currency" },
+                { label: "Total Net Pay", value: data?.summary.totalNetPay ?? 0, type: "currency" },
+              ],
               columns: [
                 { header: "Name", key: "staffName", type: "text" },
                 { header: "Base", key: "baseSalary", type: "currency" },

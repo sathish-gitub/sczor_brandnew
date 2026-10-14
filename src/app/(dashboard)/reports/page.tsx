@@ -5,10 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
 import { ExportButtons } from "@/components/reports/ExportButtons";
+import { FilterChips } from "@/components/reports/FilterChips";
 import { RevenueChart } from "@/components/reports/RevenueChart";
 import { StatCard } from "@/components/reports/StatCard";
 import { useAccess } from "@/contexts/AccessContext";
-import { formatPeriodLabel } from "@/lib/exportReport";
+import { formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
 
 function toDateString(date: Date) {
   const year = date.getFullYear();
@@ -35,7 +36,7 @@ function formatCurrency(value: number) {
 }
 
 export default function ReportsOverviewPage() {
-  const { tenantName } = useAccess();
+  const access = useAccess();
   const [range, setRange] = useState(thisWeekRange());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -108,6 +109,7 @@ export default function ReportsOverviewPage() {
   }, [range.startDate, range.endDate]);
 
   const chartData = useMemo(() => daily.map((item) => ({ label: item.date.slice(5), value: item.revenue })), [daily]);
+  const periodLabels = formatPeriodRange(range.startDate, range.endDate);
 
   return (
     <div className="space-y-5">
@@ -159,11 +161,17 @@ export default function ReportsOverviewPage() {
               <h2 className="text-base font-semibold text-[var(--foreground)]">Top Services</h2>
               <div className="flex items-center gap-3">
                 <Link href="/reports/revenue" className="text-xs font-semibold text-[var(--primary)]">View detailed revenue report</Link>
+                <FilterChips
+                  chips={[
+                    { label: "Date Range", value: `${periodLabels.fromDateLabel} to ${periodLabels.toDateLabel}`, onClear: () => setRange(thisWeekRange()) },
+                  ]}
+                />
                 <ExportButtons
                   getConfig={() => ({
                     title: "Top Services Report",
-                    salonName: tenantName,
-                    periodLabel: formatPeriodLabel(range.startDate, range.endDate),
+                    salon: toExportSalonDetails(access),
+                    ...periodLabels,
+                    generatedBy: access.userName,
                     columns: [
                       { header: "Service", key: "service", type: "text" },
                       { header: "Count", key: "count", type: "number" },

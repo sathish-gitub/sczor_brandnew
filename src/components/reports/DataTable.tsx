@@ -19,9 +19,10 @@ type DataTableProps<T> = {
   pageSize?: number;
   emptyText?: string;
   exportConfig?: Omit<ExportConfig, "rows">;
+  filterChips?: React.ReactNode;
 };
 
-export function DataTable<T>({ columns, rows, pageSize = 10, emptyText = "No data", exportConfig }: DataTableProps<T>) {
+export function DataTable<T>({ columns, rows, pageSize = 10, emptyText = "No data", exportConfig, filterChips }: DataTableProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
@@ -75,9 +76,12 @@ export function DataTable<T>({ columns, rows, pageSize = 10, emptyText = "No dat
 
   return (
     <div className="space-y-3 rounded-xl border border-[var(--border)] bg-white p-4">
-      {exportConfig ? (
-        <div className="flex justify-end">
-          <ExportButtons getConfig={() => ({ ...exportConfig, rows: sortedRows as unknown as Array<Record<string, unknown>> })} />
+      {exportConfig || filterChips ? (
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>{filterChips}</div>
+          {exportConfig ? (
+            <ExportButtons getConfig={() => ({ ...exportConfig, rows: sortedRows as unknown as Array<Record<string, unknown>> })} />
+          ) : null}
         </div>
       ) : null}
 

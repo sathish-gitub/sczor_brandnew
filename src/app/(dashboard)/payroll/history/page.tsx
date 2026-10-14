@@ -4,7 +4,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { ExportButtons } from "@/components/reports/ExportButtons";
+import { FilterChips } from "@/components/reports/FilterChips";
 import { useAccess } from "@/contexts/AccessContext";
+import { formatFiltersLabel, toExportSalonDetails } from "@/lib/exportReport";
+import { formatISTDateDDMMYYYY } from "@/lib/time";
 
 type HistoryItem = {
   id: string;
@@ -33,7 +36,7 @@ function formatDate(value: string) {
 }
 
 export default function PayrollHistoryPage() {
-  const { tenantName } = useAccess();
+  const access = useAccess();
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [staffOptions, setStaffOptions] = useState<StaffOption[]>([]);
   const [staffFilter, setStaffFilter] = useState("ALL");
@@ -97,6 +100,16 @@ export default function PayrollHistoryPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">Payroll History</h1>
           <p className="mt-1 text-sm text-[var(--muted)]">All generated payslips across every month and staff member.</p>
+          <div className="mt-2">
+            <FilterChips
+              chips={[
+                staffFilter !== "ALL"
+                  ? { label: "Staff", value: staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter, onClear: () => setStaffFilter("ALL") }
+                  : null,
+                yearFilter !== "ALL" ? { label: "Year", value: yearFilter, onClear: () => setYearFilter("ALL") } : null,
+              ]}
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -128,13 +141,13 @@ export default function PayrollHistoryPage() {
             disabled={items.length === 0}
             getConfig={() => ({
               title: "Payroll History",
-              salonName: tenantName,
-              filtersLabel: [
-                staffFilter !== "ALL" ? `Staff: ${staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter}` : null,
-                yearFilter !== "ALL" ? `Year: ${yearFilter}` : null,
-              ]
-                .filter(Boolean)
-                .join(", ") || undefined,
+              salon: toExportSalonDetails(access),
+              asOnLabel: formatISTDateDDMMYYYY(new Date()),
+              filtersLabel: formatFiltersLabel([
+                staffFilter !== "ALL" ? { label: "Staff", value: staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter } : null,
+                yearFilter !== "ALL" ? { label: "Year", value: yearFilter } : null,
+              ]),
+              generatedBy: access.userName,
               columns: [
                 { header: "Staff Name", key: "staffName", type: "text" },
                 { header: "Month/Year", key: "monthYear", type: "text" },

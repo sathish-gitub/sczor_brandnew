@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { ExportButtons } from "@/components/reports/ExportButtons";
+import { FilterChips } from "@/components/reports/FilterChips";
 import { useAccess } from "@/contexts/AccessContext";
-import { formatPeriodLabel } from "@/lib/exportReport";
+import { formatFiltersLabel, formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
 
 type InvoiceRow = {
   id: string;
@@ -62,7 +63,7 @@ const paymentStatusBadge: Record<InvoiceRow["paymentStatus"], string> = {
 };
 
 export default function InvoicesPage() {
-  const { tenantName } = useAccess();
+  const access = useAccess();
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("ALL");
@@ -157,18 +158,23 @@ export default function InvoicesPage() {
       throw new Error(data?.error ?? "Unable to export invoices.");
     }
 
-    const filtersLabel = [
-      paymentMethod !== "ALL" ? `Payment: ${paymentMethod}` : null,
-      query ? `Search: ${query}` : null,
-    ]
-      .filter(Boolean)
-      .join(", ") || undefined;
+    const filtersLabel = formatFiltersLabel([
+      paymentMethod !== "ALL" ? { label: "Payment", value: paymentMethod } : null,
+      query ? { label: "Search", value: query } : null,
+    ]);
 
     return {
       title: "Invoices",
-      salonName: tenantName,
-      periodLabel: fromDate || toDate ? formatPeriodLabel(fromDate || toDate, toDate || fromDate) : undefined,
+      salon: toExportSalonDetails(access),
+      ...(fromDate || toDate ? formatPeriodRange(fromDate || toDate, toDate || fromDate) : {}),
       filtersLabel,
+      generatedBy: access.userName,
+      summary: [
+        { label: "Today's Revenue", value: data.summary.todayRevenue, type: "currency" as const },
+        { label: "This Month Revenue", value: data.summary.monthRevenue, type: "currency" as const },
+        { label: "Total Invoices", value: data.summary.totalInvoices, type: "number" as const },
+        { label: "Average Invoice Value", value: data.summary.averageInvoiceValue, type: "currency" as const },
+      ],
       columns: [
         { header: "Invoice#", key: "invoiceNumber", type: "text" as const },
         { header: "Date", key: "invoiceDate", type: "date" as const },
@@ -208,7 +214,17 @@ export default function InvoicesPage() {
           <p className="text-sm text-[var(--muted)]">Track revenue and billing activity.</p>
         </div>
 
-        <ExportButtons getConfig={getInvoiceExportConfig} />
+        <div className="flex flex-wrap items-center gap-2">
+          <FilterChips
+            chips={[
+              paymentMethod !== "ALL" ? { label: "Payment", value: paymentMethod, onClear: () => setPaymentMethod("ALL") } : null,
+              search.trim() ? { label: "Search", value: search.trim(), onClear: () => setSearch("") } : null,
+              fromDate ? { label: "From", value: fromDate, onClear: () => setFromDate("") } : null,
+              toDate ? { label: "To", value: toDate, onClear: () => setToDate("") } : null,
+            ]}
+          />
+          <ExportButtons getConfig={getInvoiceExportConfig} />
+        </div>
       </header>
 
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">

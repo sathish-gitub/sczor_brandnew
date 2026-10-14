@@ -6,7 +6,9 @@ import { ArrowLeft, ShoppingCart } from "lucide-react";
 
 import { ExportButtons } from "@/components/reports/ExportButtons";
 import { useAccess } from "@/contexts/AccessContext";
+import { toExportSalonDetails } from "@/lib/exportReport";
 import { formatStock } from "@/lib/productUnits";
+import { formatISTDateDDMMYYYY } from "@/lib/time";
 
 type LowStockItem = {
   id: string;
@@ -32,7 +34,7 @@ function severity(item: LowStockItem) {
 }
 
 export default function LowStockPage() {
-  const { tenantName } = useAccess();
+  const access = useAccess();
   const [items, setItems] = useState<LowStockItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,7 +98,13 @@ export default function LowStockPage() {
           disabled={items.length === 0}
           getConfig={() => ({
             title: "Low Stock Products",
-            salonName: tenantName,
+            salon: toExportSalonDetails(access),
+            asOnLabel: formatISTDateDDMMYYYY(new Date()),
+            generatedBy: access.userName,
+            summary: [
+              { label: "Low Stock Items", value: items.length, type: "number" },
+              { label: "Out of Stock / Critical", value: items.filter((item) => severity(item).label !== "Low").length, type: "number" },
+            ],
             columns: [
               { header: "Product", key: "name", type: "text" },
               { header: "Category", key: "category", type: "text" },

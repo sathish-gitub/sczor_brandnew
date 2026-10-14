@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 
 import { DataTable } from "@/components/reports/DataTable";
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
+import { FilterChips } from "@/components/reports/FilterChips";
 import { useAccess } from "@/contexts/AccessContext";
-import { formatPeriodLabel } from "@/lib/exportReport";
+import { formatFiltersLabel, formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
 import { istMonthBounds, toISTDateString, todayISTDateString } from "@/lib/time";
 
 function monthRange() {
@@ -33,7 +34,7 @@ type Row = {
 };
 
 export default function StaffReportPage() {
-  const { tenantName } = useAccess();
+  const access = useAccess();
   const [range, setRange] = useState(monthRange());
   const [staffFilter, setStaffFilter] = useState("ALL");
   const [staffOptions, setStaffOptions] = useState<Array<{ id: string; name: string }>>([]);
@@ -111,6 +112,15 @@ export default function StaffReportPage() {
             ))}
           </select>
         </div>
+        <div className="mt-2">
+          <FilterChips
+            chips={[
+              staffFilter !== "ALL"
+                ? { label: "Staff", value: staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter, onClear: () => setStaffFilter("ALL") }
+                : null,
+            ]}
+          />
+        </div>
       </header>
 
       {loading ? (
@@ -131,9 +141,16 @@ export default function StaffReportPage() {
             rows={items}
             exportConfig={{
               title: "Staff Performance Report",
-              salonName: tenantName,
-              periodLabel: formatPeriodLabel(range.startDate, range.endDate),
-              filtersLabel: staffFilter !== "ALL" ? `Staff: ${staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter}` : undefined,
+              salon: toExportSalonDetails(access),
+              ...formatPeriodRange(range.startDate, range.endDate),
+              filtersLabel: formatFiltersLabel([
+                staffFilter !== "ALL" ? { label: "Staff", value: staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter } : null,
+              ]),
+              generatedBy: access.userName,
+              summary: [
+                { label: "Total Revenue", value: items.reduce((sum, row) => sum + row.revenue, 0), type: "currency" },
+                { label: "Total Services Done", value: items.reduce((sum, row) => sum + row.servicesDone, 0), type: "number" },
+              ],
               columns: [
                 { header: "Staff", key: "name", type: "text" },
                 { header: "Services Done", key: "servicesDone", type: "number" },

@@ -6,7 +6,7 @@ import { DataTable } from "@/components/reports/DataTable";
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
 import { StatCard } from "@/components/reports/StatCard";
 import { useAccess } from "@/contexts/AccessContext";
-import { formatPeriodLabel } from "@/lib/exportReport";
+import { formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
 
 function toDateString(date: Date) {
   const year = date.getFullYear();
@@ -69,7 +69,7 @@ function formatDate(value: string | null) {
 }
 
 export default function CustomerReportPage() {
-  const { tenantName } = useAccess();
+  const access = useAccess();
   const [range, setRange] = useState(monthRange());
 
   const [loading, setLoading] = useState(true);
@@ -187,8 +187,9 @@ export default function CustomerReportPage() {
               rows={topRows}
               exportConfig={{
                 title: "Customer Analytics — Top Customers",
-                salonName: tenantName,
-                periodLabel: formatPeriodLabel(range.startDate, range.endDate),
+                salon: toExportSalonDetails(access),
+                ...formatPeriodRange(range.startDate, range.endDate),
+                generatedBy: access.userName,
                 columns: [
                   { header: "Rank", key: "rank", type: "number" },
                   { header: "Customer", key: "name", type: "text" },
@@ -214,8 +215,9 @@ export default function CustomerReportPage() {
             rows={acquisitionRows}
             exportConfig={{
               title: "Customer Analytics — Acquisition",
-              salonName: tenantName,
-              periodLabel: formatPeriodLabel(range.startDate, range.endDate),
+              salon: toExportSalonDetails(access),
+              ...formatPeriodRange(range.startDate, range.endDate),
+              generatedBy: access.userName,
               columns: [
                 { header: "Month", key: "month", type: "text" },
                 { header: "New Customers", key: "newCustomers", type: "number" },

@@ -5,7 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import { Calendar, Eye, Search, Trash } from "lucide-react";
 
 import { ExportButtons } from "@/components/reports/ExportButtons";
+import { FilterChips } from "@/components/reports/FilterChips";
 import { useAccess } from "@/contexts/AccessContext";
+import { formatFiltersLabel, toExportSalonDetails } from "@/lib/exportReport";
+import { formatISTDateDDMMYYYY } from "@/lib/time";
 
 type LoyaltyTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 
@@ -88,7 +91,8 @@ function TableSkeleton() {
 }
 
 export default function CustomersPage() {
-  const { accessLevel, tenantName } = useAccess();
+  const access = useAccess();
+  const { accessLevel } = access;
   const [query, setQuery] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -181,8 +185,10 @@ export default function CustomersPage() {
 
     return {
       title: "Customers",
-      salonName: tenantName,
-      filtersLabel: search ? `Search: ${search}` : undefined,
+      salon: toExportSalonDetails(access),
+      asOnLabel: formatISTDateDDMMYYYY(new Date()),
+      filtersLabel: formatFiltersLabel([search ? { label: "Search", value: search } : null]),
+      generatedBy: access.userName,
       columns: [
         { header: "Name", key: "name", type: "text" as const },
         { header: "Mobile", key: "mobile", type: "text" as const },
@@ -242,6 +248,20 @@ export default function CustomersPage() {
               className="h-11 w-full rounded-xl border border-[var(--border)] bg-white pl-9 pr-3 text-sm outline-none focus:border-[var(--accent)]"
             />
           </div>
+          <FilterChips
+            chips={[
+              search
+                ? {
+                    label: "Search",
+                    value: search,
+                    onClear: () => {
+                      setQuery("");
+                      setSearch("");
+                    },
+                  }
+                : null,
+            ]}
+          />
           <ExportButtons getConfig={getCustomersExportConfig} />
           {accessLevel === "READ_ONLY" ? (
             <span

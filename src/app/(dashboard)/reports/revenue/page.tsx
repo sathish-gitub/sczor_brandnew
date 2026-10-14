@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 
 import { DataTable } from "@/components/reports/DataTable";
 import { DateRangePicker } from "@/components/reports/DateRangePicker";
+import { FilterChips } from "@/components/reports/FilterChips";
 import { StatCard } from "@/components/reports/StatCard";
 import { useAccess } from "@/contexts/AccessContext";
-import { formatPeriodLabel } from "@/lib/exportReport";
+import { formatFiltersLabel, formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
 
 function toDateString(date: Date) {
   const year = date.getFullYear();
@@ -39,7 +40,7 @@ type Payload = {
 };
 
 export default function RevenueReportPage() {
-  const { tenantName } = useAccess();
+  const access = useAccess();
   const [range, setRange] = useState(monthRange());
   const [paymentMethod, setPaymentMethod] = useState("ALL");
   const [staffId, setStaffId] = useState("ALL");
@@ -172,13 +173,33 @@ export default function RevenueReportPage() {
               { key: "invoices", label: "Invoices", sortable: true, render: (row) => row.invoices, sortValue: (row) => row.invoices },
             ]}
             rows={payload.daily}
+            filterChips={
+              <FilterChips
+                chips={[
+                  paymentMethod !== "ALL" ? { label: "Payment", value: paymentMethod, onClear: () => setPaymentMethod("ALL") } : null,
+                  staffId !== "ALL"
+                    ? { label: "Staff", value: staffOptions.find((s) => s.id === staffId)?.name ?? staffId, onClear: () => setStaffId("ALL") }
+                    : null,
+                ]}
+              />
+            }
             exportConfig={{
               title: "Revenue Report — Daily Breakdown",
-              salonName: tenantName,
-              periodLabel: formatPeriodLabel(range.startDate, range.endDate),
-              filtersLabel: [paymentMethod !== "ALL" ? `Payment: ${paymentMethod}` : null, staffId !== "ALL" ? `Staff: ${staffOptions.find((s) => s.id === staffId)?.name ?? staffId}` : null]
-                .filter(Boolean)
-                .join(", ") || undefined,
+              salon: toExportSalonDetails(access),
+              ...formatPeriodRange(range.startDate, range.endDate),
+              filtersLabel: formatFiltersLabel([
+                paymentMethod !== "ALL" ? { label: "Payment", value: paymentMethod } : null,
+                staffId !== "ALL" ? { label: "Staff", value: staffOptions.find((s) => s.id === staffId)?.name ?? staffId } : null,
+              ]),
+              generatedBy: access.userName,
+              summary: [
+                { label: "Gross Revenue", value: payload.totals.grossRevenue, type: "currency" },
+                { label: "GST Collected", value: payload.totals.gstCollected, type: "currency" },
+                { label: "Discounts Given", value: payload.totals.discountsGiven, type: "currency" },
+                { label: "Loyalty Discounts", value: payload.totals.loyaltyDiscounts, type: "currency" },
+                { label: "Net Revenue", value: payload.totals.netRevenue, type: "currency" },
+                { label: "Invoices", value: payload.daily.reduce((sum, row) => sum + row.invoices, 0), type: "number" },
+              ],
               columns: [
                 { header: "Date", key: "date", type: "date" },
                 { header: "Revenue", key: "revenue", type: "currency" },

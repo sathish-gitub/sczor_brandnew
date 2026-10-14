@@ -4,12 +4,14 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ExportButtons } from "@/components/reports/ExportButtons";
+import { FilterChips } from "@/components/reports/FilterChips";
 import { MonthCalendar } from "@/components/attendance/MonthCalendar";
 import { StaffAvatar } from "@/components/staff/StaffAvatar";
 import { useAccess } from "@/contexts/AccessContext";
 import type { ExportColumn } from "@/lib/exportReport";
+import { formatFiltersLabel, formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
 import { getAttendanceStatusStyle, type DisplayAttendanceStatus } from "@/lib/attendanceStatus";
-import { currentISTMonthYear } from "@/lib/time";
+import { currentISTMonthYear, daysInMonthIST } from "@/lib/time";
 
 type CellStatus = DisplayAttendanceStatus;
 
@@ -50,7 +52,7 @@ function formatMonthInput(year: number, month: number) {
 }
 
 export default function AttendanceReportsPage() {
-  const { tenantName } = useAccess();
+  const access = useAccess();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -173,7 +175,7 @@ export default function AttendanceReportsPage() {
     if (!report) {
       return {
         title: "Attendance Report",
-        salonName: tenantName,
+        salon: toExportSalonDetails(access),
         columns: [{ header: "Staff", key: "name", type: "text" as const }],
         rows: [],
         filename: "sczor-attendance-report",
@@ -220,9 +222,21 @@ export default function AttendanceReportsPage() {
 
     return {
       title: "Attendance Report",
-      salonName: tenantName,
-      periodLabel: `${report.month}/${report.year}`,
-      filtersLabel: staffFilter !== "ALL" ? `Staff: ${staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter}` : undefined,
+      salon: toExportSalonDetails(access),
+      ...formatPeriodRange(
+        `${report.year}-${String(report.month).padStart(2, "0")}-01`,
+        `${report.year}-${String(report.month).padStart(2, "0")}-${String(daysInMonthIST(report.year, report.month)).padStart(2, "0")}`,
+      ),
+      filtersLabel: formatFiltersLabel([
+        staffFilter !== "ALL" ? { label: "Staff", value: staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter } : null,
+      ]),
+      generatedBy: access.userName,
+      summary: [
+        { label: "Total Present", value: visibleItems.reduce((sum, item) => sum + item.summary.present, 0), type: "number" as const },
+        { label: "Total Absent", value: visibleItems.reduce((sum, item) => sum + item.summary.absent, 0), type: "number" as const },
+        { label: "Total Leave", value: visibleItems.reduce((sum, item) => sum + item.summary.leave, 0), type: "number" as const },
+        { label: "Total Week Off", value: visibleItems.reduce((sum, item) => sum + item.summary.weekOff, 0), type: "number" as const },
+      ],
       columns,
       rows,
       filename: `sczor-attendance-${report.year}-${String(report.month).padStart(2, "0")}`,
@@ -265,7 +279,20 @@ export default function AttendanceReportsPage() {
             <p className="mt-1 text-sm text-[var(--muted)]">Monthly attendance analytics for your staff team.</p>
           </div>
 
-          <ExportButtons getConfig={getAttendanceExportConfig} disabled={!report} />
+          <div className="flex items-center gap-2">
+            <FilterChips
+              chips={[
+                staffFilter !== "ALL"
+                  ? {
+                      label: "Staff",
+                      value: staffOptions.find((s) => s.id === staffFilter)?.name ?? staffFilter,
+                      onClear: () => updateQuery({ staffId: null }),
+                    }
+                  : null,
+              ]}
+            />
+            <ExportButtons getConfig={getAttendanceExportConfig} disabled={!report} />
+          </div>
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">

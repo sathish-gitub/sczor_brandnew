@@ -7,7 +7,10 @@ import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { ExportButtons } from "@/components/reports/ExportButtons";
+import { FilterChips } from "@/components/reports/FilterChips";
 import { StaffCard } from "@/components/staff/StaffCard";
+import { formatFiltersLabel, toExportSalonDetails } from "@/lib/exportReport";
+import { formatISTDateDDMMYYYY } from "@/lib/time";
 
 type StaffRow = {
   id: string;
@@ -114,12 +117,23 @@ export default function StaffPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <FilterChips
+              chips={[
+                status !== "ALL" ? { label: "Status", value: status, onClear: () => setStatus("ALL") } : null,
+                query ? { label: "Search", value: query, onClear: () => setQuery("") } : null,
+              ]}
+            />
             <ExportButtons
               disabled={filtered.length === 0}
               getConfig={() => ({
                 title: "Staff Directory",
-                salonName: access.tenantName,
-                filtersLabel: [status !== "ALL" ? `Status: ${status}` : null, query ? `Search: ${query}` : null].filter(Boolean).join(", ") || undefined,
+                salon: toExportSalonDetails(access),
+                asOnLabel: formatISTDateDDMMYYYY(new Date()),
+                filtersLabel: formatFiltersLabel([
+                  status !== "ALL" ? { label: "Status", value: status } : null,
+                  query ? { label: "Search", value: query } : null,
+                ]),
+                generatedBy: access.userName,
                 columns: [
                   { header: "Name", key: "name", type: "text" },
                   { header: "Designation", key: "designation", type: "text" },

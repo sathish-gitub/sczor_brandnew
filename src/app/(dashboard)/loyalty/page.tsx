@@ -5,7 +5,10 @@ import { Settings } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { ExportButtons } from "@/components/reports/ExportButtons";
+import { FilterChips } from "@/components/reports/FilterChips";
 import { useAccess } from "@/contexts/AccessContext";
+import { formatFiltersLabel, toExportSalonDetails } from "@/lib/exportReport";
+import { formatISTDateDDMMYYYY } from "@/lib/time";
 
 type Tier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
 
@@ -58,7 +61,7 @@ function tierRanges(thresholds: { silverThreshold: number; goldThreshold: number
 }
 
 export default function LoyaltyPage() {
-  const { tenantName } = useAccess();
+  const access = useAccess();
   const [stats, setStats] = useState({
     totalMembers: 0,
     pointsIssued: 0,
@@ -244,8 +247,10 @@ export default function LoyaltyPage() {
 
     return {
       title: "Loyalty Members",
-      salonName: tenantName,
-      filtersLabel: query ? `Search: ${query}` : undefined,
+      salon: toExportSalonDetails(access),
+      asOnLabel: formatISTDateDDMMYYYY(new Date()),
+      filtersLabel: formatFiltersLabel([query ? { label: "Search", value: query } : null]),
+      generatedBy: access.userName,
       columns: [
         { header: "Customer", key: "customerName", type: "text" as const },
         { header: "Mobile", key: "mobile", type: "text" as const },
@@ -273,6 +278,20 @@ export default function LoyaltyPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <FilterChips
+            chips={[
+              query
+                ? {
+                    label: "Search",
+                    value: query,
+                    onClear: () => {
+                      setSearch("");
+                      setQuery("");
+                    },
+                  }
+                : null,
+            ]}
+          />
           <ExportButtons getConfig={getLoyaltyExportConfig} />
           <Link href="/settings/loyalty" className="inline-flex h-10 items-center gap-2 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-slate-700">
             <Settings className="h-4 w-4" />

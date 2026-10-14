@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { Info } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -10,7 +9,7 @@ import { StatCard } from "@/components/reports/StatCard";
 import { PLTrendChart, type PLTrendPoint } from "@/components/charts/PLTrendChart";
 import { CategoryAmountDonut, type CategoryAmountPoint } from "@/components/charts/CategoryAmountDonut";
 import { useAccess } from "@/contexts/AccessContext";
-import { formatPeriodLabel } from "@/lib/exportReport";
+import { formatPeriodRange, toExportSalonDetails } from "@/lib/exportReport";
 
 type PLPayload = {
   current: {
@@ -54,7 +53,7 @@ function formatCurrency(value: number) {
 }
 
 export default function ProfitLossReportPage() {
-  const { tenantName } = useAccess();
+  const access = useAccess();
   const [range, setRange] = useState(currentMonthRange());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -118,8 +117,16 @@ export default function ProfitLossReportPage() {
             disabled={!pl}
             getConfig={() => ({
               title: "Profit & Loss Statement",
-              salonName: tenantName,
-              periodLabel: formatPeriodLabel(range.startDate, range.endDate),
+              salon: toExportSalonDetails(access),
+              ...formatPeriodRange(range.startDate, range.endDate),
+              generatedBy: access.userName,
+              summary: [
+                { label: "Total Revenue", value: pl?.revenue.totalRevenue ?? 0, type: "currency" },
+                { label: "Gross Profit", value: pl?.grossProfit ?? 0, type: "currency" },
+                { label: "Total Expenses", value: pl?.operatingExpenses.totalOperatingExpenses ?? 0, type: "currency" },
+                { label: "Net Profit", value: pl?.netProfit ?? 0, type: "currency" },
+                { label: "Net Margin", value: pl?.netMarginPercent ?? 0, type: "percent" },
+              ],
               columns: [
                 { header: "Line Item", key: "label", type: "text" },
                 { header: "Amount", key: "amount", type: "currency" },
