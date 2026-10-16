@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { PAYROLL_DAY_METHOD_INFO, type PayrollDayMethod } from "@/lib/payrollDayMethod";
-import { formatISTDayMonth } from "@/lib/time";
+import { type PayrollDayMethod } from "@/lib/payrollDayMethod";
+import { formatDays, formatISTDayMonth } from "@/lib/time";
 
 type PayrollDetail = {
   id: string;
@@ -200,7 +200,7 @@ export default function PayslipPage({ params }: { params: Promise<{ id: string }
           <div className="space-y-1.5 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-[var(--foreground)]">
-                Base Salary {payroll.payableDays !== null ? `(${payroll.payableDays} of ${payroll.dailyRateDivisor} days)` : null}
+                Base Salary {payroll.payableDays !== null ? `(${formatDays(payroll.payableDays)} of ${payroll.dailyRateDivisor})` : null}
               </span>
               <span className="font-medium text-[var(--foreground)]">{formatCurrency(payroll.baseSalaryPaid)}</span>
             </div>
@@ -225,21 +225,15 @@ export default function PayslipPage({ params }: { params: Promise<{ id: string }
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Deductions</p>
           <div className="space-y-1.5 text-sm">
             <div className="flex items-center justify-between text-[var(--muted)]">
-              <span>Daily Rate Method</span>
-              <span>
-                {PAYROLL_DAY_METHOD_INFO[payroll.dayMethod].label} (salary / {payroll.dailyRateDivisor} = {formatCurrency(payroll.baseSalary / payroll.dailyRateDivisor)}/day)
-              </span>
-            </div>
-            <div className="flex items-center justify-between text-[var(--muted)]">
               <span>Absent + LOP days</span>
-              <span>{payroll.absentDays + payroll.lopDays}</span>
+              <span>{formatDays(payroll.absentDays + payroll.lopDays)}</span>
             </div>
             <div className="flex items-center justify-between text-[var(--muted)]">
               <span>Half Day</span>
-              <span>{payroll.halfDays} (0.5)</span>
+              <span>{formatDays(payroll.halfDays)} (0.5)</span>
             </div>
             <div className="flex items-center justify-between font-semibold text-red-600">
-              <span>Deduction ({payroll.deductionDays} days)</span>
+              <span>Deduction ({formatDays(payroll.deductionDays)})</span>
               <span>-{formatCurrency(payroll.leaveDeduction)}</span>
             </div>
           </div>
@@ -253,8 +247,8 @@ export default function PayslipPage({ params }: { params: Promise<{ id: string }
         <div className="pt-4 text-sm">
           <p className="mb-1 text-xs font-semibold uppercase tracking-[0.08em] text-[var(--muted)]">Attendance Summary</p>
           <p className="text-[var(--muted)]">
-            Present: {payroll.presentDays} | Absent: {payroll.absentDays} | Leave (paid): {payroll.paidLeaveDays} | Leave
-            (LOP): {payroll.lopDays} | Half Day: {payroll.halfDays}
+            Present: {formatDays(payroll.presentDays)} | Absent: {formatDays(payroll.absentDays)} | Leave (paid): {formatDays(payroll.paidLeaveDays)} | Leave
+            (LOP): {formatDays(payroll.lopDays)} | Half Day: {formatDays(payroll.halfDays)}
           </p>
         </div>
       </div>

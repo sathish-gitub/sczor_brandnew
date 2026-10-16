@@ -1,6 +1,6 @@
 import { ATTENDANCE_STATUS_VALUES, getAttendanceStatusStyle, type AttendanceStatusValue } from "@/lib/attendanceStatus";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, Check } from "lucide-react";
+import { AlertCircle, AlertTriangle, Check, CheckCircle2 } from "lucide-react";
 
 type AttendanceRow = {
   staffId: string;
@@ -49,11 +49,14 @@ export function AttendanceTable({
     [rowSaveStates],
   );
 
-  const allSaved = useMemo(
+  // "Not marked" covers only the staff currently shown (the `rows` passed in already
+  // reflect the staff filter and search). A row just changed via the dropdown (an
+  // entry in `pendingStatuses`) counts as marked immediately for a live badge, even
+  // before the debounced save confirms — matching the per-row status shown below.
+  const unmarkedCount = useMemo(
     () =>
-      Object.values(rowSaveStates).every((state) => state === "idle" || state === "saved") &&
-      Object.keys(pendingStatuses).length === 0,
-    [rowSaveStates, pendingStatuses],
+      rows.filter((row) => !pendingStatuses[row.staffId] && !row.status && row.displayStatus === "NOT_MARKED").length,
+    [rows, pendingStatuses],
   );
 
   const handleStatusChange = useCallback(
@@ -126,12 +129,20 @@ export function AttendanceTable({
           Mark all Week Off
         </button>
 
-        <div className="ml-auto text-xs font-medium text-[var(--muted)]">
-          {allSaved ? (
-            <span className="text-emerald-700">All changes saved</span>
-          ) : totalSavingCount > 0 ? (
+        <div className="ml-auto text-xs font-medium">
+          {totalSavingCount > 0 ? (
             <span className="text-amber-700">Saving {totalSavingCount} changes...</span>
-          ) : null}
+          ) : unmarkedCount > 0 ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-red-700">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              Attendance Not Marked ({unmarkedCount} of {rows.length})
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-emerald-700">
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              Attendance Marked
+            </span>
+          )}
         </div>
       </div>
 
@@ -142,6 +153,7 @@ export function AttendanceTable({
               <th className="px-4 py-3">Staff Member</th>
               <th className="px-4 py-3">Designation</th>
               <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Remark</th>
             </tr>
           </thead>
           <tbody>
@@ -149,6 +161,10 @@ export function AttendanceTable({
               const current = statusWithFallback(row, pendingStatuses[row.staffId]);
               const style = getAttendanceStatusStyle(current);
               const saveState = rowSaveStates[row.staffId] ?? "idle";
+
+              const isMarked = pendingStatuses[row.staffId] || row.status || row.displayStatus === "WEEK_OFF";
+              const remarkText = isMarked ? "Marked" : "Not Marked";
+              const remarkTextColor = isMarked ? "text-emerald-700" : "text-red-700";
 
               return (
                 <tr key={row.staffId} className="border-t border-[var(--border)]">
@@ -197,6 +213,9 @@ export function AttendanceTable({
                         ) : null}
                       </div>
                     </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs font-semibold ${remarkTextColor}`}>{remarkText}</span>
                   </td>
                 </tr>
               );

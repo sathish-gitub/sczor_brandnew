@@ -52,7 +52,7 @@ export function StaffCard({ member }: StaffCardProps) {
         </p>
         <p className="inline-flex items-center gap-2">
           <CalendarDays className="h-4 w-4" />
-          {member.status}
+          {member.status === "ACTIVE" ? "Active" : getInactiveStaffLabel()}
         </p>
         <p className="inline-flex items-center gap-2">
           <Clock3 className="h-4 w-4" />

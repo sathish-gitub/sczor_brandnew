@@ -25,7 +25,7 @@ export function buildBookingConfirmationMessage(input: BookingConfirmationInput)
   const timeLabel = formatClockTime12Hour(input.appointmentTime);
 
   const contactSentence = input.salonPhone
-    ? ` If you need to reschedule or cancel your appointment, please contact us at ${input.salonPhone} at least 24 hours in advance.`
+    ? ` If you need to reschedule or cancel your appointment, please contact us at ${input.salonPhone} at least 2 hours in advance.`
     : "";
 
   return (

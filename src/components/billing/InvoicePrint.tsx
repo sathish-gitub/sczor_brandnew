@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 
 import { buildPostBillingMessage, buildPublicInvoiceUrl } from "@/lib/whatsappMessages";
 
@@ -77,6 +78,7 @@ function formatCurrency(value: number) {
 }
 
 export function InvoicePrint({ invoice, tenant, variant = "dashboard" }: InvoicePrintProps) {
+  const [logoFailed, setLogoFailed] = useState(false);
   const cgst = invoice.taxAmount / 2;
   const sgst = invoice.taxAmount / 2;
   const locationLine = [[tenant.city, tenant.state].filter(Boolean).join(", "), tenant.pincode]
@@ -160,13 +162,18 @@ export function InvoicePrint({ invoice, tenant, variant = "dashboard" }: Invoice
       <article className="print-area mx-auto max-w-3xl rounded-xl border border-[var(--border)] bg-white p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-4">
-            {tenant.logo ? (
+            {tenant.logo && !logoFailed ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={tenant.logo}
                 alt={tenant.name}
+                onError={() => setLogoFailed(true)}
                 className="max-h-16 w-auto rounded-xl object-contain"
               />
+            ) : tenant.logo ? (
+              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-blue-100 text-xl font-semibold text-[var(--primary)]">
+                {tenant.name ? tenant.name[0]?.toUpperCase() : "?"}
+              </div>
             ) : null}
             <div>
               <p className="text-xl font-bold tracking-tight text-[var(--foreground)]">{tenant.name}</p>

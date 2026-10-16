@@ -296,16 +296,12 @@ export default function InvoicesPage() {
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-[var(--border)] bg-white">
-          <table className="min-w-[1280px] w-full text-left text-sm">
+          <table className="min-w-[760px] w-full text-left text-sm">
             <thead className="bg-slate-50 text-xs uppercase tracking-[0.08em] text-[var(--muted)]">
               <tr>
                 <th className="px-3 py-2">Invoice#</th>
                 <th className="px-3 py-2">Date</th>
                 <th className="px-3 py-2">Customer</th>
-                <th className="px-3 py-2">Items</th>
-                <th className="px-3 py-2">Subtotal</th>
-                <th className="px-3 py-2">GST</th>
-                <th className="px-3 py-2">Discount</th>
                 <th className="px-3 py-2">Total</th>
                 <th className="px-3 py-2">Payment</th>
                 <th className="px-3 py-2">Status</th>
@@ -321,10 +317,6 @@ export default function InvoicesPage() {
                     <p>{item.customerName}</p>
                     <p className="text-xs text-[var(--muted)]">{item.customerMobile}</p>
                   </td>
-                  <td className="px-3 py-2">{item.itemsCount}</td>
-                  <td className="px-3 py-2">{formatCurrency(item.subtotal)}</td>
-                  <td className="px-3 py-2">{formatCurrency(item.gst)}</td>
-                  <td className="px-3 py-2">-{formatCurrency(item.discount + item.loyaltyDiscount)}</td>
                   <td className="px-3 py-2 font-semibold">{formatCurrency(item.total)}</td>
                   <td className="px-3 py-2">{item.paymentMethod}</td>
                   <td className="px-3 py-2">
@@ -340,7 +332,7 @@ export default function InvoicesPage() {
                   <td className="px-3 py-2">
                     <div className="flex gap-1">
                       <Link href={`/billing/invoices/${item.id}`} className="rounded-md border border-[var(--border)] px-2 py-1 text-xs font-semibold text-slate-700">
-                        View
+                        View Invoice
                       </Link>
                       <button
                         type="button"

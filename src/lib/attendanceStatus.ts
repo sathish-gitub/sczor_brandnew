@@ -138,3 +138,50 @@ export function getAvailabilityStatusLabel(status: "AVAILABLE" | "BUSY" | "OFF_D
   return "Week Off"; // OFF_DUTY displayed as "Week Off"
 }
 
+/**
+ * Compute the record status and availability labels for a staff member.
+ * When a staff member is Inactive, availability always shows "Unavailable" regardless of stored availabilityStatus.
+ * When Active, availability shows the result of getAvailabilityStatusLabel().
+ * 
+ * Returns { recordStatusLabel, recordStatusBadgeClassName, availabilityLabel, availabilityBadgeClassName }
+ */
+export function getStaffStatusLabels(staff: {
+  status: "ACTIVE" | "INACTIVE";
+  availabilityStatus: "AVAILABLE" | "BUSY" | "OFF_DUTY";
+}): {
+  recordStatusLabel: string;
+  recordStatusBadgeClassName: string;
+  availabilityLabel: string;
+  availabilityBadgeClassName: string;
+} {
+  const recordStatusLabel = staff.status === "ACTIVE" ? "Active" : "Inactive";
+  const recordStatusBadgeClassName =
+    staff.status === "ACTIVE"
+      ? "bg-emerald-100 text-emerald-700"
+      : "bg-slate-100 text-slate-700";
+
+  if (staff.status === "INACTIVE") {
+    return {
+      recordStatusLabel,
+      recordStatusBadgeClassName,
+      availabilityLabel: "Unavailable",
+      availabilityBadgeClassName: "bg-slate-100 text-slate-700",
+    };
+  }
+
+  const availabilityLabel = getAvailabilityStatusLabel(staff.availabilityStatus);
+  const availabilityBadgeClassName =
+    staff.availabilityStatus === "AVAILABLE"
+      ? "bg-emerald-100 text-emerald-700"
+      : staff.availabilityStatus === "BUSY"
+        ? "bg-amber-100 text-amber-700"
+        : "bg-indigo-100 text-indigo-700";
+
+  return {
+    recordStatusLabel,
+    recordStatusBadgeClassName,
+    availabilityLabel,
+    availabilityBadgeClassName,
+  };
+}
+

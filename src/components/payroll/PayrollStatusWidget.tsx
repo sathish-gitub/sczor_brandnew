@@ -4,6 +4,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AlertTriangle, CheckCircle2, Wallet } from "lucide-react";
 
+type PendingStaff = {
+  id: string;
+  name: string;
+  designation: string;
+};
+
 type PayrollStatus = {
   month: number;
   year: number;
@@ -11,7 +17,7 @@ type PayrollStatus = {
   totalProcessed: number;
   unprocessedCount: number;
   totalNetPay: number;
-  dayOfMonth: number;
+  pendingStaff: PendingStaff[];
 };
 
 const months = [
@@ -51,8 +57,8 @@ export function PayrollStatusWidget() {
   }, []);
 
   const monthLabel = status ? months[status.month - 1] : "";
-  const showReminder = !!status && status.unprocessedCount > 0 && status.dayOfMonth >= 25;
-  const allCaughtUp = !!status && (status.unprocessedCount === 0 || status.dayOfMonth < 25);
+  const pendingStaff = status?.pendingStaff ?? [];
+  const visiblePending = pendingStaff.slice(0, 5);
 
   return (
     <section className="rounded-xl border border-[var(--border)] bg-white">
@@ -75,29 +81,42 @@ export function PayrollStatusWidget() {
           <div className="space-y-3">
             <div>
               <p className="text-sm font-semibold text-[var(--foreground)]">
-                {status.totalProcessed} of {status.totalConfigured} staff processed
+                {status.totalProcessed} of {status.totalConfigured} processed
               </p>
               <p className="text-xs text-[var(--muted)]">
                 Total net pay so far for {monthLabel}: {formatCurrency(status.totalNetPay)}
               </p>
             </div>
 
-            {showReminder ? (
-              <div className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-700">
-                <AlertTriangle className="h-4 w-4 shrink-0" />
-                <span>
-                  {status.unprocessedCount} staff member{status.unprocessedCount === 1 ? "" : "s"} still need payroll processed
-                  for {monthLabel}
-                </span>
+            {status.unprocessedCount > 0 ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-sm text-amber-700">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
+                  <span>
+                    {status.unprocessedCount} staff member{status.unprocessedCount === 1 ? "" : "s"} still need payroll
+                    processed for {monthLabel}
+                  </span>
+                </div>
+                <ul className="divide-y divide-[var(--border)] rounded-xl border border-[var(--border)]">
+                  {visiblePending.map((staff) => (
+                    <li key={staff.id} className="flex items-center justify-between px-3 py-2 text-sm">
+                      <span className="font-medium text-[var(--foreground)]">{staff.name}</span>
+                      <span className="text-xs text-[var(--muted)]">{staff.designation}</span>
+                    </li>
+                  ))}
+                </ul>
+                {pendingStaff.length > 5 ? (
+                  <Link href="/payroll" className="text-sm font-semibold text-[var(--accent)] hover:text-[var(--primary)]">
+                    Show more
+                  </Link>
+                ) : null}
               </div>
-            ) : null}
-
-            {allCaughtUp && !showReminder ? (
+            ) : (
               <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2.5 text-sm text-emerald-700">
                 <CheckCircle2 className="h-4 w-4 shrink-0" />
-                <span>All caught up for {monthLabel} ✅</span>
+                <span>All caught up for {monthLabel}</span>
               </div>
-            ) : null}
+            )}
           </div>
         )}
       </div>

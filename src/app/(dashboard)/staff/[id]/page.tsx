@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, Mail, Phone, Star } from "lucide-react";
 
 import { StaffAvatar } from "@/components/staff/StaffAvatar";
-import { getAvailabilityStatusLabel } from "@/lib/attendanceStatus";
+import { getStaffStatusLabels } from "@/lib/attendanceStatus";
 import { formatISTTenureLabel, toISTDateString } from "@/lib/time";
 
 type StaffDetail = {
@@ -183,6 +183,11 @@ export default function StaffProfilePage() {
     return <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error || "Profile not found."}</div>;
   }
 
+  const statusLabels = getStaffStatusLabels({
+    status: staff.status,
+    availabilityStatus: staff.availabilityStatus,
+  });
+
   return (
     <div className="space-y-5">
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}
@@ -195,8 +200,12 @@ export default function StaffProfilePage() {
               <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">{staff.name}</h1>
               <p className="text-sm text-[var(--muted)]">{staff.designation}</p>
               <div className="mt-2 flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">{staff.status}</span>
-                <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700">{getAvailabilityStatusLabel(staff.availabilityStatus)}</span>
+                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusLabels.recordStatusBadgeClassName}`}>
+                  {statusLabels.recordStatusLabel}
+                </span>
+                <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${statusLabels.availabilityBadgeClassName}`}>
+                  {statusLabels.availabilityLabel}
+                </span>
               </div>
             </div>
           </div>

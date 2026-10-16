@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getBusinessHoursForDate } from "@/lib/businessHours";
-import { resolveAttendanceDisplayStatus, getInactiveStaffLabel } from "@/lib/attendanceStatus";
+import { resolveAttendanceDisplayStatus } from "@/lib/attendanceStatus";
 import { addMinutesToClock, instantForOffset, istDayBounds, istWallTimeToInstant, toISTWeekday } from "@/lib/time";
 import { getStaffDesignationName, staffDesignationSelect } from "@/lib/staffDesignation";
 import type { CalendarAttendanceStatus, CalendarLine, CalendarResponse, CalendarStaffMember } from "@/lib/calendarTypes";
@@ -96,7 +96,7 @@ export async function GET(request: Request) {
 
       let unavailableLabel: string | null = null;
       if (member.status !== "ACTIVE") {
-        unavailableLabel = getInactiveStaffLabel();
+        unavailableLabel = "Inactive";
       } else if (displayStatus === "ABSENT") {
         unavailableLabel = "Absent";
       } else if (displayStatus === "LEAVE") {

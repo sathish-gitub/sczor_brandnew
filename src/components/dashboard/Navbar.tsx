@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Bell, Menu, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useAccess } from "@/contexts/AccessContext";
+import { appendCacheBust } from "@/lib/logoUrl";
 
 type NavbarProps = {
   userName: string;
@@ -63,12 +64,14 @@ export function Navbar({ userName, onMenuClick }: NavbarProps) {
   const [searching, setSearching] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [logoCacheBust, setLogoCacheBust] = useState(0);
+  const [logoFailed, setLogoFailed] = useState(false);
 
   // Update cache bust value when logo changes to refresh it in the UI after upload
   // (see router.refresh() in salon-profile/page.tsx after save)
   useEffect(() => {
     if (access.tenantLogo) {
       setLogoCacheBust(prev => prev + 1);
+      setLogoFailed(false);
     }
   }, [access.tenantLogo]);
 
@@ -260,12 +263,14 @@ export function Navbar({ userName, onMenuClick }: NavbarProps) {
             href="/settings/salon-profile"
             className="flex items-center gap-2 rounded-xl border border-[var(--border)] px-2.5 py-1.5 hover:bg-slate-50"
           >
-            {access.tenantLogo ? (
+            {access.tenantLogo && !logoFailed ? (
               <Image
-                src={`${access.tenantLogo}?v=${logoCacheBust}`}
+                src={appendCacheBust(access.tenantLogo, logoCacheBust)}
                 alt="Salon logo"
                 width={28}
                 height={28}
+                unoptimized={!/^https?:\/\//i.test(access.tenantLogo)}
+                onError={() => setLogoFailed(true)}
                 className="h-7 w-7 rounded-full object-cover"
               />
             ) : (

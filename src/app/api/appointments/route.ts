@@ -219,34 +219,48 @@ export async function GET(request: Request) {
         take: limit,
       }),
       (async () => {
-        const [total, booked, completed, cancelled] = await Promise.all([
-          prisma.appointment.count({
-            where,
-          }),
-          prisma.appointment.count({
-            where: {
-              ...where,
-              status: "BOOKED",
-            },
-          }),
-          prisma.appointment.count({
-            where: {
-              ...where,
-              status: "COMPLETED",
-            },
-          }),
-          prisma.appointment.count({
-            where: {
-              ...where,
-              status: "CANCELLED",
-            },
-          }),
-        ]);
+        // Count without status filter (so all cards show their full count)
+        const countWhere: Prisma.AppointmentWhereInput = {
+          tenantId,
+          appointmentDate: {
+            gte: bounds.start,
+            lt: bounds.end,
+          },
+          ...(search
+            ? {
+                OR: [
+                  { customer: { name: { contains: search, mode: "insensitive" } } },
+                  { customer: { mobile: { contains: search } } },
+                  { appointmentNumber: { contains: search, mode: "insensitive" } },
+                  { services: { some: { service: { name: { contains: search, mode: "insensitive" } } } } },
+                ],
+              }
+            : {}),
+        };
+
+        const total = await prisma.appointment.count({ where: countWhere });
+        const booked = await prisma.appointment.count({
+          where: { ...countWhere, status: "BOOKED" },
+        });
+        const inProgress = await prisma.appointment.count({
+          where: { ...countWhere, status: "IN_PROGRESS" },
+        });
+        const completed = await prisma.appointment.count({
+          where: { ...countWhere, status: "COMPLETED" },
+        });
+        const billed = await prisma.appointment.count({
+          where: { ...countWhere, status: "BILLED" },
+        });
+        const cancelled = await prisma.appointment.count({
+          where: { ...countWhere, status: "CANCELLED" },
+        });
 
         return {
           total,
           booked,
+          inProgress,
           completed,
+          billed,
           cancelled,
         };
       })(),

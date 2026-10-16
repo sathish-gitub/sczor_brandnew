@@ -1,5 +1,7 @@
-import { Edit3, Power, Trash2 } from "lucide-react";
+import { Edit3, Trash2 } from "lucide-react";
 import Link from "next/link";
+
+import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 
 type ServiceCardProps = {
   service: {
@@ -14,6 +16,7 @@ type ServiceCardProps = {
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   busy: boolean;
+  readOnly?: boolean;
 };
 
 const categoryClasses: Record<string, string> = {
@@ -33,7 +36,7 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
-export function ServiceCard({ service, onToggle, onDelete, busy }: ServiceCardProps) {
+export function ServiceCard({ service, onToggle, onDelete, busy, readOnly = false }: ServiceCardProps) {
   return (
     <article className="rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -58,14 +61,17 @@ export function ServiceCard({ service, onToggle, onDelete, busy }: ServiceCardPr
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <span
-          className={[
-            "rounded-full px-2.5 py-1 text-xs font-semibold",
-            service.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-700",
-          ].join(" ")}
-        >
-          {service.status}
-        </span>
+        <div className="flex items-center gap-2">
+          <ToggleSwitch
+            checked={service.status === "ACTIVE"}
+            onChange={() => onToggle(service.id)}
+            disabled={busy || readOnly}
+            label={`Toggle ${service.name} active status`}
+          />
+          <span className="text-xs font-semibold text-[var(--foreground)]">
+            {service.status === "ACTIVE" ? "Active" : "Inactive"}
+          </span>
+        </div>
 
         <div className="flex items-center gap-2">
           <Link
@@ -78,18 +84,8 @@ export function ServiceCard({ service, onToggle, onDelete, busy }: ServiceCardPr
 
           <button
             type="button"
-            onClick={() => onToggle(service.id)}
-            disabled={busy}
-            className="inline-flex h-9 items-center gap-1 rounded-lg border border-[var(--border)] px-3 text-xs font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-          >
-            <Power className="h-3.5 w-3.5" />
-            {service.status === "ACTIVE" ? "Disable" : "Enable"}
-          </button>
-
-          <button
-            type="button"
             onClick={() => onDelete(service.id)}
-            disabled={busy}
+            disabled={busy || readOnly}
             className="inline-flex h-9 items-center gap-1 rounded-lg border border-red-200 px-3 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50"
           >
             <Trash2 className="h-3.5 w-3.5" />

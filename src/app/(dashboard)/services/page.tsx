@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { ServiceCard } from "@/components/services/ServiceCard";
 import { Modal } from "@/components/ui/Modal";
+import { ToggleSwitch } from "@/components/ui/ToggleSwitch";
 import { useToast } from "@/components/ui/Toast";
 
 type ServiceItem = {
@@ -595,6 +596,7 @@ export default function ServicesPage() {
                     onToggle={toggleStatus}
                     onDelete={removeService}
                     busy={busyId === service.id}
+                    readOnly={access.accessLevel === "READ_ONLY"}
                   />
                 ))}
               </div>
@@ -625,14 +627,17 @@ export default function ServicesPage() {
                   <td className="px-4 py-3 font-medium text-[var(--foreground)]">{formatCurrency(service.price)}</td>
                   <td className="px-4 py-3 text-[var(--muted)]">{service.duration} min</td>
                   <td className="px-4 py-3">
-                    <span
-                      className={[
-                        "rounded-full px-2.5 py-1 text-xs font-semibold",
-                        service.status === "ACTIVE" ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-700",
-                      ].join(" ")}
-                    >
-                      {service.status}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <ToggleSwitch
+                        checked={service.status === "ACTIVE"}
+                        onChange={() => toggleStatus(service.id)}
+                        disabled={busyId === service.id || access.accessLevel === "READ_ONLY"}
+                        label={`Toggle ${service.name} active status`}
+                      />
+                      <span className="text-xs font-semibold text-[var(--foreground)]">
+                        {service.status === "ACTIVE" ? "Active" : "Inactive"}
+                      </span>
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
@@ -642,14 +647,6 @@ export default function ServicesPage() {
                       >
                         Edit
                       </Link>
-                      <button
-                        type="button"
-                        onClick={() => toggleStatus(service.id)}
-                        className="rounded-lg border border-[var(--border)] px-2.5 py-1 text-xs font-semibold text-slate-700"
-                        disabled={busyId === service.id}
-                      >
-                        Toggle
-                      </button>
                       <button
                         type="button"
                         onClick={() => removeService(service.id)}

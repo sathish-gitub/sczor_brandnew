@@ -3,6 +3,7 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { signOut } from "next-auth/react";
 
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
@@ -49,6 +50,7 @@ export default function SalonProfileSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<SalonProfileForm>(defaultForm);
   const [logoError, setLogoError] = useState<string | null>(null);
+  const [logoPreviewFailed, setLogoPreviewFailed] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -68,6 +70,7 @@ export default function SalonProfileSettingsPage() {
       }
 
       setForm(payload.salonProfile);
+      setLogoPreviewFailed(false);
       setLoading(false);
     }
 
@@ -102,6 +105,7 @@ export default function SalonProfileSettingsPage() {
     reader.onload = () => {
       const value = typeof reader.result === "string" ? reader.result : "";
       setForm((current) => ({ ...current, logo: value }));
+      setLogoPreviewFailed(false);
     };
     reader.onerror = () => {
       setLogoError("Could not read that file. Please try another image.");
@@ -133,6 +137,16 @@ export default function SalonProfileSettingsPage() {
     router.refresh();
   }
 
+  function onLogout() {
+    const allowed = window.confirm("Log out of your account?");
+
+    if (!allowed) {
+      return;
+    }
+
+    signOut({ callbackUrl: "/login" });
+  }
+
   if (loading) {
     return <div className="h-72 animate-pulse rounded-xl border border-[var(--border)] bg-white" />;
   }
@@ -151,8 +165,20 @@ export default function SalonProfileSettingsPage() {
       <section className="space-y-4 rounded-xl border border-[var(--border)] bg-white p-5">
         <div className="flex items-start gap-4">
           <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-xl border border-[var(--border)] bg-slate-50">
-            {form.logo ? (
-              <Image src={form.logo} alt="Salon logo preview" width={80} height={80} className="h-full w-full object-contain" />
+            {form.logo && !logoPreviewFailed ? (
+              <Image
+                src={form.logo}
+                alt="Salon logo preview"
+                width={80}
+                height={80}
+                unoptimized={!/^https?:\/\//i.test(form.logo)}
+                onError={() => setLogoPreviewFailed(true)}
+                className="h-full w-full object-contain"
+              />
+            ) : form.logo ? (
+              <div className="flex h-full w-full items-center justify-center rounded-xl bg-blue-100 text-2xl font-semibold text-[var(--primary)]">
+                {form.salonName ? form.salonName[0]?.toUpperCase() : "?"}
+              </div>
             ) : null}
           </div>
           <div className="space-y-1">
@@ -207,14 +233,23 @@ export default function SalonProfileSettingsPage() {
           <Field label="Pincode" value={form.pincode} onChange={(value) => setForm((current) => ({ ...current, pincode: value }))} />
         </div>
 
-        <button
-          type="button"
-          onClick={onSave}
-          disabled={saving}
-          className="h-10 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white disabled:opacity-70"
-        >
-          {saving ? "Saving..." : "Save Profile"}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={saving}
+            className="h-10 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-white disabled:opacity-70"
+          >
+            {saving ? "Saving..." : "Save Profile"}
+          </button>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="h-10 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-red-600 hover:bg-red-50"
+          >
+            Log out
+          </button>
+        </div>
       </section>
     </div>
   );

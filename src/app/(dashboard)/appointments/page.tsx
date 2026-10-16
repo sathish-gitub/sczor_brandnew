@@ -46,7 +46,9 @@ type AppointmentRow = {
 type Stats = {
   total: number;
   booked: number;
+  inProgress: number;
   completed: number;
+  billed: number;
   cancelled: number;
 };
 
@@ -84,12 +86,44 @@ function toastLabel(value: string | null, savedDate: string | null) {
   return null;
 }
 
-function StatsCard({ label, value }: { label: string; value: string | number }) {
+function StatsCard({
+  label,
+  value,
+  status,
+  selected,
+  onSelect,
+}: {
+  label: string;
+  value: string | number;
+  status?: string;
+  selected?: boolean;
+  onSelect?: (status: string) => void;
+}) {
+  const isClickable = status && onSelect;
+  
+  if (!isClickable) {
+    return (
+      <div className="rounded-xl border border-[var(--border)] bg-white p-4">
+        <p className="text-xs font-medium uppercase tracking-[0.1em] text-[var(--muted)]">{label}</p>
+        <p className="mt-2 text-2xl font-bold text-[var(--foreground)]">{value}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-white p-4">
+    <button
+      type="button"
+      onClick={() => onSelect(status)}
+      aria-pressed={selected}
+      className={`rounded-xl border p-4 text-left transition-colors ${
+        selected
+          ? "border-[var(--primary)] bg-[var(--primary)] bg-opacity-5"
+          : "border-[var(--border)] bg-white hover:bg-slate-50"
+      }`}
+    >
       <p className="text-xs font-medium uppercase tracking-[0.1em] text-[var(--muted)]">{label}</p>
       <p className="mt-2 text-2xl font-bold text-[var(--foreground)]">{value}</p>
-    </div>
+    </button>
   );
 }
 
@@ -153,7 +187,7 @@ export default function AppointmentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [rows, setRows] = useState<AppointmentRow[]>([]);
-  const [stats, setStats] = useState<Stats>({ total: 0, booked: 0, completed: 0, cancelled: 0 });
+  const [stats, setStats] = useState<Stats>({ total: 0, booked: 0, inProgress: 0, completed: 0, billed: 0, cancelled: 0 });
   const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: 10, total: 0, totalPages: 1 });
 
   // Debounce the search box (~300ms) before it drives the API query.
@@ -208,7 +242,7 @@ export default function AppointmentsPage() {
         }
 
         setRows(payload.items ?? []);
-        setStats(payload.stats ?? { total: 0, booked: 0, completed: 0, cancelled: 0 });
+        setStats(payload.stats ?? { total: 0, booked: 0, inProgress: 0, completed: 0, billed: 0, cancelled: 0 });
         setPagination(payload.pagination ?? { page: 1, limit: 10, total: 0, totalPages: 1 });
       } catch (loadError) {
         if (!active) {
@@ -246,6 +280,7 @@ export default function AppointmentsPage() {
       return;
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPeriod(periodContaining(savedDate));
     setStatus("ALL");
     setPage(1);
@@ -395,11 +430,67 @@ export default function AppointmentsPage() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatsCard label="Total" value={stats.total} />
-          <StatsCard label="Booked" value={stats.booked} />
-          <StatsCard label="Completed" value={stats.completed} />
-          <StatsCard label="Cancelled" value={stats.cancelled} />
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+          <StatsCard
+            label="Total"
+            value={stats.total}
+            status="ALL"
+            selected={status === "ALL"}
+            onSelect={(s) => {
+              setStatus(s as typeof status);
+              setPage(1);
+            }}
+          />
+          <StatsCard
+            label="Booked"
+            value={stats.booked}
+            status="BOOKED"
+            selected={status === "BOOKED"}
+            onSelect={(s) => {
+              setStatus(s as typeof status);
+              setPage(1);
+            }}
+          />
+          <StatsCard
+            label="In Progress"
+            value={stats.inProgress}
+            status="IN_PROGRESS"
+            selected={status === "IN_PROGRESS"}
+            onSelect={(s) => {
+              setStatus(s as typeof status);
+              setPage(1);
+            }}
+          />
+          <StatsCard
+            label="Completed"
+            value={stats.completed}
+            status="COMPLETED"
+            selected={status === "COMPLETED"}
+            onSelect={(s) => {
+              setStatus(s as typeof status);
+              setPage(1);
+            }}
+          />
+          <StatsCard
+            label="Billed"
+            value={stats.billed}
+            status="BILLED"
+            selected={status === "BILLED"}
+            onSelect={(s) => {
+              setStatus(s as typeof status);
+              setPage(1);
+            }}
+          />
+          <StatsCard
+            label="Cancelled"
+            value={stats.cancelled}
+            status="CANCELLED"
+            selected={status === "CANCELLED"}
+            onSelect={(s) => {
+              setStatus(s as typeof status);
+              setPage(1);
+            }}
+          />
         </div>
       </header>
 

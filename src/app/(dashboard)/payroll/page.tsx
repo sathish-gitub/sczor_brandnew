@@ -7,7 +7,7 @@ import { AlertTriangle, CalendarClock } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { PAYROLL_DAY_METHOD_INFO, type PayrollDayMethod } from "@/lib/payrollDayMethod";
 import { formatMissingDatesSummary } from "@/lib/formatMissingDates";
-import { formatISTDayMonth } from "@/lib/time";
+import { formatDays, formatISTDayMonth } from "@/lib/time";
 
 type StaffOverviewItem = {
   id: string;
@@ -400,7 +400,7 @@ export default function PayrollPage() {
                           className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-red-100 px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-200"
                         >
                           <CalendarClock className="h-3.5 w-3.5" />
-                          Attendance incomplete ({item.missingDates.length} days)
+                          Attendance incomplete ({formatDays(item.missingDates.length)})
                         </Link>
                       ) : null}
                     </td>
@@ -506,16 +506,16 @@ export default function PayrollPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--muted)]">Present</span>
-                    <span className="font-medium text-[var(--foreground)]">{singlePreview.presentDays} days</span>
+                    <span className="font-medium text-[var(--foreground)]">{formatDays(singlePreview.presentDays)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--muted)]">Absent</span>
-                    <span className="font-medium text-[var(--foreground)]">{singlePreview.absentDays} days</span>
+                    <span className="font-medium text-[var(--foreground)]">{formatDays(singlePreview.absentDays)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--muted)]">Leave (paid)</span>
                     <span className="font-medium text-[var(--foreground)]">
-                      {singlePreview.paidLeaveDays} days
+                      {formatDays(singlePreview.paidLeaveDays)}
                       {singlePreview.usedDefaultLeaveAllowance ? (
                         <span className="ml-1 font-normal text-[var(--muted)]">(salon default)</span>
                       ) : null}
@@ -523,15 +523,15 @@ export default function PayrollPage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--muted)]">Leave (unpaid/LOP)</span>
-                    <span className="font-medium text-[var(--foreground)]">{singlePreview.lopDays} days</span>
+                    <span className="font-medium text-[var(--foreground)]">{formatDays(singlePreview.lopDays)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--muted)]">Half Days</span>
-                    <span className="font-medium text-[var(--foreground)]">{singlePreview.halfDays} days</span>
+                    <span className="font-medium text-[var(--foreground)]">{formatDays(singlePreview.halfDays)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--muted)]">Week Off (paid)</span>
-                    <span className="font-medium text-[var(--foreground)]">{singlePreview.weekOffDays} days</span>
+                    <span className="font-medium text-[var(--foreground)]">{formatDays(singlePreview.weekOffDays)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--muted)]">Daily Rate Method</span>
@@ -542,7 +542,7 @@ export default function PayrollPage() {
                   <div className="flex items-center justify-between">
                     <span className="text-[var(--muted)]">Payable Days</span>
                     <span className="font-medium text-[var(--foreground)]">
-                      {singlePreview.payableDays} of {singlePreview.dailyRateDivisor}
+                      {formatDays(singlePreview.payableDays)} of {singlePreview.dailyRateDivisor}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -554,7 +554,7 @@ export default function PayrollPage() {
                     <span className="font-medium text-[var(--foreground)]">{formatCurrency(singlePreview.commissionAmount)}</span>
                   </div>
                   <div className="flex items-center justify-between text-red-600">
-                    <span>Deduction ({singlePreview.deductionDays} days)</span>
+                    <span>Deduction ({formatDays(singlePreview.deductionDays)})</span>
                     <span className="font-medium">-{formatCurrency(singlePreview.leaveDeduction)}</span>
                   </div>
                   <div className="mt-2 flex items-center justify-between border-t border-[var(--border)] pt-2 font-semibold text-[var(--foreground)]">
@@ -643,7 +643,7 @@ export default function PayrollPage() {
                             ) : null}
                           </td>
                           <td className="px-3 py-2 text-[var(--muted)]">
-                            {entry.result.payableDays} of {entry.result.dailyRateDivisor}
+                            {formatDays(entry.result.payableDays)} of {entry.result.dailyRateDivisor}
                           </td>
                           <td className="px-3 py-2 font-medium text-[var(--foreground)]">
                             {formatCurrency(entry.result.netPay)}
