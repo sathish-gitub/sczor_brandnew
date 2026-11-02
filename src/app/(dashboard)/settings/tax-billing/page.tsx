@@ -4,13 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
+import {
+  DEFAULT_INVOICE_PREFIX,
+  INVOICE_NUMBER_FORMAT_LABELS,
+  INVOICE_NUMBER_FORMATS,
+  sanitizeInvoicePrefix,
+  type InvoiceNumberFormat,
+} from "@/lib/invoiceNumbering";
 
 type TaxBillingForm = {
   gstNumber: string;
   gstEnabled: boolean;
   gstRate: number;
   invoicePrefix: string;
-  invoiceNumberFormat: "INV-YYYY-XXXX" | "INV-XXXX";
+  invoiceNumberFormat: InvoiceNumberFormat;
   invoiceStartNumber: number;
   invoiceFooter: string;
   invoiceTerms: string;
@@ -29,7 +36,7 @@ const defaults: TaxBillingForm = {
   gstNumber: "",
   gstEnabled: true,
   gstRate: 18,
-  invoicePrefix: "INV",
+  invoicePrefix: DEFAULT_INVOICE_PREFIX,
   invoiceNumberFormat: "INV-YYYY-XXXX",
   invoiceStartNumber: 1,
   invoiceFooter: "",
@@ -50,6 +57,7 @@ export default function TaxBillingPage() {
   const [form, setForm] = useState<TaxBillingForm>(defaults);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [nextInvoiceNumber, setNextInvoiceNumber] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -78,6 +86,38 @@ export default function TaxBillingPage() {
       active = false;
     };
   }, [showToast]);
+
+  // Live "Next invoice: ..." preview, using the real next sequence value
+  // from the server for whatever prefix/format/start number is currently
+  // being edited (not necessarily saved yet).
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+
+    let active = true;
+    const timeout = setTimeout(async () => {
+      const params = new URLSearchParams({
+        prefix: sanitizeInvoicePrefix(form.invoicePrefix) || DEFAULT_INVOICE_PREFIX,
+        format: form.invoiceNumberFormat,
+        startNumber: String(form.invoiceStartNumber || 1),
+      });
+
+      const response = await fetch(`/api/settings/tax-billing/invoice-number-preview?${params.toString()}`, {
+        cache: "no-store",
+      });
+      const payload = (await response.json().catch(() => null)) as { nextInvoiceNumber?: string } | null;
+
+      if (active && response.ok && payload?.nextInvoiceNumber) {
+        setNextInvoiceNumber(payload.nextInvoiceNumber);
+      }
+    }, 300);
+
+    return () => {
+      active = false;
+      clearTimeout(timeout);
+    };
+  }, [loading, form.invoicePrefix, form.invoiceNumberFormat, form.invoiceStartNumber]);
 
   const cgst = useMemo(() => Number((form.gstRate / 2).toFixed(2)), [form.gstRate]);
   const sgst = useMemo(() => Number((form.gstRate / 2).toFixed(2)), [form.gstRate]);
@@ -133,16 +173,37 @@ export default function TaxBillingPage() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Invoice Prefix" value={form.invoicePrefix} onChange={(value) => setForm((current) => ({ ...current, invoicePrefix: value }))} />
+          <div>
+            <Field
+              label="Invoice Prefix"
+              value={form.invoicePrefix}
+              onChange={(value) => setForm((current) => ({ ...current, invoicePrefix: sanitizeInvoicePrefix(value) }))}
+            />
+            <p className="mt-1 text-xs text-[var(--muted)]">
+              Letters, numbers and dashes only, up to 10 characters (uppercased automatically). Leave blank to use the
+              default ({DEFAULT_INVOICE_PREFIX}).
+            </p>
+          </div>
           <label className="block text-sm">
             <span className="text-[var(--muted)]">Invoice Number Format</span>
             <select value={form.invoiceNumberFormat} onChange={(event) => setForm((current) => ({ ...current, invoiceNumberFormat: event.target.value as TaxBillingForm["invoiceNumberFormat"] }))} className="mt-1 h-10 w-full rounded-xl border border-[var(--border)] px-3">
-              <option value="INV-YYYY-XXXX">INV-YYYY-XXXX</option>
-              <option value="INV-XXXX">INV-XXXX</option>
+              {INVOICE_NUMBER_FORMATS.map((format) => (
+                <option key={format} value={format}>
+                  {INVOICE_NUMBER_FORMAT_LABELS[format]}
+                </option>
+              ))}
             </select>
           </label>
           <NumberField label="Starting Invoice Number" value={form.invoiceStartNumber} onChange={(value) => setForm((current) => ({ ...current, invoiceStartNumber: value }))} />
           <Field label="UPI ID" value={form.upiId} onChange={(value) => setForm((current) => ({ ...current, upiId: value }))} />
+        </div>
+
+        <div className="rounded-xl border border-dashed border-[var(--border)] bg-slate-50 px-4 py-3 text-sm">
+          <p className="font-semibold text-[var(--foreground)]">Next invoice: {nextInvoiceNumber ?? "..."}</p>
+          <p className="mt-1 text-xs text-[var(--muted)]">
+            Changing the prefix, format or starting number only affects new invoices - existing invoice numbers are never
+            changed.
+          </p>
         </div>
 
         <label className="block text-sm">

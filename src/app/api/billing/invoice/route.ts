@@ -9,7 +9,9 @@ import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
 import { calculateLoyaltyTier } from "@/lib/utils";
 import { buildPublicInvoiceUrl } from "@/lib/whatsappMessages";
-import { todayISTDateString } from "@/lib/time";
+import { resolveNextInvoiceNumber } from "@/lib/invoiceNumberSequence";
+import type { InvoiceNumberFormat } from "@/lib/invoiceNumbering";
+import { INVOICE_NUMBER_FORMATS } from "@/lib/invoiceNumbering";
 
 const itemSchema = z
   .object({
@@ -52,31 +54,6 @@ function generatePublicToken() {
   return crypto.randomBytes(24).toString("base64url");
 }
 
-async function nextInvoiceNumber(tenantId: string, prefix: string) {
-  const year = todayISTDateString().slice(0, 4);
-  const basePrefix = `${prefix}-${year}-`;
-
-  const latest = await prisma.invoice.findFirst({
-    where: {
-      tenantId,
-      invoiceNumber: {
-        startsWith: basePrefix,
-      },
-    },
-    orderBy: {
-      invoiceNumber: "desc",
-    },
-    select: {
-      invoiceNumber: true,
-    },
-  });
-
-  const lastSequence = latest ? Number(latest.invoiceNumber.split("-").at(-1) ?? "0") : 0;
-  const next = Number.isFinite(lastSequence) ? lastSequence + 1 : 1;
-
-  return `${basePrefix}${String(next).padStart(4, "0")}`;
-}
-
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
 
@@ -112,6 +89,8 @@ export async function POST(request: Request) {
         },
         select: {
           invoicePrefix: true,
+          invoiceNumberFormat: true,
+          invoiceStartNumber: true,
           gstEnabled: true,
           gstRate: true,
           silverThreshold: true,
@@ -180,6 +159,11 @@ export async function POST(request: Request) {
     if (!customer) {
       return NextResponse.json({ error: "Customer not found." }, { status: 404 });
     }
+
+    // Narrowed locals so closures defined later (e.g. runInvoiceTransaction)
+    // keep TypeScript's non-null narrowing without re-checking.
+    const tenantId = session.user.tenantId;
+    const verifiedCustomer = customer;
 
     const serviceMap = new Map(services.map((item) => [item.id, item]));
 
@@ -312,7 +296,15 @@ export async function POST(request: Request) {
     const pointsEarned = Math.floor(total / 10);
 
     const invoicePrefix = settings?.invoicePrefix ?? "INV";
-    const invoiceNumber = await nextInvoiceNumber(session.user.tenantId, invoicePrefix);
+    const invoiceNumberFormat: InvoiceNumberFormat = INVOICE_NUMBER_FORMATS.includes(
+      settings?.invoiceNumberFormat as InvoiceNumberFormat,
+    )
+      ? (settings!.invoiceNumberFormat as InvoiceNumberFormat)
+      : "INV-YYYY-XXXX";
+    const invoiceStartNumber = settings?.invoiceStartNumber ?? 1;
+    // Captured once so the number generated below and the invoiceDate
+    // stored on the row always agree on which IST year/period they fall in.
+    const invoiceDate = new Date();
 
     const linkedAppointment = payload.appointmentId
       ? await prisma.appointment.findFirst({
@@ -323,127 +315,168 @@ export async function POST(request: Request) {
 
     const publicToken = generatePublicToken();
 
-    const created = await prisma.$transaction(async (tx) => {
-      const invoice = await tx.invoice.create({
-        data: {
-          tenantId: session.user.tenantId,
-          customerId: customer.id,
-          invoiceNumber,
-          publicToken,
-          subtotal,
-          taxRate: gstRate,
-          taxAmount,
-          discount: manualDiscount,
-          total,
-          paymentMethod: payload.paymentMethod,
-          paymentStatus: "PAID",
-          appointmentId: linkedAppointment?.id ?? null,
-          // Mirror of the first service line's staff, for backward compatibility.
-          staffId: normalizedItems.find((item) => item.type === "SERVICE")?.staffId ?? null,
-          items: {
-            create: normalizedItems.map((item) => ({
-              name: item.name,
-              price: item.unitPrice,
-              quantity: item.quantity,
-              amount: item.amount,
-              serviceId: item.serviceId,
-              productId: item.productId,
-              staffId: item.staffId,
-            })),
-          },
-        },
-        include: {
-          items: true,
-        },
-      });
+    async function runInvoiceTransaction() {
+      return prisma.$transaction(async (tx) => {
+        // Generated inside the same transaction as the invoice row, under a
+        // per-tenant/prefix/format/period advisory lock, so two simultaneous
+        // bills can never read the same "current max" and collide.
+        const invoiceNumber = await resolveNextInvoiceNumber(
+          tx,
+          tenantId,
+          invoicePrefix,
+          invoiceNumberFormat,
+          invoiceStartNumber,
+          invoiceDate,
+        );
 
-      for (const item of normalizedItems) {
-        if (item.type !== "PRODUCT") {
-          continue;
+        const invoice = await tx.invoice.create({
+          data: {
+            tenantId,
+            customerId: verifiedCustomer.id,
+            invoiceNumber,
+            invoiceDate,
+            publicToken,
+            subtotal,
+            taxRate: gstRate,
+            taxAmount,
+            discount: manualDiscount,
+            total,
+            paymentMethod: payload.paymentMethod,
+            paymentStatus: "PAID",
+            appointmentId: linkedAppointment?.id ?? null,
+            // Mirror of the first service line's staff, for backward compatibility.
+            staffId: normalizedItems.find((item) => item.type === "SERVICE")?.staffId ?? null,
+            items: {
+              create: normalizedItems.map((item) => ({
+                name: item.name,
+                price: item.unitPrice,
+                quantity: item.quantity,
+                amount: item.amount,
+                serviceId: item.serviceId,
+                productId: item.productId,
+                staffId: item.staffId,
+              })),
+            },
+          },
+          include: {
+            items: true,
+          },
+        });
+
+        for (const item of normalizedItems) {
+          if (item.type !== "PRODUCT") {
+            continue;
+          }
+
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { currentStock: { decrement: item.quantity } },
+          });
+
+          await tx.stockMovement.create({
+            data: {
+              tenantId,
+              productId: item.productId,
+              type: "SALE_OUT",
+              quantity: item.quantity,
+              reference: invoice.invoiceNumber,
+            },
+          });
         }
 
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { currentStock: { decrement: item.quantity } },
+        let totalPointsAfter = availablePoints;
+
+        const card =
+          verifiedCustomer.loyaltyCard ??
+          (await tx.loyaltyCard.create({
+            data: {
+              tenantId,
+              customerId: verifiedCustomer.id,
+            },
+          }));
+
+        if (loyaltyDiscount > 0) {
+          await tx.loyaltyTransaction.create({
+            data: {
+              loyaltyCardId: card.id,
+              invoiceId: invoice.id,
+              points: loyaltyDiscount,
+              type: "REDEEMED",
+              description: `Redeemed during invoice ${invoice.invoiceNumber}`,
+            },
+          });
+
+          totalPointsAfter -= loyaltyDiscount;
+        }
+
+        if (pointsEarned > 0) {
+          await tx.loyaltyTransaction.create({
+            data: {
+              loyaltyCardId: card.id,
+              invoiceId: invoice.id,
+              points: pointsEarned,
+              type: "EARNED",
+              description: `Earned from invoice ${invoice.invoiceNumber}`,
+            },
+          });
+
+          totalPointsAfter += pointsEarned;
+        }
+
+        await tx.loyaltyCard.update({
+          where: {
+            id: card.id,
+          },
+          data: {
+            totalPoints: totalPointsAfter,
+            tier: calculateLoyaltyTier(totalPointsAfter, {
+              silverThreshold: settings?.silverThreshold ?? 500,
+              goldThreshold: settings?.goldThreshold ?? 2000,
+              platinumThreshold: settings?.platinumThreshold ?? 5000,
+            }),
+            pointsRedeemed: {
+              increment: loyaltyDiscount,
+            },
+            totalSpent: {
+              increment: total,
+            },
+          },
         });
 
-        await tx.stockMovement.create({
-          data: {
-            tenantId: session.user.tenantId,
-            productId: item.productId,
-            type: "SALE_OUT",
-            quantity: item.quantity,
-            reference: invoice.invoiceNumber,
-          },
-        });
-      }
-
-      let totalPointsAfter = availablePoints;
-
-      const card =
-        customer.loyaltyCard ??
-        (await tx.loyaltyCard.create({
-          data: {
-            tenantId: session.user.tenantId,
-            customerId: customer.id,
-          },
-        }));
-
-      if (loyaltyDiscount > 0) {
-        await tx.loyaltyTransaction.create({
-          data: {
-            loyaltyCardId: card.id,
-            invoiceId: invoice.id,
-            points: loyaltyDiscount,
-            type: "REDEEMED",
-            description: `Redeemed during invoice ${invoice.invoiceNumber}`,
-          },
-        });
-
-        totalPointsAfter -= loyaltyDiscount;
-      }
-
-      if (pointsEarned > 0) {
-        await tx.loyaltyTransaction.create({
-          data: {
-            loyaltyCardId: card.id,
-            invoiceId: invoice.id,
-            points: pointsEarned,
-            type: "EARNED",
-            description: `Earned from invoice ${invoice.invoiceNumber}`,
-          },
-        });
-
-        totalPointsAfter += pointsEarned;
-      }
-
-      await tx.loyaltyCard.update({
-        where: {
-          id: card.id,
-        },
-        data: {
-          totalPoints: totalPointsAfter,
-          tier: calculateLoyaltyTier(totalPointsAfter, {
-            silverThreshold: settings?.silverThreshold ?? 500,
-            goldThreshold: settings?.goldThreshold ?? 2000,
-            platinumThreshold: settings?.platinumThreshold ?? 5000,
-          }),
-          pointsRedeemed: {
-            increment: loyaltyDiscount,
-          },
-          totalSpent: {
-            increment: total,
-          },
-        },
+        return {
+          invoice,
+          loyaltyDiscount,
+          pointsEarned,
+          totalPointsAfter,
+        };
       });
+    }
 
-      return {
-        invoice,
-        loyaltyDiscount,
-        pointsEarned,
-        totalPointsAfter,
-      };
-    });
+    // Retried only on an invoiceNumber unique-constraint collision - the
+    // advisory lock makes this extremely unlikely, but this keeps checkout
+    // from failing outright on the rare races it doesn't cover (e.g. a
+    // concurrent prefix/format change mid-flight).
+    const MAX_INVOICE_NUMBER_ATTEMPTS = 3;
+    let created: Awaited<ReturnType<typeof runInvoiceTransaction>> | undefined;
+
+    for (let attempt = 1; attempt <= MAX_INVOICE_NUMBER_ATTEMPTS; attempt += 1) {
+      try {
+        created = await runInvoiceTransaction();
+        break;
+      } catch (error) {
+        const prismaError = error as { code?: string; meta?: { target?: string[] } };
+        const isInvoiceNumberCollision =
+          prismaError.code === "P2002" && (prismaError.meta?.target ?? []).includes("invoiceNumber");
+
+        if (!isInvoiceNumberCollision || attempt === MAX_INVOICE_NUMBER_ATTEMPTS) {
+          throw error;
+        }
+      }
+    }
+
+    if (!created) {
+      throw new Error("Unable to generate a unique invoice number.");
+    }
 
     if (linkedAppointment) {
       await prisma.appointment.update({

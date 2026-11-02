@@ -153,3 +153,82 @@ export async function getServicesDoneByStaff(
 
   return result;
 }
+
+export type ServicesDoneByInvoiceLineEntry = {
+  count: number;
+  servicesByName: Record<string, number>;
+  invoiceIds: Set<string>;
+};
+
+/**
+ * POS-only "services done": counts InvoiceItem rows that are services
+ * (serviceId set, productId not set) on invoices dated in `invoiceDate`
+ * range `[gte, lt)`, excluding CANCELLED/REFUNDED invoices. Credited to
+ * InvoiceItem.staffId, falling back to Invoice.staffId for lines that
+ * predate per-line attribution (same basis as revenue). The same staff
+ * member on two lines of one invoice counts 2. `invoiceIds` is the set of
+ * distinct invoices on which the staff member has at least one such line,
+ * used for the staff report's invoice count. Omit `range` for an all-time
+ * total.
+ *
+ * Used by: the staff performance report only.
+ */
+export async function getServicesDoneByInvoiceLine(
+  tenantId: string,
+  staffIds: string[],
+  range?: { gte: Date; lt: Date },
+): Promise<Map<string, ServicesDoneByInvoiceLineEntry>> {
+  const result = new Map<string, ServicesDoneByInvoiceLineEntry>();
+
+  if (staffIds.length === 0) {
+    return result;
+  }
+
+  const staffIdSet = new Set(staffIds);
+
+  const invoices = await prisma.invoice.findMany({
+    where: {
+      tenantId,
+      paymentStatus: { notIn: ["CANCELLED", "REFUNDED"] },
+      ...(range ? { invoiceDate: { gte: range.gte, lt: range.lt } } : {}),
+      OR: [
+        { staffId: { in: staffIds } },
+        { items: { some: { staffId: { in: staffIds }, serviceId: { not: null }, productId: null } } },
+      ],
+    },
+    select: {
+      id: true,
+      staffId: true,
+      items: {
+        select: {
+          staffId: true,
+          serviceId: true,
+          productId: true,
+          service: { select: { name: true } },
+        },
+      },
+    },
+  });
+
+  for (const invoice of invoices) {
+    for (const item of invoice.items) {
+      if (!item.serviceId || item.productId) {
+        continue;
+      }
+
+      const attributedStaffId = item.staffId ?? invoice.staffId;
+      if (!attributedStaffId || !staffIdSet.has(attributedStaffId)) {
+        continue;
+      }
+
+      const entry = result.get(attributedStaffId) ?? { count: 0, servicesByName: {}, invoiceIds: new Set<string>() };
+      entry.count += 1;
+      const name = item.service?.name ?? "Service";
+      entry.servicesByName[name] = (entry.servicesByName[name] ?? 0) + 1;
+      entry.invoiceIds.add(invoice.id);
+      result.set(attributedStaffId, entry);
+    }
+  }
+
+  return result;
+}

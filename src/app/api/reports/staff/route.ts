@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getServicesDoneByStaff, getStaffRevenueByInvoiceLine } from "@/lib/staffRevenue";
+import { getServicesDoneByInvoiceLine, getStaffRevenueByInvoiceLine } from "@/lib/staffRevenue";
 import { istMonthBounds, istWallTimeToInstant, todayISTDateString } from "@/lib/time";
 import { getStaffDesignationName, staffDesignationSelect } from "@/lib/staffDesignation";
 
@@ -59,9 +59,11 @@ export async function GET(request: Request) {
     const staffIds = staff.map((item) => item.id);
 
     const [servicesDoneByStaff, revenueByStaff, attendance] = await Promise.all([
-      // "Services done" counts AppointmentService lines (the same person on two
-      // lines of one appointment counts 2), restricted to BILLED appointments.
-      getServicesDoneByStaff(session.user.tenantId, staffIds, { gte: from, lt: to }, "BILLED"),
+      // "Services done" counts InvoiceItem service lines (serviceId set,
+      // productId not set) on non-cancelled/refunded invoices in range (the
+      // same person on two lines of one invoice counts 2). POS/billing data
+      // only - no appointment data in this report.
+      getServicesDoneByInvoiceLine(session.user.tenantId, staffIds, { gte: from, lt: to }),
       // Revenue is attributed per invoice line (InvoiceItem.staffId), falling
       // back to Invoice.staffId for lines that predate per-line attribution.
       getStaffRevenueByInvoiceLine(session.user.tenantId, staffIds, { gte: from, lt: to }),
@@ -97,7 +99,11 @@ export async function GET(request: Request) {
     }
 
     const items = staff.map((member) => {
-      const servicesDoneInfo = servicesDoneByStaff.get(member.id) ?? { count: 0, servicesByName: {} };
+      const servicesDoneInfo = servicesDoneByStaff.get(member.id) ?? {
+        count: 0,
+        servicesByName: {},
+        invoiceIds: new Set<string>(),
+      };
       const revenueInfo = revenueByStaff.get(member.id) ?? { revenue: 0, invoiceIds: new Set<string>() };
       const revenue = revenueInfo.revenue;
       const attendanceInfo = attendanceByStaff.get(member.id) ?? { present: 0, absent: 0, total: 0 };
@@ -109,7 +115,9 @@ export async function GET(request: Request) {
         .slice(0, 3)
         .map(([name]) => name);
 
-      const invoiceCount = revenueInfo.invoiceIds.size;
+      // Invoice count = distinct invoices where this staff member has at
+      // least one service line (same attribution as "services done").
+      const invoiceCount = servicesDoneInfo.invoiceIds.size;
 
       return {
         staffId: member.id,
