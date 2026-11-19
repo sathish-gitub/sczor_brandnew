@@ -9,6 +9,7 @@ import { CustomerCard } from "@/components/customers/CustomerCard";
 import { LoyaltyCard } from "@/components/customers/LoyaltyCard";
 import { StatusBadge } from "@/components/appointments/StatusBadge";
 import { combinedServiceNames, distinctStaffLabel } from "@/lib/appointmentDisplay";
+import { formatClockTime12Hour } from "@/lib/time";
 
 type CustomerProfilePayload = {
   customer: {
@@ -335,7 +336,7 @@ export default function CustomerProfilePage() {
                   {profile.appointments.map((appointment) => (
                     <tr key={appointment.id} className="border-t border-[var(--border)]">
                       <td className="px-3 py-2 text-[var(--foreground)]">
-                        {formatDate(appointment.appointmentDate)} {appointment.appointmentTime}
+                        {formatDate(appointment.appointmentDate)} {formatClockTime12Hour(appointment.appointmentTime)}
                       </td>
                       <td className="px-3 py-2 text-[var(--foreground)]">{combinedServiceNames(appointment.services)}</td>
                       <td className="px-3 py-2 text-[var(--foreground)]">{distinctStaffLabel(appointment.services)}</td>

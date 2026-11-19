@@ -23,6 +23,7 @@ import { StaffPerformanceBarChart, type StaffPerformancePoint } from "@/componen
 import { LowStockWidget } from "@/components/inventory/LowStockWidget";
 import { PayrollStatusWidget } from "@/components/payroll/PayrollStatusWidget";
 import { getAttendanceStatusStyle, getInactiveStaffLabel } from "@/lib/attendanceStatus";
+import { formatClockTime12Hour } from "@/lib/time";
 
 type DashboardStats = {
   todayAppointments: number;
@@ -547,7 +548,7 @@ export default function DashboardPage() {
 
                     return (
                       <tr key={appointment.id} className="border-b border-slate-100 last:border-b-0">
-                        <td className="px-5 py-3 font-medium text-[var(--foreground)]">{appointment.appointmentTime}</td>
+                        <td className="px-5 py-3 font-medium text-[var(--foreground)]">{formatClockTime12Hour(appointment.appointmentTime)}</td>
                         <td className="px-5 py-3 text-[var(--foreground)]">{appointment.customer.name}</td>
                         <td className="px-5 py-3 text-[var(--foreground)]">{appointment.serviceName}</td>
                         <td className="px-5 py-3 text-[var(--foreground)]">{appointment.staffName}</td>
@@ -571,7 +572,7 @@ export default function DashboardPage() {
 
                         return (
                           <tr key={appointment.id} className="border-b border-slate-100 last:border-b-0">
-                            <td className="px-5 py-3 font-medium text-[var(--foreground)]">{appointment.appointmentTime}</td>
+                            <td className="px-5 py-3 font-medium text-[var(--foreground)]">{formatClockTime12Hour(appointment.appointmentTime)}</td>
                             <td className="px-5 py-3 text-[var(--foreground)]">{appointment.customer.name}</td>
                             <td className="px-5 py-3 text-[var(--foreground)]">{appointment.serviceName}</td>
                             <td className="px-5 py-3 text-[var(--foreground)]">{appointment.staffName}</td>

@@ -18,7 +18,7 @@ import {
 } from "@/lib/appointmentStatusActions";
 import { combinedServiceNames, distinctStaffLabel } from "@/lib/appointmentDisplay";
 import { maskId } from "@/lib/formatId";
-import { istMonthBounds, istWallTimeToInstant, istWeekBounds, todayISTDateString, toISTDateString } from "@/lib/time";
+import { formatClockTime12Hour, istMonthBounds, istWallTimeToInstant, istWeekBounds, todayISTDateString, toISTDateString } from "@/lib/time";
 
 type AppointmentServiceLineRow = {
   id: string;
@@ -537,7 +537,7 @@ export default function AppointmentsPage() {
                   </td>
                   <td className="px-4 py-3 text-[var(--foreground)]">
                     <div>{formatDate(row.appointmentDate)}</div>
-                    <div className="text-xs text-[var(--muted)]">{row.appointmentTime}</div>
+                    <div className="text-xs text-[var(--muted)]">{formatClockTime12Hour(row.appointmentTime)}</div>
                   </td>
                   <td className="px-4 py-3 text-[var(--foreground)]">{row.customer.name}</td>
                   <td className="px-4 py-3 text-[var(--foreground)]">{row.customer.mobile}</td>

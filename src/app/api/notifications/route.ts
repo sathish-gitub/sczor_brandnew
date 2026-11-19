@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { istDayBounds, todayISTDateString } from "@/lib/time";
+import { formatClockTime12Hour, istDayBounds, todayISTDateString } from "@/lib/time";
 
 type Notification = {
   id: string;
@@ -65,7 +65,7 @@ export async function GET() {
       ...appointments.map((item) => ({
         id: `appointment-${item.id}`,
         type: "APPOINTMENT" as const,
-        message: `New appointment booked - ${item.customer.name} at ${item.appointmentTime}`,
+        message: `New appointment booked - ${item.customer.name} at ${formatClockTime12Hour(item.appointmentTime)}`,
         href: `/appointments/${item.id}`,
         createdAt: item.createdAt.toISOString(),
       })),

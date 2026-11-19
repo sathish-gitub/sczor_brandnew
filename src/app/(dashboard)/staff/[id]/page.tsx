@@ -7,7 +7,7 @@ import { CalendarDays, Mail, Phone, Star } from "lucide-react";
 
 import { StaffAvatar } from "@/components/staff/StaffAvatar";
 import { getStaffStatusLabels } from "@/lib/attendanceStatus";
-import { formatISTTenureLabel, toISTDateString } from "@/lib/time";
+import { formatClockTime12Hour, formatISTTenureLabel, toISTDateString } from "@/lib/time";
 
 type StaffDetail = {
   id: string;
@@ -397,7 +397,7 @@ export default function StaffProfilePage() {
                   {staff.scheduleWeek.map((row) => (
                     <tr key={row.id} className="border-t border-[var(--border)]">
                       <td className="py-2">{formatDate(row.appointmentDate)}</td>
-                      <td className="py-2">{row.appointmentTime}</td>
+                      <td className="py-2">{formatClockTime12Hour(row.appointmentTime)}</td>
                       <td className="py-2">{row.customerName}</td>
                       <td className="py-2">{row.serviceName}</td>
                       <td className="py-2">{row.status.replaceAll("_", " ")}</td>

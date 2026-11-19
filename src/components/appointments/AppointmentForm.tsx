@@ -9,7 +9,7 @@ import { z } from "zod";
 
 import { StatusBadge } from "@/components/appointments/StatusBadge";
 import { SearchableCombobox, type SearchableComboboxOption } from "@/components/ui/SearchableCombobox";
-import { formatDurationLabel, instantForOffset, istWallTimeToInstant, todayISTDateString, toISTWeekday } from "@/lib/time";
+import { formatClockTime12Hour, formatDurationLabel, instantForOffset, istWallTimeToInstant, todayISTDateString, toISTWeekday } from "@/lib/time";
 
 type SalonDayEntry = {
   day: string;
@@ -596,7 +596,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
                   {timeOptions.length === 0 ? <option value="">No slots</option> : null}
                   {timeOptions.map((slot) => (
                     <option key={slot} value={slot}>
-                      {slot}
+                      {formatClockTime12Hour(slot)}
                     </option>
                   ))}
                 </select>
