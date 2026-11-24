@@ -4,6 +4,10 @@ import { formatPackSize } from "@/lib/productUnits";
 
 export type POSServiceCartItem = {
   type: "SERVICE";
+  // Unique per cart line (not per service) so the same service can appear as
+  // several independent lines - each with its own staff assignment - instead
+  // of merging into one line with an increased quantity.
+  lineId: string;
   serviceId: string;
   name: string;
   price: number;
@@ -32,7 +36,7 @@ export type POSStaffOption = {
 };
 
 export function cartItemKey(item: POSCartItem) {
-  return item.type === "SERVICE" ? `SERVICE:${item.serviceId}` : `PRODUCT:${item.productId}`;
+  return item.type === "SERVICE" ? `SERVICE:${item.lineId}` : `PRODUCT:${item.productId}`;
 }
 
 type POSCartProps = {
@@ -121,26 +125,34 @@ export function POSCart({
                 ) : null}
 
                 <div className="mt-3 flex items-center justify-between">
-                  <div className="inline-flex items-center overflow-hidden rounded-md border border-[var(--border)]">
-                    <button
-                      type="button"
-                      onClick={() => onDecrease(key)}
-                      className="h-8 w-8 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                    >
-                      -
-                    </button>
-                    <span className="inline-flex h-8 min-w-8 items-center justify-center border-x border-[var(--border)] px-2 text-xs font-semibold text-slate-800">
-                      {item.quantity}
+                  {item.type === "SERVICE" ? (
+                    // Services are always a quantity of 1 - duplicates are added as
+                    // separate lines instead - so the +/- stepper is hidden here.
+                    <span className="inline-flex h-8 items-center rounded-md border border-[var(--border)] px-3 text-xs font-semibold text-slate-600">
+                      Qty 1
                     </span>
-                    <button
-                      type="button"
-                      onClick={() => onIncrease(key)}
-                      disabled={item.type === "PRODUCT" && item.quantity >= item.maxStock}
-                      className="h-8 w-8 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
-                    >
-                      +
-                    </button>
-                  </div>
+                  ) : (
+                    <div className="inline-flex items-center overflow-hidden rounded-md border border-[var(--border)]">
+                      <button
+                        type="button"
+                        onClick={() => onDecrease(key)}
+                        className="h-8 w-8 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                      >
+                        -
+                      </button>
+                      <span className="inline-flex h-8 min-w-8 items-center justify-center border-x border-[var(--border)] px-2 text-xs font-semibold text-slate-800">
+                        {item.quantity}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => onIncrease(key)}
+                        disabled={item.quantity >= item.maxStock}
+                        className="h-8 w-8 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                      >
+                        +
+                      </button>
+                    </div>
+                  )}
 
                   <p className="text-sm font-semibold text-[var(--foreground)]">
                     {formatCurrency(item.price * item.quantity)}

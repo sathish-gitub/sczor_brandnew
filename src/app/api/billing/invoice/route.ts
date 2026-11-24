@@ -167,7 +167,11 @@ export async function POST(request: Request) {
 
     const serviceMap = new Map(services.map((item) => [item.id, item]));
 
-    if (serviceMap.size !== serviceItems.length) {
+    // Several cart lines may share the same serviceId (duplicate service
+    // lines), so this checks every requested line resolves to a real,
+    // active service instead of comparing counts (which would reject valid
+    // duplicates).
+    if (serviceItems.some((item) => !serviceMap.has(item.serviceId!))) {
       return NextResponse.json({ error: "One or more services are unavailable." }, { status: 400 });
     }
 

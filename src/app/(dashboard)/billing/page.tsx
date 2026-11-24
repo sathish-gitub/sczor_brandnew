@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { useAccess } from "@/contexts/AccessContext";
 import { useSearchParams } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { PaymentSummary } from "@/components/billing/PaymentSummary";
@@ -79,6 +79,29 @@ function formatCurrency(value: number) {
 
 function toastId() {
   return Math.random().toString(36).slice(2);
+}
+
+function createLineId() {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `line_${Date.now().toString(36)}_${Math.random().toString(36).slice(2)}`;
+}
+
+/**
+ * Recognizes a search query that is just a price, allowing "99", "₹99",
+ * "1,299" or "1,299.50" (optional rupee sign, commas, and surrounding
+ * spaces). Anything with letters (e.g. "hair 99") is left as a name search.
+ */
+function parsePriceQuery(raw: string): number | null {
+  const cleaned = raw.trim().replace(/^₹\s*/, "").replace(/[,\s]/g, "");
+
+  if (!cleaned || !/^\d+(\.\d+)?$/.test(cleaned)) {
+    return null;
+  }
+
+  const value = Number(cleaned);
+  return Number.isFinite(value) ? value : null;
 }
 
 export default function BillingPage() {
@@ -272,6 +295,7 @@ export default function BillingPage() {
       setCart(
         appointment.services.map((line) => ({
           type: "SERVICE",
+          lineId: createLineId(),
           serviceId: line.serviceId,
           name: line.service.name,
           duration: line.duration,
@@ -338,15 +362,23 @@ export default function BillingPage() {
     return ["ALL", ...Array.from(new Set(services.map((item) => item.category)))];
   }, [services]);
 
+  const servicePriceQuery = useMemo(() => parsePriceQuery(query), [query]);
+
   const visibleServices = useMemo(() => {
     const input = query.trim().toLowerCase();
 
     return services.filter((item) => {
       const categoryMatch = category === "ALL" || item.category === category;
+
+      if (servicePriceQuery !== null) {
+        const searchMatch = Math.round(item.price * 100) === Math.round(servicePriceQuery * 100);
+        return categoryMatch && searchMatch;
+      }
+
       const searchMatch = !input || item.name.toLowerCase().includes(input) || item.category.toLowerCase().includes(input);
       return categoryMatch && searchMatch;
     });
-  }, [services, query, category]);
+  }, [services, query, category, servicePriceQuery]);
 
   const visibleProducts = useMemo(() => {
     const input = query.trim().toLowerCase();
@@ -361,36 +393,22 @@ export default function BillingPage() {
   }, [products, query, itemTab]);
 
   function addServiceToCart(service: ServiceItem) {
-    const key = `SERVICE:${service.id}`;
-
-    setCart((current) => {
-      const existing = current.find((item) => cartItemKey(item) === key);
-
-      if (!existing) {
-        return [
-          ...current,
-          {
-            type: "SERVICE" as const,
-            serviceId: service.id,
-            name: service.name,
-            duration: service.duration,
-            price: service.price,
-            quantity: 1,
-            staffId: "",
-            staffName: "",
-          },
-        ];
-      }
-
-      return current.map((item) =>
-        cartItemKey(item) === key
-          ? {
-              ...item,
-              quantity: item.quantity + 1,
-            }
-          : item,
-      );
-    });
+    // Every click adds its own cart line - even for a service already in the
+    // cart - rather than merging by serviceId and bumping quantity.
+    setCart((current) => [
+      ...current,
+      {
+        type: "SERVICE" as const,
+        lineId: createLineId(),
+        serviceId: service.id,
+        name: service.name,
+        duration: service.duration,
+        price: service.price,
+        quantity: 1,
+        staffId: "",
+        staffName: "",
+      },
+    ]);
   }
 
   function addProductToCart(product: ProductItem) {
@@ -444,9 +462,15 @@ export default function BillingPage() {
             return item;
           }
 
+          if (item.type === "SERVICE") {
+            // Quantity is fixed at 1 for service lines - use "+ Add" again
+            // or remove the line instead of a stepper.
+            return item;
+          }
+
           const nextQuantity = Math.max(0, item.quantity + delta);
 
-          if (item.type === "PRODUCT" && delta > 0 && nextQuantity > item.maxStock) {
+          if (delta > 0 && nextQuantity > item.maxStock) {
             pushToast("error", `Only ${item.maxStock} ${item.unit} of ${item.name} in stock.`);
             return item;
           }
@@ -818,10 +842,23 @@ export default function BillingPage() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={itemTab === "SERVICES" ? "Search services..." : "Search products..."}
-              className="h-10 w-full rounded-xl border border-[var(--border)] pl-9 pr-3 text-sm"
+              placeholder={itemTab === "SERVICES" ? "Search services or price (e.g. 99)..." : "Search products..."}
+              className="h-10 w-full rounded-xl border border-[var(--border)] pl-9 pr-9 text-sm"
             />
+            {query ? (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                title="Clear search"
+                className="absolute right-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            ) : null}
           </div>
+          {itemTab === "SERVICES" ? (
+            <p className="-mt-1 text-xs text-[var(--muted)]">Tip: type a price to find services at that price.</p>
+          ) : null}
 
           {itemTab === "SERVICES" ? (
             <>
@@ -849,6 +886,10 @@ export default function BillingPage() {
                     <div key={index} className="h-36 animate-pulse rounded-xl border border-[var(--border)] bg-slate-50" />
                   ))}
                 </div>
+              ) : visibleServices.length === 0 && servicePriceQuery !== null ? (
+                <p className="rounded-xl border border-dashed border-[var(--border)] bg-slate-50 p-4 text-center text-sm text-[var(--muted)]">
+                  No services at {formatCurrency(servicePriceQuery)}
+                </p>
               ) : (
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                   {visibleServices.map((service) => (
