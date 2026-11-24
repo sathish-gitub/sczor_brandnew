@@ -93,37 +93,17 @@ const lineSchema = z.object({
   staffId: z.string(),
 });
 
-const formSchema = z
-  .object({
-    customerId: z.string().cuid().optional(),
-    mobile: z.string().trim().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
-    customerName: z.string().trim().min(2, "Customer name is required."),
-    email: z.string().trim().email("Enter a valid email.").or(z.literal("")),
-    notes: z.string(),
-    appointmentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    appointmentTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
-    status: z.enum(["BOOKED", "IN_PROGRESS", "COMPLETED", "BILLED", "CANCELLED"]),
-    lines: z.array(lineSchema).min(1, "Add at least one service."),
-  })
-  .superRefine((values, ctx) => {
-    const seen = new Set<string>();
-
-    values.lines.forEach((line, index) => {
-      if (!line.serviceId) {
-        return;
-      }
-
-      if (seen.has(line.serviceId)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "This service is already added in another row.",
-          path: ["lines", index, "serviceId"],
-        });
-      }
-
-      seen.add(line.serviceId);
-    });
-  });
+const formSchema = z.object({
+  customerId: z.string().cuid().optional(),
+  mobile: z.string().trim().regex(/^\d{10}$/, "Please enter a valid 10-digit mobile number."),
+  customerName: z.string().trim().min(2, "Customer name is required."),
+  email: z.string().trim().email("Enter a valid email.").or(z.literal("")),
+  notes: z.string(),
+  appointmentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  appointmentTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+  status: z.enum(["BOOKED", "IN_PROGRESS", "COMPLETED", "BILLED", "CANCELLED"]),
+  lines: z.array(lineSchema).min(1, "Add at least one service."),
+});
 
 function emptyLine(): ServiceLineValue {
   return { serviceId: "", staffId: "" };
@@ -421,21 +401,15 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
     return { options, unavailableReason };
   }
 
-  function serviceOptionsForRow(rowIndex: number): SearchableComboboxOption[] {
-    const usedElsewhere = new Set(
-      (lineValues ?? [])
-        .filter((_, index) => index !== rowIndex)
-        .map((line) => line.serviceId)
-        .filter(Boolean),
-    );
-
+  function serviceOptionsForRow(): SearchableComboboxOption[] {
+    // A service may be added on several rows (separate lines of the same
+    // appointment), so no row's options are disabled for being "already
+    // added" elsewhere.
     return services.map((service) => ({
       value: service.id,
       label: service.name,
       description: `\u20b9${service.price.toFixed(0)} \u00b7 ${service.duration} min`,
       group: service.category,
-      disabled: usedElsewhere.has(service.id),
-      disabledReason: usedElsewhere.has(service.id) ? "Already added" : undefined,
     }));
   }
 
@@ -644,7 +618,7 @@ export function AppointmentForm({ mode, services, initialData }: AppointmentForm
               const line = lineValues?.[index];
               const lineService = services.find((service) => service.id === line?.serviceId);
               const { options: staffOptions, unavailableReason } = staffOptionsForRow(index);
-              const serviceOptions = serviceOptionsForRow(index);
+              const serviceOptions = serviceOptionsForRow();
               const serviceErrorMessage = errors.lines?.[index]?.serviceId?.message;
 
               return (

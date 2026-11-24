@@ -52,8 +52,9 @@ export function normalizeServiceLines(body: {
 
 /**
  * Validates every service/staff member belongs to the tenant and is active,
- * rejects duplicate services, and computes price/duration snapshots (taken
- * at booking time, independent of later Service edits).
+ * and computes price/duration snapshots (taken at booking time, independent
+ * of later Service edits). The same serviceId may appear on several lines -
+ * each is validated and snapshotted independently, in the given order.
  */
 export async function resolveServiceLineSnapshots(
   tenantId: string,
@@ -66,10 +67,6 @@ export async function resolveServiceLineSnapshots(
 }> {
   const serviceIds = rawLines.map((line) => line.serviceId);
   const uniqueServiceIds = new Set(serviceIds);
-
-  if (uniqueServiceIds.size !== serviceIds.length) {
-    throw new AppointmentValidationError("The same service cannot be added twice in one appointment.");
-  }
 
   const staffIds = [...new Set(rawLines.map((line) => line.staffId).filter((id): id is string => Boolean(id)))];
 
