@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import { maskId } from "@/lib/formatId";
-import type { TrialStatus } from "@/lib/subscription";
+import type { DashboardBannerState } from "@/lib/subscription";
 
 import { Navbar } from "@/components/dashboard/Navbar";
 import { Sidebar } from "@/components/dashboard/Sidebar";
@@ -18,7 +18,7 @@ type DashboardShellProps = {
     name: string;
     role: "OWNER" | "MANAGER" | "STAFF";
   };
-  initialTrialStatus: TrialStatus;
+  initialBannerState: DashboardBannerState;
   initialAccessMessage: string | null;
   children: ReactNode;
 };
@@ -26,13 +26,13 @@ type DashboardShellProps = {
 export function DashboardShell({
   tenantName,
   user,
-  initialTrialStatus,
+  initialBannerState,
   initialAccessMessage,
   children,
 }: DashboardShellProps) {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [dynamicLabels, setDynamicLabels] = useState<Record<number, string>>({});
-  const [trialStatus, setTrialStatus] = useState(initialTrialStatus);
+  const [bannerState, setBannerState] = useState(initialBannerState);
   const [accessMessage, setAccessMessage] = useState(initialAccessMessage);
   const pathname = usePathname();
 
@@ -44,11 +44,11 @@ export function DashboardShell({
         const response = await fetch("/api/subscription/trial-status", { cache: "no-store" });
         if (!response.ok) return;
         const payload = (await response.json()) as {
-          trialStatus: TrialStatus;
+          bannerState: DashboardBannerState;
           access: { accessLevel: "FULL" | "READ_ONLY"; message: string };
         };
         if (active) {
-          setTrialStatus(payload.trialStatus);
+          setBannerState(payload.bannerState);
           setAccessMessage(payload.access.accessLevel === "READ_ONLY" ? payload.access.message : null);
         }
       } catch {
@@ -191,19 +191,27 @@ export function DashboardShell({
               </Link>
             </div>
           )}
-          {trialStatus.status === "TRIAL" && (
+          {bannerState.state === "trial" && (
             <div className="mb-4 bg-blue-600 py-2 text-center text-sm font-medium text-white">
-              ⏰ Free trial: {trialStatus.daysLeft} days remaining
+              ⏰ Free trial: {bannerState.daysLeft} days remaining
               <Link href="/settings/subscription" className="ml-3 font-bold underline">
                 Upgrade Now →
               </Link>
             </div>
           )}
-          {trialStatus.status === "TRIAL" && trialStatus.daysLeft !== null && trialStatus.daysLeft <= 3 && (
+          {bannerState.state === "trial_warning" && (
             <div className="mb-4 bg-red-500 py-2 text-center text-sm font-medium text-white">
-              ⚠️ Trial expires in {trialStatus.daysLeft} day(s)!
+              ⚠️ {bannerState.daysLeft === 0 ? "Trial expires today!" : `Trial expires in ${bannerState.daysLeft} day(s)!`}
               <Link href="/settings/subscription" className="ml-3 font-bold underline">
                 Subscribe Now →
+              </Link>
+            </div>
+          )}
+          {bannerState.state === "plan_warning" && (
+            <div className="mb-4 bg-red-500 py-2 text-center text-sm font-medium text-white">
+              ⚠️ {bannerState.daysLeft === 0 ? "Plan expires today!" : `Plan expires in ${bannerState.daysLeft} day(s)!`}
+              <Link href="/settings/subscription" className="ml-3 font-bold underline">
+                Renew Now →
               </Link>
             </div>
           )}

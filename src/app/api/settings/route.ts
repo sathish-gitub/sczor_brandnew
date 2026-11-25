@@ -86,10 +86,10 @@ export async function GET() {
       taxBilling: {
         gstNumber: tenant.gstNumber ?? "",
         gstEnabled: settings?.gstEnabled ?? true,
-        gstRate: Number(settings?.gstRate ?? 18),
+        gstRate: Number(settings?.gstRate ?? 5),
         taxLabel: settings?.taxLabel ?? "GST",
-        cgstRate: Number(settings?.gstRate ?? 18) / 2,
-        sgstRate: Number(settings?.gstRate ?? 18) / 2,
+        cgstRate: Number(settings?.gstRate ?? 5) / 2,
+        sgstRate: Number(settings?.gstRate ?? 5) / 2,
         invoicePrefix: settings?.invoicePrefix ?? "INV",
         invoiceNumberFormat: settings?.invoiceNumberFormat ?? "INV-YYYY-XXXX",
         invoiceStartNumber: settings?.invoiceStartNumber ?? 1,

@@ -5,9 +5,22 @@ import { z } from "zod";
 import { authOptions } from "@/lib/auth";
 import { checkWriteAccess } from "@/lib/enforceAccess";
 import { prisma } from "@/lib/prisma";
+import { roundMoney } from "@/lib/payrollProration";
 import { getStaffDesignationName } from "@/lib/staffDesignation";
-import { getServicesDoneByStaff, getStaffRevenue } from "@/lib/staffRevenue";
-import { getISTAgeYears, istMonthBounds, istWeekBounds, istWallTimeToInstant, todayISTDateString, toISTDateString } from "@/lib/time";
+import { getServicesDoneByInvoiceLine, getStaffRevenue } from "@/lib/staffRevenue";
+import {
+  currentISTMonthYear,
+  daysInMonthIST,
+  formatISTDateShort,
+  getISTAgeYears,
+  getISTMonth,
+  getISTYear,
+  istMonthBounds,
+  istWallTimeToInstant,
+  istWeekBounds,
+  todayISTDateString,
+  toISTDateString,
+} from "@/lib/time";
 
 const dateOnlyString = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date.");
 
@@ -59,6 +72,76 @@ async function tenantIdOrNull() {
   return session?.user.tenantId ?? null;
 }
 
+type MonthlySalaryRow = {
+  effectiveFrom: string;
+  effectiveTo: string;
+  baseSalary: number | null;
+  commission: number | null;
+  total: number | null;
+  payslipId: string | null;
+};
+
+/**
+ * One row per calendar month from the staff member's joining month (falling
+ * back to the earliest SalaryHistory.effectiveFrom, then the staff record's
+ * createdAt) through the current IST month, newest first. Amounts come from
+ * the Payroll record generated for that staff/month/year, if any:
+ * baseSalary = grossPay - commissionAmount (the base actually paid that
+ * month, prorated if applicable - equal to the full configured base salary
+ * for older payslips generated before proration existed), commission =
+ * commissionAmount, total = grossPay (base + commission; deductions are
+ * intentionally excluded, see the payslip for net pay). Months with no
+ * Payroll row are returned with null amounts ("Not Generated" in the UI).
+ */
+function buildMonthlySalaryHistory(params: {
+  joiningDate: Date | null;
+  createdAt: Date;
+  earliestSalaryHistoryEffectiveFrom: Date | null;
+  payrolls: Array<{ id: string; month: number; year: number; commissionAmount: unknown; grossPay: unknown }>;
+}): MonthlySalaryRow[] {
+  const { joiningDate, createdAt, earliestSalaryHistoryEffectiveFrom, payrolls } = params;
+
+  const startDate = joiningDate ?? earliestSalaryHistoryEffectiveFrom ?? createdAt;
+  const startYear = getISTYear(startDate);
+  const startMonth = getISTMonth(startDate);
+  const { year: currentYear, month: currentMonth } = currentISTMonthYear();
+
+  const payrollByMonth = new Map(payrolls.map((payroll) => [`${payroll.year}-${payroll.month}`, payroll]));
+
+  const rows: MonthlySalaryRow[] = [];
+  let year = startYear;
+  let month = startMonth;
+
+  while (year < currentYear || (year === currentYear && month <= currentMonth)) {
+    const padded = String(month).padStart(2, "0");
+    const lastDay = daysInMonthIST(year, month);
+    const effectiveFrom = formatISTDateShort(istWallTimeToInstant(`${year}-${padded}-01`, "00:00"));
+    const effectiveTo = formatISTDateShort(istWallTimeToInstant(`${year}-${padded}-${String(lastDay).padStart(2, "0")}`, "00:00"));
+
+    const payroll = payrollByMonth.get(`${year}-${month}`);
+    const commission = payroll ? roundMoney(Number(payroll.commissionAmount)) : null;
+    const total = payroll ? roundMoney(Number(payroll.grossPay)) : null;
+    const baseSalary = payroll ? roundMoney(total! - commission!) : null;
+
+    rows.push({
+      effectiveFrom,
+      effectiveTo,
+      baseSalary,
+      commission,
+      total,
+      payslipId: payroll?.id ?? null,
+    });
+
+    month += 1;
+    if (month > 12) {
+      month = 1;
+      year += 1;
+    }
+  }
+
+  return rows.reverse();
+}
+
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const tenantId = await tenantIdOrNull();
 
@@ -73,7 +156,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
   try {
 
-    const [staff, ratingAgg, allServicesDoneMap, monthServicesDoneMap, revenueAllTime, categoryLines] = await Promise.all([
+    const [staff, ratingAgg, allServicesDoneMap, monthServicesDoneMap, revenueAllTime, payrolls] = await Promise.all([
       prisma.staff.findFirst({
         where: { id, tenantId },
         include: {
@@ -99,17 +182,19 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         _avg: { rating: true },
         _count: { rating: true },
       }),
-      // "Services done" counts AppointmentService lines, not appointments
-      // (the same person on two lines of one appointment counts twice).
-      // All-time, all statuses - matches the previous mirror-based scope.
-      getServicesDoneByStaff(tenantId, [id]),
-      getServicesDoneByStaff(tenantId, [id], { gte: month.start, lt: month.end }),
+      // "Services done" counts billing-line InvoiceItem service rows (POS
+      // data), not appointment lines - see getServicesDoneByInvoiceLine, the
+      // same basis as the Performance tab's category breakdown, so the two
+      // never disagree. All-time and this-month respectively.
+      getServicesDoneByInvoiceLine(tenantId, [id]),
+      getServicesDoneByInvoiceLine(tenantId, [id], { gte: month.start, lt: month.end }),
       // Revenue is attributed per invoice LINE (InvoiceItem.staffId), the
       // same basis as the staff report, payroll and dashboard chart.
       getStaffRevenue(tenantId, id),
-      prisma.appointmentService.findMany({
-        where: { tenantId, staffId: id },
-        select: { service: { select: { category: true } } },
+      prisma.payroll.findMany({
+        where: { staffId: id, tenantId },
+        select: { id: true, month: true, year: true, commissionAmount: true, grossPay: true },
+        orderBy: [{ year: "asc" }, { month: "asc" }],
       }),
     ]);
 
@@ -129,11 +214,16 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const servicesDone = allServicesDoneMap.get(id)?.count ?? 0;
     const servicesDoneThisMonth = monthServicesDoneMap.get(id)?.count ?? 0;
 
-    const byCategory = categoryLines.reduce<Record<string, number>>((acc, line) => {
-      const key = line.service.category;
-      acc[key] = (acc[key] ?? 0) + 1;
-      return acc;
-    }, {});
+    const earliestSalaryHistoryEffectiveFrom = staff.salaryHistory.length
+      ? staff.salaryHistory.reduce((earliest, entry) => (entry.effectiveFrom < earliest ? entry.effectiveFrom : earliest), staff.salaryHistory[0].effectiveFrom)
+      : null;
+
+    const monthlySalaryHistory = buildMonthlySalaryHistory({
+      joiningDate: staff.joiningDate,
+      createdAt: staff.createdAt,
+      earliestSalaryHistoryEffectiveFrom,
+      payrolls,
+    });
 
     return NextResponse.json({
       staff: {
@@ -163,6 +253,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
           effectiveFrom: entry.effectiveFrom,
           effectiveTo: entry.effectiveTo,
         })),
+        salaryHistoryMonthly: monthlySalaryHistory,
         stats: {
           servicesDone,
           servicesDoneThisMonth,
@@ -184,7 +275,6 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
           status: entry.status,
         })),
         performance: {
-          servicesByCategory: byCategory,
           revenueGenerated,
           customerSatisfaction: ratingAgg._count.rating > 0
             ? `${Math.round((ratingAgg._avg.rating ?? 0) * 10) / 10} / 5 (${ratingAgg._count.rating} review${ratingAgg._count.rating === 1 ? "" : "s"})`

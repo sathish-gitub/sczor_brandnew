@@ -33,7 +33,7 @@ export async function sendSubscriptionInvoiceEmail(payment: InvoiceEmailPayment,
     throw new Error("Tenant has no registered email address.");
   }
 
-  const breakdown = calculateGSTBreakdown(payment.amount, payment.gstRate ?? 18);
+  const breakdown = calculateGSTBreakdown(payment.amount, payment.gstRate ?? 5);
   const planLabel = payment.plan === "MONTHLY" ? "Monthly" : "Yearly";
 
   return resend.emails.send({

@@ -95,7 +95,15 @@ export async function POST(request: Request) {
   });
 
   const invoiceNumber = paymentRecord ? await nextSubscriptionInvoiceNumber() : null;
-  const gstBreakdown = paymentRecord ? calculateGSTBreakdown(paymentRecord.amount) : null;
+  
+  let gstBreakdown = null;
+  if (paymentRecord) {
+    const salonSettings = await prisma.salonSettings.findUnique({
+      where: { tenantId: session.user.tenantId },
+    });
+    const gstRate = Number(salonSettings?.gstRate ?? 5);
+    gstBreakdown = calculateGSTBreakdown(paymentRecord.amount, gstRate);
+  }
 
   await prisma.payment.updateMany({
     where: { razorpayOrderId: razorpay_order_id, tenantId: session.user.tenantId },

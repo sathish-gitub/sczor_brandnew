@@ -421,6 +421,24 @@ export function formatISTTenureLabel(joiningDateStr: string, asOfDateStr: string
 }
 
 /**
+ * Number of IST calendar days from `from` to `to` (`to` minus `from`), based purely
+ * on their IST calendar dates (time-of-day is ignored). Accepts instants or
+ * "YYYY-MM-DD" strings. An end date equal to today's IST date returns 0; tomorrow
+ * returns 1; a date in the past returns a negative number. Use this instead of
+ * subtracting instants and dividing by milliseconds-per-day, which is sensitive to
+ * the time-of-day portion and to host process timezone when formatting the result.
+ */
+export function diffISTCalendarDays(from: Date | string, to: Date | string): number {
+  const fromStr = typeof from === "string" ? from : toISTDateString(from);
+  const toStr = typeof to === "string" ? to : toISTDateString(to);
+  const [fy, fm, fd] = fromStr.split("-").map(Number);
+  const [ty, tm, td] = toStr.split("-").map(Number);
+  const fromUTC = Date.UTC(fy, fm - 1, fd);
+  const toUTC = Date.UTC(ty, tm - 1, td);
+  return Math.round((toUTC - fromUTC) / (24 * 60 * 60 * 1000));
+}
+
+/**
  * Shifts an IST calendar date string by `deltaDays` (may be negative), returning
  * another "YYYY-MM-DD" string. Does plain calendar-day arithmetic on the date
  * string's own components via UTC-noon instants, so it is immune to host

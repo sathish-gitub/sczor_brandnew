@@ -155,7 +155,7 @@ export default function BillingPage() {
       .then((res) => res.ok ? res.json() : null)
       .then((data: { taxBilling?: { gstRate: number; gstEnabled: boolean; taxLabel: string } } | null) => {
         if (data?.taxBilling) {
-          setTaxRate(data.taxBilling.gstRate ?? 18);
+          setTaxRate(data.taxBilling.gstRate ?? 5);
           setGstEnabled(data.taxBilling.gstEnabled ?? true);
           setTaxLabel(data.taxBilling.taxLabel ?? "GST");
         }

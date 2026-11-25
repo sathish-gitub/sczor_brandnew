@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { LoaderCircle } from "lucide-react";
 
 import { PageHeader } from "@/components/ui/PageHeader";
+import { formatISTDateDDMMYYYY } from "@/lib/time";
 
 type SubscriptionRow = {
   id: string;
@@ -48,7 +49,7 @@ function formatCurrency(value: number) {
 }
 
 function formatDate(value: string | null) {
-  return value ? new Date(value).toLocaleDateString("en-IN") : "-";
+  return value ? formatISTDateDDMMYYYY(value) : "-";
 }
 
 export default function SubscriptionsPage() {
@@ -255,11 +256,11 @@ export default function SubscriptionsPage() {
                 <span>₹{(invoicePayment.baseAmount ?? 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--muted)]">CGST ({(invoicePayment.gstRate ?? 18) / 2}%)</span>
+                <span className="text-[var(--muted)]">CGST ({(invoicePayment.gstRate ?? 5) / 2}%)</span>
                 <span>₹{((invoicePayment.gstAmount ?? 0) / 2).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--muted)]">SGST ({(invoicePayment.gstRate ?? 18) / 2}%)</span>
+                <span className="text-[var(--muted)]">SGST ({(invoicePayment.gstRate ?? 5) / 2}%)</span>
                 <span>₹{((invoicePayment.gstAmount ?? 0) / 2).toFixed(2)}</span>
               </div>
               <div className="mt-1 flex justify-between border-t border-[var(--border)] pt-1.5 font-semibold">

@@ -9,7 +9,13 @@ import { DEFAULT_INVOICE_PREFIX, INVOICE_NUMBER_FORMATS, sanitizeInvoicePrefix }
 const schema = z.object({
   gstNumber: z.string().optional().or(z.literal("")),
   gstEnabled: z.boolean(),
-  gstRate: z.coerce.number().min(0).max(100),
+  gstRate: z.coerce
+    .number()
+    .min(0, "GST rate must be between 0 and 100.")
+    .max(100, "GST rate must be between 0 and 100.")
+    .refine((value) => Math.round(value * 100) === value * 100, {
+      message: "GST rate can have at most 2 decimal places.",
+    }),
   // Sanitised (trimmed, uppercased, letters/digits/dashes only, max 10
   // chars) below; a blank result falls back to DEFAULT_INVOICE_PREFIX, so
   // no min(1) here - an all-invalid-characters input is not an error.

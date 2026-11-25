@@ -10,6 +10,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { PRICING_PLANS } from "@/lib/pricing";
 import { BillingToggle, type BillingCycle } from "@/components/pricing/BillingToggle";
 import { getAccessStatus } from "@/lib/subscription";
+import { formatISTDateDDMMYYYY } from "@/lib/time";
 
 declare global {
   interface Window {
@@ -45,7 +46,7 @@ type PlanKey = "MONTHLY" | "YEARLY";
 
 function formatDate(value: string | null) {
   if (!value) return "-";
-  return new Date(value).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  return formatISTDateDDMMYYYY(value);
 }
 
 function formatCurrency(value: number) {
@@ -353,11 +354,11 @@ function SubscriptionPageContent() {
                                 <span>{formatPreciseCurrency(payment.baseAmount ?? 0)}</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-[var(--muted)]">CGST ({(payment.gstRate ?? 18) / 2}%)</span>
+                                <span className="text-[var(--muted)]">CGST ({(payment.gstRate ?? 5) / 2}%)</span>
                                 <span>{formatPreciseCurrency((payment.gstAmount ?? 0) / 2)}</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-[var(--muted)]">SGST ({(payment.gstRate ?? 18) / 2}%)</span>
+                                <span className="text-[var(--muted)]">SGST ({(payment.gstRate ?? 5) / 2}%)</span>
                                 <span>{formatPreciseCurrency((payment.gstAmount ?? 0) / 2)}</span>
                               </div>
                               <div className="mt-1 flex justify-between border-t border-[var(--border)] pt-1.5 font-semibold">

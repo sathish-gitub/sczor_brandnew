@@ -9,6 +9,15 @@ import { StaffAvatar } from "@/components/staff/StaffAvatar";
 import { getStaffStatusLabels } from "@/lib/attendanceStatus";
 import { formatClockTime12Hour, formatISTTenureLabel, toISTDateString } from "@/lib/time";
 
+type MonthlySalaryRow = {
+  effectiveFrom: string;
+  effectiveTo: string;
+  baseSalary: number | null;
+  commission: number | null;
+  total: number | null;
+  payslipId: string | null;
+};
+
 type StaffDetail = {
   id: string;
   name: string;
@@ -25,13 +34,7 @@ type StaffDetail = {
   specializations: string[];
   baseSalary: number | null;
   commissionRate: number | null;
-  salaryHistory: Array<{
-    id: string;
-    baseSalary: number;
-    commissionRate: number;
-    effectiveFrom: string;
-    effectiveTo: string | null;
-  }>;
+  salaryHistoryMonthly: MonthlySalaryRow[];
   stats: {
     servicesDone: number;
     servicesDoneThisMonth: number;
@@ -53,10 +56,18 @@ type StaffDetail = {
     status: string;
   }>;
   performance: {
-    servicesByCategory: Record<string, number>;
     revenueGenerated: number;
     customerSatisfaction: string;
   };
+};
+
+type PerformancePeriod = "this_month" | "last_month" | "all";
+
+type PerformanceData = {
+  period: PerformancePeriod;
+  entries: Array<{ category: string; count: number; revenue: number }>;
+  totalCount: number;
+  totalRevenue: number;
 };
 
 function formatDate(value: string) {
@@ -76,8 +87,13 @@ function formatCurrency(value: number) {
   }).format(value);
 }
 
-function formatPercent(value: number) {
-  return `${value}%`;
+/** 2-decimal currency for payroll amounts, matching the payslip page. */
+function formatCurrencyPrecise(value: number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 2,
+  }).format(value);
 }
 
 export default function StaffProfilePage() {
@@ -91,6 +107,9 @@ export default function StaffProfilePage() {
   const [ratingPending, setRatingPending] = useState(false);
   const [ratingComment, setRatingComment] = useState("");
   const [ratingSuccess, setRatingSuccess] = useState(false);
+  const [performancePeriod, setPerformancePeriod] = useState<PerformancePeriod>("all");
+  const [performanceData, setPerformanceData] = useState<PerformanceData | null>(null);
+  const [performanceLoading, setPerformanceLoading] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -124,6 +143,41 @@ export default function StaffProfilePage() {
       active = false;
     };
   }, [params.id]);
+
+  // Performance tab data (service category breakdown) is fetched on demand,
+  // only once the tab is opened, and refetched whenever the period changes.
+  useEffect(() => {
+    if (tab !== "performance") {
+      return;
+    }
+
+    let active = true;
+
+    async function loadPerformance() {
+      setPerformanceLoading(true);
+
+      const response = await fetch(`/api/staff/${params.id}/performance?period=${performancePeriod}`, { cache: "no-store" });
+      const payload = (await response.json().catch(() => null)) as PerformanceData | { error?: string } | null;
+
+      if (!active) {
+        return;
+      }
+
+      if (!response.ok || !payload || !("entries" in payload)) {
+        setPerformanceLoading(false);
+        return;
+      }
+
+      setPerformanceData(payload);
+      setPerformanceLoading(false);
+    }
+
+    loadPerformance();
+
+    return () => {
+      active = false;
+    };
+  }, [tab, performancePeriod, params.id]);
 
   const tabs = useMemo(
     () => [
@@ -340,37 +394,58 @@ export default function StaffProfilePage() {
 
           <div className="mt-6 border-t border-[var(--border)] pt-5">
             <h3 className="text-sm font-semibold text-[var(--foreground)]">Salary History</h3>
-            {staff.salaryHistory.length === 0 ? (
-              <p className="mt-2 text-sm text-[var(--muted)]">No salary configured yet.</p>
+            {staff.salaryHistoryMonthly.length === 0 ? (
+              <p className="mt-2 text-sm text-[var(--muted)]">No salary history available yet.</p>
             ) : (
-              <div className="mt-3 overflow-x-auto">
-                <table className="min-w-[480px] w-full text-left text-sm">
-                  <thead className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">
-                    <tr>
-                      <th className="py-2">Effective From</th>
-                      <th className="py-2">Effective To</th>
-                      <th className="py-2">Base Salary</th>
-                      <th className="py-2">Commission Rate</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {staff.salaryHistory.map((entry) => (
-                      <tr key={entry.id} className="border-t border-[var(--border)]">
-                        <td className="py-2">{formatDate(entry.effectiveFrom)}</td>
-                        <td className="py-2">
-                          {entry.effectiveTo ? (
-                            formatDate(entry.effectiveTo)
-                          ) : (
-                            <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">Current</span>
-                          )}
-                        </td>
-                        <td className="py-2">{formatCurrency(entry.baseSalary)}</td>
-                        <td className="py-2">{formatPercent(entry.commissionRate)}</td>
+              <>
+                <div
+                  className={[
+                    "mt-3 overflow-x-auto",
+                    staff.salaryHistoryMonthly.length > 24 ? "max-h-[480px] overflow-y-auto" : "",
+                  ].join(" ")}
+                >
+                  <table className="min-w-[560px] w-full text-left text-sm">
+                    <thead className="sticky top-0 bg-white text-xs uppercase tracking-[0.08em] text-[var(--muted)]">
+                      <tr>
+                        <th className="py-2">Effective From</th>
+                        <th className="py-2">Effective To</th>
+                        <th className="py-2">Base Salary</th>
+                        <th className="py-2">Commission</th>
+                        <th className="py-2">Total (Salary + Commission)</th>
+                        <th className="py-2">Payslip</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {staff.salaryHistoryMonthly.map((row) => (
+                        <tr key={`${row.effectiveFrom}-${row.effectiveTo}`} className="border-t border-[var(--border)]">
+                          <td className="py-2">{row.effectiveFrom}</td>
+                          <td className="py-2">{row.effectiveTo}</td>
+                          {row.payslipId ? (
+                            <>
+                              <td className="py-2">{formatCurrencyPrecise(row.baseSalary ?? 0)}</td>
+                              <td className="py-2">{formatCurrencyPrecise(row.commission ?? 0)}</td>
+                              <td className="py-2 font-semibold">{formatCurrencyPrecise(row.total ?? 0)}</td>
+                              <td className="py-2">
+                                <Link href={`/payroll/${row.payslipId}`} className="text-xs font-semibold text-[var(--accent)] hover:underline">
+                                  View payslip
+                                </Link>
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td className="py-2 text-[var(--muted)]">Not Generated</td>
+                              <td className="py-2 text-[var(--muted)]">Not Generated</td>
+                              <td className="py-2 text-[var(--muted)]">Not Generated</td>
+                              <td className="py-2 text-[var(--muted)]">—</td>
+                            </>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="mt-2 text-xs text-[var(--muted)]">Total excludes deductions; see the payslip for net pay.</p>
+              </>
             )}
           </div>
         </section>
@@ -444,19 +519,52 @@ export default function StaffProfilePage() {
           </div>
 
           <div className="mt-4 rounded-xl border border-[var(--border)] p-4">
-            <h3 className="text-sm font-semibold text-[var(--foreground)]">Service Category Mix</h3>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2">
-              {Object.entries(staff.performance.servicesByCategory).length === 0 ? (
-                <p className="text-sm text-[var(--muted)]">No service distribution data yet.</p>
-              ) : (
-                Object.entries(staff.performance.servicesByCategory).map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm">
-                    <span className="text-[var(--muted)]">{key}</span>
-                    <span className="font-semibold text-[var(--foreground)]">{value}</span>
-                  </div>
-                ))
-              )}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h3 className="text-sm font-semibold text-[var(--foreground)]">Service Category Mix</h3>
+              <select
+                value={performancePeriod}
+                onChange={(event) => setPerformancePeriod(event.target.value as PerformancePeriod)}
+                className="h-9 rounded-lg border border-[var(--border)] px-2 text-xs font-semibold text-slate-700"
+              >
+                <option value="all">All time</option>
+                <option value="this_month">This month</option>
+                <option value="last_month">Last month</option>
+              </select>
             </div>
+
+            {performanceLoading ? (
+              <div className="mt-3 h-24 animate-pulse rounded-lg bg-slate-50" />
+            ) : !performanceData || performanceData.entries.length === 0 ? (
+              <p className="mt-3 text-sm text-[var(--muted)]">No service distribution data for this period.</p>
+            ) : (
+              <div className="mt-3 overflow-x-auto">
+                <table className="min-w-[480px] w-full text-left text-sm">
+                  <thead className="text-xs uppercase tracking-[0.08em] text-[var(--muted)]">
+                    <tr>
+                      <th className="py-2">Category</th>
+                      <th className="py-2">Services Done</th>
+                      <th className="py-2">Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {performanceData.entries.map((entry) => (
+                      <tr key={entry.category} className="border-t border-[var(--border)]">
+                        <td className="py-2">{entry.category}</td>
+                        <td className="py-2">{entry.count}</td>
+                        <td className="py-2">{formatCurrencyPrecise(entry.revenue)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t-2 border-[var(--border)] font-semibold">
+                      <td className="py-2">Total</td>
+                      <td className="py-2">{performanceData.totalCount}</td>
+                      <td className="py-2">{formatCurrencyPrecise(performanceData.totalRevenue)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            )}
           </div>
         </section>
       ) : null}

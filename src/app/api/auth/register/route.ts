@@ -123,7 +123,7 @@ export async function POST(request: Request) {
         data: {
           tenantId: createdTenant.id,
           gstEnabled: true,
-          gstRate: 18,
+          gstRate: 5,
           taxLabel: "GST",
           currency: "INR",
           currencySymbol: "₹",

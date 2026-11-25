@@ -293,7 +293,7 @@ export async function POST(request: Request) {
 
     const taxableAmount = roundMoney(Math.max(0, amountAfterManualDiscount - loyaltyDiscount));
     const gstEnabled = settings?.gstEnabled ?? true;
-    const gstRate = Number(settings?.gstRate ?? 18);
+    const gstRate = Number(settings?.gstRate ?? 5);
     const taxAmount = gstEnabled ? roundMoney((taxableAmount * gstRate) / 100) : 0;
     const total = roundMoney(taxableAmount + taxAmount);
 

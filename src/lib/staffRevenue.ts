@@ -232,3 +232,108 @@ export async function getServicesDoneByInvoiceLine(
 
   return result;
 }
+
+export type StaffCategoryBreakdownEntry = {
+  category: string;
+  count: number;
+  revenue: number;
+};
+
+export type StaffCategoryBreakdown = {
+  entries: StaffCategoryBreakdownEntry[];
+  totalCount: number;
+  totalRevenue: number;
+};
+
+/**
+ * Per-category breakdown of POS "services done" and revenue for ONE staff
+ * member, for the staff profile Performance tab. Same billing basis as
+ * `getServicesDoneByInvoiceLine` (service lines on non-cancelled/refunded
+ * invoices, credited to InvoiceItem.staffId falling back to Invoice.staffId)
+ * and the same per-line revenue share formula as
+ * `getStaffRevenueByInvoiceLine` (share = line.amount / subtotal * total),
+ * without calling or changing either function. Category is the Service's
+ * `category` text, matched case-insensitively against the tenant's
+ * ServiceCategory names and normalised to the stored name; lines whose
+ * service no longer exists or has no category fall under "Uncategorised".
+ * Single query set (no Promise.all) - the category list, then one invoice
+ * query, both scoped to this staff member and the optional range.
+ */
+export async function getStaffServiceCategoryBreakdown(
+  tenantId: string,
+  staffId: string,
+  range?: { gte: Date; lt: Date },
+): Promise<StaffCategoryBreakdown> {
+  const categories = await prisma.serviceCategory.findMany({
+    where: { tenantId },
+    select: { name: true },
+  });
+  const categoryByLowerName = new Map(categories.map((entry) => [entry.name.toLowerCase(), entry.name]));
+
+  const invoices = await prisma.invoice.findMany({
+    where: {
+      tenantId,
+      paymentStatus: { notIn: ["CANCELLED", "REFUNDED"] },
+      ...(range ? { invoiceDate: { gte: range.gte, lt: range.lt } } : {}),
+      OR: [
+        { staffId },
+        { items: { some: { staffId, serviceId: { not: null }, productId: null } } },
+      ],
+    },
+    select: {
+      staffId: true,
+      total: true,
+      items: {
+        select: {
+          staffId: true,
+          serviceId: true,
+          productId: true,
+          amount: true,
+          service: { select: { category: true } },
+        },
+      },
+    },
+  });
+
+  const byCategory = new Map<string, { count: number; revenue: number }>();
+
+  for (const invoice of invoices) {
+    const subtotal = invoice.items.reduce((sum, item) => sum + Number(item.amount), 0);
+    if (subtotal <= 0) {
+      continue;
+    }
+
+    const total = Number(invoice.total);
+
+    for (const item of invoice.items) {
+      if (!item.serviceId || item.productId) {
+        continue;
+      }
+
+      const attributedStaffId = item.staffId ?? invoice.staffId;
+      if (attributedStaffId !== staffId) {
+        continue;
+      }
+
+      const rawCategory = item.service?.category?.trim();
+      const category = rawCategory
+        ? categoryByLowerName.get(rawCategory.toLowerCase()) ?? rawCategory
+        : "Uncategorised";
+
+      const share = roundMoney((Number(item.amount) / subtotal) * total);
+      const entry = byCategory.get(category) ?? { count: 0, revenue: 0 };
+      entry.count += 1;
+      entry.revenue = roundMoney(entry.revenue + share);
+      byCategory.set(category, entry);
+    }
+  }
+
+  const entries = Array.from(byCategory.entries())
+    .map(([category, value]) => ({ category, count: value.count, revenue: value.revenue }))
+    .sort((a, b) => b.count - a.count);
+
+  const totalCount = entries.reduce((sum, entry) => sum + entry.count, 0);
+  const totalRevenue = roundMoney(entries.reduce((sum, entry) => sum + entry.revenue, 0));
+
+  return { entries, totalCount, totalRevenue };
+}

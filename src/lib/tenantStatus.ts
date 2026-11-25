@@ -1,3 +1,5 @@
+import { getTrialInfo } from "@/lib/subscription";
+
 export type TenantSalonStatus = "TRIAL" | "MONTHLY" | "YEARLY" | "EXPIRED" | "INACTIVE";
 
 type TenantForStatus = {
@@ -21,7 +23,9 @@ export function getTenantSalonStatus(tenant: TenantForStatus, now: Date = new Da
     return "EXPIRED";
   }
 
-  if (tenant.trialEndsAt && tenant.trialEndsAt >= now) {
+  // Shares getTrialInfo with the salon portal and super admin UI so this list's
+  // TRIAL/EXPIRED split never disagrees with the "days left" shown elsewhere.
+  if (tenant.trialEndsAt && !getTrialInfo(tenant, now).isExpired) {
     return "TRIAL";
   }
 

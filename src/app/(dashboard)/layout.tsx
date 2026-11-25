@@ -6,7 +6,7 @@ import { DashboardShell } from "@/components/dashboard/DashboardShell";
 import { AccessProvider } from "@/contexts/AccessContext";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getAccessStatus, getTrialStatus } from "@/lib/subscription";
+import { getAccessStatus, getDashboardBannerState } from "@/lib/subscription";
 
 type DashboardLayoutProps = {
   children: ReactNode;
@@ -56,8 +56,8 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
     redirect("/login");
   }
 
-  const trialStatus = getTrialStatus(tenant);
   const access = getAccessStatus(tenant);
+  const bannerState = getDashboardBannerState(tenant);
 
   const user = {
     name: session.user.name ?? "Salon User",
@@ -81,7 +81,7 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
       <DashboardShell
         tenantName={tenant.name}
         user={user}
-        initialTrialStatus={trialStatus}
+        initialBannerState={bannerState}
         initialAccessMessage={access.accessLevel === "READ_ONLY" ? access.message : null}
       >
         {children}

@@ -6,6 +6,7 @@ import { Download, LoaderCircle } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
+import { addDaysToDateString, formatISTDateDDMMYYYY, toISTDateString, todayISTDateString } from "@/lib/time";
 
 type Salon = {
   id: string;
@@ -37,9 +38,10 @@ const STATUS_BADGE_CLASSES: Record<string, string> = {
   INACTIVE: "bg-slate-100 text-slate-600",
 };
 
+/** "YYYY-MM-DD" (IST calendar date) for an `<input type="date">`, or "" when unset. */
 function toDateInput(value: string | null) {
   if (!value) return "";
-  return new Date(value).toISOString().slice(0, 10);
+  return toISTDateString(new Date(value));
 }
 
 export default function SalonsPage() {
@@ -92,15 +94,17 @@ export default function SalonsPage() {
   }
 
   function exportCsv() {
-    const header = ["Salon Name", "Owner", "Email", "Mobile", "Plan", "Status", "Joined"];
+    const header = ["Salon Name", "Owner", "Email", "Mobile", "Plan", "Trial Ends", "Plan End", "Status", "Joined"];
     const rows = salons.map((salon) => [
       salon.name,
       salon.ownerName,
       salon.ownerEmail,
       salon.ownerMobile,
       salon.plan,
+      salon.plan === "FREE_TRIAL" && salon.trialEndsAt ? formatISTDateDDMMYYYY(salon.trialEndsAt) : "-",
+      salon.plan !== "FREE_TRIAL" && salon.subscriptionEnd ? formatISTDateDDMMYYYY(salon.subscriptionEnd) : "-",
       salon.status,
-      new Date(salon.createdAt).toLocaleDateString("en-IN"),
+      formatISTDateDDMMYYYY(salon.createdAt),
     ]);
 
     const csv = [header, ...rows]
@@ -172,6 +176,7 @@ export default function SalonsPage() {
               <th className="px-4 py-3">Mobile</th>
               <th className="px-4 py-3">Plan</th>
               <th className="px-4 py-3">Trial Ends</th>
+              <th className="px-4 py-3">Plan End</th>
               <th className="px-4 py-3">Joined</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Actions</th>
@@ -180,13 +185,13 @@ export default function SalonsPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={9} className="py-10 text-center text-[var(--muted)]">
+                <td colSpan={10} className="py-10 text-center text-[var(--muted)]">
                   <LoaderCircle className="mx-auto h-5 w-5 animate-spin" />
                 </td>
               </tr>
             ) : salons.length === 0 ? (
               <tr>
-                <td colSpan={9} className="py-10 text-center text-[var(--muted)]">
+                <td colSpan={10} className="py-10 text-center text-[var(--muted)]">
                   No salons found.
                 </td>
               </tr>
@@ -199,10 +204,13 @@ export default function SalonsPage() {
                   <td className="px-4 py-3">{salon.ownerMobile}</td>
                   <td className="px-4 py-3">{salon.plan}</td>
                   <td className="px-4 py-3 text-[var(--muted)]">
-                    {salon.trialEndsAt ? new Date(salon.trialEndsAt).toLocaleDateString("en-IN") : "-"}
+                    {salon.plan === "FREE_TRIAL" && salon.trialEndsAt ? formatISTDateDDMMYYYY(salon.trialEndsAt) : "-"}
                   </td>
                   <td className="px-4 py-3 text-[var(--muted)]">
-                    {new Date(salon.createdAt).toLocaleDateString("en-IN")}
+                    {salon.plan !== "FREE_TRIAL" && salon.subscriptionEnd ? formatISTDateDDMMYYYY(salon.subscriptionEnd) : "-"}
+                  </td>
+                  <td className="px-4 py-3 text-[var(--muted)]">
+                    {formatISTDateDDMMYYYY(salon.createdAt)}
                   </td>
                   <td className="px-4 py-3">
                     <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_BADGE_CLASSES[salon.status] ?? "bg-slate-100 text-slate-600"}`}>
@@ -290,7 +298,17 @@ function ChangePlanModal({
 }) {
   const { showToast } = useToast();
   const [plan, setPlan] = useState(() => salon?.plan ?? "FREE_TRIAL");
-  const [subscriptionStart, setSubscriptionStart] = useState(() => toDateInput(salon?.subscriptionStart ?? null));
+  // Trial start has no persisted column (Tenant only stores trialEndsAt) — it always
+  // defaults to today's IST calendar date and exists purely to validate the end date.
+  const [trialStart, setTrialStart] = useState(() => todayISTDateString());
+  const [trialEnd, setTrialEnd] = useState(() =>
+    salon?.plan === "FREE_TRIAL" && salon.trialEndsAt
+      ? toDateInput(salon.trialEndsAt)
+      : addDaysToDateString(todayISTDateString(), 14),
+  );
+  const [subscriptionStart, setSubscriptionStart] = useState(
+    () => toDateInput(salon?.subscriptionStart ?? null) || todayISTDateString(),
+  );
   const [subscriptionEnd, setSubscriptionEnd] = useState(() => toDateInput(salon?.subscriptionEnd ?? null));
   const [saving, setSaving] = useState(false);
 
@@ -298,8 +316,22 @@ function ChangePlanModal({
     return null;
   }
 
+  const isTrialPlan = plan === "FREE_TRIAL";
+  const isPaidPlan = plan === "MONTHLY" || plan === "YEARLY";
+
   async function save() {
     if (!salon) return;
+
+    if (isTrialPlan && trialEnd < trialStart) {
+      showToast({ title: "Trial end date cannot be before the start date", variant: "error" });
+      return;
+    }
+
+    if (isPaidPlan && subscriptionEnd && subscriptionEnd < subscriptionStart) {
+      showToast({ title: "End date cannot be before the start date", variant: "error" });
+      return;
+    }
+
     setSaving(true);
     try {
       const response = await fetch(`/api/super-admin/salons/${salon.id}/plan`, {
@@ -307,13 +339,16 @@ function ChangePlanModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           plan,
-          subscriptionStart: subscriptionStart || null,
-          subscriptionEnd: subscriptionEnd || null,
+          trialStart: isTrialPlan ? trialStart : null,
+          trialEnd: isTrialPlan ? trialEnd : null,
+          subscriptionStart: isPaidPlan ? subscriptionStart : null,
+          subscriptionEnd: isPaidPlan ? subscriptionEnd || null : null,
         }),
       });
 
       if (!response.ok) {
-        showToast({ title: "Failed to update plan", variant: "error" });
+        const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+        showToast({ title: payload?.error ?? "Failed to update plan", variant: "error" });
         return;
       }
 
@@ -328,6 +363,11 @@ function ChangePlanModal({
   return (
     <Modal open={Boolean(salon)} onClose={onClose} title={`Change Plan – ${salon.name}`}>
       <div className="space-y-4">
+        <p className="-mt-2 text-xs text-[var(--muted)]">
+          {salon.plan === "FREE_TRIAL"
+            ? `Trial ends: ${salon.trialEndsAt ? formatISTDateDDMMYYYY(salon.trialEndsAt) : "-"}`
+            : `Plan ends: ${salon.subscriptionEnd ? formatISTDateDDMMYYYY(salon.subscriptionEnd) : "-"}`}
+        </p>
         <div>
           <label className="mb-1 block text-sm font-medium text-[var(--foreground)]">Plan</label>
           <select
@@ -341,26 +381,49 @@ function ChangePlanModal({
             <option value="FREE">Free</option>
           </select>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-[var(--foreground)]">Start Date</label>
-            <input
-              type="date"
-              value={subscriptionStart}
-              onChange={(event) => setSubscriptionStart(event.target.value)}
-              className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
-            />
+        {isTrialPlan ? (
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-[var(--foreground)]">Start Date</label>
+              <input
+                type="date"
+                value={trialStart}
+                onChange={(event) => setTrialStart(event.target.value)}
+                className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-[var(--foreground)]">End Date</label>
+              <input
+                type="date"
+                value={trialEnd}
+                onChange={(event) => setTrialEnd(event.target.value)}
+                className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+              />
+            </div>
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-[var(--foreground)]">End Date</label>
-            <input
-              type="date"
-              value={subscriptionEnd}
-              onChange={(event) => setSubscriptionEnd(event.target.value)}
-              className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
-            />
+        ) : isPaidPlan ? (
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-[var(--foreground)]">Start Date</label>
+              <input
+                type="date"
+                value={subscriptionStart}
+                onChange={(event) => setSubscriptionStart(event.target.value)}
+                className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-[var(--foreground)]">End Date</label>
+              <input
+                type="date"
+                value={subscriptionEnd}
+                onChange={(event) => setSubscriptionEnd(event.target.value)}
+                className="h-10 w-full rounded-xl border border-[var(--border)] px-3 text-sm outline-none focus:border-[var(--accent)]"
+              />
+            </div>
           </div>
-        </div>
+        ) : null}
         <button
           type="button"
           disabled={saving}

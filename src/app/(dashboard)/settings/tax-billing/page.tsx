@@ -35,7 +35,7 @@ type TaxBillingForm = {
 const defaults: TaxBillingForm = {
   gstNumber: "",
   gstEnabled: true,
-  gstRate: 18,
+  gstRate: 5,
   invoicePrefix: DEFAULT_INVOICE_PREFIX,
   invoiceNumberFormat: "INV-YYYY-XXXX",
   invoiceStartNumber: 1,
@@ -55,6 +55,8 @@ const defaults: TaxBillingForm = {
 export default function TaxBillingPage() {
   const { showToast } = useToast();
   const [form, setForm] = useState<TaxBillingForm>(defaults);
+  const [gstRateInput, setGstRateInput] = useState<string>(String(defaults.gstRate));
+  const [gstRateError, setGstRateError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [nextInvoiceNumber, setNextInvoiceNumber] = useState<string | null>(null);
@@ -77,6 +79,9 @@ export default function TaxBillingPage() {
       }
 
       setForm(payload.taxBilling);
+      // A salon with no saved rate falls back to 5 before this point (see
+      // the settings GET route), so the box always shows a number here.
+      setGstRateInput(String(payload.taxBilling.gstRate));
       setLoading(false);
     }
 
@@ -122,7 +127,36 @@ export default function TaxBillingPage() {
   const cgst = useMemo(() => Number((form.gstRate / 2).toFixed(2)), [form.gstRate]);
   const sgst = useMemo(() => Number((form.gstRate / 2).toFixed(2)), [form.gstRate]);
 
+  function handleGstRateChange(raw: string) {
+    setGstRateInput(raw);
+
+    const trimmed = raw.trim();
+    if (trimmed === "") {
+      setGstRateError("GST rate is required.");
+      return;
+    }
+
+    if (!/^\d{1,3}(\.\d{1,2})?$/.test(trimmed)) {
+      setGstRateError("Enter a number from 0 to 100 with up to 2 decimal places.");
+      return;
+    }
+
+    const value = Number(trimmed);
+    if (Number.isNaN(value) || value < 0 || value > 100) {
+      setGstRateError("GST rate must be between 0 and 100.");
+      return;
+    }
+
+    setGstRateError(null);
+    setForm((current) => ({ ...current, gstRate: value }));
+  }
+
   async function onSave() {
+    if (gstRateError) {
+      showToast({ variant: "error", title: "Fix the GST rate before saving", message: gstRateError });
+      return;
+    }
+
     setSaving(true);
 
     const response = await fetch("/api/settings/tax-billing", {
@@ -165,7 +199,28 @@ export default function TaxBillingPage() {
             <input type="checkbox" checked={form.gstEnabled} onChange={(event) => setForm((current) => ({ ...current, gstEnabled: event.target.checked }))} />
             Enable GST
           </label>
-          <NumberField label="GST Rate (%)" value={form.gstRate} onChange={(value) => setForm((current) => ({ ...current, gstRate: value }))} />
+          <div>
+            <label className="block text-sm">
+              <span className="text-[var(--muted)]">GST Rate (%)</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={gstRateInput}
+                onChange={(event) => handleGstRateChange(event.target.value)}
+                className={[
+                  "mt-1 h-10 w-full rounded-xl border px-3",
+                  gstRateError ? "border-red-400" : "border-[var(--border)]",
+                ].join(" ")}
+              />
+            </label>
+            {gstRateError ? (
+              <p className="mt-1 text-xs text-red-600">{gstRateError}</p>
+            ) : (
+              <p className="mt-1 text-xs text-[var(--muted)]">
+                {cgst}% CGST + {sgst}% SGST
+              </p>
+            )}
+          </div>
           <div className="grid grid-cols-2 gap-3">
             <NumberField label="CGST" value={cgst} onChange={() => undefined} disabled />
             <NumberField label="SGST" value={sgst} onChange={() => undefined} disabled />

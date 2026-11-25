@@ -12,6 +12,7 @@
     "lint": "eslint",
     "test:time": "tsx --test src/lib/time.test.ts",
     "test:payroll": "tsx --test src/lib/payrollProration.test.ts",
+    "test:trial": "tsx --test src/lib/subscription.test.ts",
     "test:export": "tsx scripts/test-export-excel.ts"
   },
   "dependencies": {
